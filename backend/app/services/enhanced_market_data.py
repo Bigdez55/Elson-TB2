@@ -87,10 +87,7 @@ class EnhancedMarketDataProvider:
     def is_circuit_open(self) -> bool:
         """Check if circuit breaker is open."""
         if self.error_count >= self.circuit_breaker_threshold:
-            if (
-                time.time() - self.last_request_time
-                < self.circuit_breaker_timeout
-            ):
+            if time.time() - self.last_request_time < self.circuit_breaker_timeout:
                 return True
             else:
                 # Reset circuit breaker after timeout
@@ -109,9 +106,7 @@ class EnhancedMarketDataProvider:
         """Get real-time quote."""
         raise NotImplementedError
 
-    async def get_historical_data(
-        self, symbol: str, period: str = "1mo"
-    ) -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
         """Get historical data."""
         raise NotImplementedError
 
@@ -150,13 +145,9 @@ class YFinanceProvider(EnhancedMarketDataProvider):
                             quote_data = {
                                 "symbol": symbol,
                                 "price": meta.get("regularMarketPrice", 0),
-                                "change": meta.get("regularMarketPrice", 0)
-                                - meta.get("previousClose", 0),
+                                "change": meta.get("regularMarketPrice", 0) - meta.get("previousClose", 0),
                                 "change_percent": (
-                                    (
-                                        meta.get("regularMarketPrice", 0)
-                                        - meta.get("previousClose", 1)
-                                    )
+                                    (meta.get("regularMarketPrice", 0) - meta.get("previousClose", 1))
                                     / meta.get("previousClose", 1)
                                     * 100
                                 ),
@@ -177,9 +168,7 @@ class YFinanceProvider(EnhancedMarketDataProvider):
             self.record_error()
             return None
 
-    async def get_historical_data(
-        self, symbol: str, period: str = "1mo"
-    ) -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
         """Get historical data from Yahoo Finance."""
         if self.is_circuit_open():
             return None
@@ -217,18 +206,12 @@ class YFinanceProvider(EnhancedMarketDataProvider):
                             for i, timestamp in enumerate(timestamps):
                                 historical_data.append(
                                     {
-                                        "timestamp": datetime.fromtimestamp(
-                                            timestamp
-                                        ).isoformat(),
+                                        "timestamp": datetime.fromtimestamp(timestamp).isoformat(),
                                         "open": quotes.get("open", [None])[i],
                                         "high": quotes.get("high", [None])[i],
                                         "low": quotes.get("low", [None])[i],
-                                        "close": quotes.get("close", [None])[
-                                            i
-                                        ],
-                                        "volume": quotes.get("volume", [None])[
-                                            i
-                                        ],
+                                        "close": quotes.get("close", [None])[i],
+                                        "volume": quotes.get("volume", [None])[i],
                                     }
                                 )
 
@@ -239,9 +222,7 @@ class YFinanceProvider(EnhancedMarketDataProvider):
             return None
 
         except Exception as e:
-            logger.error(
-                f"YFinance historical data error for {symbol}", error=str(e)
-            )
+            logger.error(f"YFinance historical data error for {symbol}", error=str(e))
             self.record_error()
             return None
 
@@ -270,9 +251,7 @@ class AlphaVantageProviderEnhanced(EnhancedMarketDataProvider):
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    self.base_url, params=params
-                ) as response:
+                async with session.get(self.base_url, params=params) as response:
                     if response.status == 200:
                         data = await response.json()
                         quote = data.get("Global Quote", {})
@@ -282,11 +261,7 @@ class AlphaVantageProviderEnhanced(EnhancedMarketDataProvider):
                                 "symbol": symbol,
                                 "price": float(quote.get("05. price", 0)),
                                 "change": float(quote.get("09. change", 0)),
-                                "change_percent": float(
-                                    quote.get(
-                                        "10. change percent", "0%"
-                                    ).rstrip("%")
-                                ),
+                                "change_percent": float(quote.get("10. change percent", "0%").rstrip("%")),
                                 "volume": int(quote.get("06. volume", 0)),
                                 "timestamp": datetime.utcnow().isoformat(),
                                 "provider": self.name,
@@ -298,9 +273,7 @@ class AlphaVantageProviderEnhanced(EnhancedMarketDataProvider):
             return None
 
         except Exception as e:
-            logger.error(
-                f"AlphaVantage quote error for {symbol}", error=str(e)
-            )
+            logger.error(f"AlphaVantage quote error for {symbol}", error=str(e))
             self.record_error()
             return None
 
@@ -350,9 +323,7 @@ class EnhancedMarketDataService:
                     if i != self.primary_provider:
                         logger.info(
                             f"Switching primary provider to {provider.name}",
-                            old_provider=self.providers[
-                                self.primary_provider
-                            ].name,
+                            old_provider=self.providers[self.primary_provider].name,
                             new_provider=provider.name,
                         )
                         self.primary_provider = i
@@ -369,9 +340,7 @@ class EnhancedMarketDataService:
         logger.error(f"All providers failed for quote {symbol}")
         return None
 
-    async def get_historical_data(
-        self, symbol: str, period: str = "1mo"
-    ) -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
         """
         Get historical data with caching and failover.
 
@@ -410,9 +379,7 @@ class EnhancedMarketDataService:
         logger.error(f"All providers failed for historical data {symbol}")
         return None
 
-    async def get_multiple_quotes(
-        self, symbols: List[str]
-    ) -> Dict[str, Optional[Dict[str, Any]]]:
+    async def get_multiple_quotes(self, symbols: List[str]) -> Dict[str, Optional[Dict[str, Any]]]:
         """
         Get quotes for multiple symbols efficiently.
 
@@ -427,19 +394,15 @@ class EnhancedMarketDataService:
         # Process in batches to avoid overwhelming providers
         batch_size = 5
         for i in range(0, len(symbols), batch_size):
-            batch = symbols[i : i + batch_size]
+            batch = symbols[i:i + batch_size]
 
             # Get quotes concurrently for this batch
             tasks = [self.get_quote(symbol) for symbol in batch]
-            batch_results = await asyncio.gather(
-                *tasks, return_exceptions=True
-            )
+            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
             for symbol, result in zip(batch, batch_results):
                 if isinstance(result, Exception):
-                    logger.error(
-                        f"Error getting quote for {symbol}", error=str(result)
-                    )
+                    logger.error(f"Error getting quote for {symbol}", error=str(result))
                     results[symbol] = None
                 else:
                     results[symbol] = result
@@ -554,11 +517,7 @@ class EnhancedMarketDataService:
             )
 
         # Overall status based on provider health
-        healthy_providers = sum(
-            1
-            for p in health_status["providers"]
-            if p["status"] in ["healthy", "degraded"]
-        )
+        healthy_providers = sum(1 for p in health_status["providers"] if p["status"] in ["healthy", "degraded"])
 
         if healthy_providers == 0:
             health_status["overall_status"] = "critical"

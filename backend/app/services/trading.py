@@ -6,13 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.portfolio import Holding, Portfolio
-from app.models.trade import (
-    OrderType,
-    Trade,
-    TradeExecution,
-    TradeStatus,
-    TradeType,
-)
+from app.models.trade import OrderType, Trade, TradeExecution, TradeStatus, TradeType
 from app.models.user import User
 from app.services.market_data import market_data_service
 
@@ -29,9 +23,7 @@ class TradingService:
         self.max_position_size = 0.1  # Max 10% of portfolio per position
         self.max_daily_loss = 0.05  # Max 5% daily loss
 
-    async def validate_trade(
-        self, trade_data: Dict[str, Any], portfolio: Portfolio
-    ) -> Dict[str, Any]:
+    async def validate_trade(self, trade_data: Dict[str, Any], portfolio: Portfolio) -> Dict[str, Any]:
         """Validate trade before execution"""
         errors = []
 
@@ -54,9 +46,7 @@ class TradingService:
         # Get current market price for validation
         quote = await market_data_service.get_quote(trade_data["symbol"])
         if not quote:
-            errors.append(
-                f"Unable to get market data for {trade_data['symbol']}"
-            )
+            errors.append(f"Unable to get market data for {trade_data['symbol']}")
             return {"valid": False, "errors": errors}
 
         current_price = quote["price"]
@@ -64,11 +54,7 @@ class TradingService:
         # Position size validation
         if trade_data["trade_type"] == TradeType.BUY:
             estimated_cost = trade_data["quantity"] * current_price
-            position_percentage = (
-                estimated_cost / portfolio.total_value
-                if portfolio.total_value > 0
-                else 1
-            )
+            position_percentage = estimated_cost / portfolio.total_value if portfolio.total_value > 0 else 1
 
             if position_percentage > self.max_position_size:
                 errors.append(
@@ -86,9 +72,7 @@ class TradingService:
                 # Check if limit price is reasonable (within 20% of
                 # current price)
                 if abs(limit_price - current_price) / current_price > 0.2:
-                    errors.append(
-                        "Limit price is too far from current market price"
-                    )
+                    errors.append("Limit price is too far from current market price")
 
         return {
             "valid": len(errors) == 0,
@@ -97,17 +81,11 @@ class TradingService:
             "estimated_cost": trade_data["quantity"] * current_price,
         }
 
-    async def place_order(
-        self, trade_data: Dict[str, Any], user: User, db: Session
-    ) -> Trade:
+    async def place_order(self, trade_data: Dict[str, Any], user: User, db: Session) -> Trade:
         """Place a trade order"""
 
         # Get user's portfolio
-        portfolio = (
-            db.query(Portfolio)
-            .filter(Portfolio.owner_id == user.id, Portfolio.is_active)
-            .first()
-        )
+        portfolio = db.query(Portfolio).filter(Portfolio.owner_id == user.id, Portfolio.is_active).first()
 
         if not portfolio:
             raise ValueError("No active portfolio found")
@@ -115,9 +93,7 @@ class TradingService:
         # Validate trade
         validation = await self.validate_trade(trade_data, portfolio)
         if not validation["valid"]:
-            raise ValueError(
-                f"Trade validation failed: {', '.join(validation['errors'])}"
-            )
+            raise ValueError(f"Trade validation failed: {', '.join(validation['errors'])}")
 
         # Create trade record
         trade = Trade(
@@ -140,9 +116,7 @@ class TradingService:
 
         # Execute the trade
         if trade_data["order_type"] == OrderType.MARKET:
-            await self._execute_market_order(
-                trade, validation["current_price"], db
-            )
+            await self._execute_market_order(trade, validation["current_price"], db)
         else:
             # For limit orders, just mark as pending
             trade.status = TradeStatus.PENDING
@@ -150,17 +124,13 @@ class TradingService:
 
         return trade
 
-    async def _execute_market_order(
-        self, trade: Trade, current_price: float, db: Session
-    ):
+    async def _execute_market_order(self, trade: Trade, current_price: float, db: Session):
         """Execute a market order immediately"""
         try:
             # Simulate execution with small random variation
             import random
 
-            execution_price = current_price * (
-                1 + random.uniform(-0.001, 0.001)
-            )  # ±0.1% variation
+            execution_price = current_price * (1 + random.uniform(-0.001, 0.001))  # ±0.1% variation
 
             # Create execution record
             execution = TradeExecution(
@@ -168,9 +138,7 @@ class TradingService:
                 executed_quantity=trade.quantity,
                 executed_price=execution_price,
                 execution_time=datetime.utcnow(),
-                execution_id=(
-                    f"PAPER_{trade.id}_{datetime.utcnow().timestamp()}"
-                ),
+                execution_id=(f"PAPER_{trade.id}_{datetime.utcnow().timestamp()}"),
             )
 
             # Update trade
@@ -187,8 +155,7 @@ class TradingService:
             await self._update_portfolio_holdings(trade, db)
 
             logger.info(
-                f"Executed paper trade: {trade.trade_type} {trade.quantity} "
-                f"{trade.symbol} @ ${execution_price:.2f}"
+                f"Executed paper trade: {trade.trade_type} {trade.quantity} " f"{trade.symbol} @ ${execution_price:.2f}"
             )
 
         except Exception as e:
@@ -200,11 +167,7 @@ class TradingService:
 
     async def _update_portfolio_holdings(self, trade: Trade, db: Session):
         """Update portfolio holdings after trade execution"""
-        portfolio = (
-            db.query(Portfolio)
-            .filter(Portfolio.id == trade.portfolio_id)
-            .first()
-        )
+        portfolio = db.query(Portfolio).filter(Portfolio.id == trade.portfolio_id).first()
 
         # Find or create holding
         holding = None
@@ -216,9 +179,7 @@ class TradingService:
         if trade.trade_type == TradeType.BUY:
             if holding:
                 # Update existing holding
-                total_cost = (
-                    holding.quantity * holding.average_cost
-                ) + trade.total_cost
+                total_cost = (holding.quantity * holding.average_cost) + trade.total_cost
                 holding.quantity += trade.quantity
                 holding.average_cost = total_cost / holding.quantity
             else:
@@ -245,9 +206,7 @@ class TradingService:
 
         db.commit()
 
-    async def _update_portfolio_totals(
-        self, portfolio: Portfolio, db: Session
-    ):
+    async def _update_portfolio_totals(self, portfolio: Portfolio, db: Session):
         """Update portfolio total values"""
         total_value = 0.0
         total_invested = 0.0
@@ -258,13 +217,9 @@ class TradingService:
             if quote:
                 holding.current_price = quote["price"]
                 holding.market_value = holding.quantity * holding.current_price
-                holding.unrealized_gain_loss = holding.market_value - (
-                    holding.quantity * holding.average_cost
-                )
+                holding.unrealized_gain_loss = holding.market_value - (holding.quantity * holding.average_cost)
                 holding.unrealized_gain_loss_percentage = (
-                    holding.unrealized_gain_loss
-                    / (holding.quantity * holding.average_cost)
-                    * 100
+                    holding.unrealized_gain_loss / (holding.quantity * holding.average_cost) * 100
                     if holding.average_cost > 0
                     else 0
                 )
@@ -275,17 +230,11 @@ class TradingService:
         portfolio.total_value = total_value + portfolio.cash_balance
         portfolio.invested_amount = total_invested
         portfolio.total_return = total_value - total_invested
-        portfolio.total_return_percentage = (
-            portfolio.total_return / total_invested * 100
-            if total_invested > 0
-            else 0
-        )
+        portfolio.total_return_percentage = portfolio.total_return / total_invested * 100 if total_invested > 0 else 0
 
         db.commit()
 
-    async def cancel_order(
-        self, trade_id: int, user: User, db: Session
-    ) -> Trade:
+    async def cancel_order(self, trade_id: int, user: User, db: Session) -> Trade:
         """Cancel a pending order"""
         trade = (
             db.query(Trade)
@@ -308,9 +257,7 @@ class TradingService:
         logger.info(f"Cancelled order {trade_id}")
         return trade
 
-    async def get_trade_history(
-        self, user: User, db: Session, limit: int = 100
-    ) -> List[Trade]:
+    async def get_trade_history(self, user: User, db: Session, limit: int = 100) -> List[Trade]:
         """Get user's trade history"""
         trades = (
             db.query(Trade)
@@ -330,9 +277,7 @@ class TradingService:
             .join(Portfolio)
             .filter(
                 Portfolio.owner_id == user.id,
-                Trade.status.in_(
-                    [TradeStatus.PENDING, TradeStatus.PARTIALLY_FILLED]
-                ),
+                Trade.status.in_([TradeStatus.PENDING, TradeStatus.PARTIALLY_FILLED]),
             )
             .order_by(Trade.created_at.desc())
             .all()

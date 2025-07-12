@@ -191,4 +191,7 @@ export const portfolioAPI = {
   },
 };
 
+// Export advanced trading API
+export { advancedTradingAPI } from './advancedTradingAPI';
+
 export default api;

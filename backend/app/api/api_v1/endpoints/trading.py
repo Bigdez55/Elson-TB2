@@ -33,9 +33,7 @@ async def place_order(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to place order: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to place order: {str(e)}")
 
 
 @router.post("/cancel", response_model=TradeResponse)
@@ -46,16 +44,12 @@ async def cancel_order(
 ):
     """Cancel a pending order"""
     try:
-        trade = await trading_service.cancel_order(
-            cancel_request.trade_id, current_user, db
-        )
+        trade = await trading_service.cancel_order(cancel_request.trade_id, current_user, db)
         return TradeResponse.from_orm(trade)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to cancel order: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to cancel order: {str(e)}")
 
 
 @router.get("/orders", response_model=List[TradeResponse])
@@ -68,9 +62,7 @@ async def get_open_orders(
         orders = await trading_service.get_open_orders(current_user, db)
         return [TradeResponse.from_orm(order) for order in orders]
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get orders: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get orders: {str(e)}")
 
 
 @router.get("/history", response_model=List[TradeResponse])
@@ -82,9 +74,7 @@ async def get_trade_history(
 ):
     """Get trade history"""
     try:
-        trades = await trading_service.get_trade_history(
-            current_user, db, limit
-        )
+        trades = await trading_service.get_trade_history(current_user, db, limit)
 
         # Filter by status if provided
         if status:
@@ -92,9 +82,7 @@ async def get_trade_history(
 
         return [TradeResponse.from_orm(trade) for trade in trades]
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get trade history: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get trade history: {str(e)}")
 
 
 @router.get("/positions", response_model=List[PositionResponse])
@@ -107,20 +95,14 @@ async def get_positions(
         from app.models.portfolio import Portfolio
 
         # Get user's active portfolio
-        portfolio = (
-            db.query(Portfolio)
-            .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
-            .first()
-        )
+        portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
 
         if not portfolio:
             return []
 
         positions = []
         for holding in portfolio.holdings:
-            if (
-                holding.quantity > 0
-            ):  # Only show positions with positive quantity
+            if holding.quantity > 0:  # Only show positions with positive quantity
                 positions.append(
                     PositionResponse(
                         symbol=holding.symbol,
@@ -129,18 +111,14 @@ async def get_positions(
                         current_price=holding.current_price,
                         market_value=holding.market_value,
                         unrealized_gain_loss=holding.unrealized_gain_loss,
-                        unrealized_gain_loss_percentage=(
-                            holding.unrealized_gain_loss_percentage
-                        ),
+                        unrealized_gain_loss_percentage=(holding.unrealized_gain_loss_percentage),
                         asset_type=holding.asset_type,
                     )
                 )
 
         return positions
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get positions: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get positions: {str(e)}")
 
 
 @router.get("/stats", response_model=TradingStatsResponse)
@@ -178,9 +156,7 @@ async def get_trading_stats(
 
         # Calculate statistics
         total_trades = len(trades)
-        total_commission = sum(
-            trade.commission + trade.fees for trade in trades
-        )
+        total_commission = sum(trade.commission + trade.fees for trade in trades)
 
         # Group trades by symbol to calculate P&L
         profit_losses = []
@@ -221,15 +197,11 @@ async def get_trading_stats(
             total_commission=total_commission,
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get trading stats: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get trading stats: {str(e)}")
 
 
 @router.get("/validate/{symbol}")
-async def validate_symbol(
-    symbol: str, current_user: User = Depends(get_current_active_user)
-):
+async def validate_symbol(symbol: str, current_user: User = Depends(get_current_active_user)):
     """Validate if a symbol is tradeable"""
     try:
         from app.services.market_data import market_data_service
@@ -252,6 +224,4 @@ async def validate_symbol(
                 "error": "Symbol not found or market data unavailable",
             }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to validate symbol: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to validate symbol: {str(e)}")

@@ -15,18 +15,14 @@ logger = structlog.get_logger()
 def create_application() -> FastAPI:
     application = FastAPI(
         title="Elson Personal Trading Platform",
-        description=(
-            "AI-driven personal trading and portfolio management platform"
-        ),
+        description=("AI-driven personal trading and portfolio management platform"),
         version="1.0.0",
         docs_url="/docs" if settings.ENVIRONMENT == "development" else None,
         redoc_url="/redoc" if settings.ENVIRONMENT == "development" else None,
     )
 
     # Security middleware
-    application.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS
-    )
+    application.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
     # CORS middleware
     application.add_middleware(

@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import TradingPage from './pages/TradingPage';
 import PortfolioPage from './pages/PortfolioPage';
+import AdvancedTradingPage from './pages/AdvancedTradingPage';
 import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="trading" element={<TradingPage />} />
+          <Route path="advanced-trading" element={<AdvancedTradingPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
         </Route>
         

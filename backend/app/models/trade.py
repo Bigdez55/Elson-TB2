@@ -1,4 +1,5 @@
 import enum
+import uuid
 
 from sqlalchemy import (
     Boolean,
@@ -22,6 +23,10 @@ class TradeType(str, enum.Enum):
     SELL = "sell"
 
 
+# Alias for compatibility with TradeExecutor
+OrderSide = TradeType
+
+
 class TradeStatus(str, enum.Enum):
     PENDING = "pending"
     FILLED = "filled"
@@ -30,9 +35,14 @@ class TradeStatus(str, enum.Enum):
     REJECTED = "rejected"
 
 
+# Alias for compatibility with TradeExecutor
+OrderStatus = TradeStatus
+
+
 class OrderType(str, enum.Enum):
     MARKET = "market"
     LIMIT = "limit"
+    STOP = "stop"
     STOP_LOSS = "stop_loss"
     STOP_LIMIT = "stop_limit"
 
@@ -40,11 +50,12 @@ class OrderType(str, enum.Enum):
 class Trade(Base):
     __tablename__ = "trades"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
 
     # Basic trade information
     symbol = Column(String(20), nullable=False, index=True)
-    trade_type = Column(Enum(TradeType), nullable=False)
+    trade_type = Column(Enum(TradeType), nullable=False)  # For backward compatibility
+    side = Column(Enum(TradeType), nullable=False)  # TradeExecutor expects 'side'
     order_type = Column(Enum(OrderType), nullable=False)
 
     # Quantities and prices
@@ -60,6 +71,7 @@ class Trade(Base):
     # Status and tracking
     status = Column(Enum(TradeStatus), default=TradeStatus.PENDING)
     broker_order_id = Column(String(255), nullable=True, index=True)
+    external_order_id = Column(String(255), nullable=True, index=True)  # TradeExecutor expects this
 
     # Financial calculations
     total_cost = Column(Float, nullable=True)  # Total cost including fees
@@ -67,13 +79,12 @@ class Trade(Base):
     fees = Column(Float, default=0.0)
 
     # Strategy and reasoning
-    strategy = Column(
-        String(100), nullable=True
-    )  # AI recommendation, manual, etc.
+    strategy = Column(String(100), nullable=True)
     notes = Column(Text, nullable=True)
 
     # Risk management
-    is_paper_trade = Column(Boolean, default=True)  # Safety first
+    is_paper_trade = Column(Boolean, default=True)
+    parent_order_id = Column(String(36), nullable=True)  # For stop loss/take profit orders
 
     # Relationships
     portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False)
@@ -82,9 +93,19 @@ class Trade(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     executed_at = Column(DateTime(timezone=True), nullable=True)
+    filled_at = Column(DateTime(timezone=True), nullable=True)  # TradeExecutor expects this
 
     # Relationships
     portfolio = relationship("Portfolio", back_populates="trades")
+
+    def __init__(self, **kwargs):
+        """Initialize Trade with proper defaults for TradeExecutor compatibility"""
+        super().__init__(**kwargs)
+        # Ensure side is set from trade_type if not provided
+        if hasattr(self, "trade_type") and not hasattr(self, "side"):
+            self.side = self.trade_type
+        elif hasattr(self, "side") and not hasattr(self, "trade_type"):
+            self.trade_type = self.side
 
 
 class TradeExecution(Base):

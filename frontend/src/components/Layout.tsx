@@ -16,6 +16,7 @@ const Layout: React.FC = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/trading', label: 'Trading', icon: '💰' },
+    { path: '/advanced-trading', label: 'Advanced Trading', icon: '🤖' },
     { path: '/portfolio', label: 'Portfolio', icon: '💼' },
   ];
 

@@ -45,11 +45,11 @@ export const fetchMultipleQuotes = createAsyncThunk(
 
 export const fetchAssets = createAsyncThunk(
   'marketData/fetchAssets',
-  async (params?: {
+  async (params: {
     asset_type?: string;
     sector?: string;
     limit?: number;
-  }, { rejectWithValue }) => {
+  } = {}, { rejectWithValue }) => {
     try {
       const assets = await marketDataAPI.getAssets(params);
       return assets;

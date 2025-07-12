@@ -10,15 +10,11 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Security
-    SECRET_KEY: str = os.getenv(
-        "SECRET_KEY", "your-secret-key-change-in-production"
-    )
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
     # Database
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL", "sqlite:///./elson_trading.db"
-    )
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./elson_trading.db")
 
     # CORS
     ALLOWED_HOSTS: List[str] = ["*"]
@@ -34,9 +30,7 @@ class Settings(BaseSettings):
     POLYGON_API_KEY: Optional[str] = os.getenv("POLYGON_API_KEY")
     ALPACA_API_KEY: Optional[str] = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY: Optional[str] = os.getenv("ALPACA_SECRET_KEY")
-    ALPACA_BASE_URL: str = os.getenv(
-        "ALPACA_BASE_URL", "https://paper-api.alpaca.markets"
-    )
+    ALPACA_BASE_URL: str = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
 
     # Redis (for caching)
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", "redis://localhost:6379")

@@ -32,9 +32,7 @@ class MarketDataProvider:
         """Get real-time quote for a symbol"""
         raise NotImplementedError
 
-    async def get_historical_data(
-        self, symbol: str, timeframe: str = "1day", limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    async def get_historical_data(self, symbol: str, timeframe: str = "1day", limit: int = 100) -> List[Dict[str, Any]]:
         """Get historical market data"""
         raise NotImplementedError
 
@@ -46,9 +44,7 @@ class AlphaVantageProvider(MarketDataProvider):
         super().__init__()
         self.api_key = settings.ALPHA_VANTAGE_API_KEY
         self.base_url = "https://www.alphavantage.co/query"
-        self.rate_limit_delay = (
-            12.0  # Alpha Vantage free tier: 5 calls per minute
-        )
+        self.rate_limit_delay = 12.0  # Alpha Vantage free tier: 5 calls per minute
 
     async def get_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
         """Get real-time quote from Alpha Vantage"""
@@ -66,17 +62,13 @@ class AlphaVantageProvider(MarketDataProvider):
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    self.base_url, params=params
-                ) as response:
+                async with session.get(self.base_url, params=params) as response:
                     if response.status == 200:
                         data = await response.json()
 
                         # Check for API limit
                         if "Note" in data:
-                            logger.warning(
-                                f"Alpha Vantage rate limit hit: {data['Note']}"
-                            )
+                            logger.warning(f"Alpha Vantage rate limit hit: {data['Note']}")
                             return None
 
                         quote_data = data.get("Global Quote", {})
@@ -88,33 +80,21 @@ class AlphaVantageProvider(MarketDataProvider):
                                 "low": float(quote_data.get("04. low", 0)),
                                 "price": float(quote_data.get("05. price", 0)),
                                 "volume": int(quote_data.get("06. volume", 0)),
-                                "latest_trading_day": quote_data.get(
-                                    "07. latest trading day"
-                                ),
-                                "previous_close": float(
-                                    quote_data.get("08. previous close", 0)
-                                ),
-                                "change": float(
-                                    quote_data.get("09. change", 0)
-                                ),
-                                "change_percent": quote_data.get(
-                                    "10. change percent", "0%"
-                                ).rstrip("%"),
+                                "latest_trading_day": quote_data.get("07. latest trading day"),
+                                "previous_close": float(quote_data.get("08. previous close", 0)),
+                                "change": float(quote_data.get("09. change", 0)),
+                                "change_percent": quote_data.get("10. change percent", "0%").rstrip("%"),
                                 "source": "alpha_vantage",
                             }
                     else:
-                        logger.error(
-                            f"Alpha Vantage API error: {response.status}"
-                        )
+                        logger.error(f"Alpha Vantage API error: {response.status}")
 
         except Exception as e:
             logger.error(f"Error fetching quote from Alpha Vantage: {str(e)}")
 
         return None
 
-    async def get_historical_data(
-        self, symbol: str, timeframe: str = "1day", limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    async def get_historical_data(self, symbol: str, timeframe: str = "1day", limit: int = 100) -> List[Dict[str, Any]]:
         """Get historical data from Alpha Vantage"""
         if not self.api_key:
             return []
@@ -144,9 +124,7 @@ class AlphaVantageProvider(MarketDataProvider):
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    self.base_url, params=params
-                ) as response:
+                async with session.get(self.base_url, params=params) as response:
                     if response.status == 200:
                         data = await response.json()
 
@@ -161,25 +139,15 @@ class AlphaVantageProvider(MarketDataProvider):
                             time_series = data[time_series_key]
                             historical_data = []
 
-                            for timestamp, values in list(time_series.items())[
-                                :limit
-                            ]:
+                            for timestamp, values in list(time_series.items())[:limit]:
                                 historical_data.append(
                                     {
                                         "timestamp": timestamp,
-                                        "open": float(
-                                            values.get("1. open", 0)
-                                        ),
-                                        "high": float(
-                                            values.get("2. high", 0)
-                                        ),
+                                        "open": float(values.get("1. open", 0)),
+                                        "high": float(values.get("2. high", 0)),
                                         "low": float(values.get("3. low", 0)),
-                                        "close": float(
-                                            values.get("4. close", 0)
-                                        ),
-                                        "volume": int(
-                                            values.get("5. volume", 0)
-                                        ),
+                                        "close": float(values.get("4. close", 0)),
+                                        "volume": int(values.get("5. volume", 0)),
                                         "source": "alpha_vantage",
                                     }
                                 )
@@ -187,9 +155,7 @@ class AlphaVantageProvider(MarketDataProvider):
                             return historical_data
 
         except Exception as e:
-            logger.error(
-                f"Error fetching historical data from Alpha Vantage: {str(e)}"
-            )
+            logger.error(f"Error fetching historical data from Alpha Vantage: {str(e)}")
 
         return []
 
@@ -268,17 +234,13 @@ class MarketDataService:
                     self.cache[cache_key] = (quote, time.time())
                     return quote
             except Exception as e:
-                logger.error(
-                    f"Provider {provider.__class__.__name__} failed: {str(e)}"
-                )
+                logger.error(f"Provider {provider.__class__.__name__} failed: {str(e)}")
                 continue
 
         logger.error(f"All providers failed for symbol {symbol}")
         return None
 
-    async def get_multiple_quotes(
-        self, symbols: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+    async def get_multiple_quotes(self, symbols: List[str]) -> Dict[str, Dict[str, Any]]:
         """Get quotes for multiple symbols"""
         quotes = {}
         tasks = []
@@ -297,9 +259,7 @@ class MarketDataService:
 
         return quotes
 
-    async def save_market_data(
-        self, symbol: str, quote_data: Dict[str, Any], db: Session
-    ):
+    async def save_market_data(self, symbol: str, quote_data: Dict[str, Any], db: Session):
         """Save market data to database"""
         try:
             market_data = MarketData(
@@ -311,9 +271,7 @@ class MarketDataService:
                 volume=quote_data.get("volume", 0),
                 previous_close=quote_data.get("previous_close", 0),
                 change=quote_data.get("change", 0),
-                change_percentage=float(
-                    str(quote_data.get("change_percent", 0)).rstrip("%")
-                ),
+                change_percentage=float(str(quote_data.get("change_percent", 0)).rstrip("%")),
                 data_source=quote_data.get("source", "unknown"),
                 timestamp=datetime.utcnow(),
                 timeframe="realtime",

@@ -1,93 +1,130 @@
-from datetime import datetime
-from typing import Optional
+"""
+Trading Schemas
 
-from pydantic import BaseModel, validator
+Pydantic models for trading-related API requests and responses.
+"""
 
-from app.models.trade import OrderType, TradeStatus, TradeType
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field
+
+
+class OrderSideEnum(str, Enum):
+    """Order side enumeration"""
+
+    BUY = "buy"
+    SELL = "sell"
+
+
+class OrderStatusEnum(str, Enum):
+    """Order status enumeration"""
+
+    PENDING = "pending"
+    FILLED = "filled"
+    PARTIALLY_FILLED = "partially_filled"
+    CANCELLED = "cancelled"
+    REJECTED = "rejected"
+
+
+class RiskProfileEnum(str, Enum):
+    """Risk profile enumeration"""
+
+    CONSERVATIVE = "conservative"
+    MODERATE = "moderate"
+    AGGRESSIVE = "aggressive"
+
+
+class TradingSignalResponse(BaseModel):
+    """Trading signal response model"""
+
+    symbol: str
+    action: str = Field(..., description="Trading action: buy, sell, or hold")
+    confidence: float = Field(..., ge=0, le=1, description="Signal confidence (0-1)")
+    price: float = Field(..., gt=0, description="Current price")
+    timestamp: str = Field(..., description="Signal generation timestamp")
+    indicators: Dict[str, float] = Field(default_factory=dict, description="Technical indicators")
+    reason: str = Field(..., description="Reason for the signal")
+    stop_loss: Optional[float] = Field(None, description="Stop loss level")
+    take_profit: Optional[float] = Field(None, description="Take profit level")
+    ai_confidence: Optional[float] = Field(None, description="AI model confidence")
+    ai_prediction: Optional[float] = Field(None, description="AI model prediction")
+    combined_confidence: Optional[float] = Field(None, description="Combined strategy and AI confidence")
+
+
+class AdvancedTradingRequest(BaseModel):
+    """Advanced trading request model"""
+
+    portfolio_id: int = Field(..., description="Portfolio ID to trade")
+    symbols: Optional[List[str]] = Field(None, description="Symbols to trade (optional)")
+    risk_profile: RiskProfileEnum = Field(RiskProfileEnum.MODERATE, description="Risk profile to use")
+    enable_ai: bool = Field(True, description="Enable AI model predictions")
+    auto_execute: bool = Field(False, description="Automatically execute trades")
+
+
+class RiskProfileUpdate(BaseModel):
+    """Risk profile update model"""
+
+    risk_profile: RiskProfileEnum = Field(..., description="New risk profile")
+
+
+class PerformanceMetrics(BaseModel):
+    """Performance metrics model"""
+
+    total_trades: int = Field(..., description="Total number of trades")
+    successful_trades: int = Field(..., description="Number of successful trades")
+    total_return: float = Field(..., description="Total return")
+    win_rate: float = Field(..., description="Win rate percentage")
+    max_drawdown: float = Field(..., description="Maximum drawdown")
+    sharpe_ratio: float = Field(..., description="Sharpe ratio")
+
+
+class CircuitBreakerStatus(BaseModel):
+    """Circuit breaker status model"""
+
+    trading_allowed: bool = Field(..., description="Whether trading is allowed")
+    breaker_status: str = Field(..., description="Current breaker status")
+    active_breakers: Dict[str, Any] = Field(default_factory=dict, description="Active circuit breakers")
+    position_sizing_multiplier: float = Field(..., description="Position sizing multiplier")
 
 
 class TradeOrderRequest(BaseModel):
-    symbol: str
-    trade_type: TradeType
-    order_type: OrderType
-    quantity: float
-    limit_price: Optional[float] = None
-    stop_price: Optional[float] = None
-    strategy: Optional[str] = "manual"
-    notes: Optional[str] = None
+    """Trade order request model"""
 
-    @validator("symbol")
-    def symbol_must_be_uppercase(cls, v):
-        return v.upper()
-
-    @validator("quantity")
-    def quantity_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError("Quantity must be positive")
-        return v
-
-    @validator("limit_price")
-    def validate_limit_price(cls, v, values):
-        if values.get("order_type") == OrderType.LIMIT and v is None:
-            raise ValueError("Limit price required for limit orders")
-        if v is not None and v <= 0:
-            raise ValueError("Limit price must be positive")
-        return v
-
-
-class TradeResponse(BaseModel):
-    id: int
-    symbol: str
-    trade_type: TradeType
-    order_type: OrderType
-    quantity: float
-    price: Optional[float]
-    filled_quantity: float
-    filled_price: Optional[float]
-    status: TradeStatus
-    total_cost: Optional[float]
-    commission: float
-    fees: float
-    strategy: Optional[str]
-    notes: Optional[str]
-    is_paper_trade: bool
-    created_at: datetime
-    executed_at: Optional[datetime]
-
-    class Config:
-        from_attributes = True
-
-
-class TradeExecutionResponse(BaseModel):
-    id: int
-    trade_id: int
-    executed_quantity: float
-    executed_price: float
-    execution_time: datetime
-    execution_id: Optional[str]
-    broker_commission: float
-
-    class Config:
-        from_attributes = True
+    symbol: str = Field(..., description="Symbol to trade")
+    trade_type: str = Field(..., description="Trade type: buy or sell")
+    order_type: str = Field(..., description="Order type: market or limit")
+    quantity: float = Field(..., gt=0, description="Quantity to trade")
+    limit_price: Optional[float] = Field(None, description="Limit price for limit orders")
+    stop_price: Optional[float] = Field(None, description="Stop price for stop orders")
+    strategy: Optional[str] = Field(None, description="Strategy name")
+    notes: Optional[str] = Field(None, description="Additional notes")
 
 
 class OrderCancelRequest(BaseModel):
-    trade_id: int
+    """Order cancellation request model"""
+
+    trade_id: int = Field(..., description="Trade ID to cancel")
 
 
-class TradingStatsResponse(BaseModel):
-    total_trades: int
-    winning_trades: int
-    losing_trades: int
-    win_rate: float
-    total_profit_loss: float
-    average_profit_loss: float
-    largest_win: float
-    largest_loss: float
-    total_commission: float
+class TradeResponse(BaseModel):
+    """Trade response model"""
+
+    id: int
+    symbol: str
+    trade_type: str
+    order_type: str
+    quantity: float
+    price: Optional[float]
+    status: str
+    created_at: str
+    executed_at: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class PositionResponse(BaseModel):
+    """Position response model"""
+
     symbol: str
     quantity: float
     average_cost: float
@@ -95,7 +132,14 @@ class PositionResponse(BaseModel):
     market_value: float
     unrealized_gain_loss: float
     unrealized_gain_loss_percentage: float
-    asset_type: str
 
-    class Config:
-        from_attributes = True
+
+class TradingStatsResponse(BaseModel):
+    """Trading statistics response model"""
+
+    total_trades: int
+    winning_trades: int
+    losing_trades: int
+    win_rate: float
+    total_return: float
+    total_return_percentage: float

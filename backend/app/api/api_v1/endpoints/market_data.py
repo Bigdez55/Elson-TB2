@@ -30,9 +30,7 @@ async def get_quote(
 
     quote_data = await market_data_service.get_quote(symbol)
     if not quote_data:
-        raise HTTPException(
-            status_code=404, detail=f"Quote not found for symbol {symbol}"
-        )
+        raise HTTPException(status_code=404, detail=f"Quote not found for symbol {symbol}")
 
     # Save to database
     await market_data_service.save_market_data(symbol, quote_data, db)
@@ -62,9 +60,7 @@ async def get_multiple_quotes(
     symbols = [s.upper() for s in symbols]
 
     if len(symbols) > 50:  # Limit to prevent abuse
-        raise HTTPException(
-            status_code=400, detail="Maximum 50 symbols allowed"
-        )
+        raise HTTPException(status_code=400, detail="Maximum 50 symbols allowed")
 
     quotes_data = await market_data_service.get_multiple_quotes(symbols)
 
@@ -95,9 +91,7 @@ async def get_multiple_quotes(
 
 @router.get("/assets", response_model=List[AssetResponse])
 def get_assets(
-    asset_type: Optional[str] = Query(
-        None, description="Filter by asset type"
-    ),
+    asset_type: Optional[str] = Query(None, description="Filter by asset type"),
     sector: Optional[str] = Query(None, description="Filter by sector"),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_active_user),
@@ -119,9 +113,7 @@ def get_assets(
 @router.get("/history/{symbol}", response_model=List[MarketDataResponse])
 def get_historical_data(
     symbol: str,
-    timeframe: str = Query(
-        "1day", description="Timeframe: 1min, 5min, 1hour, 1day"
-    ),
+    timeframe: str = Query("1day", description="Timeframe: 1min, 5min, 1hour, 1day"),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -157,9 +149,7 @@ def create_asset(
     # Check if asset already exists
     existing_asset = db.query(Asset).filter(Asset.symbol == symbol).first()
     if existing_asset:
-        raise HTTPException(
-            status_code=400, detail=f"Asset {symbol} already exists"
-        )
+        raise HTTPException(status_code=400, detail=f"Asset {symbol} already exists")
 
     new_asset = Asset(
         symbol=symbol,

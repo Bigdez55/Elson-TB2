@@ -14,12 +14,8 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
 
     # Trading preferences
-    risk_tolerance = Column(
-        String(50), default="moderate"
-    )  # conservative, moderate, aggressive
-    trading_style = Column(
-        String(50), default="long_term"
-    )  # day_trading, swing, long_term
+    risk_tolerance = Column(String(50), default="moderate")  # conservative, moderate, aggressive
+    trading_style = Column(String(50), default="long_term")  # day_trading, swing, long_term
 
     # Account status
     is_active = Column(Boolean, default=True)

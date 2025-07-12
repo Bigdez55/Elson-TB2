@@ -1,13 +1,4 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Float,
-    Index,
-    Integer,
-    String,
-    Text,
-)
+from sqlalchemy import Boolean, Column, DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.sql import func
 
 from app.db.base import Base
@@ -21,9 +12,7 @@ class Asset(Base):
     # Asset identification
     symbol = Column(String(20), nullable=False, unique=True, index=True)
     name = Column(String(255), nullable=False)
-    asset_type = Column(
-        String(50), nullable=False
-    )  # stock, crypto, bond, etf, option
+    asset_type = Column(String(50), nullable=False)  # stock, crypto, bond, etf, option
     exchange = Column(String(100), nullable=True)
 
     # Asset details
@@ -62,9 +51,7 @@ class MarketData(Base):
     change_percentage = Column(Float, nullable=True)
 
     # Data source and timing
-    data_source = Column(
-        String(50), nullable=False
-    )  # alpha_vantage, polygon, etc.
+    data_source = Column(String(50), nullable=False)  # alpha_vantage, polygon, etc.
     timestamp = Column(DateTime(timezone=True), nullable=False)
     timeframe = Column(String(20), nullable=False)  # 1min, 5min, 1hour, 1day
 
@@ -92,20 +79,14 @@ class MarketSentiment(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Asset reference
-    symbol = Column(
-        String(20), nullable=True, index=True
-    )  # None for overall market
+    symbol = Column(String(20), nullable=True, index=True)  # None for overall market
 
     # Sentiment metrics
-    sentiment_score = Column(
-        Float, nullable=False
-    )  # -1 (very negative) to 1 (very positive)
+    sentiment_score = Column(Float, nullable=False)  # -1 (very negative) to 1 (very positive)
     confidence_score = Column(Float, nullable=False)  # 0 to 1
 
     # Source information
-    source = Column(
-        String(100), nullable=False
-    )  # news, social_media, analyst_reports
+    source = Column(String(100), nullable=False)  # news, social_media, analyst_reports
     headline = Column(Text, nullable=True)
     content_summary = Column(Text, nullable=True)
 
@@ -118,9 +99,7 @@ class MarketSentiment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Index for sentiment analysis queries
-    __table_args__ = (
-        Index("idx_symbol_timestamp_sentiment", "symbol", "timestamp"),
-    )
+    __table_args__ = (Index("idx_symbol_timestamp_sentiment", "symbol", "timestamp"),)
 
 
 class TechnicalIndicator(Base):
@@ -143,9 +122,7 @@ class TechnicalIndicator(Base):
     lower_band = Column(Float, nullable=True)
 
     # Additional metadata
-    parameters = Column(
-        Text, nullable=True
-    )  # JSON string of indicator parameters
+    parameters = Column(Text, nullable=True)  # JSON string of indicator parameters
 
     # Signal interpretation
     signal = Column(String(20), nullable=True)  # buy, sell, hold, neutral

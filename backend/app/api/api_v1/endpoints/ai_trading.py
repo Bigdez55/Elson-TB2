@@ -31,23 +31,13 @@ async def analyze_portfolio_risk(
     Returns risk score, risk factors, and personalized recommendations.
     """
     # Get portfolio and verify ownership
-    portfolio = (
-        db.query(Portfolio)
-        .filter(
-            Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id
-        )
-        .first()
-    )
+    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id).first()
 
     if not portfolio:
-        raise HTTPException(
-            status_code=404, detail="Portfolio not found or access denied"
-        )
+        raise HTTPException(status_code=404, detail="Portfolio not found or access denied")
 
     try:
-        risk_analysis = await personal_trading_ai.analyze_portfolio_risk(
-            portfolio, db
-        )
+        risk_analysis = await personal_trading_ai.analyze_portfolio_risk(portfolio, db)
 
         logger.info(
             "Portfolio risk analysis completed",
@@ -65,16 +55,12 @@ async def analyze_portfolio_risk(
             portfolio_id=portfolio_id,
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500, detail="Failed to analyze portfolio risk"
-        )
+        raise HTTPException(status_code=500, detail="Failed to analyze portfolio risk")
 
 
 @router.get("/trading-signals")
 async def get_trading_signals(
-    symbols: str = Query(
-        ..., description="Comma-separated list of symbols (max 10)"
-    ),
+    symbols: str = Query(..., description="Comma-separated list of symbols (max 10)"),
     current_user: User = Depends(get_current_active_user),
 ) -> List[Dict[str, Any]]:
     """
@@ -93,9 +79,7 @@ async def get_trading_signals(
             )
 
         # Generate signals
-        signals = await personal_trading_ai.generate_trading_signals(
-            symbol_list, current_user
-        )
+        signals = await personal_trading_ai.generate_trading_signals(symbol_list, current_user)
 
         logger.info(
             "Trading signals generated",
@@ -115,9 +99,7 @@ async def get_trading_signals(
             symbols=symbols,
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500, detail="Failed to generate trading signals"
-        )
+        raise HTTPException(status_code=500, detail="Failed to generate trading signals")
 
 
 @router.post("/portfolio-optimization/{portfolio_id}")
@@ -133,18 +115,10 @@ async def optimize_portfolio(
     Analyzes current allocation vs target and provides rebalancing guidance.
     """
     # Verify portfolio ownership
-    portfolio = (
-        db.query(Portfolio)
-        .filter(
-            Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id
-        )
-        .first()
-    )
+    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id).first()
 
     if not portfolio:
-        raise HTTPException(
-            status_code=404, detail="Portfolio not found or access denied"
-        )
+        raise HTTPException(status_code=404, detail="Portfolio not found or access denied")
 
     # Validate target allocations
     total_allocation = sum(target_allocations.values())
@@ -155,9 +129,7 @@ async def optimize_portfolio(
         )
 
     try:
-        optimization = await personal_trading_ai.optimize_portfolio_allocation(
-            portfolio, target_allocations
-        )
+        optimization = await personal_trading_ai.optimize_portfolio_allocation(portfolio, target_allocations)
 
         logger.info(
             "Portfolio optimization completed",
@@ -175,9 +147,7 @@ async def optimize_portfolio(
             portfolio_id=portfolio_id,
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500, detail="Failed to optimize portfolio"
-        )
+        raise HTTPException(status_code=500, detail="Failed to optimize portfolio")
 
 
 @router.get("/market-sentiment/{symbol}")
@@ -213,8 +183,7 @@ async def get_market_sentiment(
                 "news_sentiment": 0.68,
             },
             "analysis_timestamp": "2025-07-12T03:45:00Z",
-            "note": "Sentiment analysis is in development. "
-            "Data shown is for demonstration purposes.",
+            "note": "Sentiment analysis is in development. " "Data shown is for demonstration purposes.",
         }
 
         logger.info(
@@ -232,9 +201,7 @@ async def get_market_sentiment(
             symbol=symbol,
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500, detail="Failed to analyze market sentiment"
-        )
+        raise HTTPException(status_code=500, detail="Failed to analyze market sentiment")
 
 
 @router.get("/personal-insights")
@@ -272,8 +239,7 @@ async def get_personal_insights(
             insights["insights"].append(
                 {
                     "type": "setup",
-                    "message": "Create your first portfolio to start receiving "
-                    "personalized insights",
+                    "message": "Create your first portfolio to start receiving " "personalized insights",
                     "priority": "high",
                 }
             )
@@ -324,8 +290,7 @@ async def get_personal_insights(
             insights["alerts"].append(
                 {
                     "type": "risk_warning",
-                    "message": "Aggressive risk profile detected - "
-                    "ensure proper risk management is in place",
+                    "message": "Aggressive risk profile detected - " "ensure proper risk management is in place",
                     "priority": "high",
                 }
             )
@@ -344,6 +309,4 @@ async def get_personal_insights(
             user_id=current_user.id,
             error=str(e),
         )
-        raise HTTPException(
-            status_code=500, detail="Failed to generate personal insights"
-        )
+        raise HTTPException(status_code=500, detail="Failed to generate personal insights")
