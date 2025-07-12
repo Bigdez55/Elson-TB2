@@ -1,0 +1,349 @@
+"""
+AI Trading API endpoints for personal trading platform.
+"""
+
+from typing import Any, Dict, List
+
+import structlog
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
+from app.core.security import get_current_active_user
+from app.db.base import get_db
+from app.models.portfolio import Portfolio
+from app.models.user import User
+from app.services.ai_trading import personal_trading_ai
+
+logger = structlog.get_logger()
+
+router = APIRouter()
+
+
+@router.get("/portfolio-risk/{portfolio_id}")
+async def analyze_portfolio_risk(
+    portfolio_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Analyze portfolio risk and get AI-driven recommendations.
+
+    Returns risk score, risk factors, and personalized recommendations.
+    """
+    # Get portfolio and verify ownership
+    portfolio = (
+        db.query(Portfolio)
+        .filter(
+            Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if not portfolio:
+        raise HTTPException(
+            status_code=404, detail="Portfolio not found or access denied"
+        )
+
+    try:
+        risk_analysis = await personal_trading_ai.analyze_portfolio_risk(
+            portfolio, db
+        )
+
+        logger.info(
+            "Portfolio risk analysis completed",
+            user_id=current_user.id,
+            portfolio_id=portfolio_id,
+            risk_score=risk_analysis.get("risk_score"),
+        )
+
+        return risk_analysis
+
+    except Exception as e:
+        logger.error(
+            "Error in portfolio risk analysis",
+            user_id=current_user.id,
+            portfolio_id=portfolio_id,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to analyze portfolio risk"
+        )
+
+
+@router.get("/trading-signals")
+async def get_trading_signals(
+    symbols: str = Query(
+        ..., description="Comma-separated list of symbols (max 10)"
+    ),
+    current_user: User = Depends(get_current_active_user),
+) -> List[Dict[str, Any]]:
+    """
+    Get AI-generated trading signals for specified symbols.
+
+    Returns signals with confidence scores and reasoning.
+    """
+    try:
+        # Parse symbols
+        symbol_list = [s.strip().upper() for s in symbols.split(",")]
+
+        if len(symbol_list) > 10:
+            raise HTTPException(
+                status_code=400,
+                detail="Maximum 10 symbols allowed per request",
+            )
+
+        # Generate signals
+        signals = await personal_trading_ai.generate_trading_signals(
+            symbol_list, current_user
+        )
+
+        logger.info(
+            "Trading signals generated",
+            user_id=current_user.id,
+            symbols=symbol_list,
+            signals_count=len(signals),
+        )
+
+        return signals
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(
+            "Error generating trading signals",
+            user_id=current_user.id,
+            symbols=symbols,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to generate trading signals"
+        )
+
+
+@router.post("/portfolio-optimization/{portfolio_id}")
+async def optimize_portfolio(
+    portfolio_id: int,
+    target_allocations: Dict[str, float],
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get portfolio optimization recommendations.
+
+    Analyzes current allocation vs target and provides rebalancing guidance.
+    """
+    # Verify portfolio ownership
+    portfolio = (
+        db.query(Portfolio)
+        .filter(
+            Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if not portfolio:
+        raise HTTPException(
+            status_code=404, detail="Portfolio not found or access denied"
+        )
+
+    # Validate target allocations
+    total_allocation = sum(target_allocations.values())
+    if not (0.95 <= total_allocation <= 1.05):  # Allow 5% tolerance
+        raise HTTPException(
+            status_code=400,
+            detail="Target allocations must sum to approximately 100%",
+        )
+
+    try:
+        optimization = await personal_trading_ai.optimize_portfolio_allocation(
+            portfolio, target_allocations
+        )
+
+        logger.info(
+            "Portfolio optimization completed",
+            user_id=current_user.id,
+            portfolio_id=portfolio_id,
+            rebalancing_needed=optimization.get("rebalancing_needed", False),
+        )
+
+        return optimization
+
+    except Exception as e:
+        logger.error(
+            "Error in portfolio optimization",
+            user_id=current_user.id,
+            portfolio_id=portfolio_id,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to optimize portfolio"
+        )
+
+
+@router.get("/market-sentiment/{symbol}")
+async def get_market_sentiment(
+    symbol: str,
+    current_user: User = Depends(get_current_active_user),
+) -> Dict[str, Any]:
+    """
+    Get AI-analyzed market sentiment for a symbol.
+
+    Provides sentiment score and key factors affecting the sentiment.
+    """
+    try:
+        symbol = symbol.upper().strip()
+
+        # For now, return a placeholder sentiment analysis
+        # In a full implementation, this would integrate with news APIs
+        # and perform NLP sentiment analysis
+
+        sentiment_data = {
+            "symbol": symbol,
+            "sentiment_score": 0.65,  # Placeholder: 0-1 scale
+            "sentiment_label": "Positive",
+            "confidence": 78.5,
+            "key_factors": [
+                "Strong earnings growth expected",
+                "Positive analyst coverage increase",
+                "Sector outperformance trends",
+            ],
+            "social_sentiment": {
+                "twitter_sentiment": 0.72,
+                "reddit_sentiment": 0.58,
+                "news_sentiment": 0.68,
+            },
+            "analysis_timestamp": "2025-07-12T03:45:00Z",
+            "note": "Sentiment analysis is in development. "
+            "Data shown is for demonstration purposes.",
+        }
+
+        logger.info(
+            "Market sentiment analysis requested",
+            user_id=current_user.id,
+            symbol=symbol,
+        )
+
+        return sentiment_data
+
+    except Exception as e:
+        logger.error(
+            "Error in market sentiment analysis",
+            user_id=current_user.id,
+            symbol=symbol,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to analyze market sentiment"
+        )
+
+
+@router.get("/personal-insights")
+async def get_personal_insights(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Dict[str, Any]:
+    """
+    Get personalized trading insights based on user's portfolio and preferences.
+
+    Returns customized recommendations, alerts, and opportunities.
+    """
+    try:
+        # Get user's active portfolios
+        portfolios = (
+            db.query(Portfolio)
+            .filter(
+                Portfolio.owner_id == current_user.id,
+                Portfolio.is_active.is_(True),
+            )
+            .all()
+        )
+
+        insights = {
+            "user_risk_profile": current_user.risk_tolerance,
+            "trading_style": current_user.trading_style,
+            "total_portfolios": len(portfolios),
+            "insights": [],
+            "opportunities": [],
+            "alerts": [],
+            "generated_at": "2025-07-12T03:45:00Z",
+        }
+
+        if not portfolios:
+            insights["insights"].append(
+                {
+                    "type": "setup",
+                    "message": "Create your first portfolio to start receiving "
+                    "personalized insights",
+                    "priority": "high",
+                }
+            )
+            return insights
+
+        # Analyze each portfolio for insights
+        for portfolio in portfolios:
+            if portfolio.holdings:
+                # total_value = sum(h.market_value for h in portfolio.holdings)  # Unused
+
+                # Cash allocation insight
+                cash_ratio = portfolio.cash_balance / portfolio.total_value
+                if cash_ratio > 0.20:
+                    insights["opportunities"].append(
+                        {
+                            "type": "cash_deployment",
+                            "portfolio": portfolio.name,
+                            "message": f"High cash allocation ({cash_ratio:.1%}) "
+                            "in {portfolio.name} - consider investing",
+                            "priority": "medium",
+                        }
+                    )
+
+                # Diversification insight
+                if len(portfolio.holdings) < 5:
+                    insights["insights"].append(
+                        {
+                            "type": "diversification",
+                            "portfolio": portfolio.name,
+                            "message": f"{portfolio.name} has limited holdings "
+                            "({len(portfolio.holdings)}) - "
+                            "consider diversifying",
+                            "priority": "medium",
+                        }
+                    )
+
+        # Risk tolerance insights
+        if current_user.risk_tolerance == "conservative":
+            insights["insights"].append(
+                {
+                    "type": "risk_management",
+                    "message": "Based on your conservative risk profile, "
+                    "consider focusing on dividend stocks and bonds",
+                    "priority": "low",
+                }
+            )
+        elif current_user.risk_tolerance == "aggressive":
+            insights["alerts"].append(
+                {
+                    "type": "risk_warning",
+                    "message": "Aggressive risk profile detected - "
+                    "ensure proper risk management is in place",
+                    "priority": "high",
+                }
+            )
+
+        logger.info(
+            "Personal insights generated",
+            user_id=current_user.id,
+            portfolios_count=len(portfolios),
+        )
+
+        return insights
+
+    except Exception as e:
+        logger.error(
+            "Error generating personal insights",
+            user_id=current_user.id,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=500, detail="Failed to generate personal insights"
+        )

@@ -7,9 +7,12 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.portfolio import Portfolio
 from app.models.user import User
-from app.schemas.portfolio import (HoldingResponse, PortfolioResponse,
-                                   PortfolioSummaryResponse,
-                                   PortfolioUpdateRequest)
+from app.schemas.portfolio import (
+    HoldingResponse,
+    PortfolioResponse,
+    PortfolioSummaryResponse,
+    PortfolioUpdateRequest,
+)
 from app.services.trading import trading_service
 
 router = APIRouter()

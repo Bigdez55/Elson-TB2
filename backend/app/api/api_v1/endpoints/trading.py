@@ -7,9 +7,13 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.trade import Trade, TradeStatus
 from app.models.user import User
-from app.schemas.trading import (OrderCancelRequest, PositionResponse,
-                                 TradeOrderRequest, TradeResponse,
-                                 TradingStatsResponse)
+from app.schemas.trading import (
+    OrderCancelRequest,
+    PositionResponse,
+    TradeOrderRequest,
+    TradeResponse,
+    TradingStatsResponse,
+)
 from app.services.trading import trading_service
 
 router = APIRouter()

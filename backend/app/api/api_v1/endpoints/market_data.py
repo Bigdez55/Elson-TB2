@@ -8,8 +8,12 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.market_data import Asset, MarketData
 from app.models.user import User
-from app.schemas.market_data import (AssetResponse, MarketDataResponse,
-                                     MultipleQuotesResponse, QuoteResponse)
+from app.schemas.market_data import (
+    AssetResponse,
+    MarketDataResponse,
+    MultipleQuotesResponse,
+    QuoteResponse,
+)
 from app.services.market_data import market_data_service
 
 router = APIRouter()

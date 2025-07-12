@@ -5,8 +5,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.security import (create_access_token, get_current_active_user,
-                               get_password_hash, verify_password)
+from app.core.security import (
+    create_access_token,
+    get_current_active_user,
+    get_password_hash,
+    verify_password,
+)
 from app.db.base import get_db
 from app.models.portfolio import Portfolio
 from app.models.user import User
