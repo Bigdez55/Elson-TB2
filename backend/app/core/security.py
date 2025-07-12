@@ -28,7 +28,9 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    data: dict, expires_delta: Optional[timedelta] = None
+) -> str:
     """Create JWT access token"""
     to_encode = data.copy()
     if expires_delta:
@@ -77,7 +79,9 @@ def get_current_user(
     return user
 
 
-def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     """Get current active user"""
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.db.base import Base, engine
+
 # Imports are handled by Base.metadata.create_all which discovers all models
 
 

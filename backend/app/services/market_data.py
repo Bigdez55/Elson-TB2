@@ -46,7 +46,9 @@ class AlphaVantageProvider(MarketDataProvider):
         super().__init__()
         self.api_key = settings.ALPHA_VANTAGE_API_KEY
         self.base_url = "https://www.alphavantage.co/query"
-        self.rate_limit_delay = 12.0  # Alpha Vantage free tier: 5 calls per minute
+        self.rate_limit_delay = (
+            12.0  # Alpha Vantage free tier: 5 calls per minute
+        )
 
     async def get_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
         """Get real-time quote from Alpha Vantage"""
@@ -56,11 +58,17 @@ class AlphaVantageProvider(MarketDataProvider):
 
         await self._rate_limit()
 
-        params = {"function": "GLOBAL_QUOTE", "symbol": symbol, "apikey": self.api_key}
+        params = {
+            "function": "GLOBAL_QUOTE",
+            "symbol": symbol,
+            "apikey": self.api_key,
+        }
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.base_url, params=params) as response:
+                async with session.get(
+                    self.base_url, params=params
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
 
@@ -86,14 +94,18 @@ class AlphaVantageProvider(MarketDataProvider):
                                 "previous_close": float(
                                     quote_data.get("08. previous close", 0)
                                 ),
-                                "change": float(quote_data.get("09. change", 0)),
+                                "change": float(
+                                    quote_data.get("09. change", 0)
+                                ),
                                 "change_percent": quote_data.get(
                                     "10. change percent", "0%"
                                 ).rstrip("%"),
                                 "source": "alpha_vantage",
                             }
                     else:
-                        logger.error(f"Alpha Vantage API error: {response.status}")
+                        logger.error(
+                            f"Alpha Vantage API error: {response.status}"
+                        )
 
         except Exception as e:
             logger.error(f"Error fetching quote from Alpha Vantage: {str(e)}")
@@ -132,7 +144,9 @@ class AlphaVantageProvider(MarketDataProvider):
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(self.base_url, params=params) as response:
+                async with session.get(
+                    self.base_url, params=params
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
 
@@ -147,15 +161,25 @@ class AlphaVantageProvider(MarketDataProvider):
                             time_series = data[time_series_key]
                             historical_data = []
 
-                            for timestamp, values in list(time_series.items())[:limit]:
+                            for timestamp, values in list(time_series.items())[
+                                :limit
+                            ]:
                                 historical_data.append(
                                     {
                                         "timestamp": timestamp,
-                                        "open": float(values.get("1. open", 0)),
-                                        "high": float(values.get("2. high", 0)),
+                                        "open": float(
+                                            values.get("1. open", 0)
+                                        ),
+                                        "high": float(
+                                            values.get("2. high", 0)
+                                        ),
                                         "low": float(values.get("3. low", 0)),
-                                        "close": float(values.get("4. close", 0)),
-                                        "volume": int(values.get("5. volume", 0)),
+                                        "close": float(
+                                            values.get("4. close", 0)
+                                        ),
+                                        "volume": int(
+                                            values.get("5. volume", 0)
+                                        ),
                                         "source": "alpha_vantage",
                                     }
                                 )
@@ -163,7 +187,9 @@ class AlphaVantageProvider(MarketDataProvider):
                             return historical_data
 
         except Exception as e:
-            logger.error(f"Error fetching historical data from Alpha Vantage: {str(e)}")
+            logger.error(
+                f"Error fetching historical data from Alpha Vantage: {str(e)}"
+            )
 
         return []
 
@@ -242,7 +268,9 @@ class MarketDataService:
                     self.cache[cache_key] = (quote, time.time())
                     return quote
             except Exception as e:
-                logger.error(f"Provider {provider.__class__.__name__} failed: {str(e)}")
+                logger.error(
+                    f"Provider {provider.__class__.__name__} failed: {str(e)}"
+                )
                 continue
 
         logger.error(f"All providers failed for symbol {symbol}")

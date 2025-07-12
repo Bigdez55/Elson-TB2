@@ -8,12 +8,8 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.market_data import Asset, MarketData
 from app.models.user import User
-from app.schemas.market_data import (
-    AssetResponse,
-    MarketDataResponse,
-    MultipleQuotesResponse,
-    QuoteResponse,
-)
+from app.schemas.market_data import (AssetResponse, MarketDataResponse,
+                                     MultipleQuotesResponse, QuoteResponse)
 from app.services.market_data import market_data_service
 
 router = APIRouter()
@@ -62,7 +58,9 @@ async def get_multiple_quotes(
     symbols = [s.upper() for s in symbols]
 
     if len(symbols) > 50:  # Limit to prevent abuse
-        raise HTTPException(status_code=400, detail="Maximum 50 symbols allowed")
+        raise HTTPException(
+            status_code=400, detail="Maximum 50 symbols allowed"
+        )
 
     quotes_data = await market_data_service.get_multiple_quotes(symbols)
 
@@ -93,7 +91,9 @@ async def get_multiple_quotes(
 
 @router.get("/assets", response_model=List[AssetResponse])
 def get_assets(
-    asset_type: Optional[str] = Query(None, description="Filter by asset type"),
+    asset_type: Optional[str] = Query(
+        None, description="Filter by asset type"
+    ),
     sector: Optional[str] = Query(None, description="Filter by sector"),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_active_user),
@@ -115,7 +115,9 @@ def get_assets(
 @router.get("/history/{symbol}", response_model=List[MarketDataResponse])
 def get_historical_data(
     symbol: str,
-    timeframe: str = Query("1day", description="Timeframe: 1min, 5min, 1hour, 1day"),
+    timeframe: str = Query(
+        "1day", description="Timeframe: 1min, 5min, 1hour, 1day"
+    ),
     limit: int = Query(100, ge=1, le=1000),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
@@ -151,7 +153,9 @@ def create_asset(
     # Check if asset already exists
     existing_asset = db.query(Asset).filter(Asset.symbol == symbol).first()
     if existing_asset:
-        raise HTTPException(status_code=400, detail=f"Asset {symbol} already exists")
+        raise HTTPException(
+            status_code=400, detail=f"Asset {symbol} already exists"
+        )
 
     new_asset = Asset(
         symbol=symbol,

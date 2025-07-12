@@ -7,13 +7,9 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.trade import Trade, TradeStatus
 from app.models.user import User
-from app.schemas.trading import (
-    OrderCancelRequest,
-    PositionResponse,
-    TradeOrderRequest,
-    TradeResponse,
-    TradingStatsResponse,
-)
+from app.schemas.trading import (OrderCancelRequest, PositionResponse,
+                                 TradeOrderRequest, TradeResponse,
+                                 TradingStatsResponse)
 from app.services.trading import trading_service
 
 router = APIRouter()
@@ -33,7 +29,9 @@ async def place_order(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to place order: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to place order: {str(e)}"
+        )
 
 
 @router.post("/cancel", response_model=TradeResponse)
@@ -51,19 +49,24 @@ async def cancel_order(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to cancel order: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to cancel order: {str(e)}"
+        )
 
 
 @router.get("/orders", response_model=List[TradeResponse])
 async def get_open_orders(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get open orders"""
     try:
         orders = await trading_service.get_open_orders(current_user, db)
         return [TradeResponse.from_orm(order) for order in orders]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get orders: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get orders: {str(e)}"
+        )
 
 
 @router.get("/history", response_model=List[TradeResponse])
@@ -75,7 +78,9 @@ async def get_trade_history(
 ):
     """Get trade history"""
     try:
-        trades = await trading_service.get_trade_history(current_user, db, limit)
+        trades = await trading_service.get_trade_history(
+            current_user, db, limit
+        )
 
         # Filter by status if provided
         if status:
@@ -90,7 +95,8 @@ async def get_trade_history(
 
 @router.get("/positions", response_model=List[PositionResponse])
 async def get_positions(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get current positions"""
     try:
@@ -108,7 +114,9 @@ async def get_positions(
 
         positions = []
         for holding in portfolio.holdings:
-            if holding.quantity > 0:  # Only show positions with positive quantity
+            if (
+                holding.quantity > 0
+            ):  # Only show positions with positive quantity
                 positions.append(
                     PositionResponse(
                         symbol=holding.symbol,
@@ -133,7 +141,8 @@ async def get_positions(
 
 @router.get("/stats", response_model=TradingStatsResponse)
 async def get_trading_stats(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get trading statistics"""
     try:
@@ -165,7 +174,9 @@ async def get_trading_stats(
 
         # Calculate statistics
         total_trades = len(trades)
-        total_commission = sum(trade.commission + trade.fees for trade in trades)
+        total_commission = sum(
+            trade.commission + trade.fees for trade in trades
+        )
 
         # Group trades by symbol to calculate P&L
         profit_losses = []

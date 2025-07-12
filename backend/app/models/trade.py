@@ -1,16 +1,7 @@
 import enum
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Enum,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-    Text,
-)
+from sqlalchemy import (Boolean, Column, DateTime, Enum, Float, ForeignKey,
+                        Integer, String, Text)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -67,7 +58,9 @@ class Trade(Base):
     fees = Column(Float, default=0.0)
 
     # Strategy and reasoning
-    strategy = Column(String(100), nullable=True)  # AI recommendation, manual, etc.
+    strategy = Column(
+        String(100), nullable=True
+    )  # AI recommendation, manual, etc.
     notes = Column(Text, nullable=True)
 
     # Risk management

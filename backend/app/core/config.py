@@ -10,11 +10,15 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    SECRET_KEY: str = os.getenv(
+        "SECRET_KEY", "your-secret-key-change-in-production"
+    )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./elson_trading.db")
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL", "sqlite:///./elson_trading.db"
+    )
 
     # CORS
     ALLOWED_HOSTS: List[str] = ["*"]

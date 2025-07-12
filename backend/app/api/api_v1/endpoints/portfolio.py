@@ -7,12 +7,9 @@ from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.portfolio import Portfolio
 from app.models.user import User
-from app.schemas.portfolio import (
-    HoldingResponse,
-    PortfolioResponse,
-    PortfolioSummaryResponse,
-    PortfolioUpdateRequest,
-)
+from app.schemas.portfolio import (HoldingResponse, PortfolioResponse,
+                                   PortfolioSummaryResponse,
+                                   PortfolioUpdateRequest)
 from app.services.trading import trading_service
 
 router = APIRouter()
@@ -20,7 +17,8 @@ router = APIRouter()
 
 @router.get("/", response_model=PortfolioSummaryResponse)
 async def get_portfolio_summary(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get portfolio summary with holdings"""
     # Get user's active portfolio
@@ -31,7 +29,9 @@ async def get_portfolio_summary(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     # Update portfolio values with current market data
     await trading_service._update_portfolio_totals(portfolio, db)
@@ -45,7 +45,9 @@ async def get_portfolio_summary(
 
     # Calculate summary statistics
     total_positions = len(holdings)
-    largest_position = max(holdings, key=lambda h: h.market_value) if holdings else None
+    largest_position = (
+        max(holdings, key=lambda h: h.market_value) if holdings else None
+    )
     best_performer = (
         max(holdings, key=lambda h: h.unrealized_gain_loss_percentage)
         if holdings
@@ -69,7 +71,8 @@ async def get_portfolio_summary(
 
 @router.get("/details", response_model=PortfolioResponse)
 async def get_portfolio_details(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get detailed portfolio information"""
     portfolio = (
@@ -79,7 +82,9 @@ async def get_portfolio_details(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     # Update portfolio values
     await trading_service._update_portfolio_totals(portfolio, db)
@@ -89,7 +94,8 @@ async def get_portfolio_details(
 
 @router.get("/holdings", response_model=List[HoldingResponse])
 async def get_holdings(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get all portfolio holdings"""
     portfolio = (
@@ -99,13 +105,17 @@ async def get_holdings(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     # Update holdings with current prices
     await trading_service._update_portfolio_totals(portfolio, db)
 
     # Return only holdings with positive quantity
-    holdings = [holding for holding in portfolio.holdings if holding.quantity > 0]
+    holdings = [
+        holding for holding in portfolio.holdings if holding.quantity > 0
+    ]
     return [HoldingResponse.from_orm(holding) for holding in holdings]
 
 
@@ -123,7 +133,9 @@ async def update_portfolio(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     # Update fields if provided
     update_data = update_request.dict(exclude_unset=True)
@@ -138,7 +150,8 @@ async def update_portfolio(
 
 @router.get("/performance")
 async def get_portfolio_performance(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Get portfolio performance metrics"""
     portfolio = (
@@ -148,7 +161,9 @@ async def get_portfolio_performance(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     # Update portfolio values
     await trading_service._update_portfolio_totals(portfolio, db)
@@ -187,7 +202,8 @@ async def get_portfolio_performance(
 
 @router.post("/refresh")
 async def refresh_portfolio_data(
-    current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
     """Manually refresh portfolio data with latest market prices"""
     portfolio = (
@@ -197,7 +213,9 @@ async def refresh_portfolio_data(
     )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="No active portfolio found")
+        raise HTTPException(
+            status_code=404, detail="No active portfolio found"
+        )
 
     try:
         # Force update of all holdings with current market data
@@ -212,5 +230,6 @@ async def refresh_portfolio_data(
         }
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to refresh portfolio data: {str(e)}"
+            status_code=500,
+            detail=f"Failed to refresh portfolio data: {str(e)}",
         )
