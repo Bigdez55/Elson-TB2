@@ -33,7 +33,11 @@ The Elson Personal Trading Platform is a sophisticated, self-hosted trading solu
 - **Database**: SQLite for personal use (easily upgradable to PostgreSQL)
 - **Deployment**: Docker containers on Google Cloud Run
 - **CI/CD**: GitHub Actions for automated testing and deployment
-- **Security**: Dependabot for dependency updates, Trivy for vulnerability scanning
+- **Security**: 
+  - Dependabot for automated dependency updates
+  - CodeQL for code security analysis
+  - Trivy for vulnerability scanning
+  - Gitleaks for secret detection
 
 ## 🚀 Quick Start
 
