@@ -23,8 +23,12 @@ security = HTTPBearer()
 
 # Redis connection for caching and rate limiting
 try:
-    redis_client = redis.Redis.from_url(settings.REDIS_URL) if hasattr(settings, 'REDIS_URL') else None
-except:
+    redis_client = (
+        redis.Redis.from_url(settings.REDIS_URL)
+        if hasattr(settings, "REDIS_URL")
+        else None
+    )
+except (redis.ConnectionError, redis.TimeoutError, AttributeError):
     redis_client = None
 
 # Rate limiting configuration
@@ -50,22 +54,28 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
 
     # Add unique token ID for revocation support
     jti = str(uuid.uuid4())
     to_encode.update({"exp": expire, "jti": jti, "type": "access"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
-    
+
     # Store token in Redis if available
     if redis_client:
         try:
-            redis_client.setex(f"token:{jti}", 
-                             int(expires_delta.total_seconds()) if expires_delta else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, 
-                             "valid")
-        except:
+            redis_client.setex(
+                f"token:{jti}",
+                int(expires_delta.total_seconds())
+                if expires_delta
+                else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                "valid",
+            )
+        except (redis.ConnectionError, redis.TimeoutError):
             pass  # Continue without Redis caching
-    
+
     return encoded_jwt
 
 
@@ -73,18 +83,18 @@ def create_refresh_token(data: dict) -> str:
     """Create JWT refresh token"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(days=7)  # Refresh tokens last 7 days
-    
+
     jti = str(uuid.uuid4())
     to_encode.update({"exp": expire, "jti": jti, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
-    
+
     # Store refresh token in Redis
     if redis_client:
         try:
             redis_client.setex(f"refresh_token:{jti}", 7 * 24 * 60 * 60, "valid")
-        except:
+        except (redis.ConnectionError, redis.TimeoutError):
             pass
-    
+
     return encoded_jwt
 
 
@@ -97,7 +107,7 @@ def revoke_token(jti: str, token_type: str = "access") -> bool:
             else:
                 redis_client.delete(f"token:{jti}")
             return True
-        except:
+        except (redis.ConnectionError, redis.TimeoutError):
             pass
     return False
 
@@ -109,19 +119,23 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         email: str = payload.get("sub")
         jti: str = payload.get("jti")
         token_type: str = payload.get("type", "access")
-        
+
         if email is None or jti is None:
             return None
-            
+
         # Check if token is revoked (if Redis is available)
         if redis_client:
             try:
-                key = f"refresh_token:{jti}" if token_type == "refresh" else f"token:{jti}"
+                key = (
+                    f"refresh_token:{jti}"
+                    if token_type == "refresh"
+                    else f"token:{jti}"
+                )
                 if not redis_client.exists(key):
                     return None  # Token has been revoked
-            except:
+            except (redis.ConnectionError, redis.TimeoutError):
                 pass  # Continue without Redis check
-        
+
         return payload
     except JWTError:
         return None
@@ -132,24 +146,24 @@ def refresh_access_token(refresh_token: str) -> Optional[Dict[str, str]]:
     payload = verify_token(refresh_token)
     if not payload or payload.get("type") != "refresh":
         return None
-    
+
     email = payload.get("sub")
     if not email:
         return None
-    
+
     # Create new tokens
     access_token = create_access_token(data={"sub": email})
     new_refresh_token = create_refresh_token(data={"sub": email})
-    
+
     # Revoke old refresh token
     old_jti = payload.get("jti")
     if old_jti:
         revoke_token(old_jti, "refresh")
-    
+
     return {
         "access_token": access_token,
         "refresh_token": new_refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
     }
 
 
@@ -167,7 +181,7 @@ def get_current_user(
     payload = verify_token(credentials.credentials)
     if payload is None:
         raise credentials_exception
-    
+
     email = payload.get("sub")
     if email is None:
         raise credentials_exception
@@ -196,14 +210,16 @@ def get_client_ip(request: Request) -> str:
     return request.client.host
 
 
-def check_rate_limit(request: Request, limit: int = RATE_LIMIT_REQUESTS, window: int = RATE_LIMIT_WINDOW) -> bool:
+def check_rate_limit(
+    request: Request, limit: int = RATE_LIMIT_REQUESTS, window: int = RATE_LIMIT_WINDOW
+) -> bool:
     """Check if request is within rate limit"""
     if not redis_client:
         return True  # Skip rate limiting if Redis not available
-    
+
     client_ip = get_client_ip(request)
     key = f"rate_limit:{client_ip}"
-    
+
     try:
         current = redis_client.get(key)
         if current is None:
@@ -217,7 +233,7 @@ def check_rate_limit(request: Request, limit: int = RATE_LIMIT_REQUESTS, window:
         else:
             # Rate limit exceeded
             return False
-    except:
+    except (redis.ConnectionError, redis.TimeoutError, ValueError):
         # Redis error, allow request
         return True
 
@@ -226,11 +242,11 @@ def check_login_rate_limit(email: str, client_ip: str) -> bool:
     """Check login rate limit for email/IP combination"""
     if not redis_client:
         return True
-    
+
     # Create a hash of email+IP for privacy
     identifier = hashlib.sha256(f"{email}:{client_ip}".encode()).hexdigest()
     key = f"login_attempts:{identifier}"
-    
+
     try:
         current = redis_client.get(key)
         if current is None:
@@ -241,7 +257,7 @@ def check_login_rate_limit(email: str, client_ip: str) -> bool:
             return True
         else:
             return False
-    except:
+    except (redis.ConnectionError, redis.TimeoutError, ValueError):
         return True
 
 
@@ -249,13 +265,13 @@ def reset_login_attempts(email: str, client_ip: str) -> None:
     """Reset login attempts after successful login"""
     if not redis_client:
         return
-    
+
     identifier = hashlib.sha256(f"{email}:{client_ip}".encode()).hexdigest()
     key = f"login_attempts:{identifier}"
-    
+
     try:
         redis_client.delete(key)
-    except:
+    except (redis.ConnectionError, redis.TimeoutError) as e:
         pass
 
 
@@ -264,6 +280,6 @@ def rate_limit_middleware(request: Request, call_next):
     if not check_rate_limit(request):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Rate limit exceeded. Please try again later."
+            detail="Rate limit exceeded. Please try again later.",
         )
     return call_next(request)
