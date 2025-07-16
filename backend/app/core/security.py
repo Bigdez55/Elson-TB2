@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 import uuid
 import redis
-import time
 import hashlib
 
 from fastapi import Depends, HTTPException, status, Request

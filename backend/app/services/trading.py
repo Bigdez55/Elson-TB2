@@ -364,7 +364,7 @@ class TradingService:
             try:
                 portfolio = (
                     db.query(Portfolio)
-                    .filter(Portfolio.owner_id == user.id, Portfolio.is_active == True)
+                    .filter(Portfolio.owner_id == user.id, Portfolio.is_active)
                     .first()
                 )
             except SQLAlchemyError as e:
