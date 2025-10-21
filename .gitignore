@@ -69,12 +69,6 @@ secrets/
 *.key
 *.pem
 
-# Docker
-.dockerignore
-
-# Cloud Run
-.gcloudignore
-
 # Testing
 .coverage
 htmlcov/
