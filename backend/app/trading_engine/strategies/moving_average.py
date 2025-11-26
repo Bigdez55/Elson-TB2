@@ -258,12 +258,12 @@ class MovingAverageStrategy(TradingStrategy):
             self.last_indicators = {
                 "rsi": float(last_row.get("rsi", 0)) if not pd.isna(last_row.get("rsi", np.nan)) else 0,
                 "macd": float(last_row.get("macd", 0)) if not pd.isna(last_row.get("macd", np.nan)) else 0,
-                "volume_ratio": float(last_row.get("volume_ratio", 0))
-                if not pd.isna(last_row.get("volume_ratio", np.nan))
-                else 0,
-                "sma_short": float(last_row.get("sma_short", 0))
-                if not pd.isna(last_row.get("sma_short", np.nan))
-                else 0,
+                "volume_ratio": (
+                    float(last_row.get("volume_ratio", 0)) if not pd.isna(last_row.get("volume_ratio", np.nan)) else 0
+                ),
+                "sma_short": (
+                    float(last_row.get("sma_short", 0)) if not pd.isna(last_row.get("sma_short", np.nan)) else 0
+                ),
                 "sma_long": float(last_row.get("sma_long", 0)) if not pd.isna(last_row.get("sma_long", np.nan)) else 0,
             }
 
@@ -274,9 +274,11 @@ class MovingAverageStrategy(TradingStrategy):
                 "price": float(last_row["close"]),
                 "timestamp": datetime.utcnow().isoformat(),
                 "indicators": self.last_indicators,
-                "reason": f"Moving average crossover: {self.last_crossover}"
-                if self.last_crossover
-                else "No crossover detected",
+                "reason": (
+                    f"Moving average crossover: {self.last_crossover}"
+                    if self.last_crossover
+                    else "No crossover detected"
+                ),
             }
 
             # Add stop loss and take profit if it's a buy/sell signal

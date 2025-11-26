@@ -251,8 +251,8 @@ class QuantumInspiredClassifier:
             return {}
 
         # Calculate importance based on weight magnitudes
-        classical_importance = np.abs(self.weights[:self.n_features])
-        quantum_importance = np.abs(self.weights[self.n_features:]) if len(self.weights) > self.n_features else []
+        classical_importance = np.abs(self.weights[: self.n_features])
+        quantum_importance = np.abs(self.weights[self.n_features :]) if len(self.weights) > self.n_features else []
 
         importance_dict = {}
 

@@ -394,7 +394,7 @@ class EnhancedMarketDataService:
         # Process in batches to avoid overwhelming providers
         batch_size = 5
         for i in range(0, len(symbols), batch_size):
-            batch = symbols[i:i + batch_size]
+            batch = symbols[i : i + batch_size]
 
             # Get quotes concurrently for this batch
             tasks = [self.get_quote(symbol) for symbol in batch]
