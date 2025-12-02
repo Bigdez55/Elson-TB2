@@ -15,14 +15,15 @@ from app.core.security import get_current_active_user as get_current_user
 from app.db.base import get_db
 from app.models.portfolio import Portfolio
 from app.models.user import User
+
 # Note: Schema imports removed as they are not used in current implementation
 from app.services.advanced_trading import AdvancedTradingService
 from app.services.market_data import MarketDataService
-from app.trading_engine.engine.circuit_breaker import (
+from trading_engine.engine.circuit_breaker import (
     CircuitBreakerType,
     get_circuit_breaker,
 )
-from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
+from trading_engine.engine.risk_config import RiskProfile, get_risk_config
 
 router = APIRouter()
 
@@ -94,7 +95,9 @@ async def initialize_advanced_trading(
 
         # Initialize AI models if requested
         if request.enable_ai_models:
-            background_tasks.add_task(trading_service.initialize_ai_models, request.symbols)
+            background_tasks.add_task(
+                trading_service.initialize_ai_models, request.symbols
+            )
 
         return {
             "status": "success",
@@ -105,12 +108,16 @@ async def initialize_advanced_trading(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error initializing trading system: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error initializing trading system: {str(e)}"
+        )
 
 
 @router.post("/signals", response_model=List[Dict[str, Any]])
 async def generate_trading_signals(
-    request: TradingSignalsRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    request: TradingSignalsRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Generate trading signals for the specified portfolio
@@ -119,7 +126,10 @@ async def generate_trading_signals(
         # Get portfolio
         portfolio = (
             db.query(Portfolio)
-            .filter(Portfolio.id == request.portfolio_id, Portfolio.owner_id == current_user.id)
+            .filter(
+                Portfolio.id == request.portfolio_id,
+                Portfolio.owner_id == current_user.id,
+            )
             .first()
         )
 
@@ -128,7 +138,9 @@ async def generate_trading_signals(
 
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # Initialize strategies for requested symbols or all holdings
         symbols = request.symbols
@@ -150,12 +162,16 @@ async def generate_trading_signals(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating trading signals: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error generating trading signals: {str(e)}"
+        )
 
 
 @router.post("/execute", response_model=Dict[str, Any])
 async def execute_trades(
-    request: ExecuteTradesRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    request: ExecuteTradesRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Execute trades based on generated signals
@@ -164,7 +180,10 @@ async def execute_trades(
         # Get portfolio
         portfolio = (
             db.query(Portfolio)
-            .filter(Portfolio.id == request.portfolio_id, Portfolio.owner_id == current_user.id)
+            .filter(
+                Portfolio.id == request.portfolio_id,
+                Portfolio.owner_id == current_user.id,
+            )
             .first()
         )
 
@@ -173,12 +192,18 @@ async def execute_trades(
 
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # Get holdings symbols
         symbols = [holding.symbol for holding in portfolio.holdings]
         if not symbols:
-            return {"status": "success", "message": "No holdings to trade", "executed_trades": []}
+            return {
+                "status": "success",
+                "message": "No holdings to trade",
+                "executed_trades": [],
+            }
 
         await trading_service.initialize_strategies(symbols)
         await trading_service.initialize_ai_models(symbols)
@@ -187,7 +212,11 @@ async def execute_trades(
         signals = await trading_service.generate_trading_signals(portfolio)
 
         if not signals:
-            return {"status": "success", "message": "No trading signals generated", "executed_trades": []}
+            return {
+                "status": "success",
+                "message": "No trading signals generated",
+                "executed_trades": [],
+            }
 
         executed_trades = []
         if request.auto_execute:
@@ -224,7 +253,9 @@ async def execute_trades(
 
 @router.get("/monitor/{portfolio_id}", response_model=PositionMonitoringResponse)
 async def monitor_positions(
-    portfolio_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Monitor portfolio positions and risk metrics
@@ -232,7 +263,9 @@ async def monitor_positions(
     try:
         # Get portfolio
         portfolio = (
-            db.query(Portfolio).filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id).first()
+            db.query(Portfolio)
+            .filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id)
+            .first()
         )
 
         if not portfolio:
@@ -240,7 +273,9 @@ async def monitor_positions(
 
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # Monitor positions
         monitoring_data = await trading_service.monitor_positions(portfolio)
@@ -250,18 +285,24 @@ async def monitor_positions(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error monitoring positions: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error monitoring positions: {str(e)}"
+        )
 
 
 @router.get("/performance", response_model=PerformanceSummaryResponse)
-async def get_performance_summary(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def get_performance_summary(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
     """
     Get trading performance summary
     """
     try:
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # Get performance summary
         performance_data = trading_service.get_performance_summary()
@@ -269,12 +310,16 @@ async def get_performance_summary(db: Session = Depends(get_db), current_user: U
         return PerformanceSummaryResponse(**performance_data)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting performance summary: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error getting performance summary: {str(e)}"
+        )
 
 
 @router.post("/risk-profile", response_model=Dict[str, Any])
 async def update_risk_profile(
-    risk_profile: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    risk_profile: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Update risk profile for trading
@@ -315,11 +360,15 @@ async def update_risk_profile(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating risk profile: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error updating risk profile: {str(e)}"
+        )
 
 
 @router.get("/circuit-breakers", response_model=Dict[str, Any])
-async def get_circuit_breaker_status(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def get_circuit_breaker_status(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
     """
     Get current circuit breaker status
     """
@@ -338,7 +387,9 @@ async def get_circuit_breaker_status(db: Session = Depends(get_db), current_user
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting circuit breaker status: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error getting circuit breaker status: {str(e)}"
+        )
 
 
 @router.post("/circuit-breakers/reset", response_model=Dict[str, Any])
@@ -356,7 +407,9 @@ async def reset_circuit_breaker(
         try:
             breaker_type_enum = CircuitBreakerType(breaker_type.lower())
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Invalid circuit breaker type: {breaker_type}")
+            raise HTTPException(
+                status_code=400, detail=f"Invalid circuit breaker type: {breaker_type}"
+            )
 
         circuit_breaker = get_circuit_breaker()
         success = circuit_breaker.reset(breaker_type_enum, scope)
@@ -379,12 +432,16 @@ async def reset_circuit_breaker(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error resetting circuit breaker: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error resetting circuit breaker: {str(e)}"
+        )
 
 
 @router.get("/ai-models/status", response_model=Dict[str, Any])
 async def get_ai_models_status(
-    symbols: Optional[List[str]] = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    symbols: Optional[List[str]] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get status of AI models for trading
@@ -392,7 +449,9 @@ async def get_ai_models_status(
     try:
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # If symbols provided, initialize models for those symbols
         if symbols:
@@ -406,18 +465,24 @@ async def get_ai_models_status(
                 "is_trained": models["is_trained"],
                 "last_prediction": models["last_prediction"],
                 "prediction_confidence": models["prediction_confidence"],
-                "training_summary": quantum_model.get_training_summary() if models["is_trained"] else None,
+                "training_summary": quantum_model.get_training_summary()
+                if models["is_trained"]
+                else None,
             }
 
         return {
             "status": "success",
             "total_models": len(model_status),
-            "trained_models": sum(1 for status in model_status.values() if status["is_trained"]),
+            "trained_models": sum(
+                1 for status in model_status.values() if status["is_trained"]
+            ),
             "models": model_status,
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting AI model status: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error getting AI model status: {str(e)}"
+        )
 
 
 @router.post("/ai-models/retrain", response_model=Dict[str, Any])
@@ -433,7 +498,9 @@ async def retrain_ai_models(
     try:
         # Initialize services
         market_data_service = MarketDataService()
-        trading_service = AdvancedTradingService(db=db, market_data_service=market_data_service)
+        trading_service = AdvancedTradingService(
+            db=db, market_data_service=market_data_service
+        )
 
         # Add retraining task to background
         background_tasks.add_task(trading_service.initialize_ai_models, symbols)
@@ -446,4 +513,6 @@ async def retrain_ai_models(
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error starting AI model retraining: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error starting AI model retraining: {str(e)}"
+        )

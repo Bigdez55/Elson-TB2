@@ -22,7 +22,11 @@ class RiskConfig:
     Supports different risk profiles and dynamic parameter adjustment.
     """
 
-    def __init__(self, profile: RiskProfile = RiskProfile.MODERATE, config_path: Optional[str] = None):
+    def __init__(
+        self,
+        profile: RiskProfile = RiskProfile.MODERATE,
+        config_path: Optional[str] = None,
+    ):
         """
         Initialize risk configuration
 
@@ -221,13 +225,20 @@ class RiskConfig:
             "profile": self.profile.value,
             "max_position_size": self.get_param("position_sizing.max_position_size"),
             "max_daily_drawdown": self.get_param("drawdown_limits.max_daily_drawdown"),
-            "max_trades_per_day": self.get_param("trade_limitations.max_trades_per_day"),
-            "min_signal_confidence": self.get_param("position_sizing.min_signal_confidence"),
+            "max_trades_per_day": self.get_param(
+                "trade_limitations.max_trades_per_day"
+            ),
+            "min_signal_confidence": self.get_param(
+                "position_sizing.min_signal_confidence"
+            ),
             "max_correlation": self.get_param("correlation_limits.max_correlation"),
         }
 
     def calculate_position_size(
-        self, portfolio_value: float, signal_confidence: float, current_volatility: Optional[str] = None
+        self,
+        portfolio_value: float,
+        signal_confidence: float,
+        current_volatility: Optional[str] = None,
     ) -> float:
         """
         Calculate position size based on risk parameters
@@ -244,8 +255,12 @@ class RiskConfig:
             # Get base parameters
             base_pct = self.get_param("position_sizing.base_position_pct") or 0.05
             max_pct = self.get_param("position_sizing.max_position_size") or 0.10
-            confidence_multiplier = self.get_param("position_sizing.confidence_multiplier") or 1.0
-            min_confidence = self.get_param("position_sizing.min_signal_confidence") or 0.3
+            confidence_multiplier = (
+                self.get_param("position_sizing.confidence_multiplier") or 1.0
+            )
+            min_confidence = (
+                self.get_param("position_sizing.min_signal_confidence") or 0.3
+            )
 
             # Check minimum confidence
             if signal_confidence < min_confidence:
@@ -256,7 +271,9 @@ class RiskConfig:
 
             # Apply volatility adjustments
             if current_volatility:
-                vol_param = f"volatility_adjustments.{current_volatility}_vol_multiplier"
+                vol_param = (
+                    f"volatility_adjustments.{current_volatility}_vol_multiplier"
+                )
                 vol_multiplier = self.get_param(vol_param)
                 if vol_multiplier is not None:
                     position_pct *= vol_multiplier
@@ -273,7 +290,10 @@ class RiskConfig:
             return 0.0
 
     def is_asset_allowed(
-        self, symbol: str, asset_class: Optional[str] = None, market_cap: Optional[float] = None
+        self,
+        symbol: str,
+        asset_class: Optional[str] = None,
+        market_cap: Optional[float] = None,
     ) -> bool:
         """
         Check if an asset is allowed based on restrictions
@@ -288,7 +308,9 @@ class RiskConfig:
         """
         try:
             # Check restricted assets
-            restricted_assets = self.get_param("trade_limitations.restricted_assets") or []
+            restricted_assets = (
+                self.get_param("trade_limitations.restricted_assets") or []
+            )
             if asset_class and asset_class in restricted_assets:
                 return False
 
@@ -326,7 +348,9 @@ class RiskConfig:
 _risk_config_instance = None
 
 
-def get_risk_config(profile: Optional[RiskProfile] = None, config_path: Optional[str] = None) -> RiskConfig:
+def get_risk_config(
+    profile: Optional[RiskProfile] = None, config_path: Optional[str] = None
+) -> RiskConfig:
     """Get the global risk configuration instance"""
     global _risk_config_instance
     if _risk_config_instance is None:

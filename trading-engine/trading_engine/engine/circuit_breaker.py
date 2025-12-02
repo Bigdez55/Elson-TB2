@@ -6,7 +6,7 @@ import random
 import yaml
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, Optional, Tuple, Union, Callable, List
+from typing import Dict, Optional, Tuple, Union, Callable, List, Any
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ class CircuitBreaker:
         self.circuit_breakers: Dict[str, Dict] = {}
         self.config: Dict = {}
         self.lock = threading.RLock()
-        self.volatility_history: Dict[str, List] = {}  # Track recent volatility levels for hysteresis
+        self.volatility_history: Dict[str, List[VolatilityLevel]] = {}  # Track recent volatility levels for hysteresis
 
         # Load configuration
         if config_path and os.path.exists(config_path):
@@ -233,15 +233,16 @@ class CircuitBreaker:
                     level_counts[level] = level_counts.get(level, 0) + 1
 
                 # Find the dominant level
-                dominant_level = max(level_counts, key=level_counts.get)
+                dominant_level = max(level_counts, key=lambda x: level_counts[x])
                 dominant_ratio = level_counts[dominant_level] / len(current_samples)
 
                 # Only use the dominant level if it exceeds the threshold
                 if dominant_ratio >= threshold:
-                    volatility_level = dominant_level
+                    volatility_level = VolatilityLevel(dominant_level)
             else:
                 # Initialize history for this symbol
-                self.volatility_history[symbol] = [volatility_level]
+                if symbol is not None:
+                    self.volatility_history[symbol] = [volatility_level]
 
             # Get thresholds based on symbol or asset class
             thresholds = self.config["volatility"]["market_wide"]
@@ -593,7 +594,7 @@ class CircuitBreaker:
             # Return all breakers
             return self.circuit_breakers
 
-    def get_active_breakers_count(self) -> Dict[str, int]:
+    def get_active_breakers_count(self) -> Dict[str, Any]:
         """
         Get count of active breakers by type and status
 
@@ -603,15 +604,17 @@ class CircuitBreaker:
         counts = {"total": 0, "by_type": {}, "by_status": {}}
 
         for key, breaker in self.circuit_breakers.items():
-            counts["total"] += 1
+            counts["total"] = counts["total"] + 1
 
             # Count by type
             breaker_type = breaker["type"]
-            counts["by_type"][breaker_type] = counts["by_type"].get(breaker_type, 0) + 1
+            current_count = counts["by_type"].get(breaker_type, 0)
+            counts["by_type"][breaker_type] = current_count + 1
 
             # Count by status
             status = breaker["status"]
-            counts["by_status"][status] = counts["by_status"].get(status, 0) + 1
+            current_status_count = counts["by_status"].get(status, 0)
+            counts["by_status"][status] = current_status_count + 1
 
         return counts
 

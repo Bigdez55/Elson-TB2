@@ -15,8 +15,8 @@ import pytest
 from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClassifier
 from app.models.portfolio import Portfolio
 from app.services.advanced_trading import AdvancedTradingService
-from app.trading_engine.engine.risk_config import RiskProfile
-from app.trading_engine.strategies.moving_average import MovingAverageStrategy
+from trading_engine.engine.risk_config import RiskProfile
+from trading_engine.strategies.moving_average import MovingAverageStrategy
 
 
 class TestAdvancedTradingIntegration:
@@ -32,9 +32,15 @@ class TestAdvancedTradingIntegration:
         """Mock market data service"""
         service = Mock()
         service.get_quote = AsyncMock(
-            return_value={"price": 100.0, "volume": 1000000, "timestamp": datetime.utcnow().isoformat()}
+            return_value={
+                "price": 100.0,
+                "volume": 1000000,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
         )
-        service.get_historical_data = AsyncMock(return_value=self._create_mock_historical_data())
+        service.get_historical_data = AsyncMock(
+            return_value=self._create_mock_historical_data()
+        )
         return service
 
     @pytest.fixture
@@ -59,15 +65,25 @@ class TestAdvancedTradingIntegration:
             price_change = np.random.normal(0, 0.02)  # 2% daily volatility
             price *= 1 + price_change
 
-            data.append({"timestamp": date.isoformat(), "close": price, "volume": np.random.randint(500000, 2000000)})
+            data.append(
+                {
+                    "timestamp": date.isoformat(),
+                    "close": price,
+                    "volume": np.random.randint(500000, 2000000),
+                }
+            )
 
         return data
 
     @pytest.mark.asyncio
-    async def test_trading_service_initialization(self, mock_db, mock_market_data_service):
+    async def test_trading_service_initialization(
+        self, mock_db, mock_market_data_service
+    ):
         """Test advanced trading service initialization"""
         service = AdvancedTradingService(
-            db=mock_db, market_data_service=mock_market_data_service, risk_profile=RiskProfile.MODERATE
+            db=mock_db,
+            market_data_service=mock_market_data_service,
+            risk_profile=RiskProfile.MODERATE,
         )
 
         assert service.risk_profile == RiskProfile.MODERATE
@@ -78,7 +94,9 @@ class TestAdvancedTradingIntegration:
     @pytest.mark.asyncio
     async def test_strategy_initialization(self, mock_db, mock_market_data_service):
         """Test strategy initialization"""
-        service = AdvancedTradingService(db=mock_db, market_data_service=mock_market_data_service)
+        service = AdvancedTradingService(
+            db=mock_db, market_data_service=mock_market_data_service
+        )
 
         symbols = ["AAPL", "GOOGL"]
         await service.initialize_strategies(symbols)
@@ -90,12 +108,16 @@ class TestAdvancedTradingIntegration:
         for symbol in symbols:
             assert "strategy" in service.strategies[symbol]
             assert "executor" in service.strategies[symbol]
-            assert isinstance(service.strategies[symbol]["strategy"], MovingAverageStrategy)
+            assert isinstance(
+                service.strategies[symbol]["strategy"], MovingAverageStrategy
+            )
 
     @pytest.mark.asyncio
     async def test_ai_model_initialization(self, mock_db, mock_market_data_service):
         """Test AI model initialization"""
-        service = AdvancedTradingService(db=mock_db, market_data_service=mock_market_data_service)
+        service = AdvancedTradingService(
+            db=mock_db, market_data_service=mock_market_data_service
+        )
 
         symbols = ["AAPL"]
         await service.initialize_ai_models(symbols)
@@ -109,10 +131,15 @@ class TestAdvancedTradingIntegration:
         assert "is_trained" in model_data
 
     @pytest.mark.asyncio
-    async def test_moving_average_strategy_signal_generation(self, mock_market_data_service):
+    async def test_moving_average_strategy_signal_generation(
+        self, mock_market_data_service
+    ):
         """Test moving average strategy signal generation"""
         strategy = MovingAverageStrategy(
-            symbol="AAPL", market_data_service=mock_market_data_service, short_window=5, long_window=10
+            symbol="AAPL",
+            market_data_service=mock_market_data_service,
+            short_window=5,
+            long_window=10,
         )
 
         market_data = {"price": 105.0, "volume": 1000000}
@@ -137,7 +164,9 @@ class TestAdvancedTradingIntegration:
         y = (np.sum(X[:, :3], axis=1) > 0).astype(int)  # Simple pattern
 
         # Initialize and train model
-        model = QuantumInspiredClassifier(n_features=n_features, n_qubits=4, max_iterations=50)
+        model = QuantumInspiredClassifier(
+            n_features=n_features, n_qubits=4, max_iterations=50
+        )
 
         model.fit(X, y)
 
@@ -155,12 +184,18 @@ class TestAdvancedTradingIntegration:
         assert probabilities.shape == (10, 2)
 
     @pytest.mark.asyncio
-    async def test_signal_generation_with_ai(self, mock_db, mock_market_data_service, mock_portfolio):
+    async def test_signal_generation_with_ai(
+        self, mock_db, mock_market_data_service, mock_portfolio
+    ):
         """Test signal generation with AI enhancement"""
-        service = AdvancedTradingService(db=mock_db, market_data_service=mock_market_data_service)
+        service = AdvancedTradingService(
+            db=mock_db, market_data_service=mock_market_data_service
+        )
 
         # Initialize with limited data for faster testing
-        mock_market_data_service.get_historical_data.return_value = self._create_small_historical_data()
+        mock_market_data_service.get_historical_data.return_value = (
+            self._create_small_historical_data()
+        )
 
         symbols = ["AAPL"]
         await service.initialize_strategies(symbols)
@@ -191,15 +226,21 @@ class TestAdvancedTradingIntegration:
             else:
                 price *= 1.005  # Slight uptrend
 
-            data.append({"timestamp": date.isoformat(), "close": price, "volume": 1000000})
+            data.append(
+                {"timestamp": date.isoformat(), "close": price, "volume": 1000000}
+            )
 
         return data
 
     @pytest.mark.asyncio
-    async def test_risk_management_integration(self, mock_db, mock_market_data_service, mock_portfolio):
+    async def test_risk_management_integration(
+        self, mock_db, mock_market_data_service, mock_portfolio
+    ):
         """Test risk management integration"""
         service = AdvancedTradingService(
-            db=mock_db, market_data_service=mock_market_data_service, risk_profile=RiskProfile.CONSERVATIVE
+            db=mock_db,
+            market_data_service=mock_market_data_service,
+            risk_profile=RiskProfile.CONSERVATIVE,
         )
 
         # Test risk configuration
@@ -217,7 +258,9 @@ class TestAdvancedTradingIntegration:
     @pytest.mark.asyncio
     async def test_circuit_breaker_integration(self, mock_db, mock_market_data_service):
         """Test circuit breaker integration"""
-        service = AdvancedTradingService(db=mock_db, market_data_service=mock_market_data_service)
+        service = AdvancedTradingService(
+            db=mock_db, market_data_service=mock_market_data_service
+        )
 
         circuit_breaker = service.circuit_breaker
 
@@ -232,7 +275,9 @@ class TestAdvancedTradingIntegration:
     @pytest.mark.asyncio
     async def test_performance_tracking(self, mock_db, mock_market_data_service):
         """Test performance metrics tracking"""
-        service = AdvancedTradingService(db=mock_db, market_data_service=mock_market_data_service)
+        service = AdvancedTradingService(
+            db=mock_db, market_data_service=mock_market_data_service
+        )
 
         # Get initial performance summary
         summary = service.get_performance_summary()
@@ -252,7 +297,9 @@ class TestAdvancedTradingIntegration:
     async def test_risk_profile_update(self, mock_db, mock_market_data_service):
         """Test risk profile update functionality"""
         service = AdvancedTradingService(
-            db=mock_db, market_data_service=mock_market_data_service, risk_profile=RiskProfile.MODERATE
+            db=mock_db,
+            market_data_service=mock_market_data_service,
+            risk_profile=RiskProfile.MODERATE,
         )
 
         # Test initial profile
@@ -264,7 +311,9 @@ class TestAdvancedTradingIntegration:
         assert service.risk_profile == RiskProfile.CONSERVATIVE
 
         # Verify risk configuration changed
-        max_position_size = service.risk_config.get_param("position_sizing.max_position_size")
+        max_position_size = service.risk_config.get_param(
+            "position_sizing.max_position_size"
+        )
         assert max_position_size == 0.05  # Conservative value
 
 

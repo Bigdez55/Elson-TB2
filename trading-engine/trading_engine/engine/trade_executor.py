@@ -4,7 +4,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Dict, Optional
 
-from app.models.portfolio import Portfolio, Position
+from app.models.portfolio import Portfolio
+from app.models.holding import Position
 from app.models.trade import OrderSide, OrderStatus, OrderType, Trade
 from app.services.market_data import MarketDataService
 
@@ -46,7 +47,9 @@ class TradeExecutor:
             "average_slippage": 0.0,
         }
 
-    async def execute_strategy_signal(self, signal: Dict, portfolio: Portfolio) -> Optional[Trade]:
+    async def execute_strategy_signal(
+        self, signal: Dict, portfolio: Portfolio
+    ) -> Optional[Trade]:
         """
         Execute a trade based on the strategy signal while applying risk management
         and ensuring proper order execution.
@@ -59,7 +62,9 @@ class TradeExecutor:
 
             # Calculate position size based on risk parameters
             position_size = await self.strategy.calculate_position_size(
-                portfolio_value=portfolio.total_value, current_price=signal["price"], confidence=signal["confidence"]
+                portfolio_value=portfolio.total_value,
+                current_price=signal["price"],
+                confidence=signal["confidence"],
             )
 
             # Create and execute the order
@@ -187,19 +192,27 @@ class TradeExecutor:
 
             # Check strategy-specific circuit breakers
             strategy_name = self.strategy.__class__.__name__
-            if not circuit_breaker.check(CircuitBreakerType.PER_STRATEGY, strategy_name):
-                logger.warning(f"Strategy circuit breaker active for {strategy_name} - signal ignored")
+            if not circuit_breaker.check(
+                CircuitBreakerType.PER_STRATEGY, strategy_name
+            ):
+                logger.warning(
+                    f"Strategy circuit breaker active for {strategy_name} - signal ignored"
+                )
                 return False
 
             # Check symbol-specific circuit breakers
             symbol = signal.get("symbol", self.strategy.symbol)
             if not circuit_breaker.check(scope=symbol):
-                logger.warning(f"Symbol circuit breaker active for {symbol} - signal ignored")
+                logger.warning(
+                    f"Symbol circuit breaker active for {symbol} - signal ignored"
+                )
                 return False
 
             # Check signal quality
             risk_config = get_risk_config()
-            min_confidence = risk_config.get_param("position_sizing.min_signal_confidence") or 0.3
+            min_confidence = (
+                risk_config.get_param("position_sizing.min_signal_confidence") or 0.3
+            )
             if signal["action"] == "hold" or signal["confidence"] < min_confidence:
                 return False
 
@@ -232,11 +245,15 @@ class TradeExecutor:
             return OrderStatus.FILLED
 
         except Exception as e:
-            logger.error(f"Error checking order status for order {external_order_id}: {str(e)}")
+            logger.error(
+                f"Error checking order status for order {external_order_id}: {str(e)}"
+            )
             # If we can't check the status, assume it's still pending
             return OrderStatus.PENDING
 
-    def _create_stop_loss_order(self, order: Trade, stop_price: float) -> Optional[Trade]:
+    def _create_stop_loss_order(
+        self, order: Trade, stop_price: float
+    ) -> Optional[Trade]:
         """
         Create a stop loss order for an existing position.
         """
@@ -268,7 +285,9 @@ class TradeExecutor:
             logger.error(f"Error creating stop loss order: {str(e)}")
             return None
 
-    def _create_take_profit_order(self, order: Trade, take_profit_price: float) -> Optional[Trade]:
+    def _create_take_profit_order(
+        self, order: Trade, take_profit_price: float
+    ) -> Optional[Trade]:
         """
         Create a take profit (limit) order for an existing position.
         """
@@ -289,7 +308,9 @@ class TradeExecutor:
 
             # In production, this would actually submit the order to the broker
             # For now, just log and return the order object
-            logger.info(f"Take profit order created for {order.symbol} at {take_profit_price}")
+            logger.info(
+                f"Take profit order created for {order.symbol} at {take_profit_price}"
+            )
 
             # Track the take profit order
             self.active_orders[take_profit_order.id] = take_profit_order
@@ -352,7 +373,8 @@ class TradeExecutor:
                 if order.side == OrderSide.BUY:
                     position.quantity += order.quantity
                     position.cost_basis = (
-                        (position.cost_basis * (position.quantity - order.quantity)) + (order.price * order.quantity)
+                        (position.cost_basis * (position.quantity - order.quantity))
+                        + (order.price * order.quantity)
                     ) / position.quantity
                 else:  # SELL
                     position.quantity -= order.quantity
@@ -364,7 +386,9 @@ class TradeExecutor:
                 # Create new position if buying
                 if order.side == OrderSide.BUY:
                     self.positions[order.symbol] = Position(
-                        symbol=order.symbol, quantity=order.quantity, cost_basis=order.price
+                        symbol=order.symbol,
+                        quantity=order.quantity,
+                        cost_basis=order.price,
                     )
 
             # Remove from active orders
@@ -389,7 +413,9 @@ class TradeExecutor:
             if order.id in self.active_orders:
                 del self.active_orders[order.id]
 
-            logger.warning(f"Order {order.id} for {order.symbol} was {order.status.name.lower()}")
+            logger.warning(
+                f"Order {order.id} for {order.symbol} was {order.status.name.lower()}"
+            )
 
         except Exception as e:
             logger.error(f"Error handling cancelled order {order.id}: {str(e)}")
@@ -403,22 +429,32 @@ class TradeExecutor:
             risk_config = get_risk_config()
 
             # Calculate potential position value
-            position_value = Decimal(str(signal["price"])) * Decimal(str(signal.get("quantity", 0)))
+            position_value = Decimal(str(signal["price"])) * Decimal(
+                str(signal.get("quantity", 0))
+            )
 
             # Check maximum position size based on risk profile
-            max_position_pct = Decimal(str(risk_config.get_param("position_sizing.max_position_size") or 0.1))
+            max_position_pct = Decimal(
+                str(risk_config.get_param("position_sizing.max_position_size") or 0.1)
+            )
             max_position = portfolio.total_value * max_position_pct
 
             if position_value > max_position:
-                logger.warning(f"Position size ({position_value}) exceeds maximum allowed ({max_position})")
+                logger.warning(
+                    f"Position size ({position_value}) exceeds maximum allowed ({max_position})"
+                )
                 return False
 
             # Check daily loss limit based on risk profile
-            max_daily_drawdown = Decimal(str(risk_config.get_param("drawdown_limits.max_daily_drawdown") or 0.02))
+            max_daily_drawdown = Decimal(
+                str(risk_config.get_param("drawdown_limits.max_daily_drawdown") or 0.02)
+            )
             daily_loss_pct = portfolio.get_daily_drawdown()
 
             if daily_loss_pct and daily_loss_pct > max_daily_drawdown:
-                logger.warning(f"Daily loss limit reached: {daily_loss_pct:.2%} > {max_daily_drawdown:.2%}")
+                logger.warning(
+                    f"Daily loss limit reached: {daily_loss_pct:.2%} > {max_daily_drawdown:.2%}"
+                )
 
                 # Trip a circuit breaker for daily loss
                 circuit_breaker = get_circuit_breaker()
@@ -431,7 +467,9 @@ class TradeExecutor:
                 return False
 
             # Check maximum trades per day
-            max_trades_per_day = risk_config.get_param("trade_limitations.max_trades_per_day") or 10
+            max_trades_per_day = (
+                risk_config.get_param("trade_limitations.max_trades_per_day") or 10
+            )
             if portfolio.get_daily_trade_count() >= max_trades_per_day:
                 logger.warning(f"Maximum trades per day reached: {max_trades_per_day}")
                 return False
@@ -455,7 +493,9 @@ class TradeExecutor:
                 # Update average slippage
                 current_avg = self.execution_metrics["average_slippage"]
                 n = self.execution_metrics["successful_orders"]
-                self.execution_metrics["average_slippage"] = (current_avg * (n - 1) + slippage) / n
+                self.execution_metrics["average_slippage"] = (
+                    current_avg * (n - 1) + slippage
+                ) / n
             else:
                 self.execution_metrics["failed_orders"] += 1
 
@@ -468,5 +508,8 @@ class TradeExecutor:
         """
         return {
             **self.execution_metrics,
-            "fill_rate": (self.execution_metrics["successful_orders"] / max(self.execution_metrics["total_orders"], 1)),
+            "fill_rate": (
+                self.execution_metrics["successful_orders"]
+                / max(self.execution_metrics["total_orders"], 1)
+            ),
         }

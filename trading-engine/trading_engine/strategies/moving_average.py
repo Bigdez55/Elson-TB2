@@ -137,7 +137,9 @@ class MovingAverageStrategy(TradingStrategy):
         """Get historical market data for analysis"""
         try:
             end_date = datetime.utcnow()
-            start_date = end_date - timedelta(days=100)  # Get enough data for indicators
+            start_date = end_date - timedelta(
+                days=100
+            )  # Get enough data for indicators
 
             # Get historical data from market data service
             data = await self.market_data_service.get_historical_data(
@@ -256,15 +258,21 @@ class MovingAverageStrategy(TradingStrategy):
 
             # Store last indicators for debugging
             self.last_indicators = {
-                "rsi": float(last_row.get("rsi", 0)) if not pd.isna(last_row.get("rsi", np.nan)) else 0,
-                "macd": float(last_row.get("macd", 0)) if not pd.isna(last_row.get("macd", np.nan)) else 0,
+                "rsi": float(last_row.get("rsi", 0))
+                if not pd.isna(last_row.get("rsi", np.nan))
+                else 0,
+                "macd": float(last_row.get("macd", 0))
+                if not pd.isna(last_row.get("macd", np.nan))
+                else 0,
                 "volume_ratio": float(last_row.get("volume_ratio", 0))
                 if not pd.isna(last_row.get("volume_ratio", np.nan))
                 else 0,
                 "sma_short": float(last_row.get("sma_short", 0))
                 if not pd.isna(last_row.get("sma_short", np.nan))
                 else 0,
-                "sma_long": float(last_row.get("sma_long", 0)) if not pd.isna(last_row.get("sma_long", np.nan)) else 0,
+                "sma_long": float(last_row.get("sma_long", 0))
+                if not pd.isna(last_row.get("sma_long", np.nan))
+                else 0,
             }
 
             # Create signal dictionary
@@ -281,13 +289,20 @@ class MovingAverageStrategy(TradingStrategy):
 
             # Add stop loss and take profit if it's a buy/sell signal
             if signal_action in ["buy", "sell"]:
-                signal.update(self._calculate_stop_loss_take_profit(last_row, signal_action))
+                signal.update(
+                    self._calculate_stop_loss_take_profit(last_row, signal_action)
+                )
 
             return signal
 
         except Exception as e:
             logger.error(f"Error generating trading decision: {str(e)}")
-            return {"action": "hold", "confidence": 0.0, "price": 0.0, "reason": f"Error: {str(e)}"}
+            return {
+                "action": "hold",
+                "confidence": 0.0,
+                "price": 0.0,
+                "reason": f"Error: {str(e)}",
+            }
 
     def _calculate_signal_confidence(self, row: pd.Series) -> float:
         """Calculate confidence score for signal"""
@@ -307,7 +322,9 @@ class MovingAverageStrategy(TradingStrategy):
                 elif self.last_crossover == "bearish" and rsi > self.rsi_overbought:
                     confidence += weights["rsi"]
                 elif self.rsi_oversold < rsi < self.rsi_overbought:
-                    confidence += weights["rsi"] * 0.5  # Neutral RSI gets partial credit
+                    confidence += (
+                        weights["rsi"] * 0.5
+                    )  # Neutral RSI gets partial credit
 
             # Volume confirmation
             volume_ratio = row.get("volume_ratio", 1.0)
@@ -329,7 +346,9 @@ class MovingAverageStrategy(TradingStrategy):
             logger.error(f"Error calculating signal confidence: {str(e)}")
             return 0.0
 
-    def _calculate_stop_loss_take_profit(self, row: pd.Series, action: str) -> Dict[str, float]:
+    def _calculate_stop_loss_take_profit(
+        self, row: pd.Series, action: str
+    ) -> Dict[str, float]:
         """Calculate stop loss and take profit levels"""
         try:
             current_price = float(row["close"])
@@ -349,7 +368,9 @@ class MovingAverageStrategy(TradingStrategy):
             logger.error(f"Error calculating stop loss/take profit: {str(e)}")
             return {}
 
-    async def _custom_validation(self, signal: Dict[str, Any], market_data: Dict[str, Any]) -> bool:
+    async def _custom_validation(
+        self, signal: Dict[str, Any], market_data: Dict[str, Any]
+    ) -> bool:
         """
         Custom validation for moving average strategy
         """

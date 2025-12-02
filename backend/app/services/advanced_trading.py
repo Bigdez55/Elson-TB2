@@ -17,10 +17,10 @@ from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClass
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
 from app.services.market_data import MarketDataService
-from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
-from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
-from app.trading_engine.engine.trade_executor import TradeExecutor
-from app.trading_engine.strategies.moving_average import MovingAverageStrategy
+from trading_engine.engine.circuit_breaker import get_circuit_breaker
+from trading_engine.engine.risk_config import RiskProfile, get_risk_config
+from trading_engine.engine.trade_executor import TradeExecutor
+from trading_engine.strategies.moving_average import MovingAverageStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,10 @@ class AdvancedTradingService:
     """
 
     def __init__(
-        self, db: Session, market_data_service: MarketDataService, risk_profile: RiskProfile = RiskProfile.MODERATE
+        self,
+        db: Session,
+        market_data_service: MarketDataService,
+        risk_profile: RiskProfile = RiskProfile.MODERATE,
     ):
         """
         Initialize the advanced trading service
@@ -64,7 +67,9 @@ class AdvancedTradingService:
             "sharpe_ratio": 0.0,
         }
 
-        logger.info(f"Initialized AdvancedTradingService with risk profile: {risk_profile.value}")
+        logger.info(
+            f"Initialized AdvancedTradingService with risk profile: {risk_profile.value}"
+        )
 
     async def initialize_strategies(self, symbols: List[str]) -> None:
         """
@@ -77,13 +82,21 @@ class AdvancedTradingService:
             for symbol in symbols:
                 # Create moving average strategy
                 ma_strategy = MovingAverageStrategy(
-                    symbol=symbol, market_data_service=self.market_data_service, short_window=20, long_window=50
+                    symbol=symbol,
+                    market_data_service=self.market_data_service,
+                    short_window=20,
+                    long_window=50,
                 )
 
                 # Create trade executor for this strategy
-                trade_executor = TradeExecutor(market_data_service=self.market_data_service, strategy=ma_strategy)
+                trade_executor = TradeExecutor(
+                    market_data_service=self.market_data_service, strategy=ma_strategy
+                )
 
-                self.strategies[symbol] = {"strategy": ma_strategy, "executor": trade_executor}
+                self.strategies[symbol] = {
+                    "strategy": ma_strategy,
+                    "executor": trade_executor,
+                }
 
                 logger.info(f"Initialized strategy for {symbol}")
 
@@ -143,11 +156,15 @@ class AdvancedTradingService:
                         models["is_trained"] = True
 
                         training_summary = quantum_model.get_training_summary()
-                        logger.info(f"Trained quantum model for {symbol}: {training_summary}")
+                        logger.info(
+                            f"Trained quantum model for {symbol}: {training_summary}"
+                        )
                     else:
                         logger.warning(f"Insufficient data for training {symbol} model")
                 else:
-                    logger.warning(f"No historical data available for training {symbol}")
+                    logger.warning(
+                        f"No historical data available for training {symbol}"
+                    )
 
         except Exception as e:
             logger.error(f"Error training AI models: {str(e)}")
@@ -187,7 +204,9 @@ class AdvancedTradingService:
             df["sma_5"] = df["close"].rolling(window=5).mean()
             df["sma_20"] = df["close"].rolling(window=20).mean()
             df["rsi"] = self._calculate_rsi(df["close"], window=14)
-            df["bb_upper"], df["bb_lower"] = self._calculate_bollinger_bands(df["close"])
+            df["bb_upper"], df["bb_lower"] = self._calculate_bollinger_bands(
+                df["close"]
+            )
             df["macd"] = self._calculate_macd(df["close"])
 
             # Create features
@@ -234,7 +253,9 @@ class AdvancedTradingService:
         rs = gain / loss
         return 100 - (100 / (1 + rs))
 
-    def _calculate_bollinger_bands(self, prices: pd.Series, window: int = 20, num_std: float = 2):
+    def _calculate_bollinger_bands(
+        self, prices: pd.Series, window: int = 20, num_std: float = 2
+    ):
         """Calculate Bollinger Bands"""
         sma = prices.rolling(window=window).mean()
         std = prices.rolling(window=window).std()
@@ -242,13 +263,17 @@ class AdvancedTradingService:
         lower_band = sma - (std * num_std)
         return upper_band, lower_band
 
-    def _calculate_macd(self, prices: pd.Series, fast: int = 12, slow: int = 26) -> pd.Series:
+    def _calculate_macd(
+        self, prices: pd.Series, fast: int = 12, slow: int = 26
+    ) -> pd.Series:
         """Calculate MACD indicator"""
         exp1 = prices.ewm(span=fast).mean()
         exp2 = prices.ewm(span=slow).mean()
         return exp1 - exp2
 
-    async def generate_trading_signals(self, portfolio: Portfolio) -> List[Dict[str, Any]]:
+    async def generate_trading_signals(
+        self, portfolio: Portfolio
+    ) -> List[Dict[str, Any]]:
         """
         Generate trading signals for all active strategies
 
@@ -264,7 +289,9 @@ class AdvancedTradingService:
             # Check circuit breakers first
             trading_allowed, breaker_status = self.circuit_breaker.check()
             if not trading_allowed:
-                logger.warning(f"Trading halted due to circuit breaker: {breaker_status}")
+                logger.warning(
+                    f"Trading halted due to circuit breaker: {breaker_status}"
+                )
                 return signals
 
             for symbol, strategy_data in self.strategies.items():
@@ -282,13 +309,17 @@ class AdvancedTradingService:
 
                     if signal and signal["action"] != "hold":
                         # Enhance signal with AI prediction if available
-                        ai_prediction = await self._get_ai_prediction(symbol, market_data)
+                        ai_prediction = await self._get_ai_prediction(
+                            symbol, market_data
+                        )
                         if ai_prediction:
                             signal["ai_confidence"] = ai_prediction["confidence"]
                             signal["ai_prediction"] = ai_prediction["prediction"]
 
                             # Combine strategy and AI confidence
-                            combined_confidence = (signal["confidence"] + ai_prediction["confidence"]) / 2
+                            combined_confidence = (
+                                signal["confidence"] + ai_prediction["confidence"]
+                            ) / 2
                             signal["combined_confidence"] = combined_confidence
 
                         # Validate signal
@@ -313,7 +344,9 @@ class AdvancedTradingService:
             logger.error(f"Error generating trading signals: {str(e)}")
             return signals
 
-    async def _get_ai_prediction(self, symbol: str, market_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    async def _get_ai_prediction(
+        self, symbol: str, market_data: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """Get AI model prediction for a symbol"""
         try:
             if symbol not in self.ai_models:
@@ -330,7 +363,9 @@ class AdvancedTradingService:
 
             # Make prediction
             quantum_model = model_data["quantum_classifier"]
-            prediction_proba = quantum_model.predict_proba(current_features.reshape(1, -1))
+            prediction_proba = quantum_model.predict_proba(
+                current_features.reshape(1, -1)
+            )
 
             prediction = prediction_proba[0][1]  # Probability of positive movement
             confidence = max(prediction, 1 - prediction)  # Distance from 0.5
@@ -338,13 +373,19 @@ class AdvancedTradingService:
             model_data["last_prediction"] = prediction
             model_data["prediction_confidence"] = confidence
 
-            return {"prediction": prediction, "confidence": confidence, "model_type": "quantum_classifier"}
+            return {
+                "prediction": prediction,
+                "confidence": confidence,
+                "model_type": "quantum_classifier",
+            }
 
         except Exception as e:
             logger.error(f"Error getting AI prediction for {symbol}: {str(e)}")
             return None
 
-    async def _prepare_current_features(self, symbol: str, market_data: Dict[str, Any]) -> Optional[np.ndarray]:
+    async def _prepare_current_features(
+        self, symbol: str, market_data: Dict[str, Any]
+    ) -> Optional[np.ndarray]:
         """Prepare current market features for AI prediction"""
         try:
             # Get recent historical data for feature calculation
@@ -384,7 +425,9 @@ class AdvancedTradingService:
             logger.error(f"Error preparing current features for {symbol}: {str(e)}")
             return None
 
-    async def execute_trades(self, signals: List[Dict[str, Any]], portfolio: Portfolio) -> List[Trade]:
+    async def execute_trades(
+        self, signals: List[Dict[str, Any]], portfolio: Portfolio
+    ) -> List[Trade]:
         """
         Execute trades based on signals
 
@@ -415,7 +458,9 @@ class AdvancedTradingService:
 
                     if trade:
                         executed_trades.append(trade)
-                        logger.info(f"Executed trade for {symbol}: {trade.side.value} {trade.quantity} shares")
+                        logger.info(
+                            f"Executed trade for {symbol}: {trade.side.value} {trade.quantity} shares"
+                        )
 
                         # Update performance metrics
                         self.performance_metrics["total_trades"] += 1
@@ -453,7 +498,9 @@ class AdvancedTradingService:
             # Check portfolio risk limits
             daily_drawdown = portfolio.get_daily_drawdown()
             if daily_drawdown:
-                max_daily_drawdown = self.risk_config.get_param("drawdown_limits.max_daily_drawdown")
+                max_daily_drawdown = self.risk_config.get_param(
+                    "drawdown_limits.max_daily_drawdown"
+                )
                 if daily_drawdown > max_daily_drawdown:
                     monitoring_summary["alerts"].append(
                         {
@@ -465,7 +512,9 @@ class AdvancedTradingService:
 
             # Check trade frequency
             daily_trades = portfolio.get_daily_trade_count()
-            max_daily_trades = self.risk_config.get_param("trade_limitations.max_trades_per_day")
+            max_daily_trades = self.risk_config.get_param(
+                "trade_limitations.max_trades_per_day"
+            )
             if daily_trades >= max_daily_trades:
                 monitoring_summary["alerts"].append(
                     {
@@ -493,7 +542,9 @@ class AdvancedTradingService:
         return {
             "performance_metrics": self.performance_metrics,
             "active_strategies": len(self.strategies),
-            "trained_ai_models": sum(1 for models in self.ai_models.values() if models["is_trained"]),
+            "trained_ai_models": sum(
+                1 for models in self.ai_models.values() if models["is_trained"]
+            ),
             "risk_profile": self.risk_profile.value,
             "circuit_breaker_status": self.circuit_breaker.get_status(),
         }

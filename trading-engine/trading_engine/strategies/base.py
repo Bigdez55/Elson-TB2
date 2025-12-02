@@ -14,7 +14,13 @@ class TradingStrategy(ABC):
     position sizing, risk management, and performance tracking.
     """
 
-    def __init__(self, symbol: str, name: str, description: str = "", parameters: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        symbol: str,
+        name: str,
+        description: str = "",
+        parameters: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize the trading strategy
 
@@ -82,7 +88,11 @@ class TradingStrategy(ABC):
         pass
 
     async def calculate_position_size(
-        self, portfolio_value: float, current_price: float, confidence: float, volatility: Optional[float] = None
+        self,
+        portfolio_value: float,
+        current_price: float,
+        confidence: float,
+        volatility: Optional[float] = None,
     ) -> float:
         """
         Calculate the position size for a trade based on risk management rules
@@ -98,8 +108,12 @@ class TradingStrategy(ABC):
         """
         try:
             # Get risk parameters from strategy config
-            max_position_pct = self.parameters.get("max_position_pct", 0.05)  # 5% default
-            base_position_pct = self.parameters.get("base_position_pct", 0.02)  # 2% default
+            max_position_pct = self.parameters.get(
+                "max_position_pct", 0.05
+            )  # 5% default
+            base_position_pct = self.parameters.get(
+                "base_position_pct", 0.02
+            )  # 2% default
             confidence_multiplier = self.parameters.get("confidence_multiplier", 1.5)
 
             # Calculate base position size
@@ -130,7 +144,9 @@ class TradingStrategy(ABC):
             logger.error(f"Error calculating position size: {str(e)}")
             return 0.0
 
-    async def validate_signal(self, signal: Dict[str, Any], market_data: Dict[str, Any]) -> bool:
+    async def validate_signal(
+        self, signal: Dict[str, Any], market_data: Dict[str, Any]
+    ) -> bool:
         """
         Validate a trading signal before execution
 
@@ -168,7 +184,9 @@ class TradingStrategy(ABC):
             # Check minimum confidence threshold
             min_confidence = self.parameters.get("min_confidence", 0.3)
             if signal["confidence"] < min_confidence:
-                logger.debug(f"Signal confidence {signal['confidence']:.2f} below threshold {min_confidence:.2f}")
+                logger.debug(
+                    f"Signal confidence {signal['confidence']:.2f} below threshold {min_confidence:.2f}"
+                )
                 return False
 
             # Strategy-specific validation
@@ -177,7 +195,9 @@ class TradingStrategy(ABC):
             logger.error(f"Error validating signal: {str(e)}")
             return False
 
-    async def _custom_validation(self, signal: Dict[str, Any], market_data: Dict[str, Any]) -> bool:
+    async def _custom_validation(
+        self, signal: Dict[str, Any], market_data: Dict[str, Any]
+    ) -> bool:
         """
         Custom validation logic for specific strategies
         Override in subclasses for strategy-specific validation
@@ -205,14 +225,18 @@ class TradingStrategy(ABC):
             # Update win rate
             total_trades = self.performance_metrics["total_trades"]
             if total_trades > 0:
-                self.performance_metrics["win_rate"] = self.performance_metrics["winning_trades"] / total_trades
+                self.performance_metrics["win_rate"] = (
+                    self.performance_metrics["winning_trades"] / total_trades
+                )
 
             # Update max drawdown if necessary
             current_drawdown = trade_result.get("drawdown", 0.0)
             if current_drawdown > self.performance_metrics["max_drawdown"]:
                 self.performance_metrics["max_drawdown"] = current_drawdown
 
-            logger.debug(f"Updated performance for {self.name}: Win rate: {self.performance_metrics['win_rate']:.2%}")
+            logger.debug(
+                f"Updated performance for {self.name}: Win rate: {self.performance_metrics['win_rate']:.2%}"
+            )
         except Exception as e:
             logger.error(f"Error updating performance: {str(e)}")
 

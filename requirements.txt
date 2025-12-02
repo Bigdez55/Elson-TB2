@@ -1,7 +1,7 @@
 # Core FastAPI and server
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi==0.116.1
+uvicorn[standard]==0.32.1
+python-multipart==0.0.18
 
 # Database and Caching
 sqlalchemy==2.0.23
@@ -14,14 +14,21 @@ aioredis==2.0.1
 pydantic[email]==2.11.7
 pydantic-settings==2.10.1
 
+# Local packages
+-e file:./trading-engine
+
 # Authentication and Security
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
+pyotp==2.9.0
+
+# Payment Processing
+stripe==7.8.0
 
 # API clients and data
 httpx==0.25.2
-aiohttp==3.9.1
+aiohttp==3.10.11
 websockets==12.0
 python-dotenv==1.0.0
 requests==2.31.0
@@ -71,7 +78,7 @@ prometheus-client==0.19.0
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
-black==23.11.0
+black==24.8.0
 isort==5.12.0
 flake8==6.1.0
 mypy==1.7.1
