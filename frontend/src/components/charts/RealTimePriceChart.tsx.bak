@@ -1,0 +1,272 @@
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createChart, IChartApi, ISeriesApi, CandlestickData, LineData, HistogramData } from 'lightweight-charts';
+
+interface PriceData {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+interface RealTimePriceChartProps {
+  symbol: string;
+  data: PriceData[];
+  width?: number;
+  height?: number;
+  showVolume?: boolean;
+  showMA?: boolean;
+  maLength?: number;
+  onPriceUpdate?: (price: number, time: number) => void;
+}
+
+const RealTimePriceChart: React.FC<RealTimePriceChartProps> = ({
+  symbol,
+  data,
+  width = 800,
+  height = 600,
+  showVolume = true,
+  showMA = true,
+  maLength = 20,
+  onPriceUpdate
+}) => {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi>();
+  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'>>();
+  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'>>();
+  const maSeriesRef = useRef<ISeriesApi<'Line'>>();
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [priceChange, setPriceChange] = useState<number>(0);
+  const [priceChangePercent, setPriceChangePercent] = useState<number>(0);
+
+  // Calculate moving average
+  const calculateMA = useCallback((data: PriceData[], length: number): LineData[] => {
+    const maData: LineData[] = [];
+    
+    for (let i = length - 1; i < data.length; i++) {
+      const sum = data.slice(i - length + 1, i + 1).reduce((acc, item) => acc + item.close, 0);
+      const ma = sum / length;
+      maData.push({
+        time: data[i].time as any,
+        value: ma
+      });
+    }
+    
+    return maData;
+  }, []);
+
+  // Calculate price changes
+  useEffect(() => {
+    if (data.length >= 2) {
+      const latest = data[data.length - 1];
+      const previous = data[data.length - 2];
+      const change = latest.close - previous.close;
+      const changePercent = (change / previous.close) * 100;
+      
+      setCurrentPrice(latest.close);
+      setPriceChange(change);
+      setPriceChangePercent(changePercent);
+      
+      if (onPriceUpdate) {
+        onPriceUpdate(latest.close, latest.time);
+      }
+    }
+  }, [data, onPriceUpdate]);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    // Create chart
+    const chart = createChart(chartContainerRef.current, {
+      width,
+      height: showVolume ? height : height - 150,
+      layout: {
+        background: { color: '#1a1a1a' },
+        textColor: '#d1d4dc',
+      },
+      grid: {
+        vertLines: { color: '#2B2B43' },
+        horzLines: { color: '#2B2B43' },
+      },
+      crosshair: {
+        mode: 1,
+      },
+      rightPriceScale: {
+        borderColor: '#2B2B43',
+        scaleMargins: {
+          top: 0.1,
+          bottom: showVolume ? 0.4 : 0.1,
+        },
+      },
+      timeScale: {
+        borderColor: '#2B2B43',
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+
+    // Add candlestick series
+    const candlestickSeries = chart.addCandlestickSeries({
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderVisible: false,
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
+    });
+
+    // Add volume series if enabled
+    let volumeSeries;
+    if (showVolume) {
+      volumeSeries = chart.addHistogramSeries({
+        color: '#26a69a80',
+        priceFormat: {
+          type: 'volume',
+        },
+        priceScaleId: 'volume',
+        scaleMargins: {
+          top: 0.7,
+          bottom: 0,
+        },
+      });
+    }
+
+    // Add moving average series if enabled
+    let maSeries;
+    if (showMA) {
+      maSeries = chart.addLineSeries({
+        color: '#2196F3',
+        lineWidth: 2,
+        priceLineVisible: false,
+        lastValueVisible: true,
+        crosshairMarkerVisible: true,
+      });
+    }
+
+    // Store references
+    chartRef.current = chart;
+    candlestickSeriesRef.current = candlestickSeries;
+    if (volumeSeries) volumeSeriesRef.current = volumeSeries;
+    if (maSeries) maSeriesRef.current = maSeries;
+
+    // Add crosshair move handler
+    chart.subscribeCrosshairMove((param) => {
+      if (
+        param.point === undefined ||
+        !param.time ||
+        param.point.x < 0 ||
+        param.point.x > width ||
+        param.point.y < 0 ||
+        param.point.y > height
+      ) {
+        return;
+      }
+
+      const price = param.seriesPrices.get(candlestickSeries);
+      if (price && typeof price === 'object' && 'close' in price) {
+        // Update crosshair price display
+      }
+    });
+
+    // Cleanup
+    return () => {
+      chart.remove();
+    };
+  }, [width, height, showVolume, showMA]);
+
+  // Update data when it changes
+  useEffect(() => {
+    if (!candlestickSeriesRef.current || !data.length) return;
+
+    // Convert data format
+    const candlestickData: CandlestickData[] = data.map(item => ({
+      time: item.time as any,
+      open: item.open,
+      high: item.high,
+      low: item.low,
+      close: item.close,
+    }));
+
+    const volumeData: HistogramData[] = data.map(item => ({
+      time: item.time as any,
+      value: item.volume,
+      color: item.close >= item.open ? '#26a69a80' : '#ef535080',
+    }));
+
+    // Set candlestick data
+    candlestickSeriesRef.current.setData(candlestickData);
+
+    // Set volume data
+    if (volumeSeriesRef.current && showVolume) {
+      volumeSeriesRef.current.setData(volumeData);
+    }
+
+    // Set moving average data
+    if (maSeriesRef.current && showMA && data.length >= maLength) {
+      const maData = calculateMA(data, maLength);
+      maSeriesRef.current.setData(maData);
+    }
+
+    // Fit content
+    if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [data, showVolume, showMA, maLength, calculateMA]);
+
+  return (
+    <div className="relative bg-gray-900 rounded-lg overflow-hidden">
+      {/* Header with price info */}
+      <div className="absolute top-4 left-4 z-10 bg-gray-800 bg-opacity-90 rounded px-3 py-2">
+        <div className="flex items-center space-x-4">
+          <h3 className="text-lg font-semibold text-white">{symbol}</h3>
+          {currentPrice && (
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-bold text-white">
+                ${currentPrice.toFixed(2)}
+              </span>
+              <span
+                className={`text-sm font-medium ${
+                  priceChange >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {priceChange >= 0 ? '+' : ''}
+                {priceChange.toFixed(2)} ({priceChangePercent.toFixed(2)}%)
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Indicators legend */}
+      <div className="absolute top-4 right-4 z-10 bg-gray-800 bg-opacity-90 rounded px-3 py-2">
+        <div className="flex items-center space-x-4 text-sm">
+          {showMA && (
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span className="text-gray-300">MA({maLength})</span>
+            </div>
+          )}
+          {showVolume && (
+            <div className="flex items-center space-x-1">
+              <div className="w-3 h-3 bg-green-500 bg-opacity-50 rounded-full"></div>
+              <span className="text-gray-300">Volume</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chart container */}
+      <div ref={chartContainerRef} className="price-chart" />
+
+      {/* Real-time indicator */}
+      <div className="absolute bottom-4 right-4 z-10">
+        <div className="flex items-center space-x-2 bg-gray-800 bg-opacity-90 rounded px-2 py-1">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-xs text-gray-300">Live</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RealTimePriceChart;

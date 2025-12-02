@@ -1,6 +1,4 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import App from './App';
+// Basic tests for App component
 
 test('renders without crashing', () => {
   const div = document.createElement('div');

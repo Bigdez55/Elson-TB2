@@ -1,0 +1,195 @@
+import React, { useState, useEffect } from 'react';
+import { RealTimePriceChart, SimplePriceChart, VolumeChart, TechnicalIndicatorsPanel } from './index';
+import type { PriceData, SimplePriceData, VolumeData } from './index';
+
+// Mock data generator for demonstration
+const generateMockData = (count: number = 100): PriceData[] => {
+  const data: PriceData[] = [];
+  let price = 100;
+  const startTime = Math.floor(Date.now() / 1000) - (count * 60); // 1 minute intervals
+
+  for (let i = 0; i < count; i++) {
+    const change = (Math.random() - 0.5) * 2; // Random price change
+    const open = price;
+    const close = price + change;
+    const high = Math.max(open, close) + Math.random() * 0.5;
+    const low = Math.min(open, close) - Math.random() * 0.5;
+    const volume = Math.floor(Math.random() * 10000) + 1000;
+
+    data.push({
+      time: startTime + (i * 60),
+      open,
+      high,
+      low,
+      close,
+      volume
+    });
+
+    price = close;
+  }
+
+  return data;
+};
+
+const ChartExample: React.FC = () => {
+  const [priceData, setPriceData] = useState<PriceData[]>([]);
+  const [simpleData, setSimpleData] = useState<SimplePriceData[]>([]);
+  const [volumeData, setVolumeData] = useState<VolumeData[]>([]);
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Generate initial data
+    const data = generateMockData(100);
+    setPriceData(data);
+
+    // Convert to simple price data
+    const simple = data.map(d => ({
+      time: d.time,
+      price: d.close
+    }));
+    setSimpleData(simple);
+
+    // Convert to volume data
+    const volume = data.map(d => ({
+      time: d.time,
+      volume: d.volume,
+      direction: d.close >= d.open ? 'up' as const : 'down' as const
+    }));
+    setVolumeData(volume);
+
+    // Set initial price
+    setCurrentPrice(data[data.length - 1].close);
+
+    // Simulate real-time updates
+    const interval = setInterval(() => {
+      const lastData = data[data.length - 1];
+      const change = (Math.random() - 0.5) * 2;
+      const newPrice = lastData.close + change;
+      const newTime = Math.floor(Date.now() / 1000);
+
+      const newDataPoint: PriceData = {
+        time: newTime,
+        open: lastData.close,
+        high: Math.max(lastData.close, newPrice) + Math.random() * 0.2,
+        low: Math.min(lastData.close, newPrice) - Math.random() * 0.2,
+        close: newPrice,
+        volume: Math.floor(Math.random() * 5000) + 1000
+      };
+
+      // Update all data arrays
+      setPriceData(prev => [...prev.slice(-99), newDataPoint]);
+      setSimpleData(prev => [...prev.slice(-99), { time: newTime, price: newPrice }]);
+      setVolumeData(prev => [...prev.slice(-99), {
+        time: newTime,
+        volume: newDataPoint.volume,
+        direction: newDataPoint.close >= newDataPoint.open ? 'up' : 'down'
+      }]);
+      setCurrentPrice(newPrice);
+    }, 2000); // Update every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePriceUpdate = (price: number, time: number) => {
+    console.log('Price update:', price, 'at', new Date(time * 1000));
+  };
+
+  const handlePriceHover = (price: number, time: number) => {
+    console.log('Price hover:', price, 'at', new Date(time * 1000));
+  };
+
+  return (
+    <div className="space-y-6 p-6 bg-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Real-Time Price Charts</h1>
+        
+        {/* Real-time candlestick chart with indicators */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">AAPL - Advanced Chart</h2>
+          {priceData.length > 0 && (
+            <RealTimePriceChart
+              symbol="AAPL"
+              data={priceData}
+              width={800}
+              height={500}
+              showVolume={true}
+              showMA={true}
+              maLength={20}
+              onPriceUpdate={handlePriceUpdate}
+            />
+          )}
+        </div>
+
+        {/* Simple line chart */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">AAPL - Simple Price Chart</h2>
+          {simpleData.length > 0 && (
+            <SimplePriceChart
+              symbol="AAPL"
+              data={simpleData}
+              width={800}
+              height={300}
+              color="#2196F3"
+              showGrid={true}
+              showLastValue={true}
+              onPriceHover={handlePriceHover}
+            />
+          )}
+        </div>
+
+        {/* Technical indicators panel */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Technical Indicators</h2>
+          {priceData.length > 0 && (
+            <TechnicalIndicatorsPanel
+              data={priceData.map(d => ({ time: d.time, close: d.close }))}
+              showSMA={true}
+              showEMA={true}
+              showRSI={true}
+              showMACD={false}
+              showBollinger={false}
+              smaLength={20}
+              emaLength={12}
+            />
+          )}
+        </div>
+
+        {/* Volume chart */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Volume Chart</h2>
+          {volumeData.length > 0 && (
+            <VolumeChart
+              data={volumeData}
+              width={800}
+              height={200}
+              upColor="#26a69a"
+              downColor="#ef5350"
+            />
+          )}
+        </div>
+
+        {/* Current price display */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Current Price Info</h2>
+          <div className="flex items-center space-x-4">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <div className="text-sm text-gray-600">Current Price</div>
+              <div className="text-2xl font-bold text-gray-900">
+                ${currentPrice?.toFixed(2) || '0.00'}
+              </div>
+            </div>
+            <div className="bg-green-100 rounded-lg p-4">
+              <div className="text-sm text-green-600">Status</div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-700 font-medium">Live</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChartExample;

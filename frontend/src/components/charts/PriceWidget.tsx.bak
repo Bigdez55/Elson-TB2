@@ -1,0 +1,134 @@
+import React, { useState, useEffect } from 'react';
+import { SimplePriceChart } from './index';
+import type { SimplePriceData } from './index';
+
+interface PriceWidgetProps {
+  symbol: string;
+  width?: number;
+  height?: number;
+  updateInterval?: number; // in milliseconds
+  className?: string;
+}
+
+const PriceWidget: React.FC<PriceWidgetProps> = ({
+  symbol,
+  width = 400,
+  height = 200,
+  updateInterval = 5000, // 5 seconds default
+  className = ''
+}) => {
+  const [priceData, setPriceData] = useState<SimplePriceData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Mock data generation for demo - replace with real API calls
+  const generateMockPrice = (basePrice: number): SimplePriceData => {
+    const change = (Math.random() - 0.5) * 2; // Random change between -1 and 1
+    const newPrice = Math.max(0.01, basePrice + change); // Ensure positive price
+    return {
+      time: Math.floor(Date.now() / 1000),
+      price: newPrice
+    };
+  };
+
+  useEffect(() => {
+    // Initialize with some historical data
+    const initializeData = () => {
+      const initialData: SimplePriceData[] = [];
+      const startTime = Math.floor(Date.now() / 1000) - (60 * 60); // 1 hour ago
+      let price = 100; // Starting price
+
+      // Generate 60 data points (1 minute intervals)
+      for (let i = 0; i < 60; i++) {
+        const change = (Math.random() - 0.5) * 1;
+        price = Math.max(0.01, price + change);
+        initialData.push({
+          time: startTime + (i * 60),
+          price
+        });
+      }
+
+      setPriceData(initialData);
+      setLoading(false);
+    };
+
+    initializeData();
+
+    // Set up real-time updates
+    const interval = setInterval(() => {
+      setPriceData(prevData => {
+        if (prevData.length === 0) return prevData;
+        
+        const lastPrice = prevData[prevData.length - 1].price;
+        const newDataPoint = generateMockPrice(lastPrice);
+        
+        // Keep only last 100 data points for performance
+        const updatedData = [...prevData.slice(-99), newDataPoint];
+        return updatedData;
+      });
+    }, updateInterval);
+
+    return () => clearInterval(interval);
+  }, [updateInterval]);
+
+  const handlePriceHover = (price: number, time: number) => {
+    console.log(`${symbol} price: $${price.toFixed(2)} at ${new Date(time * 1000).toLocaleTimeString()}`);
+  };
+
+  if (loading) {
+    return (
+      <div className={`flex items-center justify-center bg-white rounded-lg border ${className}`} style={{ width, height }}>
+        <div className="text-gray-500">Loading {symbol}...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`flex items-center justify-center bg-white rounded-lg border ${className}`} style={{ width, height }}>
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
+  const currentPrice = priceData.length > 0 ? priceData[priceData.length - 1].price : 0;
+  const previousPrice = priceData.length > 1 ? priceData[priceData.length - 2].price : currentPrice;
+  const priceChange = currentPrice - previousPrice;
+  const isPositive = priceChange >= 0;
+
+  return (
+    <div className={`bg-white rounded-lg border ${className}`}>
+      {/* Header with current price */}
+      <div className="p-3 border-b">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-800">{symbol}</h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-lg font-bold text-gray-900">
+              ${currentPrice.toFixed(2)}
+            </span>
+            <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}${priceChange.toFixed(2)}
+            </span>
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div style={{ width, height: height - 60 }}>
+        <SimplePriceChart
+          symbol={symbol}
+          data={priceData}
+          width={width}
+          height={height - 60}
+          color={isPositive ? '#22c55e' : '#ef4444'}
+          showGrid={false}
+          showLastValue={true}
+          onPriceHover={handlePriceHover}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default PriceWidget;

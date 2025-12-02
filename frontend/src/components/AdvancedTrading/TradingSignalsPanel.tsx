@@ -3,6 +3,7 @@ import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import LoadingSpinner from '../LoadingSpinner';
 import { advancedTradingAPI, AdvancedTradingSignal } from '../../services/advancedTradingAPI';
+import { logger } from '../../utils/logger';
 
 interface TradingSignalsPanelProps {
   portfolioId: number;
@@ -44,7 +45,7 @@ const TradingSignalsPanel: React.FC<TradingSignalsPanelProps> = ({ portfolioId, 
       if (result.executed_trades?.length > 0) {
         onError(''); // Clear any previous errors
         // You might want to show a success message instead
-        console.log(`Executed ${result.executed_trades.length} trades`);
+        logger.info(`Executed ${result.executed_trades.length} trades`);
       }
     } catch (err: any) {
       onError(err.response?.data?.detail || 'Failed to execute trades');

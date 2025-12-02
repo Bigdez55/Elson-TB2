@@ -1,0 +1,132 @@
+import React, { useEffect, useRef } from 'react';
+import { createChart, IChartApi, ISeriesApi, HistogramData } from 'lightweight-charts';
+
+interface VolumeData {
+  time: number;
+  volume: number;
+  direction?: 'up' | 'down';
+}
+
+interface VolumeChartProps {
+  data: VolumeData[];
+  width?: number;
+  height?: number;
+  upColor?: string;
+  downColor?: string;
+  onVolumeHover?: (volume: number, time: number) => void;
+}
+
+const VolumeChart: React.FC<VolumeChartProps> = ({
+  data,
+  width = 800,
+  height = 200,
+  upColor = '#26a69a',
+  downColor = '#ef5350',
+  onVolumeHover
+}) => {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi>();
+  const seriesRef = useRef<ISeriesApi<'Histogram'>>();
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    // Create chart
+    const chart = createChart(chartContainerRef.current, {
+      width,
+      height,
+      layout: {
+        background: { color: '#1a1a1a' },
+        textColor: '#d1d4dc',
+      },
+      grid: {
+        vertLines: { color: '#2B2B43' },
+        horzLines: { color: '#2B2B43' },
+      },
+      rightPriceScale: {
+        borderColor: '#2B2B43',
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.1,
+        },
+      },
+      timeScale: {
+        borderColor: '#2B2B43',
+        visible: true,
+      },
+    });
+
+    // Create volume histogram series
+    const volumeSeries = chart.addHistogramSeries({
+      color: upColor,
+      priceFormat: {
+        type: 'volume',
+      },
+      priceScaleId: '',
+    });
+
+    // Store references
+    chartRef.current = chart;
+    seriesRef.current = volumeSeries;
+
+    // Handle hover events
+    if (onVolumeHover) {
+      chart.subscribeCrosshairMove((param) => {
+        if (
+          param.point === undefined ||
+          !param.time ||
+          param.point.x < 0 ||
+          param.point.x > width ||
+          param.point.y < 0 ||
+          param.point.y > height
+        ) {
+          return;
+        }
+
+        const volume = param.seriesPrices.get(volumeSeries)?.value;
+        if (volume) {
+          onVolumeHover(volume as number, param.time as number);
+        }
+      });
+    }
+
+    // Cleanup
+    return () => {
+      chart.remove();
+    };
+  }, [width, height, upColor, downColor, onVolumeHover]);
+
+  // Update data when it changes
+  useEffect(() => {
+    if (!seriesRef.current || !data.length) return;
+
+    // Convert data format with colors
+    const volumeData: HistogramData[] = data.map(item => ({
+      time: item.time as any,
+      value: item.volume,
+      color: item.direction === 'down' ? downColor : upColor,
+    }));
+
+    // Set data
+    seriesRef.current.setData(volumeData);
+
+    // Fit content
+    if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [data, upColor, downColor]);
+
+  return (
+    <div className="relative bg-gray-900 rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="absolute top-2 left-3 z-10 bg-gray-800 bg-opacity-90 rounded px-2 py-1">
+        <span className="text-sm text-gray-300 font-medium">Volume</span>
+      </div>
+
+      {/* Chart container */}
+      <div ref={chartContainerRef} className="volume-chart" />
+    </div>
+  );
+};
+
+export default VolumeChart;

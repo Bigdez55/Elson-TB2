@@ -7,6 +7,7 @@ import TradingSignalsPanel from './TradingSignalsPanel';
 import AIModelsStatus from './AIModelsStatus';
 import RiskManagementPanel from './RiskManagementPanel';
 import PositionMonitoringPanel from './PositionMonitoringPanel';
+import { logger } from '../../utils/logger';
 
 interface AdvancedTradingDashboardProps {
   portfolioId: number;
@@ -38,7 +39,7 @@ const AdvancedTradingDashboard: React.FC<AdvancedTradingDashboardProps> = ({ por
       setCircuitBreakerStatus(circuitBreaker);
       setIsInitialized(performance.active_strategies > 0);
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
+      logger.error('Error loading dashboard data:', err);
       setError('Failed to load dashboard data');
     }
   };
