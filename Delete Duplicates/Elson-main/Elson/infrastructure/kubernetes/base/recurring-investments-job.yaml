@@ -1,0 +1,104 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: recurring-investments-processor
+  labels:
+    app: elson
+    component: recurring-investments
+spec:
+  schedule: "0 */4 * * *"  # Run every 4 hours (increased frequency for better user experience)
+  concurrencyPolicy: Forbid  # Don't allow concurrent executions
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  startingDeadlineSeconds: 300  # If missed, retry within 5 minutes
+  jobTemplate:
+    spec:
+      backoffLimit: 3  # Retry 3 times before marking as failed
+      activeDeadlineSeconds: 1800  # Timeout after 30 minutes
+      template:
+        metadata:
+          labels:
+            app: elson
+            component: recurring-investments
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "8000"
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: recurring-investments
+            image: ${BACKEND_IMAGE}
+            imagePullPolicy: IfNotPresent
+            command: 
+            - python
+            - /app/app/scripts/recurring_investments/process_recurring_investments.py
+            - --run-once
+            - --batch-size=200  # Increased batch size for better performance
+            - --max-batches=10  # Increased max batches for larger processing volume
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: elson-db-credentials
+                  key: database-url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: elson-api-secrets
+                  key: secret-key
+            - name: REDIS_URL
+              value: "redis://redis:6379/0"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: PYTHONOPTIMIZE
+              value: "1"  # Enable Python optimization
+            - name: PYTHONUNBUFFERED
+              value: "1"  # Unbuffered output for better logging
+            # Add memory optimizations
+            - name: PYTHONMALLOC
+              value: "pymalloc"  # Use Python's memory allocator
+            - name: PYTHONHASHSEED
+              value: "0"  # Disable hash randomization for predictable performance
+            # Add cache settings
+            - name: CACHE_ENABLED
+              value: "true"
+            - name: CACHE_TTL_MEDIUM
+              value: "600"  # 10 minutes cache TTL
+            # Database connection pool settings
+            - name: DB_POOL_SIZE
+              value: "10"
+            - name: DB_MAX_OVERFLOW
+              value: "20"
+            - name: DB_POOL_RECYCLE
+              value: "3600"
+            resources:
+              requests:
+                cpu: 200m  # Increased CPU request for better performance
+                memory: 384Mi  # Increased memory for larger batch processing
+              limits:
+                cpu: 1000m  # Higher CPU limit for processing spikes
+                memory: 768Mi  # Higher memory limit for larger batch processing
+            readinessProbe:  # Add readiness probe
+              httpGet:
+                path: /health
+                port: 8000
+              initialDelaySeconds: 10
+              periodSeconds: 30
+              timeoutSeconds: 5
+            livenessProbe:  # Add liveness probe
+              httpGet:
+                path: /health
+                port: 8000
+              initialDelaySeconds: 30
+              periodSeconds: 60
+              timeoutSeconds: 10
+              failureThreshold: 3
+          # Add resource constraints at the pod level
+          nodeSelector:
+            kubernetes.io/os: linux
+          tolerations:
+          - key: "dedicated"
+            operator: "Equal"
+            value: "recurring-investments"
+            effect: "NoSchedule"
+          serviceAccountName: elson-backend-sa

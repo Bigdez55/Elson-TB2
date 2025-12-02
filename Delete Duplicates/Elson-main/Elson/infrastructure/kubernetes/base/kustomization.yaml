@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- configmap.yaml
+- service.yaml
+- deployment.yaml
+- network-policy.yaml
+- order-aggregator-job.yaml
+- recurring-investments-job.yaml
+- order-reconciliation-job.yaml
+- hpa.yaml
+- ingress.yaml
+- pod-disruption-budget.yaml

@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: order-reconciliation-job
+spec:
+  schedule: "*/15 * * * *"  # Run every 15 minutes
+  concurrencyPolicy: Forbid  # Don't allow concurrent reconciliation jobs
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 300  # 5 minutes max runtime
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: order-reconciliation
+            image: ${REGISTRY}/elson-backend:${TAG}
+            imagePullPolicy: IfNotPresent
+            command:
+            - "python"
+            - "-m"
+            - "app.scripts.run_order_reconciliation"
+            - "--hours=4"  # Reconcile orders from the last 4 hours
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: DATABASE_URL
+            - name: SCHWAB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: SCHWAB_API_KEY
+            - name: SCHWAB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: SCHWAB_SECRET
+            - name: ALPACA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: ALPACA_API_KEY
+            - name: ALPACA_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: ALPACA_SECRET_KEY
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: elson-backend-secrets
+                  key: REDIS_URL
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: elson-backend-config
+                  key: ENV
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 256Mi

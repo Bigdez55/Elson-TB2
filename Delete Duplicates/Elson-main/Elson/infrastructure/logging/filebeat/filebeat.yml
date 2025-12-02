@@ -1,0 +1,112 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /logs/*.log
+    - /logs/*/*.log
+  fields:
+    log_type: application
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.keys_under_root: true
+  json.message_key: message
+  json.add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /logs/financial*.log
+  fields:
+    log_type: financial
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.keys_under_root: true
+  json.message_key: message
+  json.add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /logs/security*.log
+  fields:
+    log_type: security
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.keys_under_root: true
+  json.message_key: message
+  json.add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /logs/trading*.log
+  fields:
+    log_type: trading
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.keys_under_root: true
+  json.message_key: message
+  json.add_error_key: true
+
+- type: log
+  enabled: true
+  paths:
+    - /logs/audit*.log
+  fields:
+    log_type: audit
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.keys_under_root: true
+  json.message_key: message
+  json.add_error_key: true
+
+# Container logs
+- type: container
+  enabled: true
+  paths:
+    - /var/lib/docker/containers/*/*.log
+  fields:
+    log_type: container
+    environment: ${ENVIRONMENT:production}
+  fields_under_root: false
+  json.message_key: log
+  json.keys_under_root: true
+  json.add_error_key: true
+
+processors:
+  - add_host_metadata: ~
+  - add_docker_metadata: ~
+  - add_cloud_metadata: ~
+  - add_kubernetes_metadata: ~
+  - decode_json_fields:
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+      process_array: false
+      max_depth: 5
+
+# Output configuration
+output.logstash:
+  hosts: ["logstash:5044"]
+
+# Optional direct Elasticsearch connection
+#output.elasticsearch:
+#  hosts: ["elasticsearch:9200"]
+#  indices:
+#    - index: "filebeat-%{+yyyy.MM.dd}"
+#      when.contains:
+#        fields.log_type: "application"
+#    - index: "filebeat-financial-%{+yyyy.MM.dd}"
+#      when.contains:
+#        fields.log_type: "financial"
+#    - index: "filebeat-security-%{+yyyy.MM.dd}"
+#      when.contains:
+#        fields.log_type: "security"
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644

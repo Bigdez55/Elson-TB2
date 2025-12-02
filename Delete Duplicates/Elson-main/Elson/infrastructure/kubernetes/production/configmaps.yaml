@@ -1,0 +1,88 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  APP_ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  ALLOWED_HOSTS: "api.elsonwealth.com"
+  CORS_ALLOWED_ORIGINS: "https://elsonwealth.com"
+  MAX_WORKERS: "4"
+  TIMEOUT: "30"
+  DATABASE_POOL_SIZE: "20"
+  DATABASE_MAX_OVERFLOW: "10"
+  API_RATE_LIMIT_MINUTE: "100"
+  REDIS_MAX_CONNECTIONS: "20"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  NGINX_CLIENT_MAX_BODY_SIZE: "10m"
+  NGINX_PROXY_READ_TIMEOUT: "60s"
+  NGINX_PROXY_CONNECT_TIMEOUT: "10s"
+  NGINX_WORKER_CONNECTIONS: "1024"
+  NGINX_KEEPALIVE_TIMEOUT: "65"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trading-engine-config
+data:
+  MAX_CONCURRENT_STRATEGIES: "10"
+  MAX_ORDERS_PER_MINUTE: "100"
+  RISK_MANAGEMENT_ENABLED: "true"
+  MAX_POSITION_SIZE: "0.05"
+  CIRCUIT_BREAKER_ENABLED: "true"
+  DATA_SOURCE_PRIORITY: "POLYGON,FINNHUB,ALPHA_VANTAGE,FMP,COINBASE"
+  RECONCILIATION_FREQUENCY: "300"
+  LOG_LEVEL: "INFO"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+data:
+  redis.conf: |
+    maxmemory 400mb
+    maxmemory-policy allkeys-lru
+    appendonly yes
+    appendfsync everysec
+    no-appendfsync-on-rewrite yes
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    aof-load-truncated yes
+    aof-use-rdb-preamble yes
+    slowlog-log-slower-than 10000
+    slowlog-max-len 128
+    timeout 300
+    tcp-keepalive 60
+    protected-mode yes
+    save 900 1
+    save 300 10
+    save 60 10000
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+data:
+  postgresql.conf: |
+    max_connections = 100
+    shared_buffers = 256MB
+    effective_cache_size = 768MB
+    maintenance_work_mem = 64MB
+    checkpoint_completion_target = 0.7
+    wal_buffers = 16MB
+    default_statistics_target = 100
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    work_mem = 2621kB
+    min_wal_size = 1GB
+    max_wal_size = 4GB

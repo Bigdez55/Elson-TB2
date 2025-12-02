@@ -1,0 +1,34 @@
+# Development dependencies for Elson Wealth Platform
+
+# Base requirements
+-r requirements.txt
+
+# Testing
+pytest==7.4.2
+pytest-cov==4.1.0
+pytest-mock==3.11.1
+pytest-asyncio==0.21.1
+pytest-xdist==3.3.1
+
+# Linting and formatting
+black==23.9.1
+flake8==6.1.0
+isort==5.12.0
+mypy==1.5.1
+
+# Debugging
+ipython==8.15.0
+ipdb==0.13.13
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==1.3.0
+
+# Local development tools
+pre-commit==3.4.0
+watchdog==3.0.0
+
+# API testing
+requests==2.31.0
+httpx==0.25.0
+aiohttp==3.8.5

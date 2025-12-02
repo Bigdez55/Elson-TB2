@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: trading-engine-service
+  labels:
+    app: trading-engine
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8001"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+    protocol: TCP
+    name: http
+  selector:
+    app: trading-engine

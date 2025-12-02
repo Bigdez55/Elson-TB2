@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: order-aggregator
+  labels:
+    app: order-aggregator
+    component: trading
+spec:
+  schedule: "*/15 * * * *"  # Run every 15 minutes
+  concurrencyPolicy: Forbid  # Don't run if previous job is still running
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: order-aggregator
+            component: trading
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: order-aggregator
+            image: ${BACKEND_IMAGE}
+            imagePullPolicy: IfNotPresent
+            command:
+            - python
+            - /app/app/scripts/automated_order_aggregation.py
+            - --run-once
+            env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: database_url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: secret_key
+            # Add other necessary environment variables
+            resources:
+              limits:
+                cpu: "200m"
+                memory: "256Mi"
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+            livenessProbe:
+              exec:
+                command:
+                - python
+                - -c
+                - "import sys; sys.exit(0)"
+              initialDelaySeconds: 5
+              periodSeconds: 30

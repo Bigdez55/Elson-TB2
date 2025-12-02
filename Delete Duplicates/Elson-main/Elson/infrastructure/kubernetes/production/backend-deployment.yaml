@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-inject-status: "update"
+        vault.hashicorp.com/role: "backend"
+        vault.hashicorp.com/agent-inject-secret-database: "kv/database"
+        vault.hashicorp.com/agent-inject-template-database: |
+          {{- with secret "kv/database" -}}
+          export DATABASE_URL="{{ .Data.url }}"
+          export POSTGRES_USER="{{ .Data.user }}"
+          export POSTGRES_PASSWORD="{{ .Data.password }}"
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-apis: "kv/apis"
+        vault.hashicorp.com/agent-inject-template-apis: |
+          {{- with secret "kv/apis" -}}
+          export ALPHA_VANTAGE_API_KEY="{{ .Data.alpha_vantage_key }}"
+          export FINNHUB_API_KEY="{{ .Data.finnhub_key }}"
+          export FMP_API_KEY="{{ .Data.fmp_key }}"
+          export POLYGON_API_KEY="{{ .Data.polygon_key }}"
+          export COINBASE_API_KEY="{{ .Data.coinbase_key }}"
+          export STRIPE_API_KEY="{{ .Data.stripe_key }}"
+          export STRIPE_WEBHOOK_SECRET="{{ .Data.stripe_webhook_secret }}"
+          export SCHWAB_API_KEY="{{ .Data.schwab_key }}"
+          export SCHWAB_SECRET="{{ .Data.schwab_secret }}"
+          {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-app: "kv/app"
+        vault.hashicorp.com/agent-inject-template-app: |
+          {{- with secret "kv/app" -}}
+          export SECRET_KEY="{{ .Data.secret_key }}"
+          export REDIS_URL="{{ .Data.redis_url }}"
+          {{- end -}}
+    spec:
+      serviceAccountName: backend
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: backend
+        image: elson-backend:latest
+        command:
+          - "/bin/sh"
+          - "-c"
+          - |
+            source /vault/secrets/database
+            source /vault/secrets/apis
+            source /vault/secrets/app
+            uvicorn app.main:app --host 0.0.0.0 --port 8000
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: VAULT_ADDR
+          value: "http://vault:8200"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 15
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+          readOnly: false
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend
+  labels:
+    app: backend

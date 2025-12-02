@@ -1,0 +1,63 @@
+# Enhanced Circuit Breaker Configuration for Phase 2
+
+volatility:
+  market_wide:
+    extreme: 0.40   # 40% extreme volatility threshold
+    high: 0.25      # 25% high volatility threshold
+    normal: 0.15    # 15% normal volatility threshold
+    position_sizing:
+      extreme: 0.25  # 25% of normal position size
+      high: 0.50     # 50% of normal position size
+      normal: 1.0    # 100% of normal position size
+      low: 1.0       # 100% of normal position size
+  symbol_specific:
+    extreme: 0.45   # 45% symbol-specific extreme threshold
+    high: 0.30      # 30% symbol-specific high threshold
+    normal: 0.18    # 18% symbol-specific normal threshold
+  asset_class_modifiers:
+    cryptocurrency: 1.5  # 50% higher thresholds for crypto
+    forex: 0.8           # 20% lower thresholds for forex
+    options: 1.2         # 20% higher thresholds for options
+  cool_down_minutes:
+    extreme: 60      # 60 min cool-down after extreme volatility
+    high: 30         # 30 min cool-down after high volatility
+    normal: 15       # 15 min cool-down after normal volatility
+    low: 0           # No cool-down for low volatility
+  hysteresis:
+    samples: 5       # Number of samples to track for hysteresis
+    threshold: 0.6   # 60% of samples must be in new regime
+
+daily_loss:
+  portfolio_pct: 0.03  # 3% daily portfolio loss limit
+  graduated:
+    warning: 0.02       # 2% triggers warning and position sizing
+    restricted: 0.025   # 2.5% triggers restricted trading
+    halt: 0.03          # 3% triggers full trading halt
+  position_sizing:
+    warning: 0.75       # 75% of normal position size
+    restricted: 0.50    # 50% of normal position size
+    halt: 0.0           # 0% of normal position size (halted)
+  reset_after_minutes: 0  # Do not auto-reset (until next trading day)
+
+execution:
+  fail_rate_threshold: 0.3  # 30% of orders failing
+  graduated:
+    warning: 0.15        # 15% failure rate triggers warning
+    restricted: 0.25     # 25% failure rate triggers restrictions
+    halt: 0.3            # 30% failure rate triggers halt
+  reset_after_minutes: 15   # Auto-reset after 15 minutes
+
+api_failure:
+  consecutive_failures: 3   # 3 consecutive API failures
+  reset_after_minutes: 5    # Auto-reset after 5 minutes
+
+correlation:
+  threshold: 0.85         # 85% correlation threshold
+  graduated:
+    warning: 0.75         # 75% correlation triggers warning
+    restricted: 0.80      # 80% correlation triggers restrictions
+    halt: 0.85            # 85% correlation triggers halt
+  reset_after_minutes: 60  # Auto-reset after 60 minutes
+
+system:
+  reset_after_minutes: 0   # Do not auto-reset system breakers

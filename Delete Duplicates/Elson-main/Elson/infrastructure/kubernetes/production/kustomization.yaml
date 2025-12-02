@@ -1,0 +1,118 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+# Database resources
+- postgres-statefulset.yaml
+- postgres-pvc.yaml
+- postgres-service.yaml
+- postgres-replication.yaml
+
+# Redis resources
+- redis-statefulset.yaml
+- redis-pvc.yaml
+- redis-service.yaml
+
+# Secret Management resources
+- vault.yaml
+- vault-auth.yaml
+
+# Application deployments
+- backend-deployment.yaml
+- frontend-deployment.yaml
+- trading-engine-deployment.yaml
+
+# Application services
+- backend-service.yaml
+- frontend-service.yaml
+- trading-engine-service.yaml
+
+# Network resources
+- ingress.yaml
+- network-policies.yaml
+
+# Auto-scaling
+- hpa.yaml
+- pdb.yaml
+
+# Configs
+- configmaps.yaml
+- tls-cert.yaml
+
+# Jobs
+- recurring-jobs.yaml
+
+# Secrets
+- secrets.yaml
+- aws-secret.yaml
+
+namePrefix: elson-prod-
+
+commonLabels:
+  environment: production
+  managed-by: kustomize
+
+images:
+- name: elson-backend
+  newName: registry.example.com/elson-backend
+  newTag: latest
+- name: elson-frontend
+  newName: registry.example.com/elson-frontend
+  newTag: latest
+- name: elson-trading-engine
+  newName: registry.example.com/elson-trading-engine
+  newTag: latest
+
+replicas:
+- name: backend-deployment
+  count: 3
+- name: frontend-deployment
+  count: 2
+- name: trading-engine-deployment
+  count: 2
+
+configMapGenerator:
+- name: env-config
+  literals:
+  - ENVIRONMENT=production
+
+patches:
+- target:
+    kind: Deployment
+    name: backend-deployment
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/envFrom
+      value:
+        - configMapRef:
+            name: backend-config
+    - op: add
+      path: /spec/template/metadata/annotations
+      value:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8000"
+- target:
+    kind: Deployment
+    name: frontend-deployment
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/envFrom
+      value:
+        - configMapRef:
+            name: frontend-config
+- target:
+    kind: Deployment
+    name: trading-engine-deployment
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/envFrom
+      value:
+        - configMapRef:
+            name: trading-engine-config
+    - op: add
+      path: /spec/template/metadata/annotations
+      value:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8001"

@@ -1,0 +1,205 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_WS_URL=ws://localhost:8000/ws
+      - NODE_ENV=production
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-master:
+        condition: service_healthy
+      redis-sentinel1:
+        condition: service_started
+      redis-sentinel2:
+        condition: service_started
+      redis-sentinel3:
+        condition: service_started
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-elson}:${DB_PASSWORD:-elsonpassword}@db:5432/${DB_NAME:-elson_production}
+      - ENVIRONMENT=production
+      - DEBUG=0
+      - SCHWAB_API_KEY=${SCHWAB_API_KEY}
+      - SCHWAB_SECRET=${SCHWAB_SECRET}
+      - SECRET_KEY=${SECRET_KEY:-replace_with_production_key}
+      - SECRET_BACKEND=${SECRET_BACKEND:-vault}
+      - VAULT_ENABLED=${VAULT_ENABLED:-true}
+      - VAULT_URL=${VAULT_URL}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-elson/secrets/prod}
+      - AWS_SECRETS_ENABLED=${AWS_SECRETS_ENABLED:-false}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - REDIS_URL=redis://redis-master:6379
+      - REDIS_SENTINEL_ENABLED=true
+      - REDIS_SENTINEL_MASTER=mymaster
+      - REDIS_SENTINEL_HOSTS=redis-sentinel1:26379,redis-sentinel2:26379,redis-sentinel3:26379
+      # Alerting Configuration
+      - ALERT_THROTTLE_WINDOW_SECONDS=${ALERT_THROTTLE_WINDOW_SECONDS:-300}
+      - ALERT_THROTTLE_MAX_ALERTS=${ALERT_THROTTLE_MAX_ALERTS:-5}
+      - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USE_TLS=${SMTP_USE_TLS:-true}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-alerts@elson.com}
+      - SLACK_ENABLED=${SLACK_ENABLED:-true}
+      - SLACK_CHANNEL=${SLACK_CHANNEL:-"#alerts"}
+      - PAGERDUTY_ENABLED=${PAGERDUTY_ENABLED:-true}
+      - PAGERDUTY_SERVICE_KEY=${PAGERDUTY_SERVICE_KEY}
+      - ON_CALL_ROTATION_ENABLED=${ON_CALL_ROTATION_ENABLED:-true}
+
+  db:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-elson}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-elsonpassword}
+      - POSTGRES_DB=elson_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-elson}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@example.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-changeme}
+    depends_on:
+      - db
+
+  redis-master:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_master_data:/data
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-server", "/redis-config/redis-master.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-replica1:
+    image: redis:alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_replica1_data:/data
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-server", "/redis-config/redis-replica.conf"]
+    depends_on:
+      - redis-master
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-replica2:
+    image: redis:alpine
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_replica2_data:/data
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-server", "/redis-config/redis-replica.conf"]
+    depends_on:
+      - redis-master
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-sentinel1:
+    image: redis:alpine
+    ports:
+      - "26379:26379"
+    volumes:
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-sentinel", "/redis-config/sentinel.conf"]
+    depends_on:
+      - redis-master
+      - redis-replica1
+      - redis-replica2
+
+  redis-sentinel2:
+    image: redis:alpine
+    ports:
+      - "26380:26379"
+    volumes:
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-sentinel", "/redis-config/sentinel.conf"]
+    depends_on:
+      - redis-master
+      - redis-replica1
+      - redis-replica2
+
+  redis-sentinel3:
+    image: redis:alpine
+    ports:
+      - "26381:26379"
+    volumes:
+      - ./infrastructure/redis:/redis-config
+    command: ["redis-sentinel", "/redis-config/sentinel.conf"]
+    depends_on:
+      - redis-master
+      - redis-replica1
+      - redis-replica2
+
+  trading-engine:
+    build:
+      context: ./trading_engine
+      dockerfile: Dockerfile.dev
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-elson}:${DB_PASSWORD:-elsonpassword}@db:5432/${DB_NAME:-elson_production}
+      - ENVIRONMENT=production
+      - API_URL=http://backend:8000/api/v1
+      - SECRET_BACKEND=${SECRET_BACKEND:-vault}
+      - VAULT_ENABLED=${VAULT_ENABLED:-true}
+      - VAULT_URL=${VAULT_URL}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - VAULT_SECRET_PATH=${VAULT_SECRET_PATH:-elson/secrets/prod}
+      - AWS_SECRETS_ENABLED=${AWS_SECRETS_ENABLED:-false}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+  redis_master_data:
+  redis_replica1_data:
+  redis_replica2_data:

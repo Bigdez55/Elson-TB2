@@ -1,0 +1,281 @@
+---
+# Vault StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  serviceName: vault
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      serviceAccountName: vault
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 100
+        runAsGroup: 1000
+      containers:
+      - name: vault
+        image: vault:1.13.3
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/bin/sh"
+          - "-c"
+          - |
+            mkdir -p /vault/data
+            chown -R vault:vault /vault/data
+            /usr/local/bin/docker-entrypoint.sh server -config=/vault/config/vault.json
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        env:
+        - name: VAULT_ADDR
+          value: "http://127.0.0.1:8200"
+        - name: VAULT_API_ADDR
+          value: "http://$(POD_IP):8200"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: VAULT_DISABLE_MLOCK
+          value: "true"
+        ports:
+        - containerPort: 8200
+          name: api
+        - containerPort: 8201
+          name: cluster
+        volumeMounts:
+        - name: vault-data
+          mountPath: /vault/data
+        - name: vault-config
+          mountPath: /vault/config
+        - name: vault-file
+          mountPath: /vault/file
+        - name: vault-tls
+          mountPath: /vault/tls
+        readinessProbe:
+          httpGet:
+            path: /v1/sys/health
+            port: 8200
+            scheme: HTTPS
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /v1/sys/health?standbyok=true
+            port: 8200
+            scheme: HTTPS
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+      volumes:
+      - name: vault-config
+        configMap:
+          name: vault-config
+      - name: vault-file
+        emptyDir: {}
+      - name: vault-tls
+        secret:
+          secretName: vault-tls
+  volumeClaimTemplates:
+  - metadata:
+      name: vault-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 2Gi
+
+---
+# Vault Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8200
+    targetPort: 8200
+    protocol: TCP
+    name: api
+  - port: 8201
+    targetPort: 8201
+    protocol: TCP
+    name: cluster
+  selector:
+    app: vault
+
+---
+# Vault Config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+data:
+  vault.json: |
+    {
+      "storage": {
+        "file": {
+          "path": "/vault/data"
+        }
+      },
+      "listener": {
+        "tcp": {
+          "address": "0.0.0.0:8200",
+          "tls_cert_file": "/vault/tls/tls.crt",
+          "tls_key_file": "/vault/tls/tls.key"
+        }
+      },
+      "ui": true,
+      "api_addr": "https://vault:8200",
+      "cluster_addr": "https://vault:8201",
+      "disable_mlock": true,
+      "seal": {
+        "awskms": {
+          "region": "us-east-1",
+          "kms_key_id": "elson-vault-key"
+        }
+      },
+      "telemetry": {
+        "prometheus_retention_time": "30s",
+        "disable_hostname": true
+      },
+      "log_level": "info"
+    }
+
+---
+# Vault ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  labels:
+    app: vault
+
+---
+# Vault Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vault-role
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+---
+# Vault RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vault-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vault-role
+subjects:
+- kind: ServiceAccount
+  name: vault
+
+---
+# Vault Agent ConfigMap for backend pods
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-agent-config
+data:
+  config.hcl: |
+    auto_auth {
+      method "kubernetes" {
+        mount_path = "auth/kubernetes"
+        config = {
+          role = "backend"
+        }
+      }
+      sink "file" {
+        config = {
+          path = "/vault/secrets/token"
+        }
+      }
+    }
+    
+    vault {
+      address = "https://vault:8200"
+      tls_skip_verify = false
+      ca_cert = "/vault/tls/ca.crt"
+    }
+    
+    template {
+      source      = "/vault/templates/database.tmpl"
+      destination = "/vault/secrets/database"
+    }
+    
+    template {
+      source      = "/vault/templates/apis.tmpl"
+      destination = "/vault/secrets/apis"
+    }
+    
+    template {
+      source      = "/vault/templates/app.tmpl"
+      destination = "/vault/secrets/app"
+    }
+
+---
+# Vault Templates ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-templates
+data:
+  database.tmpl: |
+    {{ with secret "kv/data/database" }}
+    DATABASE_URL={{ .Data.data.url }}
+    POSTGRES_USER={{ .Data.data.user }}
+    POSTGRES_PASSWORD={{ .Data.data.password }}
+    {{ end }}
+  
+  apis.tmpl: |
+    {{ with secret "kv/data/apis" }}
+    ALPHA_VANTAGE_API_KEY={{ .Data.data.alpha_vantage_key }}
+    FINNHUB_API_KEY={{ .Data.data.finnhub_key }}
+    FMP_API_KEY={{ .Data.data.fmp_key }}
+    POLYGON_API_KEY={{ .Data.data.polygon_key }}
+    COINBASE_API_KEY={{ .Data.data.coinbase_key }}
+    STRIPE_API_KEY={{ .Data.data.stripe_key }}
+    STRIPE_WEBHOOK_SECRET={{ .Data.data.stripe_webhook_secret }}
+    {{ end }}
+  
+  app.tmpl: |
+    {{ with secret "kv/data/app" }}
+    SECRET_KEY={{ .Data.data.secret_key }}
+    REDIS_URL={{ .Data.data.redis_url }}
+    {{ end }}

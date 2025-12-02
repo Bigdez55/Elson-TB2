@@ -1,0 +1,55 @@
+# infrastructure/kubernetes/base/service.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elson-frontend
+  namespace: elson-test
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 30000
+  selector:
+    app: elson-frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elson-backend
+  namespace: elson-test
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: elson-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elson-trading-engine
+  namespace: elson-test
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: 8001
+  selector:
+    app: elson-trading-engine
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: elson-test
+spec:
+  type: NodePort
+  ports:
+  - port: 9090
+    targetPort: 9090
+    nodePort: 30090
+  selector:
+    app: prometheus
