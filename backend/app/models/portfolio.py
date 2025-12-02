@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Dict
+import logging
 
 from sqlalchemy import (
     Boolean,
@@ -12,10 +13,12 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 from sqlalchemy.sql import func
 
 from app.db.base import Base
+
+logger = logging.getLogger(__name__)
 
 
 class Portfolio(Base):
@@ -39,6 +42,9 @@ class Portfolio(Base):
     # Ownership
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+    # Account relationship for family accounts (temporarily commented out)
+    # account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+
     # Status
     is_active = Column(Boolean, default=True)
 
@@ -48,144 +54,179 @@ class Portfolio(Base):
 
     # Relationships
     owner = relationship("User", back_populates="portfolios")
+    # account = relationship("Account", back_populates="portfolio")  # Commented out until account_id FK is added
     holdings = relationship("Holding", back_populates="portfolio")
     trades = relationship("Trade", back_populates="portfolio")
 
-    def get_daily_drawdown(self) -> Optional[Decimal]:
+    def get_daily_drawdown(self, session: Optional[Session] = None) -> Optional[Decimal]:
         """
-        Calculate daily portfolio drawdown
+        Calculate the daily drawdown as a percentage of portfolio value.
+
+        Args:
+            session: Optional SQLAlchemy session for database queries
 
         Returns:
             Daily drawdown as a decimal (e.g., 0.02 for 2%) or None if not available
         """
         try:
-            # In production, this would calculate actual drawdown from daily high
-            # using historical portfolio values
+            if not session:
+                # If no session provided, use simplified calculation
+                return None
 
-            # This is a simplified implementation
-            # In production, you would track portfolio values throughout the day
-            # and calculate actual drawdown from the daily high
+            # Import here to avoid circular dependency
+            from app.models.trade import Trade, TradeStatus
 
-            # For now, just return None to indicate no significant drawdown
-            # In a real implementation, this would query historical portfolio values
+            # Find the previous day's value (this is an estimate)
+            yesterday = datetime.utcnow() - timedelta(days=1)
+            day_start = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+
+            # Get all trades for this portfolio today
+            today_trades = session.query(Trade).filter(
+                Trade.portfolio_id == self.id,
+                Trade.status == TradeStatus.FILLED,
+                Trade.created_at >= day_start
+            ).all()
+
+            # Calculate P&L for today
+            daily_pnl = 0
+            for trade in today_trades:
+                if hasattr(trade, "realized_pnl") and trade.realized_pnl:
+                    daily_pnl += float(trade.realized_pnl)
+
+            # Calculate unrealized P&L from holdings
+            for holding in self.holdings:
+                if hasattr(holding, "unrealized_pl") and holding.unrealized_pl:
+                    daily_pnl += float(holding.unrealized_pl)
+
+            # If there's any loss, calculate as percentage of portfolio
+            if daily_pnl < 0 and self.total_value > 0:
+                return Decimal(str(abs(daily_pnl))) / Decimal(str(self.total_value))
+
+            return Decimal("0")
+
+        except Exception as e:
+            logger.error(f"Error calculating daily drawdown: {str(e)}")
             return None
-        except Exception:
-            return None
 
-    def get_daily_trade_count(self) -> int:
+    def daily_loss_limit_reached(self, session: Optional[Session] = None, limit: Optional[Decimal] = None) -> bool:
         """
-        Get the number of trades executed today
+        Check if the daily loss limit has been reached.
+
+        Args:
+            session: Optional SQLAlchemy session for database queries
+            limit: Optional custom limit (default: 2% of portfolio value)
+
+        Returns:
+            True if daily loss limit exceeded, False otherwise
+        """
+        try:
+            drawdown = self.get_daily_drawdown(session)
+            if drawdown is None:
+                return False
+
+            # Default limit is 2%
+            if limit is None:
+                limit = Decimal("0.02")
+
+            return drawdown > limit
+
+        except Exception as e:
+            logger.error(f"Error checking daily loss limit: {str(e)}")
+            return False
+
+    def get_daily_trade_count(self, session: Optional[Session] = None) -> int:
+        """
+        Get the number of trades executed today.
+
+        Args:
+            session: Optional SQLAlchemy session for database queries
 
         Returns:
             Number of trades executed today
         """
         try:
-            today = datetime.now().date()
-            start_of_day = datetime.combine(today, datetime.min.time())
+            if session:
+                # Import here to avoid circular dependency
+                from app.models.trade import Trade
 
-            # Count trades created today
-            # Note: This is a simplified version - in production you'd use session.query
-            daily_trades = [trade for trade in self.trades if trade.created_at and trade.created_at >= start_of_day]
-            return len(daily_trades)
-        except Exception:
+                # Define today
+                today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+
+                # Count trades from today
+                trade_count = session.query(Trade).filter(
+                    Trade.portfolio_id == self.id,
+                    Trade.created_at >= today
+                ).count()
+
+                return trade_count
+            else:
+                # Fallback to in-memory count
+                today = datetime.now().date()
+                start_of_day = datetime.combine(today, datetime.min.time())
+                daily_trades = [
+                    trade
+                    for trade in self.trades
+                    if trade.created_at and trade.created_at >= start_of_day
+                ]
+                return len(daily_trades)
+
+        except Exception as e:
+            logger.error(f"Error counting daily trades: {str(e)}")
             return 0
 
-
-class Holding(Base):
-    __tablename__ = "holdings"
-
-    id = Column(Integer, primary_key=True, index=True)
-
-    # Asset information
-    symbol = Column(String(20), nullable=False, index=True)
-    asset_type = Column(String(50), nullable=False)  # stock, crypto, bond, etf
-
-    # Holding details
-    quantity = Column(Float, nullable=False)
-    average_cost = Column(Float, nullable=False)
-    current_price = Column(Float, nullable=False)
-    market_value = Column(Float, nullable=False)
-
-    # Performance
-    unrealized_gain_loss = Column(Float, default=0.0)
-    unrealized_gain_loss_percentage = Column(Float, default=0.0)
-
-    # Target allocation
-    target_allocation_percentage = Column(Float, nullable=True)
-    current_allocation_percentage = Column(Float, nullable=True)
-
-    # Portfolio relationship
-    portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False)
-
-    # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    # Relationships
-    portfolio = relationship("Portfolio", back_populates="holdings")
-
-
-class Position:
-    """
-    Lightweight position tracking class for the trading engine
-
-    This is a separate class from Holding to provide a simple interface
-    for the TradeExecutor to track positions during trading.
-    """
-
-    def __init__(self, symbol: str, quantity: float, cost_basis: float):
+    def get_sector_exposure(self) -> Dict[str, Decimal]:
         """
-        Initialize a position
+        Calculate sector exposure percentages.
 
-        Args:
-            symbol: Asset symbol
-            quantity: Number of shares/units
-            cost_basis: Average cost basis per share
-        """
-        self.symbol = symbol
-        self.quantity = quantity
-        self.cost_basis = cost_basis
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-
-    def update_position(self, new_quantity: float, new_cost_basis: float) -> None:
-        """
-        Update position with new quantity and cost basis
-
-        Args:
-            new_quantity: New quantity
-            new_cost_basis: New cost basis
-        """
-        self.quantity = new_quantity
-        self.cost_basis = new_cost_basis
-        self.updated_at = datetime.utcnow()
-
-    def get_market_value(self, current_price: float) -> float:
-        """
-        Calculate current market value of the position
-
-        Args:
-            current_price: Current market price
+        Note: This is a simplified implementation. In production, you would use
+        sector classification data from a market data provider.
 
         Returns:
-            Market value of the position
+            Dictionary mapping sector names to exposure percentages
         """
-        return self.quantity * current_price
+        try:
+            # Map of symbols to sectors (simplified example)
+            sector_map = {
+                # Technology
+                "AAPL": "Technology", "MSFT": "Technology", "GOOGL": "Technology",
+                "GOOG": "Technology", "NVDA": "Technology", "META": "Technology",
+                # Financial
+                "JPM": "Financial", "BAC": "Financial", "WFC": "Financial",
+                "GS": "Financial", "MS": "Financial", "C": "Financial",
+                # Energy
+                "XOM": "Energy", "CVX": "Energy", "COP": "Energy",
+                # Healthcare
+                "JNJ": "Healthcare", "PFE": "Healthcare", "MRK": "Healthcare",
+                "UNH": "Healthcare", "ABBV": "Healthcare",
+                # Consumer
+                "AMZN": "Consumer", "TSLA": "Consumer", "WMT": "Consumer",
+            }
 
-    def get_unrealized_pnl(self, current_price: float) -> float:
-        """
-        Calculate unrealized profit/loss
+            # Group holdings by sector
+            sectors = {}
+            for holding in self.holdings:
+                symbol = holding.symbol
+                sector = sector_map.get(symbol, "Other")
 
-        Args:
-            current_price: Current market price
+                # Calculate position value
+                position_value = Decimal(str(holding.quantity)) * Decimal(str(holding.current_price or 0))
 
-        Returns:
-            Unrealized P&L
-        """
-        return (current_price - self.cost_basis) * self.quantity
+                if sector not in sectors:
+                    sectors[sector] = position_value
+                else:
+                    sectors[sector] += position_value
 
-    def __str__(self) -> str:
-        return f"Position(symbol={self.symbol}, quantity={self.quantity}, cost_basis={self.cost_basis:.2f})"
+            # Calculate percentages
+            total_value = Decimal(str(self.total_value)) if self.total_value else Decimal("0")
+            if total_value == 0:
+                return {}
 
-    def __repr__(self) -> str:
-        return self.__str__()
+            sector_percentages = {}
+            for sector, value in sectors.items():
+                sector_percentages[sector] = (value / total_value) * Decimal("100")
+
+            return sector_percentages
+
+        except Exception as e:
+            logger.error(f"Error calculating sector exposure: {str(e)}")
+            return {}
