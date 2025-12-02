@@ -23,6 +23,11 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
 pyotp==2.9.0
 
+# Secret Management
+hvac>=1.1.0
+boto3>=1.26.0
+botocore>=1.29.0
+
 # Payment Processing
 stripe==7.8.0
 
