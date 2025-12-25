@@ -9,7 +9,7 @@ import { AllocationChart } from '../components/charts/AllocationChart';
 const DashboardPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { portfolio } = useSelector((state: RootState) => state.portfolio);
-  const [timeframe, setTimeframe] = useState('1W');
+  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'All'>('1W');
 
   // Mock data - replace with real data from Redux store
   const portfolioData = {
@@ -121,7 +121,7 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <PortfolioChart
           data={portfolioData}
-          timeframe={timeframe as any}
+          timeframe={timeframe}
           onTimeframeChange={setTimeframe}
           className="lg:col-span-2"
         />

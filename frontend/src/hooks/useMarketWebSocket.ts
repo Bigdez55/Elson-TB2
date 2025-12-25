@@ -137,7 +137,8 @@ export const useMarketWebSocket = ({
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoConnect]);
 
   return {
     isConnected,

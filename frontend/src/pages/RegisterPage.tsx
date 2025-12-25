@@ -71,7 +71,7 @@ const RegisterPage: React.FC = () => {
     }
 
     const { confirmPassword, ...userData } = formData;
-    dispatch(register(userData) as any);
+    dispatch(register(userData));
   };
 
   return (

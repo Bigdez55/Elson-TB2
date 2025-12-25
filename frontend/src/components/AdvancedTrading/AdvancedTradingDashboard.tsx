@@ -90,7 +90,7 @@ const AdvancedTradingDashboard: React.FC<AdvancedTradingDashboardProps> = ({ por
             <label className="block text-sm font-medium mb-2">Risk Profile</label>
             <select
               value={riskProfile}
-              onChange={(e) => setRiskProfile(e.target.value as any)}
+              onChange={(e) => setRiskProfile(e.target.value as 'conservative' | 'moderate' | 'aggressive')}
               className="w-48 p-2 border border-gray-300 rounded-md"
             >
               <option value="conservative">Conservative</option>

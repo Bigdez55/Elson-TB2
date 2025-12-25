@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(login(formData) as any);
+    dispatch(login(formData));
   };
 
   return (
