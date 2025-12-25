@@ -1,0 +1,168 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { createChart, IChartApi, ISeriesApi, LineData } from 'lightweight-charts';
+
+interface SimplePriceData {
+  time: number;
+  price: number;
+}
+
+interface SimplePriceChartProps {
+  symbol: string;
+  data: SimplePriceData[];
+  width?: number;
+  height?: number;
+  color?: string;
+  showGrid?: boolean;
+  showLastValue?: boolean;
+  onPriceHover?: (price: number, time: number) => void;
+}
+
+const SimplePriceChart: React.FC<SimplePriceChartProps> = ({
+  symbol,
+  data,
+  width = 600,
+  height = 300,
+  color = '#2196F3',
+  showGrid = true,
+  showLastValue = true,
+  onPriceHover
+}) => {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi>();
+  const seriesRef = useRef<ISeriesApi<'Line'>>();
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [priceChange, setPriceChange] = useState<number>(0);
+
+  useEffect(() => {
+    if (data.length >= 2) {
+      const latest = data[data.length - 1];
+      const previous = data[data.length - 2];
+      const change = latest.price - previous.price;
+      
+      setCurrentPrice(latest.price);
+      setPriceChange(change);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    // Create chart
+    const chart = createChart(chartContainerRef.current, {
+      width,
+      height,
+      layout: {
+        background: { color: '#ffffff' },
+        textColor: '#333333',
+      },
+      grid: {
+        vertLines: { 
+          color: showGrid ? '#e0e0e0' : 'transparent' 
+        },
+        horzLines: { 
+          color: showGrid ? '#e0e0e0' : 'transparent' 
+        },
+      },
+      crosshair: {
+        mode: 1,
+      },
+      rightPriceScale: {
+        borderColor: '#e0e0e0',
+      },
+      timeScale: {
+        borderColor: '#e0e0e0',
+        timeVisible: true,
+        secondsVisible: false,
+      },
+    });
+
+    // Add line series
+    const lineSeries = chart.addLineSeries({
+      color,
+      lineWidth: 2,
+      priceLineVisible: showLastValue,
+      lastValueVisible: showLastValue,
+      crosshairMarkerVisible: true,
+    });
+
+    // Store references
+    chartRef.current = chart;
+    seriesRef.current = lineSeries;
+
+    // Add crosshair move handler
+    if (onPriceHover) {
+      chart.subscribeCrosshairMove((param) => {
+        if (
+          param.point === undefined ||
+          !param.time ||
+          param.point.x < 0 ||
+          param.point.x > width ||
+          param.point.y < 0 ||
+          param.point.y > height
+        ) {
+          return;
+        }
+
+        const price = param.seriesPrices.get(lineSeries);
+        if (price) {
+          onPriceHover(price as number, param.time as number);
+        }
+      });
+    }
+
+    // Cleanup
+    return () => {
+      chart.remove();
+    };
+  }, [width, height, color, showGrid, showLastValue, onPriceHover]);
+
+  // Update data when it changes
+  useEffect(() => {
+    if (!seriesRef.current || !data.length) return;
+
+    // Convert data format
+    const lineData: LineData[] = data.map(item => ({
+      time: item.time as any,
+      value: item.price,
+    }));
+
+    // Set data
+    seriesRef.current.setData(lineData);
+
+    // Fit content
+    if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [data]);
+
+  return (
+    <div className="relative bg-white rounded-lg border overflow-hidden">
+      {/* Header */}
+      <div className="absolute top-2 left-3 z-10 bg-white bg-opacity-90 rounded px-2 py-1">
+        <div className="flex items-center space-x-3">
+          <h4 className="font-semibold text-gray-800">{symbol}</h4>
+          {currentPrice && (
+            <div className="flex items-center space-x-2">
+              <span className="font-bold text-gray-900">
+                ${currentPrice.toFixed(2)}
+              </span>
+              <span
+                className={`text-sm font-medium ${
+                  priceChange >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {priceChange >= 0 ? '+' : ''}
+                {priceChange.toFixed(2)}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chart container */}
+      <div ref={chartContainerRef} className="simple-price-chart" />
+    </div>
+  );
+};
+
+export default SimplePriceChart;
