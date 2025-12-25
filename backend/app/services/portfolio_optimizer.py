@@ -14,7 +14,8 @@ import structlog
 from scipy.optimize import minimize
 from sqlalchemy.orm import Session
 
-from app.models.portfolio import Holding, Portfolio
+from app.models.portfolio import Portfolio
+from app.models.holding import Holding
 from app.services.enhanced_market_data import enhanced_market_data_service
 
 logger = structlog.get_logger()

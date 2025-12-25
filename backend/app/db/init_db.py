@@ -2,10 +2,11 @@ from sqlalchemy.orm import Session
 
 from app.db.base import Base, engine
 
-# Imports are handled by Base.metadata.create_all which discovers all models
+# Import all models to ensure they're registered with Base
+from app.models import user, portfolio, trade, market_data, holding, notification, subscription  # noqa
 
 
-async def init_db() -> None:
+def init_db() -> None:
     """Initialize database with tables"""
     # Create all tables
     Base.metadata.create_all(bind=engine)

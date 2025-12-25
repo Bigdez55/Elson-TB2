@@ -117,7 +117,7 @@ export const marketDataAPI = {
   },
 
   getMultipleQuotes: async (symbols: string[]): Promise<{ quotes: Quote[]; timestamp: string }> => {
-    const response = await api.post('/market/quotes', symbols);
+    const response = await api.post('/market/quotes', { symbols });
     return response.data;
   },
 

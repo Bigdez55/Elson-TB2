@@ -27,4 +27,5 @@ class User(Base):
     last_login = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    portfolios = relationship("Portfolio", back_populates="owner")
+    portfolios = relationship("Portfolio", back_populates="owner", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")

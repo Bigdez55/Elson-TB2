@@ -28,7 +28,7 @@ router = APIRouter()
 
 
 @router.post("/register", response_model=Token)
-def register(user_data: UserRegister, request: Request, db: Session = Depends(get_db)):
+def register(request: Request, user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user"""
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
@@ -75,7 +75,7 @@ def register(user_data: UserRegister, request: Request, db: Session = Depends(ge
 
 
 @router.post("/login", response_model=Token)
-def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db)):
+def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
     """Login user with rate limiting"""
     client_ip = get_client_ip(request)
     
@@ -116,8 +116,8 @@ def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db))
 
 @router.post("/token", response_model=Token)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
     request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
     """OAuth2 compatible token login with rate limiting"""

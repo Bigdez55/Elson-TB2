@@ -22,7 +22,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.db.base import Base
 # Import all models to ensure they're registered with Base
-from app.models import user, portfolio, trade, market_data
+from app.models import user, portfolio, trade, market_data, holding, notification, subscription
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

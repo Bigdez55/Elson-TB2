@@ -114,7 +114,7 @@ class TradeExecution(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Trade reference
-    trade_id = Column(Integer, ForeignKey("trades.id"), nullable=False)
+    trade_id = Column(String(36), ForeignKey("trades.id"), nullable=False)
 
     # Execution details
     executed_quantity = Column(Float, nullable=False)

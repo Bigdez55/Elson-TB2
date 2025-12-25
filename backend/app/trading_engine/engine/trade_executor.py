@@ -4,7 +4,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Dict, Optional
 
-from app.models.portfolio import Portfolio, Position
+from app.models.portfolio import Portfolio
+from app.models.holding import Position
 from app.models.trade import OrderSide, OrderStatus, OrderType, Trade
 from app.services.market_data import MarketDataService
 

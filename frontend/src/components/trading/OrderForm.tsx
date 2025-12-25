@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Button } from '../common/Button';
 import { submitOrder } from '../../store/mockTradingSlice';
 import { validateOrderAmount, validatePrice } from '../../utils/validators';
@@ -12,11 +13,13 @@ interface OrderFormProps {
 type OrderType = 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_LIMIT';
 type OrderSide = 'BUY' | 'SELL';
 
-const OrderForm: React.FC<OrderFormProps> = ({ 
-  symbol, 
-  currentPrice, 
-  availableBalance = 10000 
+const OrderForm: React.FC<OrderFormProps> = ({
+  symbol,
+  currentPrice,
+  availableBalance = 10000
 }) => {
+  const dispatch = useDispatch();
+
   // Form state
   const [orderType, setOrderType] = useState<OrderType>('MARKET');
   const [side, setSide] = useState<OrderSide>('BUY');
@@ -70,7 +73,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
         stopPrice: ['STOP', 'STOP_LIMIT'].includes(orderType) ? parseFloat(stopPrice) : undefined,
       };
 
-      await submitOrder(orderData);
+      await dispatch(submitOrder(orderData));
       
       // Reset form after successful submission
       setAmount('');

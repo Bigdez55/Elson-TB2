@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     # Cloud Run specific
     PORT: int = int(os.getenv("PORT", "8000"))
 
+    # Stripe Configuration
+    STRIPE_API_KEY: Optional[str] = os.getenv("STRIPE_API_KEY")
+    STRIPE_SECRET_KEY: Optional[str] = os.getenv("STRIPE_SECRET_KEY")
+    STRIPE_WEBHOOK_SECRET: Optional[str] = os.getenv("STRIPE_WEBHOOK_SECRET")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -45,7 +45,7 @@ app = create_application()
 @app.on_event("startup")
 async def startup_event():
     logger.info("Starting Elson Trading Platform")
-    await init_db()
+    init_db()
 
 
 @app.on_event("shutdown")
