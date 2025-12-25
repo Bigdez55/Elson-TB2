@@ -30,7 +30,7 @@ interface PortfolioChartProps {
     benchmark: number[];
   };
   timeframe?: '1D' | '1W' | '1M' | '3M' | '1Y' | 'All';
-  onTimeframeChange?: (timeframe: string) => void;
+  onTimeframeChange?: (timeframe: '1D' | '1W' | '1M' | '3M' | '1Y' | 'All') => void;
   className?: string;
 }
 
@@ -40,7 +40,7 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
   onTimeframeChange,
   className = '',
 }) => {
-  const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'All'];
+  const timeframes: Array<'1D' | '1W' | '1M' | '3M' | '1Y' | 'All'> = ['1D', '1W', '1M', '3M', '1Y', 'All'];
 
   const chartData = {
     labels: data.labels,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store/store';
 import { Button } from '../common/Button';
 import { submitOrder } from '../../store/mockTradingSlice';
 import { validateOrderAmount, validatePrice } from '../../utils/validators';
@@ -18,7 +19,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   currentPrice,
   availableBalance = 10000
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   // Form state
   const [orderType, setOrderType] = useState<OrderType>('MARKET');
