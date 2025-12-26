@@ -24,13 +24,21 @@ requests==2.31.0
 # Logging
 structlog==23.2.0
 
-# Data Processing (lightweight)
+# Data Processing
 pandas==2.1.4
 numpy==1.26.2
+scipy==1.11.4
 
-# Financial & Trading Libraries (essential only)
+# ML Libraries (ACTUALLY USED in your backend)
+scikit-learn==1.3.2
+xgboost==2.0.1
+
+# Financial & Trading Libraries
 yfinance==0.2.28
 alpaca-trade-api==3.1.1
 
-# Note: Heavy ML libraries (TensorFlow, PyTorch) removed for Vercel deployment
-# If you need ML features, consider deploying to Railway, Render, or Google Cloud Run
+# REMOVED (not used in backend, too large for Vercel):
+# - tensorflow (2GB+)
+# - torch (1GB+)
+# - transformers (500MB+)
+# These would cause Vercel deployment to fail due to size limits
