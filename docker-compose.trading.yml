@@ -1,0 +1,112 @@
+# Docker Compose for Brain & Body Trading Architecture
+#
+# This compose file sets up:
+# - Redis (Nervous System) - Message broker between Python and TypeScript
+# - Python Strategy Engine (Brain) - ML models and signal generation
+# - TypeScript Execution Bot (Body) - Trade execution
+#
+# Usage:
+#   docker-compose -f docker-compose.trading.yml up
+#
+# Or start just Redis:
+#   docker-compose -f docker-compose.trading.yml up redis
+
+version: '3.8'
+
+services:
+  # ============================================
+  # NERVOUS SYSTEM - Redis Message Broker
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: elson-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # ============================================
+  # BRAIN - Python Strategy Engine
+  # ============================================
+  strategy-engine:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: elson-strategy-engine
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SYMBOLS=BTC/USDT,ETH/USDT,AAPL,MSFT
+      - LOG_LEVEL=INFO
+    command: python -m app.ml.strategy_engine
+    volumes:
+      - ./backend:/app
+      - ml_models:/app/models
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # ============================================
+  # BODY - TypeScript Execution Bot
+  # ============================================
+  execution-bot:
+    build:
+      context: ./elson-trading-package/execution-bot
+      dockerfile: Dockerfile
+    container_name: elson-execution-bot
+    depends_on:
+      redis:
+        condition: service_healthy
+      strategy-engine:
+        condition: service_started
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PAPER_TRADING=true
+      - INITIAL_BALANCE=10000
+      - MIN_CONFIDENCE=0.6
+      - MAX_POSITION_SIZE=10
+      - MAX_DAILY_LOSS=5
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # ============================================
+  # REDIS COMMANDER - Web UI for Redis (optional)
+  # ============================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: elson-redis-ui
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - trading-network
+    profiles:
+      - debug
+
+volumes:
+  redis_data:
+    driver: local
+  ml_models:
+    driver: local
+
+networks:
+  trading-network:
+    driver: bridge

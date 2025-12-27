@@ -1,0 +1,32 @@
+{
+  "name": "@elson/execution-bot",
+  "version": "1.0.0",
+  "description": "Trading execution bot - The 'Body' of the Brain & Body architecture",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "dev": "ts-node-dev --respawn index.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ioredis": "^5.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "trading",
+    "execution",
+    "bot",
+    "redis",
+    "signals"
+  ]
+}

@@ -76,6 +76,18 @@ from app.ml.reinforcement import (
     get_rl_service,
 )
 
+from app.ml.signals import (
+    TradingSignal,
+    SignalAction,
+    SignalSource,
+    RedisSignalPublisher,
+    StrategySignalGenerator,
+    get_signal_publisher,
+    get_signal_generator,
+)
+
+from app.ml.strategy_engine import StrategyEngine
+
 __all__ = [
     # Configuration
     "MLConfig",
@@ -108,4 +120,13 @@ __all__ = [
     "DQNAgent",
     "SimpleTradingEnvironment",
     "get_rl_service",
+    # Trading Signals (Brain & Body Architecture)
+    "TradingSignal",
+    "SignalAction",
+    "SignalSource",
+    "RedisSignalPublisher",
+    "StrategySignalGenerator",
+    "get_signal_publisher",
+    "get_signal_generator",
+    "StrategyEngine",
 ]
