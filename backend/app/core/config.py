@@ -67,6 +67,8 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "https://localhost:3000",
         "https://localhost:8000",
+        "https://elson-tb-2.vercel.app",
+        "https://elson-tb-2-*.vercel.app",  # Preview deployments
     ]
 
     # API Keys
