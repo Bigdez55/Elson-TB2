@@ -1,4 +1,4 @@
-import { Middleware } from '@reduxjs/toolkit';
+import { Middleware, AnyAction } from '@reduxjs/toolkit';
 import { webSocketService } from '../../services/websocketService';
 import {
   setConnectionStatus,
@@ -18,18 +18,21 @@ import type { RootState } from '../store';
 // WebSocket middleware for Redux integration
 export const websocketMiddleware: Middleware<{}, RootState> = (store) => (next) => (action) => {
   const result = next(action);
-  
+
+  // Type guard for action
+  const typedAction = action as AnyAction;
+
   // Handle specific Redux actions that should trigger WebSocket operations
-  if (action.type === 'websocket/connectWebSocket') {
+  if (typedAction.type === 'websocket/connectWebSocket') {
     handleWebSocketConnection(store);
-  } else if (action.type === 'websocket/disconnectWebSocket') {
+  } else if (typedAction.type === 'websocket/disconnectWebSocket') {
     handleWebSocketDisconnection(store);
-  } else if (action.type?.startsWith('tradingApi/executeTrade/fulfilled')) {
+  } else if (typedAction.type?.startsWith('tradingApi/executeTrade/fulfilled')) {
     // Invalidate cache and request real-time updates after successful trade
-    handleTradeExecuted(store, action);
-  } else if (action.type?.startsWith('marketDataApi/')) {
+    handleTradeExecuted(store, typedAction);
+  } else if (typedAction.type?.startsWith('marketDataApi/')) {
     // Handle market data API calls
-    handleMarketDataRequest(store, action);
+    handleMarketDataRequest(store, typedAction);
   }
 
   return result;
