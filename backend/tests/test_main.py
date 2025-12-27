@@ -9,10 +9,7 @@ def test_health_check():
     client = TestClient(app)
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "healthy", 
-        "service": "elson-trading-platform"
-    }
+    assert response.json() == {"status": "healthy", "service": "elson-trading-platform"}
 
 
 def test_root_endpoint():
@@ -20,6 +17,4 @@ def test_root_endpoint():
     client = TestClient(app)
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {
-        "message": "Elson Personal Trading Platform API"
-    }
+    assert response.json() == {"message": "Elson Personal Trading Platform API"}

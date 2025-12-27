@@ -133,9 +133,9 @@ const PortfolioPage: React.FC = () => {
         chartInstancesRef.current.allocation = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: holdings.map(h => h.symbol),
+            labels: holdings.map((h: any) => h.symbol),
             datasets: [{
-              data: holdings.map(h => h.current_allocation_percentage || h.market_value),
+              data: holdings.map((h: any) => h.current_allocation_percentage || h.market_value),
               backgroundColor: colors.slice(0, holdings.length),
               borderWidth: 2,
               borderColor: '#ffffff',
@@ -226,17 +226,17 @@ const PortfolioPage: React.FC = () => {
   };
   
   // Calculate total P&L
-  const totalUnrealizedPL = holdings.reduce((sum, holding) => sum + holding.unrealized_gain_loss, 0);
+  const totalUnrealizedPL = holdings.reduce((sum: any, holding: any) => sum + holding.unrealized_gain_loss, 0);
   const totalUnrealizedPLPercent = holdings.length > 0 
-    ? holdings.reduce((sum, holding) => sum + holding.unrealized_gain_loss_percentage, 0) / holdings.length
+    ? holdings.reduce((sum: any, holding: any) => sum + holding.unrealized_gain_loss_percentage, 0) / holdings.length
     : 0;
   
   // Get best and worst performers
-  const bestPerformer = holdings.reduce((best, current) => 
+  const bestPerformer = holdings.reduce((best: any, current: any) => 
     current.unrealized_gain_loss_percentage > best.unrealized_gain_loss_percentage ? current : best
   , holdings[0] || null);
   
-  const worstPerformer = holdings.reduce((worst, current) => 
+  const worstPerformer = holdings.reduce((worst: any, current: any) => 
     current.unrealized_gain_loss_percentage < worst.unrealized_gain_loss_percentage ? current : worst
   , holdings[0] || null);
   
@@ -451,7 +451,7 @@ const PortfolioPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {holdings.map((holding) => (
+                      {holdings.map((holding: any) => (
                         <tr key={holding.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{holding.symbol}</div>

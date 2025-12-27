@@ -25,7 +25,11 @@ async def get_portfolio_summary(
 ):
     """Get portfolio summary with holdings"""
     # Get user's active portfolio
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")
@@ -34,13 +38,25 @@ async def get_portfolio_summary(
     await trading_service._update_portfolio_totals(portfolio, db)
 
     # Get holdings
-    holdings = [HoldingResponse.from_orm(holding) for holding in portfolio.holdings if holding.quantity > 0]
+    holdings = [
+        HoldingResponse.from_orm(holding)
+        for holding in portfolio.holdings
+        if holding.quantity > 0
+    ]
 
     # Calculate summary statistics
     total_positions = len(holdings)
     largest_position = max(holdings, key=lambda h: h.market_value) if holdings else None
-    best_performer = max(holdings, key=lambda h: h.unrealized_gain_loss_percentage) if holdings else None
-    worst_performer = min(holdings, key=lambda h: h.unrealized_gain_loss_percentage) if holdings else None
+    best_performer = (
+        max(holdings, key=lambda h: h.unrealized_gain_loss_percentage)
+        if holdings
+        else None
+    )
+    worst_performer = (
+        min(holdings, key=lambda h: h.unrealized_gain_loss_percentage)
+        if holdings
+        else None
+    )
 
     return PortfolioSummaryResponse(
         portfolio=PortfolioResponse.from_orm(portfolio),
@@ -58,7 +74,11 @@ async def get_portfolio_details(
     db: Session = Depends(get_db),
 ):
     """Get detailed portfolio information"""
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")
@@ -75,7 +95,11 @@ async def get_holdings(
     db: Session = Depends(get_db),
 ):
     """Get all portfolio holdings"""
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")
@@ -95,7 +119,11 @@ async def update_portfolio(
     db: Session = Depends(get_db),
 ):
     """Update portfolio settings"""
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")
@@ -117,7 +145,11 @@ async def get_portfolio_performance(
     db: Session = Depends(get_db),
 ):
     """Get portfolio performance metrics"""
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")
@@ -141,7 +173,8 @@ async def get_portfolio_performance(
     total_invested = sum(asset_allocation.values())
     if total_invested > 0:
         asset_allocation = {
-            asset_type: (value / total_invested) * 100 for asset_type, value in asset_allocation.items()
+            asset_type: (value / total_invested) * 100
+            for asset_type, value in asset_allocation.items()
         }
 
     return {
@@ -162,7 +195,11 @@ async def refresh_portfolio_data(
     db: Session = Depends(get_db),
 ):
     """Manually refresh portfolio data with latest market prices"""
-    portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+        .first()
+    )
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="No active portfolio found")

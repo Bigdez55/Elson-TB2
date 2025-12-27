@@ -7,8 +7,9 @@ from app.db.base import Base, engine
 
 async def init_db() -> None:
     """Initialize database with tables"""
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
+    # Tables are managed by Alembic migrations, not auto-created
+    # Use: alembic upgrade head
+    pass
 
 
 def create_initial_data(db: Session) -> None:

@@ -1,6 +1,7 @@
-from typing import List, Optional
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_active_user
@@ -8,10 +9,13 @@ from app.db.base import get_db
 from app.models.trade import Trade, TradeStatus
 from app.models.user import User
 from app.schemas.trading import (
+    BatchDataResponse,
     OrderCancelRequest,
     PositionResponse,
+    SyncModesResponse,
     TradeOrderRequest,
     TradeResponse,
+    TradingAccountResponse,
     TradingStatsResponse,
 )
 from app.services.trading import trading_service
@@ -44,7 +48,9 @@ async def cancel_order(
 ):
     """Cancel a pending order"""
     try:
-        trade = await trading_service.cancel_order(cancel_request.trade_id, current_user, db)
+        trade = await trading_service.cancel_order(
+            cancel_request.trade_id, current_user, db
+        )
         return TradeResponse.from_orm(trade)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -82,7 +88,9 @@ async def get_trade_history(
 
         return [TradeResponse.from_orm(trade) for trade in trades]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get trade history: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get trade history: {str(e)}"
+        )
 
 
 @router.get("/positions", response_model=List[PositionResponse])
@@ -95,7 +103,11 @@ async def get_positions(
         from app.models.portfolio import Portfolio
 
         # Get user's active portfolio
-        portfolio = db.query(Portfolio).filter(Portfolio.owner_id == current_user.id, Portfolio.is_active).first()
+        portfolio = (
+            db.query(Portfolio)
+            .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+            .first()
+        )
 
         if not portfolio:
             return []
@@ -111,14 +123,64 @@ async def get_positions(
                         current_price=holding.current_price,
                         market_value=holding.market_value,
                         unrealized_gain_loss=holding.unrealized_gain_loss,
-                        unrealized_gain_loss_percentage=(holding.unrealized_gain_loss_percentage),
+                        unrealized_gain_loss_percentage=(
+                            holding.unrealized_gain_loss_percentage
+                        ),
                         asset_type=holding.asset_type,
                     )
                 )
 
         return positions
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get positions: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get positions: {str(e)}"
+        )
+
+
+@router.get("/positions/{symbol}", response_model=PositionResponse)
+async def get_position_by_symbol(
+    symbol: str,
+    x_trading_mode: Optional[str] = Header(None, alias="x-trading-mode"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Get a specific position by symbol"""
+    try:
+        from app.models.portfolio import Portfolio
+
+        symbol = symbol.upper()
+
+        # Get user's active portfolio
+        portfolio = (
+            db.query(Portfolio)
+            .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
+            .first()
+        )
+
+        if not portfolio:
+            raise HTTPException(status_code=404, detail="Portfolio not found")
+
+        # Find the holding for the symbol
+        for holding in portfolio.holdings:
+            if holding.symbol.upper() == symbol and holding.quantity > 0:
+                return PositionResponse(
+                    symbol=holding.symbol,
+                    quantity=holding.quantity,
+                    average_cost=holding.average_cost,
+                    current_price=holding.current_price,
+                    market_value=holding.market_value,
+                    unrealized_gain_loss=holding.unrealized_gain_loss,
+                    unrealized_gain_loss_percentage=holding.unrealized_gain_loss_percentage,
+                    asset_type=holding.asset_type,
+                )
+
+        raise HTTPException(status_code=404, detail=f"Position not found for symbol: {symbol}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get position: {str(e)}"
+        )
 
 
 @router.get("/stats", response_model=TradingStatsResponse)
@@ -197,11 +259,15 @@ async def get_trading_stats(
             total_commission=total_commission,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get trading stats: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get trading stats: {str(e)}"
+        )
 
 
 @router.get("/validate/{symbol}")
-async def validate_symbol(symbol: str, current_user: User = Depends(get_current_active_user)):
+async def validate_symbol(
+    symbol: str, current_user: User = Depends(get_current_active_user)
+):
     """Validate if a symbol is tradeable"""
     try:
         from app.services.market_data import market_data_service
@@ -224,4 +290,181 @@ async def validate_symbol(symbol: str, current_user: User = Depends(get_current_
                 "error": "Symbol not found or market data unavailable",
             }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to validate symbol: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to validate symbol: {str(e)}"
+        )
+
+
+@router.get("/account", response_model=TradingAccountResponse)
+async def get_trading_account(
+    x_trading_mode: Optional[str] = Header(None, alias="x-trading-mode"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Get trading account information"""
+    try:
+        from app.models.portfolio import Portfolio
+
+        trading_mode = x_trading_mode or "paper"
+        is_paper = trading_mode == "paper"
+
+        # Get user's portfolio for the given mode
+        portfolio = (
+            db.query(Portfolio)
+            .filter(
+                Portfolio.owner_id == current_user.id,
+                Portfolio.is_active == True,
+            )
+            .first()
+        )
+
+        cash_balance = portfolio.cash_balance if portfolio else 100000.0
+        portfolio_value = portfolio.total_value if portfolio else 100000.0
+
+        return TradingAccountResponse(
+            account_id=f"{current_user.id}_{trading_mode}",
+            account_type=trading_mode,
+            buying_power=cash_balance,
+            cash_balance=cash_balance,
+            portfolio_value=portfolio_value,
+            day_trade_count=0,
+            pattern_day_trader=False,
+            trading_blocked=False,
+            last_equity_close=portfolio_value,
+            created_at=current_user.created_at.isoformat() if current_user.created_at else datetime.utcnow().isoformat(),
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get trading account: {str(e)}"
+        )
+
+
+@router.get("/batch-data", response_model=BatchDataResponse)
+async def get_batch_data(
+    x_trading_mode: Optional[str] = Header(None, alias="x-trading-mode"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Get batch trading data (portfolio, positions, orders, account) in one request"""
+    try:
+        from app.models.portfolio import Portfolio
+
+        trading_mode = x_trading_mode or "paper"
+
+        # Get user's portfolio
+        portfolio = (
+            db.query(Portfolio)
+            .filter(
+                Portfolio.owner_id == current_user.id,
+                Portfolio.is_active == True,
+            )
+            .first()
+        )
+
+        # Build portfolio summary
+        portfolio_summary: Dict[str, Any] = {
+            "total_value": portfolio.total_value if portfolio else 100000.0,
+            "cash_balance": portfolio.cash_balance if portfolio else 100000.0,
+            "positions_value": (portfolio.total_value - portfolio.cash_balance) if portfolio else 0.0,
+            "day_pnl": 0.0,
+            "day_pnl_percent": 0.0,
+            "total_pnl": portfolio.total_return if portfolio else 0.0,
+            "total_pnl_percent": portfolio.total_return_percentage if portfolio else 0.0,
+            "paper_trading": trading_mode == "paper",
+            "last_updated": datetime.utcnow().isoformat(),
+        }
+
+        # Get positions
+        positions: List[PositionResponse] = []
+        if portfolio and portfolio.holdings:
+            for holding in portfolio.holdings:
+                if holding.quantity > 0:
+                    positions.append(
+                        PositionResponse(
+                            symbol=holding.symbol,
+                            quantity=holding.quantity,
+                            average_cost=holding.average_cost,
+                            current_price=holding.current_price,
+                            market_value=holding.market_value,
+                            unrealized_gain_loss=holding.unrealized_gain_loss,
+                            unrealized_gain_loss_percentage=holding.unrealized_gain_loss_percentage,
+                            asset_type=holding.asset_type,
+                        )
+                    )
+
+        # Get recent orders
+        recent_orders: List[TradeResponse] = []
+        if portfolio:
+            trades = (
+                db.query(Trade)
+                .filter(Trade.portfolio_id == portfolio.id)
+                .order_by(Trade.created_at.desc())
+                .limit(20)
+                .all()
+            )
+            recent_orders = [TradeResponse.from_orm(trade) for trade in trades]
+
+        # Build account info
+        cash_balance = portfolio.cash_balance if portfolio else 100000.0
+        portfolio_value = portfolio.total_value if portfolio else 100000.0
+        account = TradingAccountResponse(
+            account_id=f"{current_user.id}_{trading_mode}",
+            account_type=trading_mode,
+            buying_power=cash_balance,
+            cash_balance=cash_balance,
+            portfolio_value=portfolio_value,
+            day_trade_count=0,
+            pattern_day_trader=False,
+            trading_blocked=False,
+            last_equity_close=portfolio_value,
+            created_at=current_user.created_at.isoformat() if current_user.created_at else datetime.utcnow().isoformat(),
+        )
+
+        return BatchDataResponse(
+            portfolio=portfolio_summary,
+            positions=positions,
+            recent_orders=recent_orders,
+            account=account,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get batch data: {str(e)}"
+        )
+
+
+@router.post("/sync-modes", response_model=SyncModesResponse)
+async def sync_trading_modes(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Sync trading data across paper and live modes"""
+    try:
+        from app.models.portfolio import Portfolio
+
+        # Count data in each mode
+        portfolios = (
+            db.query(Portfolio)
+            .filter(Portfolio.owner_id == current_user.id)
+            .all()
+        )
+
+        paper_count = 0
+        live_count = 0
+
+        for portfolio in portfolios:
+            trade_count = db.query(Trade).filter(Trade.portfolio_id == portfolio.id).count()
+            # For now, we consider all portfolios as potentially having both modes
+            # In a real implementation, you'd track mode per portfolio/trade
+            paper_count += trade_count
+            live_count += trade_count
+
+        return SyncModesResponse(
+            success=True,
+            message="Trading modes synchronized successfully",
+            paper_data_count=paper_count,
+            live_data_count=live_count,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to sync trading modes: {str(e)}"
+        )

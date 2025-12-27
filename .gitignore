@@ -22,7 +22,6 @@ wheels/
 MANIFEST
 
 # Virtual environments
-.env
 .venv
 env/
 venv/
@@ -34,9 +33,12 @@ venv.bak/
 *.db
 *.sqlite3
 
-# Environment variables
+# Environment variables (exclude actual .env files, keep examples/templates)
+.env
 .env.local
 .env.production
+!.env.example
+!.env.template
 
 # IDE
 .vscode/
@@ -79,4 +81,5 @@ secrets/
 .coverage
 htmlcov/
 .pytest_cache/
-.tox/
+.mypy_cache/
+.tox/*test_results*.json

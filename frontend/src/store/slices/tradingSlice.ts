@@ -207,4 +207,5 @@ const tradingSlice = createSlice({
 });
 
 export const { clearError } = tradingSlice.actions;
+export { tradingSlice };
 export default tradingSlice.reducer;

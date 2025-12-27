@@ -63,7 +63,9 @@ def register(user_data: UserRegister, request: Request, db: Session = Depends(ge
 
     # Create access and refresh tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": new_user.email}, expires_delta=access_token_expires)
+    access_token = create_access_token(
+        data={"sub": new_user.email}, expires_delta=access_token_expires
+    )
     refresh_token = create_refresh_token(data={"sub": new_user.email})
 
     return {
@@ -78,14 +80,14 @@ def register(user_data: UserRegister, request: Request, db: Session = Depends(ge
 def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db)):
     """Login user with rate limiting"""
     client_ip = get_client_ip(request)
-    
+
     # Check login rate limit
     if not check_login_rate_limit(user_data.email, client_ip):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many login attempts. Please try again later.",
         )
-    
+
     user = db.query(User).filter(User.email == user_data.email).first()
 
     if not user or not verify_password(user_data.password, user.hashed_password):
@@ -96,14 +98,18 @@ def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db))
         )
 
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
 
     # Reset login attempts on successful login
     reset_login_attempts(user_data.email, client_ip)
 
     # Create access and refresh tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
     refresh_token = create_refresh_token(data={"sub": user.email})
 
     return {
@@ -116,20 +122,20 @@ def login(user_data: UserLogin, request: Request, db: Session = Depends(get_db))
 
 @router.post("/token", response_model=Token)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
     request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
     """OAuth2 compatible token login with rate limiting"""
     client_ip = get_client_ip(request)
-    
+
     # Check login rate limit
     if not check_login_rate_limit(form_data.username, client_ip):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many login attempts. Please try again later.",
         )
-    
+
     user = db.query(User).filter(User.email == form_data.username).first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -140,14 +146,18 @@ def login_for_access_token(
         )
 
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
 
     # Reset login attempts on successful login
     reset_login_attempts(form_data.username, client_ip)
 
     # Create access and refresh tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
     refresh_token = create_refresh_token(data={"sub": user.email})
 
     return {
@@ -168,7 +178,7 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
             detail="Invalid refresh token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Get user for response
     payload = verify_token(token_data["access_token"])
     if not payload:
@@ -176,14 +186,14 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-    
+
     user = db.query(User).filter(User.email == payload.get("sub")).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
-    
+
     return {
         "access_token": token_data["access_token"],
         "refresh_token": token_data["refresh_token"],
@@ -201,7 +211,7 @@ def logout(
     payload = verify_token(credentials.credentials)
     if payload and payload.get("jti"):
         revoke_token(payload.get("jti"), payload.get("type", "access"))
-    
+
     return {"message": "Successfully logged out"}
 
 

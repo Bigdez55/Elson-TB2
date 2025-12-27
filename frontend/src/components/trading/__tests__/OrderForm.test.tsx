@@ -2,14 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import OrderForm from '../OrderForm';
-import * as mockTradingSlice from '../../../store/mockTradingSlice';
+
+// Create mock function with proper typing
+const mockSubmitOrder = jest.fn<
+  Promise<{ success: boolean; orderId: string } | undefined>,
+  [orderData: any]
+>();
 
 // Mock the trading slice
 jest.mock('../../../store/mockTradingSlice', () => ({
-  submitOrder: jest.fn()
+  submitOrder: (orderData: any) => (_dispatch: any) => mockSubmitOrder(orderData)
 }));
-
-const mockSubmitOrder = mockTradingSlice.submitOrder as jest.MockedFunction<typeof mockTradingSlice.submitOrder>;
 
 describe('OrderForm', () => {
   const defaultProps = {
@@ -260,8 +263,8 @@ describe('OrderForm', () => {
 
   describe('Loading States', () => {
     it('shows loading state during submission', async () => {
-      let resolveSubmit: () => void;
-      const submitPromise = new Promise<void>((resolve) => {
+      let resolveSubmit: (value?: { success: boolean; orderId: string }) => void;
+      const submitPromise = new Promise<{ success: boolean; orderId: string } | undefined>((resolve) => {
         resolveSubmit = resolve;
       });
       mockSubmitOrder.mockReturnValueOnce(submitPromise);

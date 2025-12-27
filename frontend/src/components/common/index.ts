@@ -8,3 +8,5 @@ export { NavBar } from './NavBar';
 export { Sidebar } from './Sidebar';
 export { Toggle, ToggleGroup } from './Toggle';
 export { Badge, StatusBadge } from './Badge';
+export { WebSocketStatus, WebSocketIndicator } from './WebSocketStatus';
+export { ConnectionStatusBanner, CompactConnectionStatus } from './ConnectionStatusBanner';

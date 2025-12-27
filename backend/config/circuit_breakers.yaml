@@ -1,0 +1,83 @@
+# Circuit Breaker Configuration for Personal Trading
+# Adjust these values based on your risk tolerance
+
+volatility:
+  market_wide:
+    # Volatility thresholds (annualized %)
+    extreme: 0.35   # 35% - Markets like March 2020
+    high: 0.25      # 25% - Significant market stress
+    normal: 0.15    # 15% - Normal market conditions
+    
+    # Position sizing based on volatility (% of normal position size)
+    position_sizing:
+      extreme: 0.05   # Only 5% of normal size in extreme volatility
+      high: 0.20      # 20% in high volatility
+      normal: 0.80    # 80% in normal volatility
+      low: 1.0        # Full size in low volatility
+  
+  # Asset class specific modifiers
+  asset_class_modifiers:
+    cryptocurrency: 2.0    # Crypto is more volatile, double the thresholds
+    forex: 0.7            # Forex is less volatile
+    options: 1.5          # Options are more volatile
+    etf: 0.8              # ETFs are generally less volatile
+  
+  # Cool-down periods (minutes)
+  cool_down_minutes:
+    extreme: 60    # 1 hour cool-down after extreme volatility
+    high: 30       # 30 min after high volatility
+    normal: 15     # 15 min after normal volatility
+    low: 0         # No cool-down for low volatility
+  
+  # Hysteresis settings to prevent whipsawing
+  hysteresis:
+    samples: 15      # Track last 15 volatility readings
+    threshold: 0.80  # 80% must be in new regime to switch
+
+daily_loss:
+  # Maximum daily loss as % of portfolio
+  portfolio_pct: 0.02    # 2% max daily loss (conservative)
+  
+  # Graduated responses
+  graduated:
+    warning: 0.01      # 1% loss triggers warning
+    restricted: 0.015  # 1.5% loss triggers restrictions
+    halt: 0.02         # 2% loss halts all trading
+  
+  # Position sizing at each level
+  position_sizing:
+    warning: 0.75      # 75% of normal size
+    restricted: 0.50   # 50% of normal size
+    halt: 0.0          # No new positions
+  
+  reset_after_minutes: 0  # Reset next trading day
+
+execution:
+  # Trade execution failure thresholds
+  fail_rate_threshold: 0.20  # 20% failure rate
+  
+  graduated:
+    warning: 0.10      # 10% failures trigger warning
+    restricted: 0.15   # 15% failures trigger restrictions
+    halt: 0.20         # 20% failures halt trading
+  
+  reset_after_minutes: 30  # Reset after 30 minutes
+
+api_failure:
+  consecutive_failures: 3    # 3 consecutive API failures
+  reset_after_minutes: 10    # Reset after 10 minutes
+
+correlation:
+  # Portfolio correlation limits
+  threshold: 0.80           # 80% correlation is too high
+  
+  graduated:
+    warning: 0.70          # 70% correlation warning
+    restricted: 0.75       # 75% correlation restrictions
+    halt: 0.80             # 80% correlation halt
+  
+  reset_after_minutes: 60  # Reset after 1 hour
+
+system:
+  # System-wide circuit breakers (manual intervention required)
+  reset_after_minutes: 0   # No auto-reset

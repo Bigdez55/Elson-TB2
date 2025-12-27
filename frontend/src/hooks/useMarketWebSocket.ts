@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useDispatch } from 'react-redux';
+import webSocketService, { MarketDataUpdate, WebSocketStatus } from '../services/websocketService';
 import { MarketQuote } from '../types';
 
 // Re-export for convenience
@@ -23,103 +25,99 @@ export interface UseMarketWebSocketReturn {
 export const useMarketWebSocket = ({
   autoConnect = false,
 }: UseMarketWebSocketProps = {}): UseMarketWebSocketReturn => {
+  const dispatch = useDispatch();
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quotes, setQuotes] = useState<Record<string, MarketQuote>>({});
-  const [ws, setWs] = useState<WebSocket | null>(null);
-  const [subscribedSymbols, setSubscribedSymbols] = useState<Set<string>>(new Set());
+  const subscribedSymbolsRef = useRef<Set<string>>(new Set());
 
-  const connect = useCallback(() => {
-    try {
-      // Mock WebSocket connection for demo purposes
-      // In a real implementation, this would connect to your WebSocket server
-      const mockWs = {
-        readyState: WebSocket.OPEN,
-        close: () => {},
-        send: () => {},
-      } as any;
+  // Convert MarketDataUpdate to MarketQuote format
+  const convertToMarketQuote = (update: MarketDataUpdate): MarketQuote => ({
+    symbol: update.symbol,
+    price: update.price,
+    timestamp: new Date(update.timestamp).getTime(),
+    volume: update.volume,
+    high24h: update.price * 1.02, // Approximation - would come from server in real impl
+    low24h: update.price * 0.98,
+    change24h: update.change,
+  });
 
-      setWs(mockWs);
-      setIsConnected(true);
-      setError(null);
-
-      // Simulate real-time price updates
-      const interval = setInterval(() => {
-        setQuotes(prev => {
-          const updated = { ...prev };
-          subscribedSymbols.forEach(symbol => {
-            const basePrice = prev[symbol]?.price || Math.random() * 100 + 50;
-            const change = (Math.random() - 0.5) * 2; // -1 to 1
-            updated[symbol] = {
-              symbol,
-              price: Math.max(0.01, basePrice + change),
-              timestamp: Date.now(),
-              volume: Math.random() * 1000000,
-              high24h: basePrice * 1.1,
-              low24h: basePrice * 0.9,
-              change24h: change,
-            };
-          });
-          return updated;
-        });
-      }, 2000);
-
-      // Store interval for cleanup
-      (mockWs as any)._interval = interval;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect');
-      setIsConnected(false);
-    }
-  }, [subscribedSymbols]);
-
-  const disconnect = useCallback(() => {
-    if (ws) {
-      if ((ws as any)._interval) {
-        clearInterval((ws as any)._interval);
-      }
-      ws.close();
-      setWs(null);
-      setIsConnected(false);
-    }
-  }, [ws]);
-
-  const subscribe = useCallback((symbols: string[]) => {
-    setSubscribedSymbols(prev => {
-      const newSet = new Set(prev);
-      symbols.forEach(symbol => newSet.add(symbol.toUpperCase()));
-      return newSet;
-    });
-
-    // Initialize quotes for new symbols
-    symbols.forEach(symbol => {
-      const upperSymbol = symbol.toUpperCase();
-      setQuotes(prev => {
-        if (!prev[upperSymbol]) {
-          return {
-            ...prev,
-            [upperSymbol]: {
-              symbol: upperSymbol,
-              price: Math.random() * 100 + 50,
-              timestamp: Date.now(),
-              volume: Math.random() * 1000000,
-              high24h: 0,
-              low24h: 0,
-              change24h: 0,
-            },
-          };
-        }
-        return prev;
-      });
-    });
+  // Handle market data updates
+  const handleMarketData = useCallback((data: MarketDataUpdate) => {
+    const quote = convertToMarketQuote(data);
+    setQuotes(prev => ({
+      ...prev,
+      [quote.symbol]: quote,
+    }));
   }, []);
 
-  const unsubscribe = useCallback((symbols: string[]) => {
-    setSubscribedSymbols(prev => {
-      const newSet = new Set(prev);
-      symbols.forEach(symbol => newSet.delete(symbol.toUpperCase()));
-      return newSet;
-    });
+  // Handle status changes
+  const handleStatusChange = useCallback((status: WebSocketStatus) => {
+    const connected = status === WebSocketStatus.AUTHENTICATED || status === WebSocketStatus.CONNECTED;
+    setIsConnected(connected);
 
+    if (status === WebSocketStatus.ERROR || status === WebSocketStatus.AUTHORIZATION_FAILED) {
+      const state = webSocketService.getState();
+      setError(state.error || 'WebSocket connection failed');
+    } else {
+      setError(null);
+    }
+  }, []);
+
+  // Handle errors
+  const handleError = useCallback((errorMessage: string) => {
+    setError(errorMessage);
+  }, []);
+
+  // Connect to WebSocket
+  const connect = useCallback(async () => {
+    try {
+      setError(null);
+      await webSocketService.connect();
+
+      // Re-subscribe to previously subscribed symbols
+      if (subscribedSymbolsRef.current.size > 0) {
+        const symbols = Array.from(subscribedSymbolsRef.current);
+        await webSocketService.subscribeToMarketData(symbols);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to connect to WebSocket';
+      setError(errorMsg);
+      console.error('WebSocket connection error:', err);
+    }
+  }, []);
+
+  // Disconnect from WebSocket
+  const disconnect = useCallback(() => {
+    webSocketService.disconnect();
+    setIsConnected(false);
+    setQuotes({});
+  }, []);
+
+  // Subscribe to market data for symbols
+  const subscribe = useCallback(async (symbols: string[]) => {
+    if (symbols.length === 0) return;
+
+    // Track subscribed symbols
+    symbols.forEach(symbol => subscribedSymbolsRef.current.add(symbol.toUpperCase()));
+
+    // Subscribe via WebSocket
+    try {
+      await webSocketService.subscribeToMarketData(symbols.map(s => s.toUpperCase()));
+    } catch (err) {
+      console.error('Failed to subscribe to market data:', err);
+      setError('Failed to subscribe to market data');
+    }
+  }, []);
+
+  // Unsubscribe from market data
+  const unsubscribe = useCallback((symbols: string[]) => {
+    if (symbols.length === 0) return;
+
+    // Remove from tracked symbols
+    symbols.forEach(symbol => subscribedSymbolsRef.current.delete(symbol.toUpperCase()));
+
+    // Remove quotes for unsubscribed symbols
     setQuotes(prev => {
       const updated = { ...prev };
       symbols.forEach(symbol => {
@@ -127,17 +125,40 @@ export const useMarketWebSocket = ({
       });
       return updated;
     });
+
+    // Note: WebSocket service doesn't have symbol-specific unsubscribe
+    // It unsubscribes from channels. If needed, implement channel management.
   }, []);
 
+  // Set up WebSocket event handlers
   useEffect(() => {
-    if (autoConnect) {
+    webSocketService.on('onMarketData', handleMarketData);
+    webSocketService.on('onStatusChange', handleStatusChange);
+    webSocketService.on('onError', handleError);
+
+    // Check initial connection status
+    const state = webSocketService.getState();
+    handleStatusChange(state.status);
+
+    return () => {
+      webSocketService.off('onMarketData');
+      webSocketService.off('onStatusChange');
+      webSocketService.off('onError');
+    };
+  }, [handleMarketData, handleStatusChange, handleError]);
+
+  // Auto-connect on mount if requested
+  useEffect(() => {
+    if (autoConnect && !isConnected) {
       connect();
     }
 
     return () => {
-      disconnect();
+      if (autoConnect) {
+        disconnect();
+      }
     };
-  }, [autoConnect, connect, disconnect]);
+  }, [autoConnect]); // Only run on mount/unmount
 
   return {
     isConnected,

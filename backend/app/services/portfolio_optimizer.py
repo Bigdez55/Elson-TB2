@@ -14,7 +14,8 @@ import structlog
 from scipy.optimize import minimize
 from sqlalchemy.orm import Session
 
-from app.models.portfolio import Holding, Portfolio
+from app.models.portfolio import Portfolio
+from app.models.holding import Holding
 from app.services.enhanced_market_data import enhanced_market_data_service
 
 logger = structlog.get_logger()
@@ -32,7 +33,9 @@ class PortfolioOptimizer:
         self.risk_free_rate = 0.02  # 2% risk-free rate assumption
         self.trading_cost = 0.001  # 0.1% trading cost assumption
 
-    async def analyze_portfolio_performance(self, portfolio: Portfolio, db: Session) -> Dict[str, Any]:
+    async def analyze_portfolio_performance(
+        self, portfolio: Portfolio, db: Session
+    ) -> Dict[str, Any]:
         """
         Comprehensive portfolio performance analysis.
 
@@ -53,7 +56,9 @@ class PortfolioOptimizer:
             historical_data = {}
 
             for symbol in symbols:
-                data = await enhanced_market_data_service.get_historical_data(symbol, period="1y")
+                data = await enhanced_market_data_service.get_historical_data(
+                    symbol, period="1y"
+                )
                 if data:
                     historical_data[symbol] = data
 
@@ -61,10 +66,14 @@ class PortfolioOptimizer:
                 return {"error": "Unable to retrieve historical data"}
 
             # Calculate portfolio metrics
-            performance_metrics = await self._calculate_performance_metrics(portfolio, historical_data)
+            performance_metrics = await self._calculate_performance_metrics(
+                portfolio, historical_data
+            )
 
             # Risk analysis
-            risk_metrics = await self._calculate_risk_metrics(portfolio, historical_data)
+            risk_metrics = await self._calculate_risk_metrics(
+                portfolio, historical_data
+            )
 
             # Diversification analysis
             diversification_metrics = self._calculate_diversification_metrics(portfolio)
@@ -132,7 +141,9 @@ class PortfolioOptimizer:
             current_weights = np.array([h.market_value / total_value for h in holdings])
 
             # Optimization constraints
-            constraints = self._build_optimization_constraints(len(holdings), user_preferences)
+            constraints = self._build_optimization_constraints(
+                len(holdings), user_preferences
+            )
 
             # Objective function (maximize Sharpe ratio or minimize risk)
             if target_return:
@@ -143,7 +154,9 @@ class PortfolioOptimizer:
                 optimization_type = "risk_minimization"
             else:
                 # Maximize Sharpe ratio
-                optimal_weights = self._maximize_sharpe_ratio(expected_returns, cov_matrix, constraints)
+                optimal_weights = self._maximize_sharpe_ratio(
+                    expected_returns, cov_matrix, constraints
+                )
                 optimization_type = "sharpe_maximization"
 
             if optimal_weights is None:
@@ -156,7 +169,9 @@ class PortfolioOptimizer:
 
             # Calculate expected portfolio metrics
             portfolio_return = np.dot(optimal_weights, expected_returns)
-            portfolio_risk = np.sqrt(np.dot(optimal_weights, np.dot(cov_matrix, optimal_weights)))
+            portfolio_risk = np.sqrt(
+                np.dot(optimal_weights, np.dot(cov_matrix, optimal_weights))
+            )
             sharpe_ratio = (portfolio_return - self.risk_free_rate) / portfolio_risk
 
             return {
@@ -166,10 +181,18 @@ class PortfolioOptimizer:
                     "expected_risk": round(portfolio_risk * 100, 2),
                     "sharpe_ratio": round(sharpe_ratio, 3),
                 },
-                "current_allocation": {symbols[i]: round(current_weights[i] * 100, 2) for i in range(len(symbols))},
-                "optimal_allocation": {symbols[i]: round(optimal_weights[i] * 100, 2) for i in range(len(symbols))},
+                "current_allocation": {
+                    symbols[i]: round(current_weights[i] * 100, 2)
+                    for i in range(len(symbols))
+                },
+                "optimal_allocation": {
+                    symbols[i]: round(optimal_weights[i] * 100, 2)
+                    for i in range(len(symbols))
+                },
                 "rebalancing_actions": rebalancing_actions,
-                "total_rebalancing_cost": sum(action["cost"] for action in rebalancing_actions),
+                "total_rebalancing_cost": sum(
+                    action["cost"] for action in rebalancing_actions
+                ),
                 "optimization_date": datetime.utcnow().isoformat(),
             }
 
@@ -177,7 +200,9 @@ class PortfolioOptimizer:
             logger.error("Error in portfolio optimization", error=str(e))
             return {"error": "Failed to optimize portfolio allocation"}
 
-    async def generate_rebalancing_plan(self, portfolio: Portfolio, threshold: float = 0.05) -> Dict[str, Any]:
+    async def generate_rebalancing_plan(
+        self, portfolio: Portfolio, threshold: float = 0.05
+    ) -> Dict[str, Any]:
         """
         Generate automatic rebalancing plan based on target allocations.
 
@@ -204,7 +229,11 @@ class PortfolioOptimizer:
                     deviation = abs(current_allocation - target_allocation / 100)
 
                     if deviation > threshold:
-                        action_type = "BUY" if current_allocation < target_allocation / 100 else "SELL"
+                        action_type = (
+                            "BUY"
+                            if current_allocation < target_allocation / 100
+                            else "SELL"
+                        )
 
                         target_value = total_value * (target_allocation / 100)
                         amount_needed = abs(target_value - holding.market_value)
@@ -213,20 +242,27 @@ class PortfolioOptimizer:
                             {
                                 "symbol": holding.symbol,
                                 "action": action_type,
-                                "current_allocation": round(current_allocation * 100, 2),
+                                "current_allocation": round(
+                                    current_allocation * 100, 2
+                                ),
                                 "target_allocation": target_allocation,
                                 "deviation": round(deviation * 100, 2),
                                 "current_value": holding.market_value,
                                 "target_value": round(target_value, 2),
                                 "amount_needed": round(amount_needed, 2),
-                                "shares_to_trade": round(amount_needed / holding.current_price, 4)
+                                "shares_to_trade": round(
+                                    amount_needed / holding.current_price, 4
+                                )
                                 if holding.current_price > 0
                                 else 0,
                             }
                         )
 
             # Calculate total trading costs
-            total_cost = sum(action["amount_needed"] * self.trading_cost for action in rebalancing_needed)
+            total_cost = sum(
+                action["amount_needed"] * self.trading_cost
+                for action in rebalancing_needed
+            )
 
             return {
                 "rebalancing_needed": len(rebalancing_needed) > 0,
@@ -242,7 +278,9 @@ class PortfolioOptimizer:
             logger.error("Error generating rebalancing plan", error=str(e))
             return {"error": "Failed to generate rebalancing plan"}
 
-    async def suggest_diversification_improvements(self, portfolio: Portfolio) -> Dict[str, Any]:
+    async def suggest_diversification_improvements(
+        self, portfolio: Portfolio
+    ) -> Dict[str, Any]:
         """
         Suggest improvements to portfolio diversification.
 
@@ -275,7 +313,9 @@ class PortfolioOptimizer:
 
             # Calculate asset type allocations
             for asset_type in asset_types:
-                asset_types[asset_type]["allocation"] = asset_types[asset_type]["total_value"] / total_value * 100
+                asset_types[asset_type]["allocation"] = (
+                    asset_types[asset_type]["total_value"] / total_value * 100
+                )
 
             # Concentration analysis
             concentrations = []
@@ -366,10 +406,18 @@ class PortfolioOptimizer:
             returns_data = {}
 
             for symbol in symbols:
-                historical_data = await enhanced_market_data_service.get_historical_data(symbol, period="1y")
+                historical_data = (
+                    await enhanced_market_data_service.get_historical_data(
+                        symbol, period="1y"
+                    )
+                )
 
                 if historical_data:
-                    prices = [float(d["close"]) for d in historical_data if d["close"] is not None]
+                    prices = [
+                        float(d["close"])
+                        for d in historical_data
+                        if d["close"] is not None
+                    ]
 
                     if len(prices) > 20:  # Need sufficient data
                         price_series = pd.Series(prices)
@@ -382,7 +430,8 @@ class PortfolioOptimizer:
             # Align data (use minimum length)
             min_length = min(len(data) for data in returns_data.values())
             aligned_data = {
-                symbol: data.tail(min_length).reset_index(drop=True) for symbol, data in returns_data.items()
+                symbol: data.tail(min_length).reset_index(drop=True)
+                for symbol, data in returns_data.items()
             }
 
             return pd.DataFrame(aligned_data)
@@ -443,7 +492,8 @@ class PortfolioOptimizer:
             # Add return constraint
             return_constraint = {
                 "type": "eq",
-                "fun": lambda weights: np.dot(weights, expected_returns) - target_return,
+                "fun": lambda weights: np.dot(weights, expected_returns)
+                - target_return,
             }
             constraints.append(return_constraint)
 
@@ -550,7 +600,9 @@ class PortfolioOptimizer:
             "sharpe_ratio": 0.0,
         }
 
-    async def _calculate_risk_metrics(self, portfolio: Portfolio, historical_data: Dict[str, List]) -> Dict[str, Any]:
+    async def _calculate_risk_metrics(
+        self, portfolio: Portfolio, historical_data: Dict[str, List]
+    ) -> Dict[str, Any]:
         """Calculate portfolio risk metrics."""
         # Placeholder implementation
         return {
@@ -560,7 +612,9 @@ class PortfolioOptimizer:
             "correlation_with_market": 0.0,
         }
 
-    def _calculate_diversification_metrics(self, portfolio: Portfolio) -> Dict[str, Any]:
+    def _calculate_diversification_metrics(
+        self, portfolio: Portfolio
+    ) -> Dict[str, Any]:
         """Calculate diversification metrics."""
         holdings = portfolio.holdings
         total_value = sum(h.market_value for h in holdings)
@@ -612,10 +666,14 @@ class PortfolioOptimizer:
 
         # Example recommendations based on metrics
         if performance_metrics.get("sharpe_ratio", 0) < 0.5:
-            recommendations.append("Consider rebalancing to improve risk-adjusted returns")
+            recommendations.append(
+                "Consider rebalancing to improve risk-adjusted returns"
+            )
 
         if risk_metrics.get("portfolio_beta", 1) > 1.5:
-            recommendations.append("Portfolio is highly correlated with market - consider diversification")
+            recommendations.append(
+                "Portfolio is highly correlated with market - consider diversification"
+            )
 
         return recommendations
 

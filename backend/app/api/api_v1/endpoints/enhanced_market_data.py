@@ -33,7 +33,9 @@ async def get_enhanced_quote(
         quote = await enhanced_market_data_service.get_quote(symbol)
 
         if not quote:
-            raise HTTPException(status_code=404, detail=f"Quote not found for symbol {symbol}")
+            raise HTTPException(
+                status_code=404, detail=f"Quote not found for symbol {symbol}"
+            )
 
         logger.info(
             "Enhanced quote retrieved",
@@ -96,7 +98,9 @@ async def get_multiple_quotes(
                 "successful": successful_quotes,
                 "failed": len(symbol_list) - successful_quotes,
             },
-            "timestamp": quotes[next(iter(quotes.keys()))]["timestamp"] if quotes and any(quotes.values()) else None,
+            "timestamp": quotes[next(iter(quotes.keys()))]["timestamp"]
+            if quotes and any(quotes.values())
+            else None,
         }
 
     except HTTPException:
@@ -114,7 +118,9 @@ async def get_multiple_quotes(
 @router.get("/historical/{symbol}")
 async def get_enhanced_historical_data(
     symbol: str,
-    period: str = Query("1mo", description="Time period: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y"),
+    period: str = Query(
+        "1mo", description="Time period: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y"
+    ),
     current_user: User = Depends(get_current_active_user),
 ) -> Dict[str, Any]:
     """
@@ -133,7 +139,9 @@ async def get_enhanced_historical_data(
                 detail=f"Invalid period. Must be one of: {', '.join(valid_periods)}",
             )
 
-        historical_data = await enhanced_market_data_service.get_historical_data(symbol, period)
+        historical_data = await enhanced_market_data_service.get_historical_data(
+            symbol, period
+        )
 
         if not historical_data:
             raise HTTPException(
@@ -152,7 +160,9 @@ async def get_enhanced_historical_data(
                 "avg_price": sum(prices) / len(prices),
                 "price_change": prices[-1] - prices[0] if len(prices) > 1 else 0,
                 "price_change_percent": (
-                    (prices[-1] - prices[0]) / prices[0] * 100 if len(prices) > 1 and prices[0] != 0 else 0
+                    (prices[-1] - prices[0]) / prices[0] * 100
+                    if len(prices) > 1 and prices[0] != 0
+                    else 0
                 ),
             }
         else:
@@ -184,7 +194,9 @@ async def get_enhanced_historical_data(
             period=period,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to retrieve historical data")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve historical data"
+        )
 
 
 @router.get("/search")
@@ -253,7 +265,9 @@ async def market_data_health_check(
             user_id=current_user.id,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to check market data health")
+        raise HTTPException(
+            status_code=500, detail="Failed to check market data health"
+        )
 
 
 @router.get("/cache-stats")
@@ -282,7 +296,9 @@ async def get_cache_statistics(
             user_id=current_user.id,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to retrieve cache statistics")
+        raise HTTPException(
+            status_code=500, detail="Failed to retrieve cache statistics"
+        )
 
 
 @router.post("/clear-cache")

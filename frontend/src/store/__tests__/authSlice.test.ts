@@ -18,7 +18,8 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('Auth Slice Tests', () => {
-  let store: ReturnType<typeof configureStore>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let store: any;
 
   beforeEach(() => {
     store = configureStore({
@@ -64,7 +65,7 @@ describe('Auth Slice Tests', () => {
       const action = await store.dispatch(login({
         email: 'test@example.com',
         password: 'password'
-      }));
+      })) as any;
 
       expect(action.type).toBe('auth/login/fulfilled');
       expect(action.payload).toEqual(mockResponse);
@@ -89,7 +90,7 @@ describe('Auth Slice Tests', () => {
       const action = await store.dispatch(login({
         email: 'test@example.com',
         password: 'wrong-password'
-      }));
+      })) as any;
 
       expect(action.type).toBe('auth/login/rejected');
       expect(action.payload).toBe('Invalid credentials');
@@ -108,7 +109,7 @@ describe('Auth Slice Tests', () => {
       const action = await store.dispatch(login({
         email: 'test@example.com',
         password: 'password'
-      }));
+      })) as any;
 
       expect(action.type).toBe('auth/login/rejected');
       expect(action.payload).toBe('Login failed');
@@ -152,7 +153,7 @@ describe('Auth Slice Tests', () => {
       };
       mockedAuthAPI.register.mockResolvedValue(mockResponse);
 
-      const action = await store.dispatch(register(userData));
+      const action = await store.dispatch(register(userData)) as any;
 
       expect(action.type).toBe('auth/register/fulfilled');
       expect(action.payload).toEqual(mockResponse);
@@ -177,7 +178,7 @@ describe('Auth Slice Tests', () => {
       const action = await store.dispatch(register({
         email: 'existing@example.com',
         password: 'password'
-      }));
+      })) as any;
 
       expect(action.type).toBe('auth/register/rejected');
       expect(action.payload).toBe('Email already exists');
@@ -201,7 +202,7 @@ describe('Auth Slice Tests', () => {
       };
       mockedAuthAPI.getCurrentUser.mockResolvedValue(mockUser);
 
-      const action = await store.dispatch(checkAuth());
+      const action = await store.dispatch(checkAuth()) as any;
 
       expect(action.type).toBe('auth/checkAuth/fulfilled');
       expect(action.payload).toEqual(mockUser);
@@ -222,7 +223,7 @@ describe('Auth Slice Tests', () => {
       };
       mockedAuthAPI.getCurrentUser.mockRejectedValue(errorResponse);
 
-      const action = await store.dispatch(checkAuth());
+      const action = await store.dispatch(checkAuth()) as any;
 
       expect(action.type).toBe('auth/checkAuth/rejected');
       expect(action.payload).toBe('Token expired');
@@ -238,7 +239,7 @@ describe('Auth Slice Tests', () => {
       const networkError = new Error('Network Error');
       mockedAuthAPI.getCurrentUser.mockRejectedValue(networkError);
 
-      const action = await store.dispatch(checkAuth());
+      const action = await store.dispatch(checkAuth()) as any;
 
       expect(action.type).toBe('auth/checkAuth/rejected');
       expect(action.payload).toBe('Authentication check failed');

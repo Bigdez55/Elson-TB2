@@ -31,10 +31,16 @@ async def analyze_portfolio_risk(
     Returns risk score, risk factors, and personalized recommendations.
     """
     # Get portfolio and verify ownership
-    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id)
+        .first()
+    )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="Portfolio not found or access denied")
+        raise HTTPException(
+            status_code=404, detail="Portfolio not found or access denied"
+        )
 
     try:
         risk_analysis = await personal_trading_ai.analyze_portfolio_risk(portfolio, db)
@@ -79,7 +85,9 @@ async def get_trading_signals(
             )
 
         # Generate signals
-        signals = await personal_trading_ai.generate_trading_signals(symbol_list, current_user)
+        signals = await personal_trading_ai.generate_trading_signals(
+            symbol_list, current_user
+        )
 
         logger.info(
             "Trading signals generated",
@@ -99,7 +107,9 @@ async def get_trading_signals(
             symbols=symbols,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to generate trading signals")
+        raise HTTPException(
+            status_code=500, detail="Failed to generate trading signals"
+        )
 
 
 @router.post("/portfolio-optimization/{portfolio_id}")
@@ -115,10 +125,16 @@ async def optimize_portfolio(
     Analyzes current allocation vs target and provides rebalancing guidance.
     """
     # Verify portfolio ownership
-    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id).first()
+    portfolio = (
+        db.query(Portfolio)
+        .filter(Portfolio.id == portfolio_id, Portfolio.owner_id == current_user.id)
+        .first()
+    )
 
     if not portfolio:
-        raise HTTPException(status_code=404, detail="Portfolio not found or access denied")
+        raise HTTPException(
+            status_code=404, detail="Portfolio not found or access denied"
+        )
 
     # Validate target allocations
     total_allocation = sum(target_allocations.values())
@@ -129,7 +145,9 @@ async def optimize_portfolio(
         )
 
     try:
-        optimization = await personal_trading_ai.optimize_portfolio_allocation(portfolio, target_allocations)
+        optimization = await personal_trading_ai.optimize_portfolio_allocation(
+            portfolio, target_allocations
+        )
 
         logger.info(
             "Portfolio optimization completed",
@@ -183,7 +201,8 @@ async def get_market_sentiment(
                 "news_sentiment": 0.68,
             },
             "analysis_timestamp": "2025-07-12T03:45:00Z",
-            "note": "Sentiment analysis is in development. " "Data shown is for demonstration purposes.",
+            "note": "Sentiment analysis is in development. "
+            "Data shown is for demonstration purposes.",
         }
 
         logger.info(
@@ -201,7 +220,9 @@ async def get_market_sentiment(
             symbol=symbol,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to analyze market sentiment")
+        raise HTTPException(
+            status_code=500, detail="Failed to analyze market sentiment"
+        )
 
 
 @router.get("/personal-insights")
@@ -225,7 +246,7 @@ async def get_personal_insights(
             .all()
         )
 
-        insights = {
+        insights: Dict[str, Any] = {
             "user_risk_profile": current_user.risk_tolerance,
             "trading_style": current_user.trading_style,
             "total_portfolios": len(portfolios),
@@ -234,12 +255,16 @@ async def get_personal_insights(
             "alerts": [],
             "generated_at": "2025-07-12T03:45:00Z",
         }
+        insights_list: List[Dict[str, Any]] = insights["insights"]
+        opportunities_list: List[Dict[str, Any]] = insights["opportunities"]
+        alerts_list: List[Dict[str, Any]] = insights["alerts"]
 
         if not portfolios:
-            insights["insights"].append(
+            insights_list.append(
                 {
                     "type": "setup",
-                    "message": "Create your first portfolio to start receiving " "personalized insights",
+                    "message": "Create your first portfolio to start receiving "
+                    "personalized insights",
                     "priority": "high",
                 }
             )
@@ -253,7 +278,7 @@ async def get_personal_insights(
                 # Cash allocation insight
                 cash_ratio = portfolio.cash_balance / portfolio.total_value
                 if cash_ratio > 0.20:
-                    insights["opportunities"].append(
+                    opportunities_list.append(
                         {
                             "type": "cash_deployment",
                             "portfolio": portfolio.name,
@@ -265,7 +290,7 @@ async def get_personal_insights(
 
                 # Diversification insight
                 if len(portfolio.holdings) < 5:
-                    insights["insights"].append(
+                    insights_list.append(
                         {
                             "type": "diversification",
                             "portfolio": portfolio.name,
@@ -278,7 +303,7 @@ async def get_personal_insights(
 
         # Risk tolerance insights
         if current_user.risk_tolerance == "conservative":
-            insights["insights"].append(
+            insights_list.append(
                 {
                     "type": "risk_management",
                     "message": "Based on your conservative risk profile, "
@@ -287,10 +312,11 @@ async def get_personal_insights(
                 }
             )
         elif current_user.risk_tolerance == "aggressive":
-            insights["alerts"].append(
+            alerts_list.append(
                 {
                     "type": "risk_warning",
-                    "message": "Aggressive risk profile detected - " "ensure proper risk management is in place",
+                    "message": "Aggressive risk profile detected - "
+                    "ensure proper risk management is in place",
                     "priority": "high",
                 }
             )
@@ -309,4 +335,6 @@ async def get_personal_insights(
             user_id=current_user.id,
             error=str(e),
         )
-        raise HTTPException(status_code=500, detail="Failed to generate personal insights")
+        raise HTTPException(
+            status_code=500, detail="Failed to generate personal insights"
+        )

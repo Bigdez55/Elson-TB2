@@ -32,7 +32,12 @@ class TestPortfolioService:
     @pytest.fixture
     def test_user(self, db_session):
         """Create a test user"""
-        user = User(id=1, email="test@example.com", username="testuser", is_active=True)
+        user = User(
+            email="test@example.com", 
+            hashed_password="hashedpassword123",
+            full_name="Test User",
+            is_active=True
+        )
         db_session.add(user)
         db_session.commit()
         return user

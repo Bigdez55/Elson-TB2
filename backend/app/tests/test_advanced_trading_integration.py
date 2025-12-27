@@ -106,10 +106,13 @@ class TestAdvancedTradingIntegration:
         assert "GOOGL" in service.strategies
 
         for symbol in symbols:
-            assert "strategy" in service.strategies[symbol]
-            assert "executor" in service.strategies[symbol]
+            # strategies[symbol] is a list of strategy dicts
+            assert len(service.strategies[symbol]) > 0
+            first_strategy = service.strategies[symbol][0]
+            assert "strategy" in first_strategy
+            assert "executor" in first_strategy
             assert isinstance(
-                service.strategies[symbol]["strategy"], MovingAverageStrategy
+                first_strategy["strategy"], MovingAverageStrategy
             )
 
     @pytest.mark.asyncio

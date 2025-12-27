@@ -14,7 +14,7 @@ export const NavBar: React.FC<NavBarProps> = ({ user }) => {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Trade', path: '/trading' },
+    { name: 'Trade', path: '/paper/trading' },
     { name: 'Discover', path: '/discover' },
     { name: 'Learn', path: '/learn' },
     { name: 'Wealth', path: '/wealth' },

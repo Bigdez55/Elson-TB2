@@ -30,7 +30,9 @@ async def get_quote(
 
     quote_data = await market_data_service.get_quote(symbol)
     if not quote_data:
-        raise HTTPException(status_code=404, detail=f"Quote not found for symbol {symbol}")
+        raise HTTPException(
+            status_code=404, detail=f"Quote not found for symbol {symbol}"
+        )
 
     # Save to database
     await market_data_service.save_market_data(symbol, quote_data, db)

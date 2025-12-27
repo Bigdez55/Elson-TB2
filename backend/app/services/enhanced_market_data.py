@@ -106,7 +106,9 @@ class EnhancedMarketDataProvider:
         """Get real-time quote."""
         raise NotImplementedError
 
-    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(
+        self, symbol: str, period: str = "1mo"
+    ) -> Optional[List[Dict[str, Any]]]:
         """Get historical data."""
         raise NotImplementedError
 
@@ -145,9 +147,13 @@ class YFinanceProvider(EnhancedMarketDataProvider):
                             quote_data = {
                                 "symbol": symbol,
                                 "price": meta.get("regularMarketPrice", 0),
-                                "change": meta.get("regularMarketPrice", 0) - meta.get("previousClose", 0),
+                                "change": meta.get("regularMarketPrice", 0)
+                                - meta.get("previousClose", 0),
                                 "change_percent": (
-                                    (meta.get("regularMarketPrice", 0) - meta.get("previousClose", 1))
+                                    (
+                                        meta.get("regularMarketPrice", 0)
+                                        - meta.get("previousClose", 1)
+                                    )
                                     / meta.get("previousClose", 1)
                                     * 100
                                 ),
@@ -168,7 +174,9 @@ class YFinanceProvider(EnhancedMarketDataProvider):
             self.record_error()
             return None
 
-    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(
+        self, symbol: str, period: str = "1mo"
+    ) -> Optional[List[Dict[str, Any]]]:
         """Get historical data from Yahoo Finance."""
         if self.is_circuit_open():
             return None
@@ -206,7 +214,9 @@ class YFinanceProvider(EnhancedMarketDataProvider):
                             for i, timestamp in enumerate(timestamps):
                                 historical_data.append(
                                     {
-                                        "timestamp": datetime.fromtimestamp(timestamp).isoformat(),
+                                        "timestamp": datetime.fromtimestamp(
+                                            timestamp
+                                        ).isoformat(),
                                         "open": quotes.get("open", [None])[i],
                                         "high": quotes.get("high", [None])[i],
                                         "low": quotes.get("low", [None])[i],
@@ -261,7 +271,9 @@ class AlphaVantageProviderEnhanced(EnhancedMarketDataProvider):
                                 "symbol": symbol,
                                 "price": float(quote.get("05. price", 0)),
                                 "change": float(quote.get("09. change", 0)),
-                                "change_percent": float(quote.get("10. change percent", "0%").rstrip("%")),
+                                "change_percent": float(
+                                    quote.get("10. change percent", "0%").rstrip("%")
+                                ),
                                 "volume": int(quote.get("06. volume", 0)),
                                 "timestamp": datetime.utcnow().isoformat(),
                                 "provider": self.name,
@@ -340,7 +352,9 @@ class EnhancedMarketDataService:
         logger.error(f"All providers failed for quote {symbol}")
         return None
 
-    async def get_historical_data(self, symbol: str, period: str = "1mo") -> Optional[List[Dict[str, Any]]]:
+    async def get_historical_data(
+        self, symbol: str, period: str = "1mo"
+    ) -> Optional[List[Dict[str, Any]]]:
         """
         Get historical data with caching and failover.
 
@@ -379,7 +393,9 @@ class EnhancedMarketDataService:
         logger.error(f"All providers failed for historical data {symbol}")
         return None
 
-    async def get_multiple_quotes(self, symbols: List[str]) -> Dict[str, Optional[Dict[str, Any]]]:
+    async def get_multiple_quotes(
+        self, symbols: List[str]
+    ) -> Dict[str, Optional[Dict[str, Any]]]:
         """
         Get quotes for multiple symbols efficiently.
 
@@ -394,7 +410,7 @@ class EnhancedMarketDataService:
         # Process in batches to avoid overwhelming providers
         batch_size = 5
         for i in range(0, len(symbols), batch_size):
-            batch = symbols[i:i + batch_size]
+            batch = symbols[i : i + batch_size]
 
             # Get quotes concurrently for this batch
             tasks = [self.get_quote(symbol) for symbol in batch]
@@ -414,7 +430,7 @@ class EnhancedMarketDataService:
 
     async def search_symbols(self, query: str) -> List[Dict[str, Any]]:
         """
-        Search for symbols based on company name or symbol.
+        Search for symbols based on company name or symbol using Yahoo Finance.
 
         Args:
             query: Search query
@@ -422,59 +438,105 @@ class EnhancedMarketDataService:
         Returns:
             List of matching symbols with metadata
         """
-        # For now, return a simple placeholder
-        # In a full implementation, this would integrate with
-        # symbol search APIs from various providers
+        query = query.strip()
 
-        query = query.upper().strip()
+        if not query:
+            return []
 
-        # Basic hardcoded examples for demonstration
-        common_symbols = {
-            "APPLE": {"symbol": "AAPL", "name": "Apple Inc.", "type": "stock"},
-            "MICROSOFT": {
-                "symbol": "MSFT",
-                "name": "Microsoft Corporation",
-                "type": "stock",
-            },
-            "AMAZON": {
-                "symbol": "AMZN",
-                "name": "Amazon.com Inc.",
-                "type": "stock",
-            },
-            "GOOGLE": {
-                "symbol": "GOOGL",
-                "name": "Alphabet Inc.",
-                "type": "stock",
-            },
-            "TESLA": {"symbol": "TSLA", "name": "Tesla Inc.", "type": "stock"},
-            "BITCOIN": {
-                "symbol": "BTC-USD",
-                "name": "Bitcoin USD",
-                "type": "crypto",
-            },
-            "ETHEREUM": {
-                "symbol": "ETH-USD",
-                "name": "Ethereum USD",
-                "type": "crypto",
-            },
-        }
+        try:
+            # Use Yahoo Finance search/autocomplete API (free, no API key required)
+            search_url = "https://query1.finance.yahoo.com/v1/finance/search"
+            params = {
+                "q": query,
+                "quotesCount": 10,
+                "newsCount": 0,
+                "enableFuzzyQuery": False,
+                "quotesQueryId": "tss_match_phrase_query"
+            }
 
-        results = []
-        for name, data in common_symbols.items():
-            if query in name or query in data["symbol"]:
-                results.append(data)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, params=params, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        quotes = data.get("quotes", [])
 
-        # If exact symbol match, add it
-        if query not in [r["symbol"] for r in results]:
-            results.append(
-                {
-                    "symbol": query,
-                    "name": f"{query} (Symbol)",
-                    "type": "unknown",
-                }
-            )
+                        results = []
+                        for quote in quotes:
+                            # Map quote type to our type system
+                            quote_type = quote.get("quoteType", "").lower()
+                            if quote_type == "equity":
+                                asset_type = "stock"
+                            elif quote_type == "cryptocurrency":
+                                asset_type = "crypto"
+                            elif quote_type == "etf":
+                                asset_type = "etf"
+                            elif quote_type == "index":
+                                asset_type = "index"
+                            else:
+                                asset_type = quote_type or "unknown"
 
-        return results[:10]  # Limit to 10 results
+                            results.append({
+                                "symbol": quote.get("symbol", ""),
+                                "name": quote.get("longname") or quote.get("shortname", ""),
+                                "type": asset_type,
+                                "exchange": quote.get("exchange", ""),
+                                "score": quote.get("score", 0)
+                            })
+
+                        logger.info(f"Symbol search for '{query}' returned {len(results)} results")
+                        return results[:10]  # Limit to top 10 results
+                    else:
+                        logger.warning(f"Yahoo Finance search returned status {response.status}")
+                        return self._fallback_search(query)
+
+        except asyncio.TimeoutError:
+            logger.error(f"Symbol search timeout for query: {query}")
+            return self._fallback_search(query)
+        except Exception as e:
+            logger.error(f"Symbol search error for '{query}'", error=str(e))
+            return self._fallback_search(query)
+
+    def _fallback_search(self, query: str) -> List[Dict[str, Any]]:
+        """
+        Fallback search with common symbols if API fails.
+
+        Args:
+            query: Search query
+
+        Returns:
+            List of matching common symbols
+        """
+        query_upper = query.upper()
+
+        # Common symbols as fallback
+        common_symbols = [
+            {"symbol": "AAPL", "name": "Apple Inc.", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "MSFT", "name": "Microsoft Corporation", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "GOOGL", "name": "Alphabet Inc.", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "AMZN", "name": "Amazon.com Inc.", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "TSLA", "name": "Tesla Inc.", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "META", "name": "Meta Platforms Inc.", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "NVDA", "name": "NVIDIA Corporation", "type": "stock", "exchange": "NASDAQ"},
+            {"symbol": "BTC-USD", "name": "Bitcoin USD", "type": "crypto", "exchange": "CCC"},
+            {"symbol": "ETH-USD", "name": "Ethereum USD", "type": "crypto", "exchange": "CCC"},
+        ]
+
+        # Filter based on query
+        results = [
+            s for s in common_symbols
+            if query_upper in s["symbol"] or query_upper in s["name"].upper()
+        ]
+
+        # If no matches and query looks like a symbol, add it as unknown
+        if not results and len(query_upper) <= 6:
+            results.append({
+                "symbol": query_upper,
+                "name": f"{query_upper}",
+                "type": "unknown",
+                "exchange": ""
+            })
+
+        return results[:10]
 
     def get_cache_stats(self) -> Dict[str, Any]:
         """Get cache statistics for monitoring."""
@@ -517,7 +579,11 @@ class EnhancedMarketDataService:
             )
 
         # Overall status based on provider health
-        healthy_providers = sum(1 for p in health_status["providers"] if p["status"] in ["healthy", "degraded"])
+        healthy_providers = sum(
+            1
+            for p in health_status["providers"]
+            if p["status"] in ["healthy", "degraded"]
+        )
 
         if healthy_providers == 0:
             health_status["overall_status"] = "critical"

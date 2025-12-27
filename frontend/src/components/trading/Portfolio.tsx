@@ -1,36 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import Loading from '../common/Loading';
-import type { AssetLegacy } from '../../types';
+import { useTradingContext } from '../../contexts/TradingContext';
+import { useGetPortfolioQuery, useGetPositionsQuery } from '../../services/tradingApi';
 
 interface AssetRowProps {
-  asset: AssetLegacy;
+  symbol: string;
+  quantity: number;
+  currentPrice: number;
+  averagePrice: number;
+  marketValue: number;
+  unrealizedPnl: number;
+  unrealizedPnlPercent: number;
+  allocationPercentage: number;
 }
 
-const AssetRow: React.FC<AssetRowProps> = ({ asset }) => {
-  const profitLoss = asset.totalValue - (asset.averagePrice * asset.amount);
-  const profitLossPercentage = ((asset.currentPrice - asset.averagePrice) / asset.averagePrice) * 100;
-  const allocationPercentage = 25; // This would be calculated based on total portfolio value
-
+const AssetRow: React.FC<AssetRowProps> = ({
+  symbol,
+  quantity,
+  currentPrice,
+  averagePrice,
+  marketValue,
+  unrealizedPnl,
+  unrealizedPnlPercent,
+  allocationPercentage
+}) => {
   return (
     <tr className="border-b border-gray-700 hover:bg-gray-700/30 transition-colors">
       <td className="py-4 px-6">
         <div className="flex flex-col">
-          <span className="font-medium text-white">{asset.symbol}</span>
-          <span className="text-sm text-gray-400">{asset.amount.toFixed(8)} shares</span>
+          <span className="font-medium text-white">{symbol}</span>
+          <span className="text-sm text-gray-400">{quantity.toFixed(8)} shares</span>
         </div>
       </td>
       <td className="py-4 px-6">
         <div className="flex flex-col">
-          <span className="text-white">{formatCurrency(asset.currentPrice)}</span>
-          <span className="text-sm text-gray-400">Avg. {formatCurrency(asset.averagePrice)}</span>
+          <span className="text-white">{formatCurrency(currentPrice)}</span>
+          <span className="text-sm text-gray-400">Avg. {formatCurrency(averagePrice)}</span>
         </div>
       </td>
       <td className="py-4 px-6">
         <div className="flex flex-col">
-          <span className="text-white font-medium">{formatCurrency(asset.totalValue)}</span>
-          <span className={`text-sm ${profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {formatCurrency(profitLoss)} ({formatPercentage(profitLossPercentage)})
+          <span className="text-white font-medium">{formatCurrency(marketValue)}</span>
+          <span className={`text-sm ${unrealizedPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {formatCurrency(unrealizedPnl)} ({formatPercentage(unrealizedPnlPercent)})
           </span>
         </div>
       </td>
@@ -52,92 +65,30 @@ const AssetRow: React.FC<AssetRowProps> = ({ asset }) => {
 };
 
 const Portfolio: React.FC = () => {
-  const [portfolio, setPortfolio] = useState<{
-    assets: AssetLegacy[];
-    totalValue: number;
-    loading: boolean;
-    error: string | null;
-  }>({
-    assets: [],
-    totalValue: 0,
-    loading: true,
-    error: null,
-  });
+  const { mode } = useTradingContext();
 
-  useEffect(() => {
-    const loadPortfolio = async () => {
-      try {
-        setPortfolio(prev => ({ ...prev, loading: true, error: null }));
-        
-        // Mock data for demonstration
-        const mockPortfolio = {
-          assets: [
-            {
-              symbol: 'AAPL',
-              amount: 10,
-              currentPrice: 150.25,
-              averagePrice: 145.50,
-              totalValue: 1502.50,
-            },
-            {
-              symbol: 'MSFT',
-              amount: 5,
-              currentPrice: 310.75,
-              averagePrice: 300.00,
-              totalValue: 1553.75,
-            },
-            {
-              symbol: 'GOOGL',
-              amount: 3,
-              currentPrice: 140.85,
-              averagePrice: 138.20,
-              totalValue: 422.55,
-            },
-            {
-              symbol: 'TSLA',
-              amount: 8,
-              currentPrice: 245.60,
-              averagePrice: 250.00,
-              totalValue: 1964.80,
-            },
-          ],
-          totalValue: 5443.60,
-        };
+  // Fetch real portfolio and positions data
+  const {
+    data: portfolioData,
+    isLoading: isPortfolioLoading,
+    error: portfolioError
+  } = useGetPortfolioQuery({ mode }, { pollingInterval: 30000 }); // Refresh every 30 seconds
 
-        setTimeout(() => {
-          setPortfolio({
-            assets: mockPortfolio.assets,
-            totalValue: mockPortfolio.totalValue,
-            loading: false,
-            error: null,
-          });
-        }, 1000);
-      } catch (err) {
-        setPortfolio(prev => ({
-          ...prev,
-          loading: false,
-          error: err instanceof Error ? err.message : 'Failed to load portfolio',
-        }));
-      }
-    };
+  const {
+    data: positions,
+    isLoading: isPositionsLoading,
+    error: positionsError
+  } = useGetPositionsQuery({ mode }, { pollingInterval: 30000 });
 
-    loadPortfolio();
-    
-    // Refresh portfolio every minute
-    const interval = setInterval(loadPortfolio, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  const isLoading = isPortfolioLoading || isPositionsLoading;
+  const error = portfolioError || positionsError;
 
-  // Calculate total profit/loss
-  const totalProfitLoss = portfolio.assets.reduce((total, asset) => {
-    return total + (asset.totalValue - (asset.averagePrice * asset.amount));
-  }, 0);
+  // Calculate total portfolio value and allocation percentages
+  const totalPortfolioValue = portfolioData?.total_value || 0;
+  const totalPnl = portfolioData?.total_pnl || 0;
+  const totalPnlPercent = portfolioData?.total_pnl_percent || 0;
 
-  const totalProfitLossPercentage = portfolio.assets.length > 0 
-    ? (totalProfitLoss / portfolio.assets.reduce((total, asset) => total + (asset.averagePrice * asset.amount), 0)) * 100
-    : 0;
-
-  if (portfolio.loading && portfolio.assets.length === 0) {
+  if (isLoading && (!positions || positions.length === 0)) {
     return (
       <div className="bg-gray-800 rounded-lg p-6">
         <Loading text="Loading portfolio..." />
@@ -145,12 +96,16 @@ const Portfolio: React.FC = () => {
     );
   }
 
-  if (portfolio.error) {
+  if (error) {
     return (
       <div className="bg-gray-800 rounded-lg p-6">
         <div className="text-red-400 text-center">
           <p className="text-lg font-medium">Failed to load portfolio</p>
-          <p className="text-sm mt-1">{portfolio.error}</p>
+          <p className="text-sm mt-1">
+            {error && typeof error === 'object' && 'message' in error
+              ? String(error.message)
+              : 'Unable to fetch portfolio data'}
+          </p>
         </div>
       </div>
     );
@@ -164,21 +119,24 @@ const Portfolio: React.FC = () => {
           <div>
             <h2 className="text-xl font-semibold text-white">Portfolio</h2>
             <p className="text-3xl font-bold text-white mt-2">
-              {formatCurrency(portfolio.totalValue)}
+              {formatCurrency(totalPortfolioValue)}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {mode === 'paper' ? 'Paper Trading' : 'Live Account'}
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-400">Total P&L</p>
-            <p className={`text-lg font-semibold ${totalProfitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {formatCurrency(totalProfitLoss)}
+            <p className={`text-lg font-semibold ${totalPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {formatCurrency(totalPnl)}
             </p>
-            <p className={`text-sm ${totalProfitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              ({formatPercentage(totalProfitLossPercentage)})
+            <p className={`text-sm ${totalPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              ({formatPercentage(totalPnlPercent)})
             </p>
           </div>
         </div>
-        
-        {portfolio.loading && (
+
+        {isLoading && positions && positions.length > 0 && (
           <div className="mt-3 flex items-center text-sm text-gray-400">
             <div className="w-3 h-3 border border-gray-600 border-t-blue-500 rounded-full animate-spin mr-2" />
             Updating...
@@ -187,7 +145,7 @@ const Portfolio: React.FC = () => {
       </div>
 
       {/* Portfolio Table */}
-      {portfolio.assets.length > 0 ? (
+      {positions && positions.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-700">
@@ -199,9 +157,26 @@ const Portfolio: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {portfolio.assets.map((asset: AssetLegacy) => (
-                <AssetRow key={asset.symbol} asset={asset} />
-              ))}
+              {positions.map((position) => {
+                // Calculate allocation percentage based on market value
+                const allocationPercentage = totalPortfolioValue > 0
+                  ? (position.market_value / totalPortfolioValue) * 100
+                  : 0;
+
+                return (
+                  <AssetRow
+                    key={position.id}
+                    symbol={position.symbol}
+                    quantity={position.quantity}
+                    currentPrice={position.current_price}
+                    averagePrice={position.average_cost}
+                    marketValue={position.market_value}
+                    unrealizedPnl={position.unrealized_pnl}
+                    unrealizedPnlPercent={position.unrealized_pnl_percent}
+                    allocationPercentage={allocationPercentage}
+                  />
+                );
+              })}
             </tbody>
           </table>
         </div>

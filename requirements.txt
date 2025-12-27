@@ -22,6 +22,7 @@ python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
 pyotp==2.9.0
+webauthn==2.5.1
 
 # Secret Management
 hvac>=1.1.0

@@ -139,7 +139,7 @@ async def optimize_portfolio(
         ai_manager = AIPortfolioManager(db)
 
         result = await ai_manager.optimize_portfolio(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             method=request.method,
             risk_tolerance=request.risk_tolerance,
             symbols=request.symbols,
@@ -222,14 +222,14 @@ async def execute_ai_rebalance(
 
         # First optimize the portfolio
         optimization_result = await ai_manager.optimize_portfolio(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             method=request.optimization_method,
             risk_tolerance=request.risk_tolerance,
         )
 
         # Execute rebalancing
         trade_ids = await ai_manager.execute_ai_rebalance(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             optimization_result=optimization_result,
             dry_run=request.dry_run,
         )
@@ -237,7 +237,7 @@ async def execute_ai_rebalance(
         message = f"{'Simulated' if request.dry_run else 'Executed'} {len(trade_ids)} rebalancing trades"
 
         return RebalanceResponse(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             trade_ids=trade_ids,
             dry_run=request.dry_run,
             optimization_used=OptimizationResponse.from_result(optimization_result),
@@ -269,7 +269,7 @@ async def schedule_portfolio_optimization(
         ai_manager = AIPortfolioManager(db)
 
         success = await ai_manager.schedule_portfolio_optimization(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             method=request.method,
             frequency_days=request.frequency_days,
         )
@@ -277,7 +277,7 @@ async def schedule_portfolio_optimization(
         if success:
             return {
                 "message": f"Portfolio optimization scheduled every {request.frequency_days} days using {request.method.value}",
-                "user_id": current_user.id,
+                "user_id": int(current_user.id),
                 "method": request.method.value,
                 "frequency_days": request.frequency_days,
             }
@@ -362,7 +362,7 @@ async def get_portfolio_analysis(
         # For now, return a placeholder structure
 
         analysis = {
-            "user_id": current_user.id,
+            "user_id": int(current_user.id),
             "analysis_timestamp": datetime.utcnow(),
             "portfolio_summary": {
                 "total_value": 0.0,

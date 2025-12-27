@@ -16,7 +16,8 @@ from sklearn.preprocessing import StandardScaler
 from sqlalchemy.orm import Session
 from xgboost import XGBRegressor
 
-from app.models.portfolio import Holding, Portfolio
+from app.models.portfolio import Portfolio
+from app.models.holding import Holding
 from app.models.user import User
 from app.services.market_data import market_data_service
 
@@ -35,7 +36,9 @@ class PersonalTradingAI:
         self.scaler = StandardScaler()
         self._models_trained = False
 
-    async def analyze_portfolio_risk(self, portfolio: Portfolio, db: Session) -> Dict[str, Any]:
+    async def analyze_portfolio_risk(
+        self, portfolio: Portfolio, db: Session
+    ) -> Dict[str, Any]:
         """
         Analyze portfolio risk profile and provide recommendations.
 
@@ -77,7 +80,9 @@ class PersonalTradingAI:
 
             if concentration_risk:
                 risk_score += 30
-                risk_factors.append(f"High concentration: {max_allocation:.1%} in single asset")
+                risk_factors.append(
+                    f"High concentration: {max_allocation:.1%} in single asset"
+                )
 
             if diversification_score < 0.5:
                 risk_score += 20
@@ -101,7 +106,9 @@ class PersonalTradingAI:
             else:
                 risk_level = "High Risk"
 
-            recommendations = await self._generate_risk_recommendations(portfolio, risk_factors, db)
+            recommendations = await self._generate_risk_recommendations(
+                portfolio, risk_factors, db
+            )
 
             return {
                 "risk_score": min(risk_score, 100),
@@ -121,7 +128,9 @@ class PersonalTradingAI:
                 "risk_level": "Unknown",
             }
 
-    async def generate_trading_signals(self, symbols: List[str], user: User) -> List[Dict[str, Any]]:
+    async def generate_trading_signals(
+        self, symbols: List[str], user: User
+    ) -> List[Dict[str, Any]]:
         """
         Generate AI-driven trading signals for given symbols.
 
@@ -148,11 +157,15 @@ class PersonalTradingAI:
 
         return sorted(signals, key=lambda x: x.get("confidence", 0), reverse=True)
 
-    async def _analyze_symbol_signal(self, symbol: str, user: User) -> Optional[Dict[str, Any]]:
+    async def _analyze_symbol_signal(
+        self, symbol: str, user: User
+    ) -> Optional[Dict[str, Any]]:
         """Analyze a single symbol for trading signals."""
         try:
             # Get historical data
-            historical_data = await market_data_service.get_historical_data(symbol, period="3mo")
+            historical_data = await market_data_service.get_historical_data(
+                symbol, period="3mo"
+            )
 
             if not historical_data or len(historical_data) < 20:
                 return None
@@ -217,7 +230,9 @@ class PersonalTradingAI:
                 "action": action,
                 "confidence": round(confidence, 1),
                 "current_price": current_price,
-                "target_price": self._calculate_target_price(current_price, signal_strength),
+                "target_price": self._calculate_target_price(
+                    current_price, signal_strength
+                ),
                 "reasons": reasons,
                 "technical_indicators": {
                     "rsi": round(rsi, 2),
@@ -240,7 +255,9 @@ class PersonalTradingAI:
         rs = gain / loss
         return 100 - (100 / (1 + rs))
 
-    def _calculate_target_price(self, current_price: float, signal_strength: float) -> float:
+    def _calculate_target_price(
+        self, current_price: float, signal_strength: float
+    ) -> float:
         """Calculate target price based on signal strength."""
         if signal_strength > 0:
             # Bullish target (3-8% upside)
@@ -255,7 +272,9 @@ class PersonalTradingAI:
             volatility_scores = []
 
             for holding in holdings[:5]:  # Check top 5 holdings
-                historical_data = await market_data_service.get_historical_data(holding.symbol, period="1mo")
+                historical_data = await market_data_service.get_historical_data(
+                    holding.symbol, period="1mo"
+                )
 
                 if historical_data:
                     prices = [float(d["close"]) for d in historical_data]
@@ -283,20 +302,27 @@ class PersonalTradingAI:
 
         # Diversification recommendations
         if len(holdings) < 5:
-            recommendations.append("Consider adding more holdings to improve diversification")
+            recommendations.append(
+                "Consider adding more holdings to improve diversification"
+            )
 
         # Rebalancing recommendations
         if portfolio.auto_rebalance:
-            recommendations.append("Auto-rebalancing is enabled - review thresholds regularly")
+            recommendations.append(
+                "Auto-rebalancing is enabled - review thresholds regularly"
+            )
         else:
-            recommendations.append("Consider enabling auto-rebalancing for better risk management")
+            recommendations.append(
+                "Consider enabling auto-rebalancing for better risk management"
+            )
 
         # Concentration risk
         for holding in holdings:
             allocation = holding.market_value / total_value
             if allocation > 0.25:
                 recommendations.append(
-                    f"Consider reducing {holding.symbol} position " f"({allocation:.1%} of portfolio)"
+                    f"Consider reducing {holding.symbol} position "
+                    f"({allocation:.1%} of portfolio)"
                 )
 
         # Cash allocation
@@ -304,7 +330,9 @@ class PersonalTradingAI:
         if cash_percentage < 0.05:
             recommendations.append("Consider maintaining 5-10% cash for opportunities")
         elif cash_percentage > 0.20:
-            recommendations.append("High cash allocation - consider deploying excess cash")
+            recommendations.append(
+                "High cash allocation - consider deploying excess cash"
+            )
 
         return recommendations
 
@@ -356,8 +384,12 @@ class PersonalTradingAI:
 
             return {
                 "total_portfolio_value": total_value,
-                "current_allocations": {k: round(v * 100, 1) for k, v in current_allocations.items()},
-                "target_allocations": {k: round(v * 100, 1) for k, v in target_allocations.items()},
+                "current_allocations": {
+                    k: round(v * 100, 1) for k, v in current_allocations.items()
+                },
+                "target_allocations": {
+                    k: round(v * 100, 1) for k, v in target_allocations.items()
+                },
                 "rebalancing_actions": rebalancing_actions,
                 "rebalancing_needed": len(rebalancing_actions) > 0,
                 "optimization_date": datetime.utcnow().isoformat(),
@@ -370,3 +402,7 @@ class PersonalTradingAI:
 
 # Singleton instance
 personal_trading_ai = PersonalTradingAI()
+
+
+# Alias for backward compatibility
+AITradingService = PersonalTradingAI

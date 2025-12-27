@@ -146,7 +146,7 @@ async def assess_trade_risk(
         risk_service = RiskManagementService(db)
 
         assessment = await risk_service.assess_trade_risk(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             symbol=request.symbol.upper(),
             trade_type=request.trade_type,
             quantity=request.quantity,
@@ -182,7 +182,7 @@ async def get_portfolio_risk_metrics(
     try:
         risk_service = RiskManagementService(db)
 
-        metrics = await risk_service.calculate_portfolio_risk_metrics(current_user.id)
+        metrics = await risk_service.calculate_portfolio_risk_metrics(int(current_user.id))
 
         return RiskMetricsResponse.from_metrics(metrics)
 
@@ -212,7 +212,7 @@ async def get_position_risk_analysis(
     try:
         risk_service = RiskManagementService(db)
 
-        position_risks = await risk_service.get_position_risk_analysis(current_user.id)
+        position_risks = await risk_service.get_position_risk_analysis(int(current_user.id))
 
         return [PositionRiskResponse.from_position_risk(pr) for pr in position_risks]
 
@@ -240,7 +240,7 @@ async def check_circuit_breakers(
     try:
         risk_service = RiskManagementService(db)
 
-        breakers = await risk_service.check_circuit_breakers(current_user.id)
+        breakers = await risk_service.check_circuit_breakers(int(current_user.id))
 
         return breakers
 
@@ -297,7 +297,7 @@ async def get_risk_limits(
         }
 
         return {
-            "user_id": current_user.id,
+            "user_id": int(current_user.id),
             "active_limits": limits,
             "customizable_limits": [
                 "max_daily_loss_pct",
@@ -376,7 +376,7 @@ async def validate_portfolio_risk(
         risk_service = RiskManagementService(db)
 
         # Get portfolio metrics
-        metrics = await risk_service.calculate_portfolio_risk_metrics(current_user.id)
+        metrics = await risk_service.calculate_portfolio_risk_metrics(int(current_user.id))
 
         # Validate against limits
         violations = []
@@ -412,7 +412,7 @@ async def validate_portfolio_risk(
             )
 
         validation_result = {
-            "user_id": current_user.id,
+            "user_id": int(current_user.id),
             "portfolio_value": metrics.portfolio_value,
             "overall_risk_level": "high"
             if violations

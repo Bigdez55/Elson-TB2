@@ -20,7 +20,7 @@ class TestSettings(Settings):
     DATABASE_URL: str = "sqlite:///./test.db"
     SECRET_KEY: str = "test-secret-key-for-testing-only"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
+
     class Config:
         env_file = None
 
@@ -92,7 +92,7 @@ def test_user_data():
         "password": "testpassword123",
         "full_name": "Test User",
         "risk_tolerance": "moderate",
-        "trading_style": "long_term"
+        "trading_style": "long_term",
     }
 
 
@@ -102,7 +102,7 @@ def test_portfolio_data():
         "name": "Test Portfolio",
         "description": "A test portfolio",
         "cash_balance": 10000.0,
-        "auto_rebalance": False
+        "auto_rebalance": False,
     }
 
 
@@ -113,7 +113,7 @@ def test_trade_data():
         "trade_type": "BUY",
         "order_type": "MARKET",
         "quantity": 10,
-        "portfolio_id": 1
+        "portfolio_id": 1,
     }
 
 

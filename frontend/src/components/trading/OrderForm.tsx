@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../common/Button';
-import { submitOrder } from '../../store/mockTradingSlice';
+import { useExecuteTradeMutation } from '../../services/tradingApi';
+import { useTradingContext } from '../../contexts/TradingContext';
 import { validateOrderAmount, validatePrice } from '../../utils/validators';
+import { useGetMyPermissionsQuery, useListPermissionsQuery } from '../../services/educationApi';
 
 interface OrderFormProps {
   symbol: string;
@@ -12,34 +15,71 @@ interface OrderFormProps {
 type OrderType = 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_LIMIT';
 type OrderSide = 'BUY' | 'SELL';
 
-const OrderForm: React.FC<OrderFormProps> = ({ 
-  symbol, 
-  currentPrice, 
-  availableBalance = 10000 
+const OrderForm: React.FC<OrderFormProps> = ({
+  symbol,
+  currentPrice,
+  availableBalance = 10000
 }) => {
+  const { mode } = useTradingContext();
+  const [executeTrade, { isLoading }] = useExecuteTradeMutation();
+
+  // Permission checking
+  const { data: userPermissions = [], isLoading: permissionsLoading } = useGetMyPermissionsQuery();
+  const { data: allPermissions = [], isLoading: allPermissionsLoading } = useListPermissionsQuery();
+
   // Form state
   const [orderType, setOrderType] = useState<OrderType>('MARKET');
   const [side, setSide] = useState<OrderSide>('BUY');
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState(currentPrice.toString());
   const [stopPrice, setStopPrice] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Check if user has stock trading permission
+  const hasStockTradingPermission = useMemo(() => {
+    if (permissionsLoading || allPermissionsLoading) return false;
+
+    // Find the stock trading permission definition
+    const stockTradingPerm = allPermissions.find(p =>
+      p.permission_type === 'trade_stocks' || p.name.toLowerCase().includes('stock trading')
+    );
+
+    if (!stockTradingPerm) return true; // If permission doesn't exist, allow trading
+
+    // Check if user has this permission granted
+    const userPerm = userPermissions.find(up =>
+      up.permission_id === stockTradingPerm.id && up.is_granted
+    );
+
+    return !!userPerm;
+  }, [userPermissions, allPermissions, permissionsLoading, allPermissionsLoading]);
+
+  // Get required permission info for display
+  const requiredPermission = useMemo(() => {
+    if (allPermissionsLoading) return null;
+    return allPermissions.find(p =>
+      p.permission_type === 'trade_stocks' || p.name.toLowerCase().includes('stock trading')
+    );
+  }, [allPermissions, allPermissionsLoading]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setLoading(true);
+
+    // Check trading permission (only in live mode)
+    if (mode === 'live' && !hasStockTradingPermission) {
+      setError('You need to complete educational requirements before trading. Visit the Learn page to get started.');
+      return;
+    }
 
     try {
       // Validation
       const amountError = validateOrderAmount(amount, availableBalance);
       if (amountError) {
         setError(amountError);
-        setLoading(false);
         return;
       }
 
@@ -47,7 +87,6 @@ const OrderForm: React.FC<OrderFormProps> = ({
         const priceError = validatePrice(price);
         if (priceError) {
           setError(priceError);
-          setLoading(false);
           return;
         }
       }
@@ -56,31 +95,33 @@ const OrderForm: React.FC<OrderFormProps> = ({
         const stopPriceError = validatePrice(stopPrice);
         if (stopPriceError) {
           setError(`Stop price: ${stopPriceError}`);
-          setLoading(false);
           return;
         }
       }
 
+      // Map local order type to API order type
+      const apiOrderType: 'MARKET' | 'LIMIT' | 'STOP_LIMIT' | 'STOP_LOSS' =
+        orderType === 'STOP' ? 'STOP_LOSS' : orderType as 'MARKET' | 'LIMIT' | 'STOP_LIMIT';
+
       const orderData = {
         symbol,
-        type: orderType,
-        side,
-        amount: parseFloat(amount),
+        trade_type: side,
+        order_type: apiOrderType,
+        quantity: parseFloat(amount),
         price: orderType !== 'MARKET' ? parseFloat(price) : undefined,
-        stopPrice: ['STOP', 'STOP_LIMIT'].includes(orderType) ? parseFloat(stopPrice) : undefined,
+        stop_price: ['STOP', 'STOP_LIMIT'].includes(orderType) ? parseFloat(stopPrice) : undefined,
+        mode,
       };
 
-      await submitOrder(orderData);
-      
+      const result = await executeTrade(orderData).unwrap();
+
       // Reset form after successful submission
       setAmount('');
       setPrice(currentPrice.toString());
       setStopPrice('');
-      setSuccess(`${side} order for ${amount} ${symbol} submitted successfully!`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit order');
-    } finally {
-      setLoading(false);
+      setSuccess(`${side} order for ${amount} ${symbol} submitted successfully! Order ID: ${result.trade_id}`);
+    } catch (err: any) {
+      setError(err?.data?.message || err?.message || 'Failed to submit order');
     }
   };
 
@@ -120,6 +161,40 @@ const OrderForm: React.FC<OrderFormProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Permission Warning Banner - Live Mode Only */}
+      {mode === 'live' && !hasStockTradingPermission && !permissionsLoading && (
+        <div className="mb-4 bg-yellow-900/30 border border-yellow-600 rounded-lg p-4">
+          <div className="flex items-start space-x-3">
+            <span className="text-2xl">🔒</span>
+            <div className="flex-1">
+              <h4 className="text-yellow-300 font-semibold mb-1">Educational Requirements Needed</h4>
+              <p className="text-yellow-200 text-sm mb-3">
+                {requiredPermission?.description || 'You need to complete educational requirements before you can trade stocks in live mode.'}
+              </p>
+              <Link
+                to="/learn"
+                className="inline-block bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                Complete Learning Requirements
+              </Link>
+              <p className="text-yellow-200/70 text-xs mt-2">
+                Paper trading is available without restrictions. Switch to Paper mode to practice risk-free.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State for Permissions */}
+      {permissionsLoading && mode === 'live' && (
+        <div className="mb-4 bg-gray-800 border border-gray-700 rounded-lg p-4">
+          <div className="flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
+            <span className="text-gray-400 text-sm">Checking trading permissions...</span>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Order Type */}
@@ -234,14 +309,16 @@ const OrderForm: React.FC<OrderFormProps> = ({
         <div className="pt-2">
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading || (mode === 'live' && !hasStockTradingPermission)}
             className={`w-full rounded-lg p-3 font-medium transition-colors ${
               side === 'BUY'
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : 'bg-red-600 hover:bg-red-700 text-white'
-            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            } ${isLoading || (mode === 'live' && !hasStockTradingPermission) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {loading ? 'Processing...' : `${side === 'BUY' ? 'Buy' : 'Sell'} ${amount || '0'} ${symbol} Shares`}
+            {isLoading ? 'Processing...' :
+             mode === 'live' && !hasStockTradingPermission ? '🔒 Complete Education to Trade' :
+             `${side === 'BUY' ? 'Buy' : 'Sell'} ${amount || '0'} ${symbol} Shares`}
           </button>
         </div>
 

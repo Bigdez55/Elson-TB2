@@ -82,7 +82,9 @@ class MarketSentiment(Base):
     symbol = Column(String(20), nullable=True, index=True)  # None for overall market
 
     # Sentiment metrics
-    sentiment_score = Column(Float, nullable=False)  # -1 (very negative) to 1 (very positive)
+    sentiment_score = Column(
+        Float, nullable=False
+    )  # -1 (very negative) to 1 (very positive)
     confidence_score = Column(Float, nullable=False)  # 0 to 1
 
     # Source information

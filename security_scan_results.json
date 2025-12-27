@@ -1,0 +1,482 @@
+[
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/backend/test_auth_database_comprehensive.py",
+    "line": 141,
+    "description": "Hardcoded password",
+    "evidence": "TestPassword123!..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/backend/test_auth_simple.py",
+    "line": 25,
+    "description": "Hardcoded password",
+    "evidence": "TestPassword123!..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/backend/app/tests/test_portfolio_service.py",
+    "line": 37,
+    "description": "Hardcoded password",
+    "evidence": "hashedpassword123..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/scripts/generate_test_accounts.py",
+    "line": 28,
+    "description": "Hardcoded password",
+    "evidence": "BetaTester2025!..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_subscription_service.py",
+    "line": 19,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_guardian_auth.py",
+    "line": 25,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_guardian_auth.py",
+    "line": 38,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_guardian_auth.py",
+    "line": 50,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_pii_encryption.py",
+    "line": 59,
+    "description": "Hardcoded password",
+    "evidence": "hashedpw123..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_pii_encryption.py",
+    "line": 101,
+    "description": "Hardcoded password",
+    "evidence": "hashedpw123..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_db_init.py",
+    "line": 35,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/test_db_init.py",
+    "line": 59,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_api_integration.py",
+    "line": 228,
+    "description": "Hardcoded password",
+    "evidence": "Password123!..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_trading_pipeline.py",
+    "line": 106,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_subscription_api.py",
+    "line": 21,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_subscription_api.py",
+    "line": 36,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_subscription_api.py",
+    "line": 135,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_subscription_api.py",
+    "line": 185,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_guardian_approval.py",
+    "line": 48,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_guardian_approval.py",
+    "line": 62,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/tests/integration/test_guardian_approval.py",
+    "line": 215,
+    "description": "Hardcoded password",
+    "evidence": "hashed_password..."
+  },
+  {
+    "type": "Hardcoded Secret",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/routes/api_v1/family.py",
+    "line": 69,
+    "description": "Hardcoded password",
+    "evidence": "temporary..."
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/security_scan.py",
+    "line": 84,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT.*\\{.*\\}\""
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/security_scan.py",
+    "line": 85,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f'SELECT.*\\{.*\\}'"
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 543,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT COUNT(*) FROM {schema}.{table_name}\""
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 635,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT COUNT(*) FROM {schema}.{table_name}\""
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 707,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT COUNT(*) FROM {schema}.{table_name}\""
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 863,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT COUNT(*) FROM {schema}.{table_name}\""
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 1003,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT last_value, is_called FROM {sequence_name"
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 1008,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT MAX({column_name}) FROM {schema}.{table_n"
+  },
+  {
+    "type": "SQL Injection",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 1012,
+    "description": "Potential SQL injection via string formatting",
+    "evidence": "f\"SELECT COUNT(*) FROM {schema}.{table_name}\""
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/security_scan.py",
+    "line": 7169,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/backend/app/services/paper_trading.py",
+    "line": 140,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/backend/app/services/trading.py",
+    "line": 20076,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/backend/app/trading_engine.backup/engine/circuit_breaker.py",
+    "line": 54,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/scripts/generate_test_accounts.py",
+    "line": 360,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/db/init_db.py",
+    "line": 8603,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/services/market_data_streaming.py",
+    "line": 228,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/services/education_service.py",
+    "line": 24621,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/trading_engine/engine/circuit_breaker.py",
+    "line": 205,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/trading-engine/trading_engine/engine/circuit_breaker.py",
+    "line": 54,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/trading-engine/trading_engine/strategies/execution/twap_strategy.py",
+    "line": 206,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Insecure Random",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/trading-engine/trading_engine/strategies/execution/iceberg_strategy.py",
+    "line": 193,
+    "description": "Using random instead of secrets module",
+    "evidence": "import random (should use secrets module)"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/security_scan.py",
+    "line": 205,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/security_scan.py",
+    "line": 205,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/backend/app/core/config.py",
+    "line": 120,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/backend/app/services/ai_portfolio_manager.py",
+    "line": 981,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/db/database.py",
+    "line": 197,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/db/database.py",
+    "line": 199,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 109,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/scripts/check_data_integrity.py",
+    "line": 1205,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/core/caching.py",
+    "line": 61,
+    "description": "MD5 is cryptographically broken",
+    "evidence": "hashlib.md5"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/core/middleware.py",
+    "line": 322,
+    "description": "MD5 is cryptographically broken",
+    "evidence": "hashlib.md5"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/core/config.py",
+    "line": 114,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/services/broker/schwab.py",
+    "line": 175,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/services/broker/config/alpaca.py",
+    "line": 82,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "Weak Cryptography",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/services/broker/config/schwab.py",
+    "line": 98,
+    "description": "DES is insecure",
+    "evidence": "DES"
+  },
+  {
+    "type": "XSS Vulnerability",
+    "severity": "HIGH",
+    "file": "/workspaces/Elson-TB2/frontend/src/contexts/TradingContext.tsx",
+    "line": 266,
+    "description": "Potential XSS vulnerability",
+    "evidence": "innerHTML ="
+  },
+  {
+    "type": "Insecure Deserialization",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/backend/app/core/caching.py",
+    "line": 119,
+    "description": "Insecure deserialization",
+    "evidence": "pickle.loads("
+  },
+  {
+    "type": "Insecure Deserialization",
+    "severity": "CRITICAL",
+    "file": "/workspaces/Elson-TB2/Delete Duplicates/Elson-main/Elson/trading_engine/ai_model_engine/quantum_models.py",
+    "line": 140,
+    "description": "Insecure deserialization",
+    "evidence": "pickle.load("
+  }
+]

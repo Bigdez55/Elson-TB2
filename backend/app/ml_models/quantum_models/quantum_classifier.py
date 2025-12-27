@@ -7,12 +7,22 @@ if quantum computing libraries are not available.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Union
+import warnings
+
+# Suppress sklearn warnings for type checking
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 import joblib
 import numpy as np
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
+
+# Type-safe sklearn imports
+try:
+    from sklearn.metrics import accuracy_score  # type: ignore
+    from sklearn.preprocessing import StandardScaler  # type: ignore
+except ImportError:
+    StandardScaler = None
+    accuracy_score = None
 
 logger = logging.getLogger(__name__)
 
@@ -51,17 +61,17 @@ class QuantumInspiredClassifier:
         self.use_quantum = use_quantum
 
         # Model parameters
-        self.weights = None
-        self.bias = None
-        self.scaler = StandardScaler()
-        self.is_trained = False
+        self.weights: Optional[np.ndarray] = None
+        self.bias: float = 0.0
+        self.scaler: Optional[StandardScaler] = StandardScaler() if StandardScaler else None
+        self.is_trained: bool = False
 
         # Quantum-inspired components
-        self.feature_map = None
-        self.quantum_weights = None
+        self.feature_map: Optional[np.ndarray] = None
+        self.quantum_weights: Optional[np.ndarray] = None
 
         # Performance tracking
-        self.training_history = {"loss": [], "accuracy": [], "quantum_features_used": 0}
+        self.training_history: Dict[str, Union[List[float], int]] = {"loss": [], "accuracy": [], "quantum_features_used": 0}
 
         logger.info(f"Initialized QuantumInspiredClassifier with {n_qubits} qubits")
 
@@ -95,14 +105,17 @@ class QuantumInspiredClassifier:
                 quantum_features.append(superposition_feature)
 
             if quantum_features:
-                quantum_features = np.column_stack(quantum_features)
-                self.training_history["quantum_features_used"] = quantum_features.shape[1]
-                return np.column_stack([X, quantum_features])
+                quantum_features_array = np.column_stack(quantum_features)
+                quantum_features_used = quantum_features_array.shape[1]
+                self.training_history["quantum_features_used"] = quantum_features_used
+                return np.column_stack([X, quantum_features_array])
             else:
                 return X
 
         except Exception as e:
-            logger.warning(f"Error creating quantum features: {str(e)}, using classical features")
+            logger.warning(
+                f"Error creating quantum features: {str(e)}, using classical features"
+            )
             return X
 
     def _quantum_inspired_loss(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -110,10 +123,14 @@ class QuantumInspiredClassifier:
         Quantum-inspired loss function that incorporates uncertainty principles
         """
         # Standard cross-entropy loss
-        base_loss = -np.mean(y_true * np.log(y_pred + 1e-15) + (1 - y_true) * np.log(1 - y_pred + 1e-15))
+        base_loss = -np.mean(
+            y_true * np.log(y_pred + 1e-15) + (1 - y_true) * np.log(1 - y_pred + 1e-15)
+        )
 
         # Add quantum uncertainty term
-        uncertainty = np.mean(y_pred * (1 - y_pred))  # Measure of prediction uncertainty
+        uncertainty = np.mean(
+            y_pred * (1 - y_pred)
+        )  # Measure of prediction uncertainty
         quantum_loss = base_loss + 0.1 * uncertainty  # Small quantum correction
 
         return quantum_loss
@@ -146,8 +163,11 @@ class QuantumInspiredClassifier:
             # Training loop with quantum-inspired optimization
             for iteration in range(self.max_iterations):
                 # Forward pass
-                z = np.dot(X_quantum, self.weights) + self.bias
-                predictions = self._sigmoid(z)
+                if self.weights is not None:
+                    z = np.dot(X_quantum, self.weights) + self.bias
+                    predictions = self._sigmoid(z)
+                else:
+                    raise ValueError("Weights not initialized")
 
                 # Calculate quantum-inspired loss
                 loss = self._quantum_inspired_loss(y, predictions)
@@ -156,8 +176,11 @@ class QuantumInspiredClassifier:
                 accuracy = accuracy_score(y, (predictions > 0.5).astype(int))
 
                 # Store training metrics
-                self.training_history["loss"].append(loss)
-                self.training_history["accuracy"].append(accuracy)
+                loss_list = self.training_history["loss"]
+                accuracy_list = self.training_history["accuracy"]
+                if isinstance(loss_list, list) and isinstance(accuracy_list, list):
+                    loss_list.append(loss)
+                    accuracy_list.append(accuracy)
 
                 # Gradient calculation with quantum-inspired terms
                 dw = np.dot(X_quantum.T, (predictions - y)) / len(y)
@@ -173,11 +196,14 @@ class QuantumInspiredClassifier:
 
                 # Early stopping
                 if accuracy > 0.95:
-                    logger.info(f"Early stopping at iteration {iteration} with accuracy {accuracy:.4f}")
+                    logger.info(
+                        f"Early stopping at iteration {iteration} with accuracy {accuracy:.4f}"
+                    )
                     break
 
             self.is_trained = True
-            final_accuracy = self.training_history["accuracy"][-1]
+            accuracy_list = self.training_history["accuracy"]
+            final_accuracy = accuracy_list[-1] if isinstance(accuracy_list, list) and accuracy_list else 0.0
             logger.info(f"Training completed. Final accuracy: {final_accuracy:.4f}")
 
             return self
@@ -207,8 +233,11 @@ class QuantumInspiredClassifier:
             X_quantum = self._create_quantum_feature_map(X_scaled)
 
             # Make predictions
-            z = np.dot(X_quantum, self.weights) + self.bias
-            predictions = self._sigmoid(z)
+            if self.weights is not None:
+                z = np.dot(X_quantum, self.weights) + self.bias
+                predictions = self._sigmoid(z)
+            else:
+                raise ValueError("Model weights not available")
 
             return predictions
 
@@ -230,7 +259,9 @@ class QuantumInspiredClassifier:
 
         # Add quantum uncertainty to probabilities
         uncertainty = 0.05  # Small quantum uncertainty
-        adjusted_probs = np.clip(predictions + np.random.normal(0, uncertainty, predictions.shape), 0, 1)
+        adjusted_probs = np.clip(
+            predictions + np.random.normal(0, uncertainty, predictions.shape), 0, 1
+        )
 
         # Return probabilities for both classes
         return np.column_stack([1 - adjusted_probs, adjusted_probs])
@@ -251,8 +282,12 @@ class QuantumInspiredClassifier:
             return {}
 
         # Calculate importance based on weight magnitudes
-        classical_importance = np.abs(self.weights[:self.n_features])
-        quantum_importance = np.abs(self.weights[self.n_features:]) if len(self.weights) > self.n_features else []
+        classical_importance = np.abs(self.weights[: self.n_features])
+        quantum_importance = (
+            np.abs(self.weights[self.n_features :])
+            if len(self.weights) > self.n_features
+            else []
+        )
 
         importance_dict = {}
 
@@ -331,8 +366,12 @@ class QuantumInspiredClassifier:
 
         return {
             "status": "Trained",
-            "final_accuracy": self.training_history["accuracy"][-1] if self.training_history["accuracy"] else 0,
-            "final_loss": self.training_history["loss"][-1] if self.training_history["loss"] else 0,
+            "final_accuracy": self.training_history["accuracy"][-1]
+            if self.training_history["accuracy"]
+            else 0,
+            "final_loss": self.training_history["loss"][-1]
+            if self.training_history["loss"]
+            else 0,
             "training_iterations": len(self.training_history["accuracy"]),
             "quantum_features_created": self.training_history["quantum_features_used"],
             "classical_features": self.n_features,

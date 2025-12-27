@@ -1,0 +1,154 @@
+{
+  "timestamp": "2025-07-16T04:20:47.151006",
+  "database_tests": {
+    "basic_connectivity": {
+      "status": "PASSED",
+      "details": "Database connection successful",
+      "timestamp": "2025-07-16T04:20:47.152169"
+    },
+    "file_access": {
+      "status": "PASSED",
+      "details": "Database file exists, size: 176128 bytes",
+      "timestamp": "2025-07-16T04:20:47.152196"
+    },
+    "users_table_exists": {
+      "status": "PASSED",
+      "details": "Users table found",
+      "timestamp": "2025-07-16T04:20:47.152683"
+    },
+    "schema_validation": {
+      "status": "PASSED",
+      "details": "All required columns present: ['id', 'email', 'hashed_password', 'full_name', 'risk_tolerance', 'trading_style', 'is_active', 'is_verified', 'created_at', 'updated_at', 'last_login', 'role', 'birthdate', 'is_superuser', 'two_factor_enabled', 'failed_login_attempts', 'account_locked_until', 'password_last_changed']",
+      "timestamp": "2025-07-16T04:20:47.152889"
+    },
+    "redis_connectivity": {
+      "status": "PASSED",
+      "details": "Redis connection successful",
+      "timestamp": "2025-07-16T04:20:49.135367"
+    },
+    "redis_operations": {
+      "status": "PASSED",
+      "details": "Redis read/write operations successful",
+      "timestamp": "2025-07-16T04:20:49.135624"
+    },
+    "connection_pool": {
+      "status": "PASSED",
+      "details": "Successfully created and closed 5 connections",
+      "timestamp": "2025-07-16T04:20:50.762714"
+    },
+    "existing_users_count": {
+      "status": "INFO",
+      "details": "Found 4 existing users",
+      "timestamp": "2025-07-16T04:20:50.764128"
+    },
+    "user_data_integrity": {
+      "status": "PASSED",
+      "details": "All 4 users have valid data",
+      "timestamp": "2025-07-16T04:20:50.764141"
+    }
+  },
+  "auth_tests": {
+    "password_hashing": {
+      "status": "PASSED",
+      "details": "Password hashed successfully, length: 60",
+      "timestamp": "2025-07-16T04:20:47.441107"
+    },
+    "password_verification": {
+      "status": "PASSED",
+      "details": "Password verification successful",
+      "timestamp": "2025-07-16T04:20:47.704438"
+    },
+    "password_rejection": {
+      "status": "PASSED",
+      "details": "Wrong password correctly rejected",
+      "timestamp": "2025-07-16T04:20:47.969135"
+    },
+    "jwt_creation": {
+      "status": "PASSED",
+      "details": "JWT token created, length: 220",
+      "timestamp": "2025-07-16T04:20:47.973426"
+    },
+    "jwt_verification": {
+      "status": "PASSED",
+      "details": "JWT token verified, payload: {'sub': 'test@example.com', 'exp': 1753330847, 'jti': 'd1ffe7e1-4378-4965-a912-96ef6ebfa40b', 'type': 'access'}",
+      "timestamp": "2025-07-16T04:20:47.973858"
+    },
+    "jwt_expiration": {
+      "status": "PASSED",
+      "details": "Expired token correctly rejected",
+      "timestamp": "2025-07-16T04:20:47.974338"
+    },
+    "user_registration": {
+      "status": "PASSED",
+      "details": "User registered successfully, user_id: 2",
+      "timestamp": "2025-07-16T04:20:48.305343"
+    },
+    "duplicate_registration_prevention": {
+      "status": "PASSED",
+      "details": "Duplicate registration correctly prevented",
+      "timestamp": "2025-07-16T04:20:48.309588"
+    },
+    "user_login": {
+      "status": "PASSED",
+      "details": "User login successful",
+      "timestamp": "2025-07-16T04:20:48.860353"
+    },
+    "token_usage": {
+      "status": "PASSED",
+      "details": "Token successfully used for authenticated request",
+      "timestamp": "2025-07-16T04:20:48.864935"
+    },
+    "failed_login_handling": {
+      "status": "PASSED",
+      "details": "Wrong password correctly rejected",
+      "timestamp": "2025-07-16T04:20:49.135160"
+    }
+  },
+  "security_tests": {
+    "rate_limiting": {
+      "status": "PASSED",
+      "details": "Rate limiting activated after 5 failed attempts",
+      "timestamp": "2025-07-16T04:20:50.761231"
+    },
+    "secret_key_strength": {
+      "status": "PASSED",
+      "details": "Secret key length: 84",
+      "timestamp": "2025-07-16T04:20:50.762735"
+    },
+    "default_secret_key": {
+      "status": "PASSED",
+      "details": "Custom secret key configured",
+      "timestamp": "2025-07-16T04:20:50.762738"
+    },
+    "token_expiration": {
+      "status": "PASSED",
+      "details": "Token expiration: 11520 minutes",
+      "timestamp": "2025-07-16T04:20:50.762741"
+    },
+    "cors_configuration": {
+      "status": "PASSED",
+      "details": "CORS properly configured: ['http://localhost:3000', 'http://localhost:8000', 'https://localhost:3000', 'https://localhost:8000']",
+      "timestamp": "2025-07-16T04:20:50.762748"
+    },
+    "2fa_database_ready": {
+      "status": "PASSED",
+      "details": "Two-factor authentication field exists in database",
+      "timestamp": "2025-07-16T04:20:50.764690"
+    },
+    "2fa_usage": {
+      "status": "INFO",
+      "details": "0 users have 2FA enabled",
+      "timestamp": "2025-07-16T04:20:50.764908"
+    }
+  },
+  "issues": [],
+  "recommendations": [
+    "Consider migrating to PostgreSQL for production use",
+    "Implement comprehensive logging for security events",
+    "Set up monitoring for failed authentication attempts",
+    "Consider implementing account lockout policies",
+    "Add email verification for new user registrations",
+    "Implement password complexity requirements",
+    "Set up regular security audits and penetration testing"
+  ]
+}

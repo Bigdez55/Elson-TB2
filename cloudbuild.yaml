@@ -1,47 +1,88 @@
-# Google Cloud Build configuration for Cloud Run deployment
+# Google Cloud Build configuration for Elson Trading Platform
+# Deploys to elsontb.com domain
 steps:
-  # Build the container image
+  # Build Backend Image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'build',
-      '-t', 'gcr.io/$PROJECT_ID/elson-trading-platform:$COMMIT_SHA',
-      '-t', 'gcr.io/$PROJECT_ID/elson-trading-platform:latest',
-      '.'
-    ]
+    id: 'build-backend'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/elson-backend:latest'
+      - './backend'
 
-  # Push the container image to Container Registry
+  # Build Frontend Image  
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push',
-      'gcr.io/$PROJECT_ID/elson-trading-platform:$COMMIT_SHA'
-    ]
+    id: 'build-frontend'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/elson-frontend:latest'
+      - './frontend'
 
-  # Push the latest tag
+  # Push Backend Image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'push', 
-      'gcr.io/$PROJECT_ID/elson-trading-platform:latest'
-    ]
+    id: 'push-backend'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
+    waitFor: ['build-backend']
 
-  # Deploy to Cloud Run
+  # Push Frontend Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
+    waitFor: ['build-frontend']
+
+  # Deploy Backend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-backend'
     entrypoint: gcloud
-    args: [
-      'run', 'deploy', 'elson-trading-platform',
-      '--image', 'gcr.io/$PROJECT_ID/elson-trading-platform:$COMMIT_SHA',
-      '--region', 'us-central1',
-      '--platform', 'managed',
-      '--allow-unauthenticated',
-      '--port', '8080',
-      '--memory', '2Gi',
-      '--cpu', '2',
-      '--max-instances', '10',
-      '--min-instances', '1',
-      '--concurrency', '80',
-      '--timeout', '900',
-      '--set-env-vars', 'ENVIRONMENT=production',
-      '--quiet'
-    ]
+    args:
+      - 'run'
+      - 'deploy'
+      - 'elson-backend'
+      - '--image=gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=1Gi'
+      - '--cpu=1'
+      - '--max-instances=10'
+      - '--min-instances=1'
+      - '--concurrency=80'
+      - '--timeout=300'
+      - '--set-env-vars=ENVIRONMENT=production,PROJECT_ID=$PROJECT_ID'
+      - '--quiet'
+    waitFor: ['push-backend']
+
+  # Deploy Frontend to Cloud Run  
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-frontend'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'elson-frontend'
+      - '--image=gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--max-instances=5'
+      - '--min-instances=1'
+      - '--concurrency=100'
+      - '--timeout=300'
+      - '--quiet'
+    waitFor: ['push-frontend']
 
 # Specify the machine type for Cloud Build
 options:
@@ -57,5 +98,7 @@ substitutions:
   _SERVICE_NAME: elson-trading-platform
 
 images:
-  - 'gcr.io/$PROJECT_ID/elson-trading-platform:$COMMIT_SHA'
-  - 'gcr.io/$PROJECT_ID/elson-trading-platform:latest'
+  - 'gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/elson-backend:latest'
+  - 'gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/elson-frontend:latest'

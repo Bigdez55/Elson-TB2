@@ -5,22 +5,51 @@ import { Link } from 'react-router-dom';
 import { StatsCard } from '../components/common/Card';
 import { PortfolioChart } from '../components/charts/PortfolioChart';
 import { AllocationChart } from '../components/charts/AllocationChart';
+import { useTradingContext } from '../contexts/TradingContext';
+import { useGetBatchDataQuery, useGetPortfolioPerformanceQuery } from '../services/tradingApi';
 
 const DashboardPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const { portfolio } = useSelector((state: RootState) => state.portfolio);
-  const [timeframe, setTimeframe] = useState('1W');
+  const { mode } = useTradingContext();
+  const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'All'>('1W');
 
-  // Mock data - replace with real data from Redux store
+  // Map timeframe to API period format
+  const apiPeriod: '1W' | '1M' | '3M' | '1Y' | 'ALL' =
+    timeframe === 'All' ? 'ALL' : timeframe === '1D' ? '1W' : timeframe;
+
+  // Fetch real portfolio data
+  const { data: batchData, isLoading, error } = useGetBatchDataQuery({ mode });
+  const { data: performanceData } = useGetPortfolioPerformanceQuery({ mode, period: apiPeriod });
+
+  const portfolio = batchData?.portfolio;
+  const positions = batchData?.positions || [];
+  const account = batchData?.account;
+
+  // Transform portfolio performance data for charts
   const portfolioData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    portfolio: [32400, 33100, 32800, 33500, 34100, 34300, 34567],
-    benchmark: [32400, 32600, 32900, 33000, 33400, 33600, 33900],
+    labels: performanceData?.daily_returns?.map(d =>
+      new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })
+    ) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    portfolio: performanceData?.daily_returns?.map(d => d.portfolio_value) ||
+      [32400, 33100, 32800, 33500, 34100, 34300, 34567],
+    benchmark: performanceData?.daily_returns?.map(d => 32400 * (1 + d.return * 0.8)) ||
+      [32400, 32600, 32900, 33000, 33400, 33600, 33900],
   };
 
+  // Calculate allocation from positions
+  const allocationMap = new Map<string, number>();
+  positions.forEach(pos => {
+    const category = pos.symbol.includes('BTC') || pos.symbol.includes('ETH') ? 'Cryptocurrency' :
+                    pos.symbol.includes('VOO') || pos.symbol.includes('SPY') ? 'Index ETFs' :
+                    pos.symbol.includes('TSLA') || pos.symbol.includes('AAPL') ? 'Tech Stocks' :
+                    'Other';
+    allocationMap.set(category, (allocationMap.get(category) || 0) + pos.market_value);
+  });
+
+  const totalAllocation = Array.from(allocationMap.values()).reduce((a, b) => a + b, 0);
   const allocationData = {
-    labels: ['Tech Stocks', 'Index ETFs', 'Clean Energy', 'Cryptocurrency', 'High-Yield Savings'],
-    values: [35, 25, 10, 15, 15],
+    labels: Array.from(allocationMap.keys()),
+    values: Array.from(allocationMap.values()).map(v => totalAllocation > 0 ? (v / totalAllocation) * 100 : 0),
     colors: [
       'rgba(168, 85, 247, 1)',
       'rgba(59, 130, 246, 1)',
@@ -30,12 +59,35 @@ const DashboardPage: React.FC = () => {
     ],
   };
 
-  const assets = [
-    { symbol: 'AAPL', name: 'Apple Inc.', shares: '10.5 shares', value: '$1,947.25', change: '+$32.55 (1.7%)', positive: true, bgColor: 'bg-blue-900', textColor: 'text-blue-300' },
-    { symbol: 'TSLA', name: 'Tesla, Inc.', shares: '8.2 shares', value: '$2,378.00', change: '+$189.42 (8.6%)', positive: true, bgColor: 'bg-green-900', textColor: 'text-green-300' },
-    { symbol: 'VOO', name: 'Vanguard S&P 500 ETF', shares: '15.3 shares', value: '$6,427.32', change: '+$107.10 (1.7%)', positive: true, bgColor: 'bg-purple-900', textColor: 'text-purple-300' },
-    { symbol: 'BTC', name: 'Bitcoin', shares: '0.058 BTC', value: '$2,324.18', change: '+$212.50 (10.1%)', positive: true, bgColor: 'bg-yellow-900', textColor: 'text-yellow-300' },
-  ];
+  // Get color for each symbol
+  const getSymbolColor = (index: number) => {
+    const colors = [
+      { bg: 'bg-blue-900', text: 'text-blue-300' },
+      { bg: 'bg-green-900', text: 'text-green-300' },
+      { bg: 'bg-purple-900', text: 'text-purple-300' },
+      { bg: 'bg-yellow-900', text: 'text-yellow-300' },
+      { bg: 'bg-pink-900', text: 'text-pink-300' },
+    ];
+    return colors[index % colors.length];
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-gray-800 min-h-screen p-6 flex items-center justify-center">
+        <div className="text-white">Loading portfolio data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gray-800 min-h-screen p-6">
+        <div className="bg-red-900/30 border border-red-500 rounded p-4 text-red-300">
+          Failed to load portfolio data. Please try again later.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-800 min-h-screen p-6">
@@ -65,27 +117,36 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatsCard
           title="Total Portfolio"
-          value={portfolio?.total_value ? `$${portfolio.total_value.toLocaleString()}` : '$34,567.89'}
-          badge={{ text: '+12.5% YTD', variant: 'premium' }}
-          change={{ value: '$1,432.51 (4.3%) today', positive: true }}
+          value={`$${(portfolio?.total_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badge={{
+            text: `${(portfolio?.total_pnl_percent || 0) >= 0 ? '+' : ''}${portfolio?.total_pnl_percent?.toFixed(1) || '0.0'}% Total`,
+            variant: (portfolio?.total_pnl_percent || 0) >= 0 ? 'premium' : 'warning'
+          }}
+          change={{
+            value: `${(portfolio?.day_pnl || 0) >= 0 ? '+' : ''}$${Math.abs(portfolio?.day_pnl || 0).toFixed(2)} (${portfolio?.day_pnl_percent?.toFixed(2) || '0.00'}%) today`,
+            positive: (portfolio?.day_pnl || 0) >= 0
+          }}
         />
         <StatsCard
-          title="AI Managed"
-          value="$21,250.42"
-          badge={{ text: '+18.3% YTD', variant: 'premium' }}
-          change={{ value: '$980.32 (4.8%) today', positive: true }}
+          title="Cash Balance"
+          value={`$${(portfolio?.cash_balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badge={{ text: mode === 'paper' ? 'Paper Trading' : 'Live Account', variant: mode === 'paper' ? 'info' : 'success' }}
+          change={{ value: `Available for trading`, positive: true }}
         />
         <StatsCard
-          title="High-Yield Savings"
-          value="$5,250.00"
-          badge={{ text: '5.00% APY', variant: 'success' }}
-          change={{ value: '$21.88 interest this month', positive: true }}
+          title="Positions Value"
+          value={`$${(portfolio?.positions_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badge={{ text: `${positions.length} Position${positions.length !== 1 ? 's' : ''}`, variant: 'premium' }}
+          change={{
+            value: `${(portfolio?.total_pnl || 0) >= 0 ? '+' : ''}$${Math.abs(portfolio?.total_pnl || 0).toFixed(2)} Total P&L`,
+            positive: (portfolio?.total_pnl || 0) >= 0
+          }}
         />
         <StatsCard
-          title="Round-Ups"
-          value="$12.75"
-          badge={{ text: '$248 this year', variant: 'premium' }}
-          change={{ value: 'Pending this week', positive: true }}
+          title="Buying Power"
+          value={`$${(account?.buying_power || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          badge={{ text: account?.pattern_day_trader ? 'PDT' : 'Margin', variant: account?.pattern_day_trader ? 'warning' : 'info' }}
+          change={{ value: `${account?.day_trade_count || 0} day trades used`, positive: (account?.day_trade_count || 0) < 3 }}
         />
       </div>
 
@@ -121,8 +182,8 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <PortfolioChart
           data={portfolioData}
-          timeframe={timeframe as any}
-          onTimeframeChange={setTimeframe}
+          timeframe={timeframe}
+          onTimeframeChange={(tf: string) => setTimeframe(tf as '1D' | '1W' | '1M' | '3M' | '1Y' | 'All')}
           className="lg:col-span-2"
         />
         <AllocationChart data={allocationData} />
@@ -142,25 +203,43 @@ const DashboardPage: React.FC = () => {
             </Link>
           </div>
           <div className="divide-y divide-gray-800">
-            {assets.map((asset, index) => (
-              <div key={asset.symbol} className="flex items-center py-4 px-2 rounded-lg hover:bg-purple-900 hover:bg-opacity-10 transition-colors">
-                <div className={`flex-shrink-0 h-10 w-10 rounded-full ${asset.bgColor} flex items-center justify-center ${asset.textColor} font-bold`}>
-                  {asset.symbol === 'BTC' ? (
-                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  ) : asset.symbol}
-                </div>
-                <div className="ml-4 flex-1">
-                  <h4 className="text-white font-medium">{asset.name}</h4>
-                  <p className="text-gray-400 text-sm">{asset.shares}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-white font-medium">{asset.value}</p>
-                  <p className={`text-sm ${asset.positive ? 'text-green-400' : 'text-red-400'}`}>{asset.change}</p>
-                </div>
+            {positions.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <p>No positions yet. Start trading to see your assets here.</p>
+                <Link to={`/${mode}/trading`} className="text-purple-400 hover:text-purple-300 mt-2 inline-block">
+                  Go to Trading →
+                </Link>
               </div>
-            ))}
+            ) : (
+              positions.slice(0, 4).map((position, index) => {
+                const colors = getSymbolColor(index);
+                const isCrypto = position.symbol.includes('BTC') || position.symbol.includes('ETH');
+                const pnlPercent = position.unrealized_pnl_percent || 0;
+                const pnlValue = position.unrealized_pnl || 0;
+
+                return (
+                  <div key={position.id} className="flex items-center py-4 px-2 rounded-lg hover:bg-purple-900 hover:bg-opacity-10 transition-colors">
+                    <div className={`flex-shrink-0 h-10 w-10 rounded-full ${colors.bg} flex items-center justify-center ${colors.text} font-bold text-sm`}>
+                      {isCrypto ? (
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      ) : position.symbol.substring(0, 4)}
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <h4 className="text-white font-medium">{position.symbol}</h4>
+                      <p className="text-gray-400 text-sm">{position.quantity.toFixed(4)} {isCrypto ? position.symbol : 'shares'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-medium">${position.market_value.toFixed(2)}</p>
+                      <p className={`text-sm ${pnlValue >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {pnlValue >= 0 ? '+' : ''}${pnlValue.toFixed(2)} ({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%)
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
