@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { login, clearError } from '../store/slices/authSlice';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const LoginPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -93,7 +93,7 @@ const LoginPage: React.FC = () => {
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
           >
             {isLoading ? (
-              <LoadingSpinner size="small" />
+              <LoadingSpinner size="sm" />
             ) : (
               'Sign In'
             )}

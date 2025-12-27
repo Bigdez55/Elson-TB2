@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import LoadingSpinner from '../LoadingSpinner';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { advancedTradingAPI, AdvancedTradingSignal } from '../../services/advancedTradingAPI';
 import { logger } from '../../utils/logger';
 
@@ -86,7 +86,7 @@ const TradingSignalsPanel: React.FC<TradingSignalsPanelProps> = ({ portfolioId, 
             size="sm"
             variant="outline"
           >
-            {loading ? <LoadingSpinner size="small" /> : 'Refresh'}
+            {loading ? <LoadingSpinner size="sm" /> : 'Refresh'}
           </Button>
         </div>
       </div>
@@ -164,7 +164,7 @@ const TradingSignalsPanel: React.FC<TradingSignalsPanelProps> = ({ portfolioId, 
               disabled={executing}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              {executing ? <LoadingSpinner size="small" /> : 'Execute Trades'}
+              {executing ? <LoadingSpinner size="sm" /> : 'Execute Trades'}
             </Button>
           </div>
         </div>

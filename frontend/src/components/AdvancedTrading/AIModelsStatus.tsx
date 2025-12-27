@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import LoadingSpinner from '../LoadingSpinner';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { advancedTradingAPI, AIModelStatus } from '../../services/advancedTradingAPI';
 
 interface AIModelsStatusProps {
@@ -89,7 +89,7 @@ const AIModelsStatus: React.FC<AIModelsStatusProps> = ({ onError }) => {
           size="sm"
           variant="outline"
         >
-          {retraining ? <LoadingSpinner size="small" /> : 'Retrain All'}
+          {retraining ? <LoadingSpinner size="sm" /> : 'Retrain All'}
         </Button>
       </div>
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { RootState } from '../store/store';
 import { register, clearError } from '../store/slices/authSlice';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 const REGISTRATION_STORAGE_KEY = 'elson_registration_draft';
 const STORAGE_EXPIRY_HOURS = 24;
@@ -806,7 +806,7 @@ const RegisterPage: React.FC = () => {
                   disabled={isLoading}
                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {isLoading ? <LoadingSpinner size="small" /> : 'Create Account'}
+                  {isLoading ? <LoadingSpinner size="sm" /> : 'Create Account'}
                 </button>
               )}
             </div>
