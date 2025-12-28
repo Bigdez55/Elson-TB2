@@ -79,8 +79,8 @@ const PortfolioPage: React.FC = () => {
                 borderColor: 'rgba(59, 130, 246, 1)',
                 borderWidth: 1,
                 callbacks: {
-                  label: function(context) {
-                    return `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`;
+                  label: function(context: any) {
+                    return `${context.dataset.label}: $${context.parsed.y?.toLocaleString() ?? '0'}`;
                   }
                 }
               }

@@ -6,6 +6,7 @@
       "dom.iterable",
       "es6"
     ],
+    "types": ["jest", "node"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -22,5 +23,12 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/__tests__"
   ]
 }

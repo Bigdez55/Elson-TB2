@@ -105,7 +105,7 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
         displayColors: false,
         callbacks: {
           label: function(context: any) {
-            return `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`;
+            return `${context.dataset.label}: $${context.parsed.y?.toLocaleString() ?? '0'}`;
           },
         },
       },
