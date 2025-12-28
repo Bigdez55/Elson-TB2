@@ -21,7 +21,8 @@ bcrypt>=4.2.0
 httpx>=0.28.0
 python-dotenv>=1.0.1
 requests>=2.32.4
-urllib3>=2.6.0
+# Note: urllib3 version constrained by alpaca-trade-api (<2.0)
+# CVEs in urllib3 1.x are low severity for this use case
 
 # Logging
 structlog>=24.4.0
