@@ -21,8 +21,7 @@ bcrypt>=4.2.0
 httpx>=0.28.0
 python-dotenv>=1.0.1
 requests>=2.32.4
-# Note: urllib3 version constrained by alpaca-trade-api (<2.0)
-# CVEs in urllib3 1.x are low severity for this use case
+urllib3>=2.6.0
 
 # Logging
 structlog>=24.4.0
@@ -38,7 +37,7 @@ xgboost>=2.1.0
 
 # Financial & Trading Libraries
 yfinance>=0.2.48
-alpaca-trade-api>=3.2.0
+# Note: alpaca-trade-api removed - broker uses direct HTTP calls via requests
 
 # Security: Pin these to fix known vulnerabilities
 pillow>=11.3.0
