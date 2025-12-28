@@ -13,21 +13,31 @@ import { WebSocketStatus } from '../../services/websocketService';
 import { marketDataApi } from '../../services/marketDataApi';
 import { tradingApi } from '../../services/tradingApi';
 
-// Mock WebSocket service
-const mockWebSocketService = {
-  connect: jest.fn(() => Promise.resolve()),
-  disconnect: jest.fn(),
-  subscribeToMarketData: jest.fn(() => Promise.resolve()),
-  subscribeToPortfolio: jest.fn(() => Promise.resolve()),
-  subscribeToOrderUpdates: jest.fn(() => Promise.resolve()),
-  on: jest.fn(),
-  off: jest.fn(),
-  isConnected: jest.fn(() => true),
-};
-
+// Mock WebSocket service - define inside factory to avoid hoisting issues
 jest.mock('../../services/websocketService', () => ({
-  webSocketService: mockWebSocketService
+  webSocketService: {
+    connect: jest.fn(() => Promise.resolve()),
+    disconnect: jest.fn(),
+    subscribeToMarketData: jest.fn(() => Promise.resolve()),
+    subscribeToPortfolio: jest.fn(() => Promise.resolve()),
+    subscribeToOrderUpdates: jest.fn(() => Promise.resolve()),
+    on: jest.fn(),
+    off: jest.fn(),
+    isConnected: jest.fn(() => true),
+    getState: jest.fn(() => ({ status: 'CONNECTED' })),
+  },
+  WebSocketStatus: {
+    DISCONNECTED: 'DISCONNECTED',
+    CONNECTING: 'CONNECTING',
+    CONNECTED: 'CONNECTED',
+    AUTHENTICATED: 'AUTHENTICATED',
+    RECONNECTING: 'RECONNECTING',
+    ERROR: 'ERROR',
+  },
 }));
+
+// Get reference to mocked service after mock is set up
+const mockWebSocketService = jest.requireMock('../../services/websocketService').webSocketService;
 
 // Mock trading API with realistic responses
 const mockExecuteTrade = jest.fn();

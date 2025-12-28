@@ -130,8 +130,9 @@ const handleWebSocketConnection = async (store: any) => {
 
   } catch (error) {
     console.error('WebSocket connection failed:', error);
+    const state = webSocketService.getState?.() ?? { status: 'ERROR' };
     store.dispatch(setConnectionStatus({
-      status: webSocketService.getState().status,
+      status: state.status ?? 'ERROR',
       error: error instanceof Error ? error.message : 'Connection failed',
     }));
   }
@@ -139,7 +140,7 @@ const handleWebSocketConnection = async (store: any) => {
 
 const handleWebSocketDisconnection = (store: any) => {
   webSocketService.disconnect();
-  
+
   // Clear all event handlers
   webSocketService.off('onStatusChange');
   webSocketService.off('onError');
@@ -147,9 +148,10 @@ const handleWebSocketDisconnection = (store: any) => {
   webSocketService.off('onOrderUpdate');
   webSocketService.off('onPositionUpdate');
   webSocketService.off('onPortfolioUpdate');
-  
+
+  const state = webSocketService.getState?.() ?? { status: 'DISCONNECTED' };
   store.dispatch(setConnectionStatus({
-    status: webSocketService.getState().status,
+    status: state.status ?? 'DISCONNECTED',
   }));
 };
 

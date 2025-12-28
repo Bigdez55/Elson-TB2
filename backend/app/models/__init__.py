@@ -26,6 +26,17 @@ from .security import (
     LoginHistory,
     SecurityAuditLog,
 )
+from .education import (
+    ContentLevel,
+    ContentType,
+    CompletionRequirement,
+    EducationalContent,
+    UserProgress,
+    LearningPath,
+    LearningPathItem,
+    TradingPermission,
+    UserPermission,
+)
 
 __all__ = [
     "User",
@@ -62,4 +73,13 @@ __all__ = [
     "AlertType",
     "LoginHistory",
     "SecurityAuditLog",
+    "ContentLevel",
+    "ContentType",
+    "CompletionRequirement",
+    "EducationalContent",
+    "UserProgress",
+    "LearningPath",
+    "LearningPathItem",
+    "TradingPermission",
+    "UserPermission",
 ]

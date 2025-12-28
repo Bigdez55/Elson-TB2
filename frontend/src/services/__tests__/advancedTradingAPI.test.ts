@@ -1,28 +1,42 @@
-import axios from 'axios';
-import { advancedTradingAPI } from '../advancedTradingAPI';
-
-// Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-// Mock the axios instance from api.ts
+// Mock the axios instance - must be defined before the mock
 const mockApiInstance = {
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
   delete: jest.fn(),
   interceptors: {
-    request: { use: jest.fn() },
-    response: { use: jest.fn() }
+    request: { use: jest.fn(), eject: jest.fn() },
+    response: { use: jest.fn(), eject: jest.fn() }
   }
 };
 
-// Mock the default export from api.ts
-jest.mock('../api', () => mockApiInstance);
+// Mock axios with doMock to avoid hoisting issues
+jest.doMock('axios', () => ({
+  __esModule: true,
+  default: {
+    create: jest.fn(() => mockApiInstance),
+    isAxiosError: jest.fn((error: any) => error?.isAxiosError === true),
+  },
+  AxiosError: class AxiosError extends Error {
+    isAxiosError = true;
+  },
+}));
+
+// Mock the default export from api.ts - must be after axios mock
+jest.doMock('../api', () => ({
+  __esModule: true,
+  default: mockApiInstance,
+}));
+
+// Import using require to work with doMock
+const { advancedTradingAPI } = require('../advancedTradingAPI');
 
 describe('Advanced Trading API Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockApiInstance.get.mockReset();
+    mockApiInstance.post.mockReset();
+    mockApiInstance.put.mockReset();
+    mockApiInstance.delete.mockReset();
   });
 
   describe('initialize', () => {
