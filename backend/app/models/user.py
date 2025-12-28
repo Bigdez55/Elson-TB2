@@ -4,18 +4,14 @@ from sqlalchemy.sql import func
 import enum
 
 from app.db.base import Base
+# Import canonical SubscriptionPlan from subscription models
+from app.models.subscription import SubscriptionPlan
 
 
 class UserRole(enum.Enum):
     ADULT = "adult"
     MINOR = "minor"
     ADMIN = "admin"
-
-
-class SubscriptionPlan(enum.Enum):
-    FREE = "free"
-    PREMIUM = "premium"
-    FAMILY = "family"
 
 
 class User(Base):

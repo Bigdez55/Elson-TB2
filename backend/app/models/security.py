@@ -24,6 +24,7 @@ class DeviceStatus(str, Enum):
 
 class AlertSeverity(str, Enum):
     """Security alert severity levels"""
+    INFO = "info"
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"

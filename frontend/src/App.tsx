@@ -32,7 +32,7 @@ import SavingsPage from './pages/SavingsPage';
 import CardPage from './pages/CardPage';
 import InsurancePage from './pages/InsurancePage';
 import RetirementPage from './pages/RetirementPage';
-import LoadingSpinner from './components/LoadingSpinner';
+import { LoadingSpinner } from './components/common/LoadingSpinner';
 
 function App() {
   const dispatch = useDispatch();

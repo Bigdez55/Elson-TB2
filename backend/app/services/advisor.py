@@ -11,6 +11,9 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+# Import canonical RiskLevel from models
+from app.models.risk import RiskLevel
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,15 +25,6 @@ class RecommendationType(str, Enum):
     HOLD = "hold"
     REDUCE = "reduce"
     INCREASE = "increase"
-
-
-class RiskLevel(str, Enum):
-    """Risk levels for recommendations"""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    VERY_HIGH = "very_high"
 
 
 class Recommendation(BaseModel):

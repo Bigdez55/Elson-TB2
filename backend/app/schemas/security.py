@@ -10,19 +10,11 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-
-# Enums
-class DeviceStatusEnum(str, Enum):
-    PENDING = "pending"
-    TRUSTED = "trusted"
-    REVOKED = "revoked"
+# Import canonical enums from models
+from app.models.security import AlertSeverity as AlertSeverityEnum, DeviceStatus as DeviceStatusEnum
 
 
-class AlertSeverityEnum(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
+# Keep only non-model enums here
 
 
 class AlertTypeEnum(str, Enum):

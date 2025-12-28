@@ -21,17 +21,10 @@ from app.models.holding import Holding
 from app.models.trade import Trade, TradeType, TradeStatus
 from app.models.user import User
 from app.services.market_data import MarketDataService
+# Import canonical RiskLevel from models
+from app.models.risk import RiskLevel
 
 logger = logging.getLogger(__name__)
-
-
-class RiskLevel(str, Enum):
-    """Risk levels for trades and portfolios."""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
 
 
 class RiskCheckResult(str, Enum):

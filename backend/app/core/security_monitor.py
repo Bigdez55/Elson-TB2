@@ -15,6 +15,8 @@ from collections import defaultdict
 from enum import Enum
 
 from .config import settings
+# Import canonical AlertSeverity from models
+from app.models.security import AlertSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -29,16 +31,6 @@ class AlertCategory(str, Enum):
     PERFORMANCE = "performance"
     FINANCIAL = "financial"
     OTHER = "other"
-
-
-class AlertSeverity(str, Enum):
-    """Alert severity levels."""
-
-    CRITICAL = "critical"
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    INFO = "info"
 
 
 class ServiceType(str, Enum):

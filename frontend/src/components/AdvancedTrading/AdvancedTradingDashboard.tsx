@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import LoadingSpinner from '../LoadingSpinner';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { advancedTradingAPI, PerformanceSummary, CircuitBreakerStatus } from '../../services/advancedTradingAPI';
 import TradingSignalsPanel from './TradingSignalsPanel';
 import AIModelsStatus from './AIModelsStatus';

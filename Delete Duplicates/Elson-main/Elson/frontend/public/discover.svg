@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="40" height="12" viewBox="0 0 40 12" preserveAspectRatio="xMinYMin meet">
-  <rect width="40" height="12" fill="#fff" />
-  <path fill="#4D4D4D" d="M9,2 h22 v8 h-22 z" />
-  <path fill="#FF6600" d="M22,6 a3,3 0 0,1 0,4 h9 v-4 z" />
-  <path fill="#fff" d="M12,6 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0 M19,5 v2 h1.5 v-2 h1 v3 h-3.5 v-3 z M27,5 v3 h1 v-3 z M30,5 v3 h1 v-3 z" />
-</svg>

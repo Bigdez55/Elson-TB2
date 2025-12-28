@@ -3,11 +3,8 @@ from typing import Optional, List, Dict, Any, Union
 from pydantic import BaseModel, EmailStr, Field, validator
 from enum import Enum
 
-
-class SubscriptionPlan(str, Enum):
-    FREE = "free"
-    PREMIUM = "premium"
-    FAMILY = "family"
+# Import canonical SubscriptionPlan from models
+from app.models.subscription import SubscriptionPlan
 
 
 class BillingCycle(str, Enum):

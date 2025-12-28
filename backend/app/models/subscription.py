@@ -24,6 +24,7 @@ class SubscriptionPlan(enum.Enum):
     BASIC = "basic"
     PREMIUM = "premium"
     PROFESSIONAL = "professional"
+    FAMILY = "family"
 
 
 class BillingCycle(enum.Enum):
