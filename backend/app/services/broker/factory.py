@@ -1,24 +1,23 @@
-"""Broker factory for creating and managing broker instances.
+"""Broker factory for creating broker instances.
 
-This module provides a centralized way to create broker instances with
-proper configuration and safety controls for both paper and live trading.
-
-Features:
-- Broker registry and factory pattern
-- Health tracking and monitoring
-- Automatic failover between brokers
-- Safety controls for live trading
+This module provides a factory for creating broker instances based on configuration,
+allowing the application to seamlessly switch between different broker implementations.
+It also provides a resilient broker router with failover capabilities.
 """
 
 import logging
 import time
 from enum import Enum
-from typing import Dict, Optional, Type, List, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple, Type
+
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.secrets import validate_broker_credentials
+from app.core.metrics import metrics
 from app.services.broker.base import BaseBroker, BrokerError
-from app.services.broker.alpaca import AlpacaBroker
+from app.services.broker.paper import PaperBroker
+
+# Import alert_manager in the functions that use it to avoid circular dependencies
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +26,8 @@ class BrokerType(str, Enum):
     """Types of supported brokers."""
 
     PAPER = "paper"
-    ALPACA = "alpaca"
     SCHWAB = "schwab"
+    ALPACA = "alpaca"
     # Add more broker types as needed
 
 
@@ -43,326 +42,292 @@ class BrokerHealth:
 
         # Initialize all broker types with unknown health
         for broker_type in BrokerType:
-            self._health_status[broker_type.value] = True  # Assume healthy until proven otherwise
-            self._consecutive_failures[broker_type.value] = 0
-            self._last_checked[broker_type.value] = time.time()
+            self._health_status[
+                broker_type
+            ] = True  # Assume healthy until proven otherwise
+            self._consecutive_failures[broker_type] = 0
+            self._last_checked[broker_type] = time.time()
 
-    def record_success(self, broker_name: str) -> None:
+    def record_success(self, broker_type: BrokerType) -> None:
         """Record a successful broker operation."""
-        self._health_status[broker_name] = True
-        self._consecutive_failures[broker_name] = 0
-        self._last_checked[broker_name] = time.time()
-        logger.debug(f"Broker {broker_name} marked as healthy")
+        self._health_status[broker_type] = True
+        self._consecutive_failures[broker_type] = 0
+        self._last_checked[broker_type] = time.time()
+        # Update metrics
+        metrics.gauge(f"broker.health.{broker_type}", 1)
+        metrics.gauge(f"broker.consecutive_failures.{broker_type}", 0)
 
-    def record_failure(self, broker_name: str) -> None:
+    def record_failure(self, broker_type: BrokerType) -> None:
         """Record a failed broker operation."""
-        self._consecutive_failures[broker_name] = self._consecutive_failures.get(broker_name, 0) + 1
-        self._last_checked[broker_name] = time.time()
+        self._consecutive_failures[broker_type] += 1
+        self._last_checked[broker_type] = time.time()
 
         # Mark as unhealthy after configured number of failures
-        failure_threshold = getattr(settings, "BROKER_FAILURE_THRESHOLD", 3)
-        if self._consecutive_failures[broker_name] >= failure_threshold:
-            if self._health_status.get(broker_name, True):  # Only log on status change
+        if self._consecutive_failures[broker_type] >= settings.BROKER_FAILURE_THRESHOLD:
+            if self._health_status[broker_type]:  # Only log and alert on status change
                 logger.warning(
-                    f"Broker {broker_name} marked as unhealthy after "
-                    f"{self._consecutive_failures[broker_name]} consecutive failures"
+                    f"Broker {broker_type} marked as unhealthy after {self._consecutive_failures[broker_type]} consecutive failures"
                 )
-            self._health_status[broker_name] = False
 
-    def is_healthy(self, broker_name: str) -> bool:
+                # Import here to avoid circular dependency
+                from app.core.alerts_manager import alert_manager
+
+                alert_manager.send_alert(
+                    f"Broker {broker_type} unavailable",
+                    f"Broker {broker_type} has failed {self._consecutive_failures[broker_type]} consecutive operations",
+                    level="error",
+                )
+            self._health_status[broker_type] = False
+
+        # Update metrics
+        if not self._health_status[broker_type]:
+            metrics.gauge(f"broker.health.{broker_type}", 0)
+        metrics.gauge(
+            f"broker.consecutive_failures.{broker_type}",
+            self._consecutive_failures[broker_type],
+        )
+
+    def is_healthy(self, broker_type: BrokerType) -> bool:
         """Check if a broker is currently healthy."""
         # If it's been too long since we last checked, revert to healthy to force a retry
-        retry_interval = getattr(settings, "BROKER_RETRY_INTERVAL", 300)  # 5 minutes default
-        time_since_check = time.time() - self._last_checked.get(broker_name, 0)
+        time_since_check = time.time() - self._last_checked.get(broker_type, 0)
+        if (
+            not self._health_status[broker_type]
+            and time_since_check > settings.BROKER_RETRY_INTERVAL
+        ):
+            logger.info(f"Broker {broker_type} retry period elapsed, marking for retry")
+            self._health_status[broker_type] = True
 
-        if not self._health_status.get(broker_name, True) and time_since_check > retry_interval:
-            logger.info(f"Broker {broker_name} retry period elapsed, marking for retry")
-            self._health_status[broker_name] = True
-
-        return self._health_status.get(broker_name, True)
+        return self._health_status[broker_type]
 
     def get_health_report(self) -> Dict[str, Any]:
         """Get a report of all broker health statuses."""
         report = {}
-        for broker_name in self._health_status.keys():
-            report[broker_name] = {
-                "healthy": self._health_status.get(broker_name, False),
-                "consecutive_failures": self._consecutive_failures.get(broker_name, 0),
-                "last_checked": self._last_checked.get(broker_name, 0)
+        for broker_type in BrokerType:
+            report[broker_type] = {
+                "healthy": self._health_status.get(broker_type, False),
+                "consecutive_failures": self._consecutive_failures.get(broker_type, 0),
+                "last_checked": self._last_checked.get(broker_type, 0),
             }
         return report
 
 
-# Global health tracker instance
-_health_tracker = BrokerHealth()
-
-
 class BrokerFactory:
-    """Factory for creating broker instances with safety controls."""
+    """Factory for creating broker instances."""
 
-    # Registry of available brokers
-    _brokers: Dict[str, Type[BaseBroker]] = {
-        "alpaca": AlpacaBroker,
-    }
+    def __init__(self):
+        """Initialize with registry of broker implementations."""
+        self._registry = {}
+        self._health_tracker = BrokerHealth()
 
-    @classmethod
-    def create_broker(
-        cls, broker_name: str, use_paper: bool = True, **kwargs
-    ) -> BaseBroker:
-        """Create a broker instance with safety controls.
+        # Register built-in broker implementations
+        self.register(BrokerType.PAPER, PaperBroker)
 
-        Args:
-            broker_name: Name of the broker ('alpaca', 'schwab', etc.)
-            use_paper: Whether to use paper trading (default: True for safety)
-            **kwargs: Additional arguments to pass to broker constructor
+        # Import and register real broker implementations
+        try:
+            # First try to load refactored implementations
+            try:
+                from app.services.broker.schwab_refactored import SchwabBroker
 
-        Returns:
-            Configured broker instance
+                self.register(BrokerType.SCHWAB, SchwabBroker)
+                logger.info("Registered refactored Schwab broker implementation")
+            except ImportError:
+                # Fall back to original implementation if refactored is not available
+                from app.services.broker.schwab import SchwabBroker
 
-        Raises:
-            BrokerError: If broker creation fails or credentials are invalid
-        """
-        broker_name = broker_name.lower()
-
-        if broker_name not in cls._brokers:
-            available_brokers = ", ".join(cls._brokers.keys())
-            raise BrokerError(
-                message=f"Unknown broker '{broker_name}'. Available: {available_brokers}",
-                error_code="UNKNOWN_BROKER",
-            )
-
-        # Validate credentials before creating instance
-        if not validate_broker_credentials(broker_name):
-            raise BrokerError(
-                message=f"Invalid or missing credentials for {broker_name}",
-                error_code="INVALID_CREDENTIALS",
-            )
-
-        # Safety check: Only allow live trading in production-like environments
-        if not use_paper:
-            environment = getattr(settings, "ENVIRONMENT", "development")
-            if environment not in ["production", "staging"]:
-                logger.warning(
-                    f"Live trading requested in {environment} environment. "
-                    "Forcing paper trading for safety."
-                )
-                use_paper = True
-
-        broker_class = cls._brokers[broker_name]
+                self.register(BrokerType.SCHWAB, SchwabBroker)
+                logger.info("Registered original Schwab broker implementation")
+        except ImportError as e:
+            logger.warning(f"Could not register Schwab broker: {str(e)}")
 
         try:
-            broker = broker_class(use_paper=use_paper, **kwargs)
+            # First try to load refactored implementations
+            try:
+                from app.services.broker.alpaca_refactored import AlpacaBroker
 
-            logger.info(
-                f"Created {broker_name} broker instance "
-                f"(paper={'Yes' if use_paper else 'No'})"
-            )
+                self.register(BrokerType.ALPACA, AlpacaBroker)
+                logger.info("Registered refactored Alpaca broker implementation")
+            except ImportError:
+                # Fall back to original implementation if refactored is not available
+                from app.services.broker.alpaca import AlpacaBroker
 
-            # Record successful creation
-            _health_tracker.record_success(broker_name)
+                self.register(BrokerType.ALPACA, AlpacaBroker)
+                logger.info("Registered original Alpaca broker implementation")
+        except ImportError as e:
+            logger.warning(f"Could not register Alpaca broker: {str(e)}")
 
-            return broker
+    def register(self, broker_type: BrokerType, broker_class: Type[BaseBroker]) -> None:
+        """Register a broker implementation."""
+        self._registry[broker_type] = broker_class
+        logger.info(f"Registered broker implementation: {broker_type}")
 
-        except Exception as e:
-            logger.error(f"Failed to create {broker_name} broker: {str(e)}")
-            _health_tracker.record_failure(broker_name)
-            raise BrokerError(
-                message=f"Failed to create {broker_name} broker: {str(e)}",
-                error_code="BROKER_CREATION_FAILED",
-            ) from e
+    def create(
+        self,
+        broker_type: Optional[BrokerType] = None,
+        db: Session = None,
+        config: Optional[Dict[str, Any]] = None,
+    ) -> BaseBroker:
+        """Create a broker instance of the specified type."""
+        # Use configured default if not specified
+        if not broker_type:
+            try:
+                broker_type = BrokerType(settings.DEFAULT_BROKER)
+            except ValueError:
+                logger.warning(
+                    f"Invalid default broker: {settings.DEFAULT_BROKER}, falling back to paper"
+                )
+                broker_type = BrokerType.PAPER
 
-    @classmethod
-    def create_paper_broker(cls, broker_name: str = "alpaca", **kwargs) -> BaseBroker:
-        """Create a paper trading broker instance.
+        # Get broker class from registry
+        broker_class = self._registry.get(broker_type)
 
-        Args:
-            broker_name: Name of the broker (default: alpaca)
-            **kwargs: Additional arguments to pass to broker constructor
+        if not broker_class:
+            logger.error(f"No broker implementation found for: {broker_type}")
+            # Fall back to paper trading if the requested type is not available
+            broker_class = self._registry.get(BrokerType.PAPER)
 
-        Returns:
-            Paper trading broker instance
-        """
-        return cls.create_broker(broker_name, use_paper=True, **kwargs)
+        if not broker_class:
+            raise ValueError(f"No broker implementations available")
 
-    @classmethod
-    def create_live_broker(cls, broker_name: str = "alpaca", **kwargs) -> BaseBroker:
-        """Create a live trading broker instance with extra validation.
+        # Create and initialize broker instance with proper configuration
+        if config is None:
+            config = {}
 
-        Args:
-            broker_name: Name of the broker (default: alpaca)
-            **kwargs: Additional arguments to pass to broker constructor
+        # Add sandbox/paper configuration based on environment
+        if broker_type == BrokerType.SCHWAB:
+            # Use sandbox in development/staging environments
+            config.setdefault("sandbox", settings.ENVIRONMENT != "production")
+        elif broker_type == BrokerType.ALPACA:
+            # Use paper trading in development/staging environments
+            config.setdefault("use_paper", settings.ENVIRONMENT != "production")
 
-        Returns:
-            Live trading broker instance
+        return broker_class(db=db, **config)
 
-        Raises:
-            BrokerError: If live trading is not properly configured
-        """
-        # Extra validation for live trading
-        environment = getattr(settings, "ENVIRONMENT", "development")
+    def get_health_tracker(self) -> BrokerHealth:
+        """Get the broker health tracker instance."""
+        return self._health_tracker
 
-        if environment == "development":
-            raise BrokerError(
-                message="Live trading is not allowed in development environment",
-                error_code="LIVE_TRADING_DISABLED",
-            )
+    def get_available_brokers(self) -> List[BrokerType]:
+        """Get a list of all available broker types."""
+        return list(self._registry.keys())
 
-        # Require explicit confirmation for live trading
-        live_trading_enabled = getattr(settings, "LIVE_TRADING_ENABLED", False)
-        if not live_trading_enabled:
-            raise BrokerError(
-                message="Live trading is not enabled. Set LIVE_TRADING_ENABLED=true",
-                error_code="LIVE_TRADING_DISABLED",
-            )
+    def get_preferred_broker_order(self) -> List[BrokerType]:
+        """Get the list of brokers in preferred order of use."""
+        # Default priority order based on production settings
+        if settings.ENVIRONMENT == "production":
+            preferred_order = settings.BROKER_PRIORITY_LIST
+        else:
+            # In development, prefer paper trading
+            preferred_order = [BrokerType.PAPER]
+            # Then add any real brokers for testing
+            for broker_type in settings.BROKER_PRIORITY_LIST:
+                if broker_type != BrokerType.PAPER:
+                    preferred_order.append(broker_type)
 
-        logger.warning(
-            f"Creating LIVE trading broker for {broker_name} in {environment} environment"
-        )
+        # Only include registered brokers
+        return [broker for broker in preferred_order if broker in self._registry]
 
-        return cls.create_broker(broker_name, use_paper=False, **kwargs)
 
-    @classmethod
-    def get_default_broker(cls, use_paper: bool = True, **kwargs) -> BaseBroker:
-        """Get the default broker instance.
-
-        Args:
-            use_paper: Whether to use paper trading
-            **kwargs: Additional arguments to pass to broker constructor
-
-        Returns:
-            Default broker instance
-        """
-        default_broker = getattr(settings, "DEFAULT_BROKER", "alpaca")
-        return cls.create_broker(default_broker, use_paper=use_paper, **kwargs)
-
-    @classmethod
-    def register_broker(cls, name: str, broker_class: Type[BaseBroker]) -> None:
-        """Register a new broker type.
-
-        Args:
-            name: Name to register the broker under
-            broker_class: Broker class that implements BaseBroker
-        """
-        if not issubclass(broker_class, BaseBroker):
-            raise ValueError("Broker class must inherit from BaseBroker")
-
-        cls._brokers[name.lower()] = broker_class
-        logger.info(f"Registered broker: {name}")
-
-    @classmethod
-    def list_available_brokers(cls) -> list[str]:
-        """Get list of available broker names."""
-        return list(cls._brokers.keys())
-
-    @classmethod
-    def get_health_tracker(cls) -> BrokerHealth:
-        """Get the global broker health tracker."""
-        return _health_tracker
-
-    @classmethod
-    def get_health_report(cls) -> Dict[str, Any]:
-        """Get health report for all brokers."""
-        return _health_tracker.get_health_report()
+# Global factory instance
+broker_factory = BrokerFactory()
 
 
 class ResilientBroker:
     """A wrapper that provides resilient broker operations with failover."""
 
-    def __init__(self, broker_priority: Optional[List[str]] = None, use_paper: bool = True, **kwargs):
-        """Initialize with broker priority list and configuration.
-
-        Args:
-            broker_priority: List of broker names in order of preference
-            use_paper: Whether to use paper trading
-            **kwargs: Additional configuration for brokers
-        """
-        self.broker_priority = broker_priority or ["alpaca"]
-        self.use_paper = use_paper
-        self.config = kwargs
-        self.health_tracker = _health_tracker
+    def __init__(self, db: Session = None, config: Optional[Dict[str, Any]] = None):
+        """Initialize with database session and optional configuration."""
+        self.db = db
+        self.config = config or {}
+        self.health_tracker = broker_factory.get_health_tracker()
 
     def _execute_with_failover(
         self, method_name: str, *args, **kwargs
-    ) -> Tuple[Any, str]:
-        """Execute a broker method with failover capabilities.
-
-        Args:
-            method_name: Name of the broker method to call
-            *args: Positional arguments for the method
-            **kwargs: Keyword arguments for the method
-
-        Returns:
-            Tuple of (result, broker_name)
-
-        Raises:
-            BrokerError: If all brokers fail
-        """
+    ) -> Tuple[Any, BrokerType]:
+        """Execute a broker method with failover capabilities."""
         start_time = time.time()
-        errors = []
+        preferred_brokers = broker_factory.get_preferred_broker_order()
 
         # Try each broker in order of preference
-        for broker_name in self.broker_priority:
+        for broker_type in preferred_brokers:
             # Skip unhealthy brokers
-            if not self.health_tracker.is_healthy(broker_name):
-                logger.debug(f"Skipping unhealthy broker: {broker_name}")
+            if not self.health_tracker.is_healthy(broker_type):
+                logger.debug(f"Skipping unhealthy broker: {broker_type}")
                 continue
 
             try:
                 # Create broker instance
-                broker = BrokerFactory.create_broker(
-                    broker_name, use_paper=self.use_paper, **self.config
-                )
+                broker = broker_factory.create(broker_type, self.db, self.config)
 
                 # Find and call the requested method
                 method = getattr(broker, method_name, None)
                 if not method:
                     logger.warning(
-                        f"Method {method_name} not supported by broker {broker_name}"
+                        f"Method {method_name} not supported by broker {broker_type}"
                     )
                     continue
 
-                # Execute operation
+                # Execute operation with timing
+                method_start = time.time()
                 result = method(*args, **kwargs)
+                method_duration = time.time() - method_start
+
+                # Record metrics
+                metrics.timing(
+                    f"broker.{broker_type}.{method_name}", method_duration * 1000
+                )
+                metrics.increment(f"broker.{broker_type}.{method_name}.success")
 
                 # Record successful operation
-                self.health_tracker.record_success(broker_name)
+                self.health_tracker.record_success(broker_type)
 
                 logger.debug(
-                    f"Successfully executed {method_name} using broker {broker_name}"
+                    f"Successfully executed {method_name} using broker {broker_type}"
                 )
-                return result, broker_name
+                return result, broker_type
 
             except BrokerError as e:
-                logger.warning(f"Broker {broker_name} operation {method_name} failed: {e}")
-                self.health_tracker.record_failure(broker_name)
-                errors.append(f"{broker_name}: {str(e)}")
+                logger.warning(
+                    f"Broker {broker_type} operation {method_name} failed: {e}"
+                )
+                metrics.increment(f"broker.{broker_type}.{method_name}.error")
+                self.health_tracker.record_failure(broker_type)
 
             except Exception as e:
                 logger.error(
-                    f"Unexpected error with broker {broker_name} for {method_name}: {e}",
+                    f"Unexpected error with broker {broker_type} for {method_name}: {e}",
                     exc_info=True,
                 )
-                self.health_tracker.record_failure(broker_name)
-                errors.append(f"{broker_name}: {str(e)}")
+                metrics.increment(f"broker.{broker_type}.{method_name}.exception")
+                self.health_tracker.record_failure(broker_type)
 
         # If we get here, all brokers failed
         total_duration = time.time() - start_time
-        error_msg = (
-            f"All available brokers failed for operation: {method_name}. "
-            f"Errors: {'; '.join(errors)}"
-        )
+        metrics.timing("broker.failover.total_duration", total_duration * 1000)
+        metrics.increment("broker.failover.all_failed")
+
+        error_msg = f"All available brokers failed for operation: {method_name}"
         logger.error(error_msg)
 
-        raise BrokerError(
-            message=error_msg,
-            error_code="ALL_BROKERS_FAILED",
-        )
+        # Import here to avoid circular dependency
+        from app.core.alerts_manager import alert_manager
 
-    # Implement common broker interface methods using failover
+        alert_manager.send_alert(
+            "Broker failover exhausted",
+            f"All available brokers failed for operation: {method_name}",
+            level="critical",
+        )
+        raise BrokerError(error_msg)
+
+    # Implement broker interface methods using failover
 
     def execute_trade(self, trade, **kwargs):
         """Execute a trade with automatic failover."""
-        result, broker_name = self._execute_with_failover("execute_trade", trade, **kwargs)
+        result, broker_type = self._execute_with_failover(
+            "execute_trade", trade, **kwargs
+        )
+        # Record which broker handled the trade
+        trade.executed_by = broker_type.value
         return result
 
     def get_account_info(self, account_id, **kwargs):
@@ -373,49 +338,63 @@ class ResilientBroker:
         """Get positions with automatic failover."""
         return self._execute_with_failover("get_positions", account_id, **kwargs)[0]
 
+    def get_trade_status(self, broker_order_id, **kwargs):
+        """Get trade status with automatic failover."""
+        return self._execute_with_failover(
+            "get_trade_status", broker_order_id, **kwargs
+        )[0]
+
+    def cancel_trade(self, broker_order_id, **kwargs):
+        """Cancel a trade with automatic failover."""
+        return self._execute_with_failover("cancel_trade", broker_order_id, **kwargs)[0]
+
+    def get_order_history(self, account_id, **kwargs):
+        """Get order history with automatic failover."""
+        return self._execute_with_failover("get_order_history", account_id, **kwargs)[0]
+
+    def get_trade_execution(self, broker_order_id, **kwargs):
+        """Get trade execution details with automatic failover."""
+        return self._execute_with_failover(
+            "get_trade_execution", broker_order_id, **kwargs
+        )[0]
+
+    def get_market_hours(self, market, **kwargs):
+        """Get market hours with automatic failover."""
+        return self._execute_with_failover("get_market_hours", market, **kwargs)[0]
+
     def get_quote(self, symbol, **kwargs):
         """Get quote with automatic failover."""
         return self._execute_with_failover("get_quote", symbol, **kwargs)[0]
 
 
-# Convenience functions for common use cases
-
-
-def get_paper_broker(**kwargs) -> BaseBroker:
-    """Get a paper trading broker instance."""
-    return BrokerFactory.create_paper_broker(**kwargs)
-
-
-def get_live_broker(**kwargs) -> BaseBroker:
-    """Get a live trading broker instance with safety checks."""
-    return BrokerFactory.create_live_broker(**kwargs)
-
-
 def get_broker(
-    broker_name: str = "alpaca", use_paper: bool = True, **kwargs
+    broker_type: Optional[BrokerType] = None,
+    db: Session = None,
+    config: Optional[Dict[str, Any]] = None,
 ) -> BaseBroker:
-    """Get a broker instance with specified configuration."""
-    return BrokerFactory.create_broker(broker_name, use_paper=use_paper, **kwargs)
+    """Get a broker instance.
+
+    Args:
+        broker_type: Type of broker to use (defaults to settings.DEFAULT_BROKER)
+        db: Database session
+        config: Additional configuration parameters
+
+    Returns:
+        An initialized broker instance
+    """
+    return broker_factory.create(broker_type, db, config)
 
 
 def get_resilient_broker(
-    broker_priority: Optional[List[str]] = None, use_paper: bool = True, **kwargs
+    db: Session = None, config: Optional[Dict[str, Any]] = None
 ) -> ResilientBroker:
     """Get a resilient broker instance with failover capabilities.
 
     Args:
-        broker_priority: List of broker names in order of preference
-        use_paper: Whether to use paper trading
-        **kwargs: Additional configuration parameters
+        db: Database session
+        config: Additional configuration parameters
 
     Returns:
         A resilient broker instance with failover
     """
-    return ResilientBroker(
-        broker_priority=broker_priority, use_paper=use_paper, **kwargs
-    )
-
-
-def get_health_report() -> Dict[str, Any]:
-    """Get health report for all brokers."""
-    return _health_tracker.get_health_report()
+    return ResilientBroker(db=db, config=config)

@@ -10,6 +10,8 @@ export interface UseMarketWebSocketProps {
   autoConnect?: boolean;
   reconnectAttempts?: number;
   reconnectDelay?: number;
+  cacheEnabled?: boolean;
+  cacheTTL?: number;
 }
 
 export interface UseMarketWebSocketReturn {
@@ -20,6 +22,7 @@ export interface UseMarketWebSocketReturn {
   unsubscribe: (symbols: string[]) => void;
   connect: () => void;
   disconnect: () => void;
+  reconnect: () => void;
 }
 
 export const useMarketWebSocket = ({
@@ -160,6 +163,9 @@ export const useMarketWebSocket = ({
     };
   }, [autoConnect]); // Only run on mount/unmount
 
+  // Reconnect is an alias for connect
+  const reconnect = connect;
+
   return {
     isConnected,
     error,
@@ -168,5 +174,6 @@ export const useMarketWebSocket = ({
     unsubscribe,
     connect,
     disconnect,
+    reconnect,
   };
 };

@@ -22,6 +22,15 @@ class AccountType(enum.Enum):
     CUSTODIAL = "custodial"
 
 
+class AccountStatus(str, enum.Enum):
+    """Account status options."""
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    SUSPENDED = "suspended"
+    PENDING = "pending"
+    CLOSED = "closed"
+
+
 class RecurringFrequency(str, enum.Enum):
     """Frequency options for recurring investments."""
 

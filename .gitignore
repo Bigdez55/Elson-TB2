@@ -82,4 +82,12 @@ secrets/
 htmlcov/
 .pytest_cache/
 .mypy_cache/
-.tox/*test_results*.json
+.tox/
+*test_results*.json
+*_results.json
+
+# Redis
+dump.rdb
+
+# Archives
+*.tar.gz

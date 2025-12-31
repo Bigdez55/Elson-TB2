@@ -1,0 +1,1168 @@
+# Elson Wealth Trust - React Theme Implementation Guide
+
+## Overview
+
+This document provides a comprehensive guide for implementing the triple color scheme system for the Elson Wealth Trust React application. The system supports three distinct themes that users can toggle between in their Account Options:
+
+1. **Majestic Purple** - The classic, original theme with rich purple gradients
+2. **Legacy Gold** - A premium gold and black theme with sophisticated elegance
+3. **Aqua Blue** - A fluid cyan and blue theme evoking liquidity, flow, and financial fluidity
+
+---
+
+## Tech Stack
+
+- **React 18+** with TypeScript
+- **Tailwind CSS** for utility classes
+- **CSS Variables** for theme tokens
+- **Context API** for global theme state
+- **localStorage** for persistence
+
+---
+
+## Project Structure
+
+```
+/src
+  /styles
+    globals.css              # CSS variables & base styles for all themes
+    
+  /context
+    ThemeContext.tsx         # Theme provider & hooks
+    
+  /hooks
+    useTheme.ts              # Custom theme hook
+    
+  /components
+    /ui
+      Button.tsx             # Theme-aware button component
+      Card.tsx               # Theme-aware card component
+      Input.tsx              # Theme-aware input component
+      Badge.tsx              # Theme-aware badge component
+    /layout
+      Navigation.tsx         # Main navigation with theme support
+      Sidebar.tsx            # Sidebar component
+    /settings
+      ThemeSelector.tsx      # Theme picker UI component
+      
+  /lib
+    theme.ts                 # Theme configuration & utilities
+    cn.ts                    # Classname utility (clsx + tailwind-merge)
+```
+
+---
+
+## Theme Configuration
+
+### `/src/lib/theme.ts`
+
+```typescript
+export const THEMES = ['majestic-purple', 'legacy-gold', 'aqua-blue'] as const;
+export type ThemeName = typeof THEMES[number];
+
+export const DEFAULT_THEME: ThemeName = 'majestic-purple';
+export const THEME_STORAGE_KEY = 'elson-theme';
+
+export interface ThemeConfig {
+  name: ThemeName;
+  displayName: string;
+  description: string;
+  previewColors: [string, string, string]; // For theme selector preview
+}
+
+export const themeConfigs: Record<ThemeName, ThemeConfig> = {
+  'majestic-purple': {
+    name: 'majestic-purple',
+    displayName: 'Majestic Purple',
+    description: 'Classic elegance with rich purple gradients',
+    previewColors: ['#0f0c29', '#7e22ce', '#a855f7'],
+  },
+  'legacy-gold': {
+    name: 'legacy-gold',
+    displayName: 'Legacy Gold',
+    description: 'Premium sophistication with gold accents',
+    previewColors: ['#0f0c29', '#D4AF37', '#F9D65C'],
+  },
+  'aqua-blue': {
+    name: 'aqua-blue',
+    displayName: 'Aqua Blue',
+    description: 'Fluid design evoking liquidity and flow',
+    previewColors: ['#0a1628', '#1a2980', '#26d0ce'],
+  },
+};
+
+export function isValidTheme(theme: string): theme is ThemeName {
+  return THEMES.includes(theme as ThemeName);
+}
+
+export function getStoredTheme(): ThemeName {
+  if (typeof window === 'undefined') return DEFAULT_THEME;
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  return stored && isValidTheme(stored) ? stored : DEFAULT_THEME;
+}
+
+export function setStoredTheme(theme: ThemeName): void {
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
+```
+
+---
+
+## Theme Context
+
+### `/src/context/ThemeContext.tsx`
+
+```typescript
+'use client';
+
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { 
+  ThemeName, 
+  THEMES, 
+  DEFAULT_THEME, 
+  getStoredTheme, 
+  setStoredTheme 
+} from '@/lib/theme';
+
+interface ThemeContextValue {
+  theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
+  cycleTheme: () => void;
+  availableThemes: readonly ThemeName[];
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: ThemeName;
+}
+
+export function ThemeProvider({ children, defaultTheme }: ThemeProviderProps) {
+  const [theme, setThemeState] = useState<ThemeName>(defaultTheme ?? DEFAULT_THEME);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize theme from localStorage on mount
+  useEffect(() => {
+    const storedTheme = getStoredTheme();
+    setThemeState(storedTheme);
+    document.documentElement.setAttribute('data-theme', storedTheme);
+    setMounted(true);
+  }, []);
+
+  // Update DOM and localStorage when theme changes
+  const setTheme = useCallback((newTheme: ThemeName) => {
+    setThemeState(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    setStoredTheme(newTheme);
+    
+    // Dispatch custom event for components that need to react
+    window.dispatchEvent(new CustomEvent('themechange', { 
+      detail: { theme: newTheme } 
+    }));
+  }, []);
+
+  // Cycle through themes
+  const cycleTheme = useCallback(() => {
+    const currentIndex = THEMES.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % THEMES.length;
+    setTheme(THEMES[nextIndex]);
+  }, [theme, setTheme]);
+
+  // Prevent flash of incorrect theme
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <ThemeContext.Provider 
+      value={{ 
+        theme, 
+        setTheme, 
+        cycleTheme, 
+        availableThemes: THEMES 
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme(): ThemeContextValue {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+
+// Hook for listening to theme changes (useful for animations, charts, etc.)
+export function useThemeChange(callback: (theme: ThemeName) => void) {
+  useEffect(() => {
+    const handler = (e: CustomEvent<{ theme: ThemeName }>) => {
+      callback(e.detail.theme);
+    };
+    
+    window.addEventListener('themechange', handler as EventListener);
+    return () => window.removeEventListener('themechange', handler as EventListener);
+  }, [callback]);
+}
+```
+
+---
+
+## Global Styles & CSS Variables
+
+### `/src/styles/globals.css`
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   THEME CSS VARIABLES
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Shared variables across all themes */
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'DM Sans', sans-serif;
+    
+    /* Status colors (shared) */
+    --color-profit: #22c55e;
+    --color-loss: #ef4444;
+    --color-warning: #eab308;
+    --color-info: #3b82f6;
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 300ms ease;
+    --transition-slow: 500ms ease;
+  }
+
+  /* ==========================================
+     MAJESTIC PURPLE THEME
+     ========================================== */
+  [data-theme="majestic-purple"] {
+    /* Primary Colors */
+    --color-primary: #7e22ce;
+    --color-primary-light: #a855f7;
+    --color-primary-dark: #581c87;
+    --color-primary-rgb: 126, 34, 206;
+    
+    /* Background Colors */
+    --color-bg-base: #0f0c29;
+    --color-bg-elevated: #1e1b4b;
+    --color-bg-surface: rgba(30, 27, 75, 0.8);
+    
+    /* Gradient Stops */
+    --gradient-start: #0f0c29;
+    --gradient-mid: #1e1b4b;
+    --gradient-end: #7e22ce;
+    
+    /* Card Colors */
+    --color-card-bg: rgba(30, 27, 75, 0.8);
+    --color-card-border: rgba(139, 92, 246, 0.2);
+    --color-card-border-hover: rgba(139, 92, 246, 0.4);
+    
+    /* Text Colors */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #e5e7eb;
+    --color-text-muted: #9ca3af;
+    --color-text-accent: #a855f7;
+    
+    /* Button Colors */
+    --color-btn-primary-bg: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    --color-btn-primary-text: #ffffff;
+    --color-btn-hover-shadow: rgba(168, 85, 247, 0.5);
+    
+    /* Border Colors */
+    --color-border-subtle: rgba(255, 255, 255, 0.05);
+    --color-border-medium: rgba(255, 255, 255, 0.1);
+    
+    /* Navigation */
+    --color-nav-bg: rgba(15, 12, 41, 0.95);
+    --color-nav-border: rgba(139, 92, 246, 0.15);
+  }
+
+  /* ==========================================
+     LEGACY GOLD THEME
+     ========================================== */
+  [data-theme="legacy-gold"] {
+    /* Primary Colors */
+    --color-primary: #D4AF37;
+    --color-primary-light: #F9D65C;
+    --color-primary-dark: #A3700A;
+    --color-primary-rgb: 212, 175, 55;
+    
+    /* Background Colors */
+    --color-bg-base: #0f0c29;
+    --color-bg-elevated: #1a1033;
+    --color-bg-surface: rgba(26, 31, 46, 0.95);
+    
+    /* Gradient Stops */
+    --gradient-start: #0f0c29;
+    --gradient-mid: #1a1033;
+    --gradient-end: #111827;
+    
+    /* Card Colors */
+    --color-card-bg: linear-gradient(145deg, rgba(26, 31, 46, 0.95) 0%, rgba(17, 24, 39, 0.98) 100%);
+    --color-card-border: rgba(255, 255, 255, 0.05);
+    --color-card-border-hover: rgba(212, 175, 55, 0.3);
+    
+    /* Text Colors */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #e5e7eb;
+    --color-text-muted: #9ca3af;
+    --color-text-accent: #D4AF37;
+    
+    /* Button Colors */
+    --color-btn-primary-bg: linear-gradient(135deg, #D4AF37 0%, #A3700A 100%);
+    --color-btn-primary-text: #0f0c29;
+    --color-btn-hover-shadow: rgba(212, 175, 55, 0.5);
+    
+    /* Border Colors */
+    --color-border-subtle: rgba(255, 255, 255, 0.05);
+    --color-border-medium: rgba(212, 175, 55, 0.2);
+    
+    /* Navigation */
+    --color-nav-bg: rgba(17, 24, 39, 0.95);
+    --color-nav-border: rgba(212, 175, 55, 0.15);
+  }
+
+  /* ==========================================
+     AQUA BLUE THEME
+     ========================================== */
+  [data-theme="aqua-blue"] {
+    /* Primary Colors (Cyan) */
+    --color-primary: #26d0ce;
+    --color-primary-light: #5EEAE8;
+    --color-primary-dark: #1BA8A6;
+    --color-primary-rgb: 38, 208, 206;
+    
+    /* Secondary Colors (Deep Blue) */
+    --color-secondary: #1a2980;
+    --color-secondary-light: #2E4DA7;
+    --color-secondary-dark: #0f1a4d;
+    
+    /* Background Colors */
+    --color-bg-base: #0a1628;
+    --color-bg-elevated: #0f2140;
+    --color-bg-surface: rgba(22, 42, 74, 0.9);
+    
+    /* Gradient Stops */
+    --gradient-start: #0a1628;
+    --gradient-mid: #0f2140;
+    --gradient-end: #162a4a;
+    
+    /* Card Colors */
+    --color-card-bg: linear-gradient(145deg, rgba(22, 42, 74, 0.9) 0%, rgba(15, 33, 64, 0.95) 100%);
+    --color-card-border: rgba(38, 208, 206, 0.2);
+    --color-card-border-hover: rgba(38, 208, 206, 0.5);
+    
+    /* Text Colors */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #e5e7eb;
+    --color-text-muted: #9ca3af;
+    --color-text-accent: #26d0ce;
+    
+    /* Button Colors */
+    --color-btn-primary-bg: linear-gradient(135deg, #26d0ce 0%, #1BA8A6 100%);
+    --color-btn-primary-text: #0a1628;
+    --color-btn-hover-shadow: rgba(38, 208, 206, 0.5);
+    
+    /* Border Colors */
+    --color-border-subtle: rgba(38, 208, 206, 0.1);
+    --color-border-medium: rgba(38, 208, 206, 0.25);
+    
+    /* Navigation */
+    --color-nav-bg: rgba(10, 22, 40, 0.95);
+    --color-nav-border: rgba(38, 208, 206, 0.15);
+  }
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(
+      135deg,
+      var(--gradient-start) 0%,
+      var(--gradient-mid) 50%,
+      var(--gradient-end) 100%
+    );
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--color-text-secondary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ============================================
+   COMPONENT STYLES
+   ============================================ */
+
+@layer components {
+  /* Card Base */
+  .theme-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-base);
+  }
+
+  .theme-card:hover {
+    border-color: var(--color-card-border-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Primary Button */
+  .theme-btn-primary {
+    background: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    font-weight: 600;
+    transition: all var(--transition-base);
+  }
+
+  .theme-btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px -4px var(--color-btn-hover-shadow);
+  }
+
+  /* Secondary Button */
+  .theme-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    opacity: 0.8;
+    transition: all var(--transition-base);
+  }
+
+  .theme-btn-secondary:hover {
+    opacity: 1;
+    background: rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  /* Text Gradient */
+  .theme-text-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-light) 0%,
+      var(--color-primary) 50%,
+      var(--color-primary-dark) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Icon Circle */
+  .theme-icon-circle {
+    background: linear-gradient(
+      135deg,
+      rgba(var(--color-primary-rgb), 0.2) 0%,
+      rgba(var(--color-primary-rgb), 0.1) 100%
+    );
+    border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+  }
+
+  /* Navigation Link */
+  .theme-nav-link {
+    position: relative;
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+  }
+
+  .theme-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-primary);
+    transition: width var(--transition-base);
+  }
+
+  .theme-nav-link:hover {
+    color: var(--color-text-accent);
+  }
+
+  .theme-nav-link:hover::after,
+  .theme-nav-link.active::after {
+    width: 100%;
+  }
+
+  .theme-nav-link.active {
+    color: var(--color-text-accent);
+  }
+
+  /* Input Field */
+  .theme-input {
+    background: rgba(31, 41, 55, 0.5);
+    border: 1px solid rgba(75, 85, 99, 0.5);
+    transition: all var(--transition-base);
+  }
+
+  .theme-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  }
+}
+
+/* ============================================
+   AQUA BLUE SPECIAL EFFECTS
+   ============================================ */
+
+[data-theme="aqua-blue"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(26, 41, 128, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(38, 208, 206, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(46, 77, 167, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+[data-theme="aqua-blue"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(38, 208, 206, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 208, 206, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.3); }
+  50% { box-shadow: 0 0 40px rgba(var(--color-primary-rgb), 0.5); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+```
+
+---
+
+## Tailwind Configuration
+
+### `tailwind.config.ts`
+
+```typescript
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  content: [
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['var(--font-display)', 'serif'],
+        body: ['var(--font-body)', 'sans-serif'],
+      },
+      colors: {
+        // Theme-aware colors using CSS variables
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          light: 'var(--color-primary-light)',
+          dark: 'var(--color-primary-dark)',
+        },
+        background: {
+          base: 'var(--color-bg-base)',
+          elevated: 'var(--color-bg-elevated)',
+          surface: 'var(--color-bg-surface)',
+        },
+        card: {
+          DEFAULT: 'var(--color-card-bg)',
+          border: 'var(--color-card-border)',
+          'border-hover': 'var(--color-card-border-hover)',
+        },
+        text: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted: 'var(--color-text-muted)',
+          accent: 'var(--color-text-accent)',
+        },
+        border: {
+          subtle: 'var(--color-border-subtle)',
+          medium: 'var(--color-border-medium)',
+        },
+        // Status colors
+        profit: 'var(--color-profit)',
+        loss: 'var(--color-loss)',
+        warning: 'var(--color-warning)',
+        info: 'var(--color-info)',
+      },
+      transitionDuration: {
+        fast: 'var(--transition-fast)',
+        base: 'var(--transition-base)',
+        slow: 'var(--transition-slow)',
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
+```
+
+---
+
+## React Components
+
+### `/src/lib/cn.ts` - Classname Utility
+
+```typescript
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+### `/src/components/ui/Button.tsx`
+
+```typescript
+import React from 'react';
+import { cn } from '@/lib/cn';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+}
+
+export function Button({ 
+  variant = 'primary', 
+  size = 'md', 
+  className, 
+  children, 
+  ...props 
+}: ButtonProps) {
+  const baseStyles = 'rounded-xl font-semibold transition-all duration-300 inline-flex items-center justify-center';
+  
+  const variants = {
+    primary: 'theme-btn-primary',
+    secondary: 'theme-btn-secondary',
+    ghost: 'bg-transparent text-text-muted hover:text-text-accent hover:bg-white/5',
+  };
+  
+  const sizes = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg',
+  };
+
+  return (
+    <button
+      className={cn(baseStyles, variants[variant], sizes[size], className)}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+### `/src/components/ui/Card.tsx`
+
+```typescript
+import React from 'react';
+import { cn } from '@/lib/cn';
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'accent' | 'glow';
+  hover?: boolean;
+  children: React.ReactNode;
+}
+
+export function Card({ 
+  variant = 'default', 
+  hover = true,
+  className, 
+  children, 
+  ...props 
+}: CardProps) {
+  const baseStyles = 'theme-card p-6';
+  
+  const variants = {
+    default: '',
+    accent: 'border-l-[3px] border-l-primary',
+    glow: 'animate-pulse-glow',
+  };
+  
+  const hoverStyles = hover ? 'hover:border-card-border-hover hover:-translate-y-0.5' : '';
+
+  return (
+    <div
+      className={cn(baseStyles, variants[variant], hoverStyles, className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+### `/src/components/ui/Input.tsx`
+
+```typescript
+import React from 'react';
+import { cn } from '@/lib/cn';
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+}
+
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, className, ...props }, ref) => {
+    return (
+      <div className="space-y-2">
+        {label && (
+          <label className="block text-text-muted text-sm">
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          className={cn(
+            'theme-input w-full px-4 py-3 rounded-xl text-text-primary placeholder-text-muted',
+            error && 'border-loss',
+            className
+          )}
+          {...props}
+        />
+        {error && (
+          <p className="text-loss text-sm">{error}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+Input.displayName = 'Input';
+```
+
+### `/src/components/ui/Badge.tsx`
+
+```typescript
+import React from 'react';
+import { cn } from '@/lib/cn';
+
+interface BadgeProps {
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'premium';
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function Badge({ variant = 'default', children, className }: BadgeProps) {
+  const variants = {
+    default: 'bg-primary/20 text-text-accent border-primary/30',
+    success: 'bg-profit/20 text-profit border-profit/30',
+    warning: 'bg-warning/20 text-warning border-warning/30',
+    danger: 'bg-loss/20 text-loss border-loss/30',
+    premium: 'bg-gradient-to-r from-primary-light via-primary to-primary-dark text-background-base',
+  };
+
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border',
+        variants[variant],
+        className
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+```
+
+### `/src/components/settings/ThemeSelector.tsx`
+
+```typescript
+'use client';
+
+import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
+import { themeConfigs, ThemeName } from '@/lib/theme';
+import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
+import { CheckIcon } from '@heroicons/react/24/solid';
+
+export function ThemeSelector() {
+  const { theme, setTheme, availableThemes } = useTheme();
+
+  return (
+    <Card hover={false} className="p-6">
+      <h3 className="text-lg font-semibold text-text-primary mb-4">Appearance</h3>
+      <p className="text-text-muted text-sm mb-6">Choose your preferred color scheme</p>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {availableThemes.map((themeName) => {
+          const config = themeConfigs[themeName];
+          const isActive = theme === themeName;
+          
+          return (
+            <button
+              key={themeName}
+              onClick={() => setTheme(themeName)}
+              className={cn(
+                'p-4 rounded-xl border-2 transition-all text-left',
+                'hover:border-primary/50 hover:bg-primary/5',
+                isActive 
+                  ? 'border-primary bg-primary/10' 
+                  : 'border-border-subtle bg-background-surface/30'
+              )}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-8 h-8 rounded-full"
+                    style={{
+                      background: `linear-gradient(135deg, ${config.previewColors[1]}, ${config.previewColors[2]})`
+                    }}
+                  />
+                  <span className="text-text-primary font-medium">
+                    {config.displayName}
+                  </span>
+                </div>
+                {isActive && (
+                  <CheckIcon className="w-5 h-5 text-primary" />
+                )}
+              </div>
+              
+              <p className="text-text-muted text-xs mb-3">
+                {config.description}
+              </p>
+              
+              <div className="flex space-x-2">
+                {config.previewColors.map((color, index) => (
+                  <div
+                    key={index}
+                    className="w-6 h-6 rounded"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+```
+
+### `/src/components/layout/Navigation.tsx`
+
+```typescript
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTheme } from '@/context/ThemeContext';
+import { cn } from '@/lib/cn';
+
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+const navLinks: NavLink[] = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/trade', label: 'Trade' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/family', label: 'Family' },
+  { href: '/settings', label: 'Settings' },
+];
+
+export function Navigation() {
+  const pathname = usePathname();
+  const { theme } = useTheme();
+
+  return (
+    <nav 
+      className="fixed w-full z-50 backdrop-blur-md border-b"
+      style={{
+        background: 'var(--color-nav-bg)',
+        borderColor: 'var(--color-nav-border)',
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center space-x-3">
+            <img 
+              src="/elson_icon_no_bg.png" 
+              alt="Elson" 
+              className="h-10 w-auto transition-transform hover:scale-105"
+            />
+            <span className="text-text-accent font-display text-2xl font-bold tracking-wide">
+              Elson
+            </span>
+          </div>
+
+          {/* Nav Links */}
+          <div className="hidden md:flex md:items-center md:space-x-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'theme-nav-link px-1 py-2 text-sm font-medium',
+                  pathname === link.href && 'active'
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            <button className="text-text-muted hover:text-text-accent p-2 rounded-full transition-colors">
+              <BellIcon className="h-6 w-6" />
+            </button>
+            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center ring-2 ring-primary/30">
+              <span className="text-sm font-semibold text-text-primary">DE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function BellIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    </svg>
+  );
+}
+```
+
+---
+
+## App Layout Setup
+
+### `/src/app/layout.tsx`
+
+```typescript
+import type { Metadata } from 'next';
+import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { Navigation } from '@/components/layout/Navigation';
+import '@/styles/globals.css';
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-display',
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+});
+
+export const metadata: Metadata = {
+  title: 'Elson Wealth Trust',
+  description: 'AI-Powered Wealth Management',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html 
+      lang="en" 
+      className={`${cormorantGaramond.variable} ${dmSans.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
+        <ThemeProvider>
+          <Navigation />
+          <main className="pt-16">
+            {children}
+          </main>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+## Icon Color Mapping
+
+For future icon color scheme support:
+
+| Theme           | Primary Icon Color | Secondary Icon Color |
+|-----------------|-------------------|---------------------|
+| Majestic Purple | #a855f7           | #7e22ce             |
+| Legacy Gold     | #D4AF37           | #A3700A             |
+| Aqua Blue       | #26d0ce           | #1a2980             |
+
+### Theme-Aware Icons Component
+
+```typescript
+// /src/components/ui/ThemedIcon.tsx
+import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
+
+interface ThemedIconProps {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  className?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+export function ThemedIcon({ icon: Icon, className, size = 'md' }: ThemedIconProps) {
+  const sizes = {
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
+  };
+
+  return (
+    <Icon 
+      className={`${sizes[size]} ${className}`}
+      style={{ color: 'var(--color-primary)' }}
+    />
+  );
+}
+```
+
+---
+
+## Usage Example
+
+```typescript
+// Example page using theme components
+'use client';
+
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { ThemeSelector } from '@/components/settings/ThemeSelector';
+
+export default function SettingsPage() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <h1 className="font-display text-3xl font-bold text-text-primary mb-2">
+        Settings
+      </h1>
+      <p className="text-text-muted mb-8">
+        Manage your account preferences
+      </p>
+
+      {/* Theme Selector */}
+      <ThemeSelector />
+
+      {/* Other Settings */}
+      <Card className="mt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-text-primary font-semibold">Notifications</h3>
+            <p className="text-text-muted text-sm">Manage your notification preferences</p>
+          </div>
+          <Badge variant="success">Enabled</Badge>
+        </div>
+      </Card>
+
+      <div className="flex gap-4 mt-8">
+        <Button variant="primary">Save Changes</Button>
+        <Button variant="secondary">Cancel</Button>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## Migration Checklist
+
+When converting HTML pages to React components:
+
+- [ ] Extract reusable UI components (Button, Card, Input, etc.)
+- [ ] Replace hardcoded colors with CSS variables or Tailwind theme classes
+- [ ] Use `theme-*` utility classes for theme-aware styling
+- [ ] Wrap app in `ThemeProvider`
+- [ ] Add `data-theme` attribute handling
+- [ ] Test all three themes on all pages
+- [ ] Verify theme persistence across page navigation
+- [ ] Check accessibility (contrast ratios) for all themes
+- [ ] Test theme switching animation smoothness
+
+---
+
+## Accessibility Notes
+
+All themes maintain WCAG 2.1 AA compliance:
+
+- **Text contrast**: All text maintains minimum 4.5:1 contrast ratio
+- **Interactive elements**: Buttons and links have minimum 3:1 contrast
+- **Focus states**: Visible focus indicators on all interactive elements
+- **Color independence**: Status information not conveyed by color alone
+
+---
+
+## Version History
+
+| Version | Date       | Changes                                           |
+|---------|------------|--------------------------------------------------|
+| 1.0     | 2024-12-28 | Initial dual theme system (Purple, Gold)          |
+| 2.0     | 2024-12-28 | Added Aqua Blue theme, React implementation       |
+
+---
+
+*Document maintained by Elson Wealth Trust Development Team*

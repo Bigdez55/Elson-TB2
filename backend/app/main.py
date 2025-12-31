@@ -17,6 +17,9 @@ from fastapi import Request
 from app.db.init_db import init_db
 from app.services.market_streaming import personal_market_streaming
 
+# WebSocket route imports
+from app.routes.websocket import market_feed, trading_updates
+
 # Configure logging
 configure_logging(
     log_level=settings.LOG_LEVEL if hasattr(settings, "LOG_LEVEL") else "INFO"
@@ -67,6 +70,10 @@ def create_application() -> FastAPI:
 
     # Include API router
     application.include_router(api_router, prefix="/api/v1")
+
+    # Include WebSocket routers
+    application.include_router(market_feed.router, tags=["websocket"])
+    application.include_router(trading_updates.router, tags=["websocket"])
 
     return application
 

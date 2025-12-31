@@ -1,25 +1,36 @@
 import React from 'react';
 
+type ColorVariant = 'success' | 'warning' | 'error' | 'info' | 'premium' | 'neutral' | 'green' | 'red' | 'yellow' | 'blue' | 'gray';
+
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'success' | 'warning' | 'error' | 'info' | 'premium' | 'neutral';
+  variant?: ColorVariant;
+  color?: ColorVariant;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
   children,
-  variant = 'neutral',
+  variant,
+  color,
   size = 'sm',
   className = '',
 }) => {
-  const variantClasses = {
+  const effectiveVariant = variant || color || 'neutral';
+
+  const variantClasses: Record<ColorVariant, string> = {
     success: 'bg-green-900 text-green-300 bg-opacity-40',
+    green: 'bg-green-900 text-green-300 bg-opacity-40',
     warning: 'bg-yellow-900 text-yellow-300 bg-opacity-40',
+    yellow: 'bg-yellow-900 text-yellow-300 bg-opacity-40',
     error: 'bg-red-900 text-red-300 bg-opacity-40',
+    red: 'bg-red-900 text-red-300 bg-opacity-40',
     info: 'bg-blue-900 text-blue-300 bg-opacity-40',
+    blue: 'bg-blue-900 text-blue-300 bg-opacity-40',
     premium: 'bg-gradient-to-r from-yellow-400 to-red-500 text-white',
     neutral: 'bg-gray-800 text-gray-300',
+    gray: 'bg-gray-800 text-gray-300',
   };
 
   const sizeClasses = {
@@ -32,7 +43,7 @@ export const Badge: React.FC<BadgeProps> = ({
     <span
       className={`
         inline-flex items-center rounded-full font-medium
-        ${variantClasses[variant]}
+        ${variantClasses[effectiveVariant]}
         ${sizeClasses[size]}
         ${className}
       `}

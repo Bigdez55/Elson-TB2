@@ -29,6 +29,7 @@ OrderSide = TradeType
 
 class TradeStatus(str, enum.Enum):
     PENDING = "pending"
+    PENDING_APPROVAL = "pending_approval"  # For minors, waiting for guardian approval
     FILLED = "filled"
     PARTIALLY_FILLED = "partially_filled"
     CANCELLED = "cancelled"
@@ -54,6 +55,8 @@ class OrderType(str, enum.Enum):
 
 class InvestmentType(str, enum.Enum):
     STANDARD = "standard"
+    QUANTITY_BASED = "quantity_based"  # Traditional share-based orders
+    DOLLAR_BASED = "dollar_based"  # Dollar-based investments (for fractional shares)
     MICRO = "micro"
     ROUNDUP = "roundup"
     RECURRING = "recurring"

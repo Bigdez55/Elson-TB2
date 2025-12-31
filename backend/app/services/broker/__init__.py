@@ -1,19 +1,18 @@
-"""Broker services package.
+"""Broker package for trading execution.
 
-This package provides interfaces and implementations for various broker APIs,
-enabling the trading platform to execute trades through different brokerages.
+This package provides broker implementations for paper trading and real broker APIs.
+It includes a factory pattern for creating broker instances based on configuration.
 """
 
-from .base import BaseBroker, BrokerError
-from .alpaca import AlpacaBroker
-from .factory import BrokerFactory, get_broker, get_paper_broker, get_live_broker
+from app.services.broker.base import BaseBroker, BrokerError
+from app.services.broker.factory import BrokerType, broker_factory, get_broker
+from app.services.broker.paper import PaperBroker
 
 __all__ = [
     "BaseBroker",
     "BrokerError",
-    "AlpacaBroker",
-    "BrokerFactory",
+    "PaperBroker",
     "get_broker",
-    "get_paper_broker",
-    "get_live_broker",
+    "BrokerType",
+    "broker_factory",
 ]

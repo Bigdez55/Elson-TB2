@@ -211,6 +211,28 @@ class Settings(BaseSettings):
     MIN_TRAINING_DAYS: int = 365
     CONFIDENCE_THRESHOLD: float = 0.7
 
+    # ML Model Settings (from archive integration)
+    ML_MODEL_PATH: str = os.getenv("ML_MODEL_PATH", "./ml_models/weights")
+    QUANTUM_ENABLED: bool = os.getenv("QUANTUM_ENABLED", "false").lower() == "true"
+
+    # Sentiment Analysis Settings
+    NEWS_API_KEY: Optional[str] = os.getenv("NEWS_API_KEY")
+    SENTIMENT_CACHE_TTL: int = 900  # 15 minutes
+
+    # Circuit Breaker Settings
+    MAX_DAILY_LOSS_PERCENT: float = float(os.getenv("MAX_DAILY_LOSS_PERCENT", "5.0"))
+    CIRCUIT_BREAKER_COOLDOWN_MINUTES: int = int(os.getenv("CIRCUIT_BREAKER_COOLDOWN_MINUTES", "30"))
+    CONSECUTIVE_LOSS_TRIGGER: int = 5  # Trigger after 5 consecutive losses
+
+    # Volatility Thresholds
+    VOLATILITY_LOW_THRESHOLD: float = 15.0  # Below this is low volatility
+    VOLATILITY_HIGH_THRESHOLD: float = 40.0  # Above this is extreme volatility
+
+    # Broker Failover Settings
+    BROKER_FAILOVER_ENABLED: bool = True
+    BROKER_HEALTH_CHECK_INTERVAL: int = 60  # seconds
+    MAX_BROKER_RETRIES: int = 3
+
     # Performance Settings
     BACKGROUND_WORKERS: int = 10
     QUERY_TIMEOUT_SECONDS: int = 30

@@ -7,14 +7,16 @@ interface SelectOption {
 
 interface SelectProps {
   label?: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
+  value: string | number;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options?: SelectOption[];
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   className?: string;
   error?: string;
+  children?: React.ReactNode;
+  name?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -27,7 +29,10 @@ export const Select: React.FC<SelectProps> = ({
   disabled = false,
   className = '',
   error,
+  children,
+  name,
 }) => {
+
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
@@ -37,8 +42,9 @@ export const Select: React.FC<SelectProps> = ({
         </label>
       )}
       <select
+        name={name}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         required={required}
         disabled={disabled}
         className={`
@@ -54,7 +60,8 @@ export const Select: React.FC<SelectProps> = ({
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
+        {children}
+        {options && options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

@@ -52,3 +52,47 @@ class MarketDataResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChartDataPoint(BaseModel):
+    timestamp: datetime
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+
+
+class ChartDataResponse(BaseModel):
+    symbol: str
+    interval: str
+    data: List[ChartDataPoint]
+    start_time: datetime
+    end_time: datetime
+
+
+class MarketStatusResponse(BaseModel):
+    is_open: bool
+    next_open: Optional[datetime] = None
+    next_close: Optional[datetime] = None
+    current_session: Optional[str] = None
+    message: Optional[str] = None
+
+
+class WatchlistItem(BaseModel):
+    symbol: str
+    name: Optional[str] = None
+    price: Optional[float] = None
+    change: Optional[float] = None
+    change_percent: Optional[float] = None
+
+
+class WatchlistResponse(BaseModel):
+    id: int
+    name: str
+    items: List[WatchlistItem]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

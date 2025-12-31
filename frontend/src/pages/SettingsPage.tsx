@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Toggle } from '../components/common/Toggle';
 import { Badge } from '../components/common/Badge';
+import { ThemeSelector } from '../components/settings/ThemeSelector';
 
 interface SettingsSidebarProps {
   activeSection: string;
@@ -531,9 +532,17 @@ const DevicesSection: React.FC = () => (
 
 const PreferencesSection: React.FC = () => (
   <div>
-    <h1 className="text-2xl font-bold text-white mb-6">App Preferences</h1>
-    <div className="bg-gray-900 rounded-xl p-6">
-      <p className="text-gray-300">App preferences will be implemented here.</p>
+    <h1 className="text-2xl font-bold text-text-primary mb-6">App Preferences</h1>
+
+    {/* Theme Selector */}
+    <ThemeSelector />
+
+    {/* Additional Preferences placeholder */}
+    <div className="theme-card p-6 mt-6">
+      <h3 className="text-lg font-semibold text-text-primary mb-2">Display Settings</h3>
+      <p className="text-text-muted text-sm">
+        Additional display preferences coming soon.
+      </p>
     </div>
   </div>
 );

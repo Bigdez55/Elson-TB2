@@ -1,94 +1,164 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { tradingAPI } from '../../services/api';
-import { Trade, TradeOrderRequest, TradingStats, Holding } from '../../types';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { api } from '../../services/api';
+
+export interface Position {
+  id: string;
+  symbol: string;
+  quantity: number;
+  avg_cost: number;
+  current_price: number;
+  market_value: number;
+  unrealized_pnl: number;
+  unrealized_pnl_percent: number;
+  side: 'long' | 'short';
+  last_updated: string;
+}
+
+export interface Trade {
+  id: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  quantity: number;
+  price: number;
+  status: 'pending' | 'filled' | 'partially_filled' | 'cancelled' | 'rejected';
+  order_type: 'market' | 'limit' | 'stop' | 'stop_limit';
+  time_in_force: 'day' | 'gtc' | 'ioc' | 'fok';
+  created_at: string;
+  filled_at?: string;
+  filled_qty: number;
+  filled_avg_price?: number;
+  commission?: number;
+  error_message?: string;
+}
+
+export interface Order {
+  id: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  quantity: number;
+  order_type: 'market' | 'limit' | 'stop' | 'stop_limit';
+  price?: number;
+  stop_price?: number;
+  time_in_force: 'day' | 'gtc' | 'ioc' | 'fok';
+  status: 'pending' | 'filled' | 'partially_filled' | 'cancelled' | 'rejected';
+  created_at: string;
+  filled_qty: number;
+  remaining_qty: number;
+}
 
 interface TradingState {
+  orders: Order[];
   trades: Trade[];
-  openOrders: Trade[];
-  positions: Holding[];
-  stats: TradingStats | null;
-  isLoading: boolean;
+  positions: Position[];
+  pendingOrders: Order[];
+  portfolio: {
+    balance: number;
+    equity: number;
+    margin: number;
+    positions: Position[];
+    totalValue: number;
+    buyingPower: number;
+  };
+  performance: {
+    dailyPnL: number;
+    totalPnL: number;
+    winRate: number;
+    dayTradeCount: number;
+  };
+  // Fractional share configuration
+  minInvestmentAmount: number;
+  maxInvestmentAmount: number;
+  fractionalSharesEnabled: boolean;
+  // Loading and error states
+  loading: boolean;
   error: string | null;
 }
 
 const initialState: TradingState = {
+  orders: [],
   trades: [],
-  openOrders: [],
   positions: [],
-  stats: null,
-  isLoading: false,
+  pendingOrders: [],
+  portfolio: {
+    balance: 0,
+    equity: 0,
+    margin: 0,
+    positions: [],
+    totalValue: 0,
+    buyingPower: 0,
+  },
+  performance: {
+    dailyPnL: 0,
+    totalPnL: 0,
+    winRate: 0,
+    dayTradeCount: 0,
+  },
+  // Fractional share configuration defaults
+  minInvestmentAmount: 1.00,
+  maxInvestmentAmount: 100000.00,
+  fractionalSharesEnabled: true,
+  // Loading and error states
+  loading: false,
   error: null,
 };
 
 // Async thunks
 export const placeOrder = createAsyncThunk(
   'trading/placeOrder',
-  async (orderData: TradeOrderRequest, { rejectWithValue }) => {
+  async (orderData: any, { rejectWithValue }) => {
     try {
-      const trade = await tradingAPI.placeOrder(orderData);
-      return trade;
+      const response = await api.post('/trading/orders', orderData);
+      return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to place order');
+      return rejectWithValue(error.response?.data?.message || 'Failed to place order');
     }
   }
 );
 
 export const cancelOrder = createAsyncThunk(
   'trading/cancelOrder',
-  async (tradeId: number, { rejectWithValue }) => {
+  async (orderId: string, { rejectWithValue }) => {
     try {
-      const trade = await tradingAPI.cancelOrder(tradeId);
-      return trade;
+      await api.delete(`/trading/orders/${orderId}`);
+      return orderId;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to cancel order');
+      return rejectWithValue(error.response?.data?.message || 'Failed to cancel order');
     }
   }
 );
 
-export const fetchOpenOrders = createAsyncThunk(
-  'trading/fetchOpenOrders',
+export const fetchOrders = createAsyncThunk(
+  'trading/fetchOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const orders = await tradingAPI.getOpenOrders();
-      return orders;
+      const response = await api.get('/trading/orders');
+      return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to fetch open orders');
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch orders');
     }
   }
 );
 
-export const fetchTradeHistory = createAsyncThunk(
-  'trading/fetchTradeHistory',
-  async (limit: number = 100, { rejectWithValue }) => {
-    try {
-      const trades = await tradingAPI.getTradeHistory(limit);
-      return trades;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to fetch trade history');
-    }
-  }
-);
-
-export const fetchPositions = createAsyncThunk(
-  'trading/fetchPositions',
+export const fetchTrades = createAsyncThunk(
+  'trading/fetchTrades',
   async (_, { rejectWithValue }) => {
     try {
-      const positions = await tradingAPI.getPositions();
-      return positions;
+      const response = await api.get('/trading/trades');
+      return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to fetch positions');
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch trades');
     }
   }
 );
 
-export const fetchTradingStats = createAsyncThunk(
-  'trading/fetchTradingStats',
+export const fetchPortfolio = createAsyncThunk(
+  'trading/fetchPortfolio',
   async (_, { rejectWithValue }) => {
     try {
-      const stats = await tradingAPI.getTradingStats();
-      return stats;
+      const response = await api.get('/trading/portfolio');
+      return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to fetch trading stats');
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch portfolio');
     }
   }
 );
@@ -97,115 +167,181 @@ const tradingSlice = createSlice({
   name: 'trading',
   initialState,
   reducers: {
+    updateOrder: (state, action: PayloadAction<Order>) => {
+      const index = state.orders.findIndex(order => order.id === action.payload.id);
+      if (index !== -1) {
+        state.orders[index] = action.payload;
+      } else {
+        state.orders.unshift(action.payload);
+      }
+      
+      // Update pending orders
+      if (action.payload.status === 'pending') {
+        const pendingIndex = state.pendingOrders.findIndex(o => o.id === action.payload.id);
+        if (pendingIndex === -1) {
+          state.pendingOrders.push(action.payload);
+        }
+      } else {
+        state.pendingOrders = state.pendingOrders.filter(o => o.id !== action.payload.id);
+      }
+    },
+    
+    updatePosition: (state, action: PayloadAction<Position>) => {
+      const index = state.positions.findIndex(pos => pos.symbol === action.payload.symbol);
+      if (index !== -1) {
+        state.positions[index] = action.payload;
+      } else {
+        state.positions.push(action.payload);
+      }
+      
+      // Update portfolio calculations
+      state.portfolio.positions = state.positions;
+      state.portfolio.totalValue = state.positions.reduce((total, pos) => total + pos.market_value, 0);
+      state.performance.totalPnL = state.positions.reduce((total, pos) => total + pos.unrealized_pnl, 0);
+    },
+    
+    updateTrade: (state, action: PayloadAction<Trade>) => {
+      const index = state.trades.findIndex(trade => trade.id === action.payload.id);
+      if (index !== -1) {
+        state.trades[index] = action.payload;
+      } else {
+        state.trades.unshift(action.payload);
+      }
+    },
+    
+    removePosition: (state, action: PayloadAction<string>) => {
+      state.positions = state.positions.filter(pos => pos.symbol !== action.payload);
+      state.portfolio.positions = state.positions;
+      state.portfolio.totalValue = state.positions.reduce((total, pos) => total + pos.market_value, 0);
+      state.performance.totalPnL = state.positions.reduce((total, pos) => total + pos.unrealized_pnl, 0);
+    },
+    
+    updatePortfolioBalance: (state, action: PayloadAction<{ balance: number; buyingPower: number }>) => {
+      state.portfolio.balance = action.payload.balance;
+      state.portfolio.buyingPower = action.payload.buyingPower;
+    },
+    
+    updatePerformance: (state, action: PayloadAction<Partial<typeof initialState.performance>>) => {
+      state.performance = { ...state.performance, ...action.payload };
+    },
+    
     clearError: (state) => {
       state.error = null;
     },
+    
+    resetTradingState: () => initialState,
   },
   extraReducers: (builder) => {
     // Place Order
     builder
       .addCase(placeOrder.pending, (state) => {
-        state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(placeOrder.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.trades.unshift(action.payload);
-        if (action.payload.status === 'pending') {
-          state.openOrders.unshift(action.payload);
-        }
+        state.loading = false;
+        state.orders.unshift(action.payload);
       })
       .addCase(placeOrder.rejected, (state, action) => {
-        state.isLoading = false;
+        state.loading = false;
         state.error = action.payload as string;
       });
 
     // Cancel Order
     builder
-      .addCase(cancelOrder.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addCase(cancelOrder.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const updatedTrade = action.payload;
-        
-        // Update in trades array
-        const tradeIndex = state.trades.findIndex(t => t.id === updatedTrade.id);
-        if (tradeIndex !== -1) {
-          state.trades[tradeIndex] = updatedTrade;
-        }
-        
-        // Remove from open orders
-        state.openOrders = state.openOrders.filter(o => o.id !== updatedTrade.id);
+        state.orders = state.orders.filter(order => order.id !== action.payload);
+      });
+
+    // Fetch Orders
+    builder
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(cancelOrder.rejected, (state, action) => {
-        state.isLoading = false;
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
 
-    // Fetch Open Orders
+    // Fetch Trades
     builder
-      .addCase(fetchOpenOrders.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+      .addCase(fetchTrades.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(fetchOpenOrders.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.openOrders = action.payload;
-      })
-      .addCase(fetchOpenOrders.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      });
-
-    // Fetch Trade History
-    builder
-      .addCase(fetchTradeHistory.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchTradeHistory.fulfilled, (state, action) => {
-        state.isLoading = false;
+      .addCase(fetchTrades.fulfilled, (state, action) => {
+        state.loading = false;
         state.trades = action.payload;
       })
-      .addCase(fetchTradeHistory.rejected, (state, action) => {
-        state.isLoading = false;
+      .addCase(fetchTrades.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
 
-    // Fetch Positions
+    // Fetch Portfolio
     builder
-      .addCase(fetchPositions.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+      .addCase(fetchPortfolio.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(fetchPositions.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.positions = action.payload;
+      .addCase(fetchPortfolio.fulfilled, (state, action) => {
+        state.loading = false;
+        state.portfolio = action.payload;
       })
-      .addCase(fetchPositions.rejected, (state, action) => {
-        state.isLoading = false;
+      .addCase(fetchPortfolio.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
-
-    // Fetch Trading Stats
+    
+    // Fetch Trading Configuration
     builder
-      .addCase(fetchTradingStats.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+      .addCase(fetchTradingConfig.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(fetchTradingStats.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.stats = action.payload;
+      .addCase(fetchTradingConfig.fulfilled, (state, action) => {
+        state.loading = false;
+        // Update configuration values from API
+        if (action.payload.minInvestmentAmount !== undefined) {
+          state.minInvestmentAmount = action.payload.minInvestmentAmount;
+        }
+        if (action.payload.maxInvestmentAmount !== undefined) {
+          state.maxInvestmentAmount = action.payload.maxInvestmentAmount;
+        }
+        if (action.payload.fractionalSharesEnabled !== undefined) {
+          state.fractionalSharesEnabled = action.payload.fractionalSharesEnabled;
+        }
       })
-      .addCase(fetchTradingStats.rejected, (state, action) => {
-        state.isLoading = false;
+      .addCase(fetchTradingConfig.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
   },
 });
 
-export const { clearError } = tradingSlice.actions;
-export { tradingSlice };
+// Add new async thunk to fetch trading configuration
+export const fetchTradingConfig = createAsyncThunk(
+  'trading/fetchTradingConfig',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/trading/config');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch trading configuration');
+    }
+  }
+);
+
+export const { 
+  updateOrder, 
+  updatePosition, 
+  updateTrade,
+  removePosition,
+  updatePortfolioBalance,
+  updatePerformance,
+  clearError,
+  resetTradingState
+} = tradingSlice.actions;
+
 export default tradingSlice.reducer;
