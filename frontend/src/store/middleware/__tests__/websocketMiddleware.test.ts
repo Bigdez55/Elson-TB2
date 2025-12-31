@@ -54,6 +54,16 @@ describe('WebSocket Middleware', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Re-establish mock implementations after clearAllMocks
+    mockWebSocketService.connect.mockResolvedValue(undefined);
+    mockWebSocketService.getState.mockReturnValue({ status: 'CONNECTED' });
+    mockWebSocketService.subscribeToPortfolio.mockResolvedValue(undefined);
+    mockWebSocketService.subscribeToOrderUpdates.mockResolvedValue(undefined);
+    mockWebSocketService.subscribeToMarketData.mockResolvedValue(undefined);
+    mockWebSocketService.unsubscribe.mockResolvedValue(undefined);
+    mockWebSocketService.isConnected.mockReturnValue(true);
+
     mockLocalStorage.getItem.mockReturnValue('paper');
 
     store = configureStore({
@@ -433,6 +443,15 @@ describe('Enhanced WebSocket Middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Re-establish mock implementations after clearAllMocks
+    mockWebSocketService.connect.mockResolvedValue(undefined);
+    mockWebSocketService.getState.mockReturnValue({ status: 'CONNECTED' });
+    mockWebSocketService.subscribeToPortfolio.mockResolvedValue(undefined);
+    mockWebSocketService.subscribeToOrderUpdates.mockResolvedValue(undefined);
+    mockWebSocketService.subscribeToMarketData.mockResolvedValue(undefined);
+    mockWebSocketService.unsubscribe.mockResolvedValue(undefined);
+    mockWebSocketService.isConnected.mockReturnValue(true);
+
     store = configureStore({
       reducer: {
         websocket: websocketSlice.reducer,
@@ -476,6 +495,7 @@ describe('Enhanced WebSocket Middleware', () => {
 
     it('extracts symbol from paper trading routes', () => {
       const routeAction = {
+        type: '@@router/LOCATION_CHANGE',
         payload: {
           pathname: '/paper/trading/META'
         }
@@ -488,6 +508,7 @@ describe('Enhanced WebSocket Middleware', () => {
 
     it('ignores non-trading routes', () => {
       const routeAction = {
+        type: '@@router/LOCATION_CHANGE',
         payload: {
           pathname: '/dashboard'
         }
@@ -502,6 +523,7 @@ describe('Enhanced WebSocket Middleware', () => {
       mockLocation.pathname = '/paper/trading/AMZN';
 
       const routeAction = {
+        type: '@@router/LOCATION_CHANGE',
         payload: {
           pathname: '/paper/trading/AMZN'
         }
@@ -515,6 +537,31 @@ describe('Enhanced WebSocket Middleware', () => {
 
   describe('Trading Mode Changes', () => {
     it('handles trading mode switch', async () => {
+      // Pre-populate with paper mode subscriptions so unsubscribe will be called
+      store = configureStore({
+        reducer: {
+          websocket: websocketSlice.reducer,
+          auth: authSlice.reducer,
+        },
+        middleware: (getDefaultMiddleware: any) =>
+          getDefaultMiddleware({ serializableCheck: false }).concat(enhancedWebsocketMiddleware),
+        preloadedState: {
+          websocket: {
+            status: 'CONNECTED' as any,
+            lastConnected: null,
+            reconnectAttempts: 0,
+            marketData: {},
+            portfolio: { paper: null, live: null },
+            positions: {},
+            recentOrders: [],
+            subscribedChannels: ['portfolio:paper', 'orders:paper'],
+            messageCount: 0,
+            lastMessageTime: null,
+            error: null
+          }
+        }
+      });
+
       const modeChangeAction = {
         type: 'trading/setMode',
         payload: {
@@ -523,6 +570,9 @@ describe('Enhanced WebSocket Middleware', () => {
       };
 
       store.dispatch(modeChangeAction);
+
+      // Wait for async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(mockWebSocketService.unsubscribe).toHaveBeenCalled();
       expect(mockWebSocketService.subscribeToPortfolio).toHaveBeenCalledWith('live');
@@ -562,6 +612,9 @@ describe('Enhanced WebSocket Middleware', () => {
       };
 
       store.dispatch(modeChangeAction);
+
+      // Wait for async operations to complete
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(mockWebSocketService.unsubscribe).toHaveBeenCalled();
     });

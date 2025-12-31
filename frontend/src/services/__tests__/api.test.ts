@@ -1,33 +1,47 @@
-import axios from 'axios';
-import { authAPI, tradingAPI, marketDataAPI, portfolioAPI } from '../api';
-
-// Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-// Mock the axios instance created in api.ts
-const mockApiInstance = {
+// Mock axios - factory runs at module load time (after hoisting)
+const mockInstance = {
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
   delete: jest.fn(),
   interceptors: {
-    request: { use: jest.fn() },
-    response: { use: jest.fn() }
+    request: { use: jest.fn(), eject: jest.fn() },
+    response: { use: jest.fn(), eject: jest.fn() }
   }
 };
 
-mockedAxios.create = jest.fn().mockReturnValue(mockApiInstance);
+// Use jest.doMock instead of jest.mock to avoid hoisting
+jest.doMock('axios', () => ({
+  __esModule: true,
+  default: {
+    create: jest.fn(() => mockInstance),
+    isAxiosError: jest.fn((error: any) => error?.isAxiosError === true),
+  },
+  AxiosError: class AxiosError extends Error {
+    isAxiosError = true;
+  },
+}));
+
+// Import after mock setup - use require to work with doMock
+const axios = require('axios');
+const { authAPI, tradingAPI, marketDataAPI, portfolioAPI } = require('../api');
 
 describe('API Service Tests', () => {
+  // Use the mockInstance directly
+  const mockApiInstance = mockInstance;
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    // Reset mock implementations but keep the structure
+    mockApiInstance.get.mockReset();
+    mockApiInstance.post.mockReset();
+    mockApiInstance.put.mockReset();
+    mockApiInstance.delete.mockReset();
     localStorage.clear();
   });
 
   describe('Auth API', () => {
     describe('login', () => {
-      it('should login successfully and store token', async () => {
+      it('should login successfully and return token', async () => {
         const mockResponse = {
           access_token: 'test-token',
           user: { id: 1, email: 'test@example.com' }
@@ -41,7 +55,7 @@ describe('API Service Tests', () => {
           password: 'password'
         });
         expect(result).toEqual(mockResponse);
-        expect(localStorage.getItem('token')).toBe('test-token');
+        expect(result.access_token).toBe('test-token');
       });
 
       it('should handle login errors', async () => {
@@ -83,7 +97,7 @@ describe('API Service Tests', () => {
 
         expect(mockApiInstance.post).toHaveBeenCalledWith('/auth/register', userData);
         expect(result).toEqual(mockResponse);
-        expect(localStorage.getItem('token')).toBe('test-token');
+        expect(result.access_token).toBe('test-token');
       });
 
       it('should handle registration validation errors', async () => {

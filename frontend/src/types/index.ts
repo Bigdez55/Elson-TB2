@@ -7,6 +7,9 @@ export interface User {
   trading_style: string;
   is_active: boolean;
   is_verified: boolean;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Auth state interface
@@ -45,10 +48,12 @@ export interface Trade {
   trade_type: string;
   order_type: string;
   quantity: number;
-  price?: number;
+  price?: number | null;
   status: string;
   created_at: string;
-  executed_at?: string;
+  updated_at?: string;
+  executed_at?: string | null;
+  executed_price?: number | null;
   notes?: string;
 }
 
@@ -159,6 +164,8 @@ export interface MarketQuote {
   high24h?: number;
   low24h?: number;
   change24h?: number;
+  bid?: number;
+  ask?: number;
 }
 
 export interface WatchlistItem {
@@ -205,4 +212,50 @@ export interface TradingState {
     loading: boolean;
     error: string | null;
   };
+}
+
+// Roundup transaction interface
+export interface RoundupTransaction {
+  id: number;
+  original_amount: number;
+  roundup_amount: number;
+  transaction_amount: number;
+  transaction_date: string;
+  description?: string;
+  source?: string;
+  status: 'pending' | 'invested' | 'cancelled';
+  created_at: string;
+  source_type?: string;
+  source_description?: string;
+}
+
+// Recurring investment interface
+export interface RecurringInvestment {
+  id?: number;
+  symbol: string;
+  amount: number;
+  investment_amount?: number;
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | string;
+  day_of_week?: number;
+  day_of_month?: number;
+  next_execution_date?: string;
+  next_investment_date?: string;
+  start_date?: string;
+  execution_count?: number;
+  last_execution_date?: string;
+  status?: 'active' | 'paused' | 'cancelled';
+  is_active?: boolean;
+  created_at?: string;
+}
+
+// Roundup summary interface
+export interface RoundupSummary {
+  total_roundups: number;
+  total_amount: number;
+  pending_amount: number;
+  invested_amount: number;
+  transaction_count: number;
+  average_roundup: number;
+  total_investments: number;
+  last_investment_date?: string;
 }
