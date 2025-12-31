@@ -1,0 +1,30 @@
+position_sizing:
+  max_position_size: 0.08           # 8% max position size
+  max_sector_exposure: 0.30         # 30% max sector exposure
+  base_quantity_percent: 0.03       # Base position size is 3% of portfolio
+  min_signal_confidence: 0.5        # Minimum signal confidence threshold
+
+volatility_limits:
+  max_portfolio_volatility: 0.15    # 15% annual volatility limit
+  volatility_scaling_factor: 0.70   # Scale positions by 0.7 for high volatility
+  vix_cutoff_threshold: 30.0        # Reduce position sizing when VIX > 30
+
+drawdown_limits:
+  max_daily_drawdown: 0.02          # 2% max daily drawdown
+  max_total_drawdown: 0.12          # 12% max total drawdown
+  drawdown_recovery_factor: 0.7     # Reduce position size by 30% after drawdown
+
+trade_limitations:
+  max_trades_per_day: 10            # Max 10 trades per day
+  min_holding_period_days: 3        # Minimum holding period of 3 days
+  restricted_assets: ["options", "leveraged_etfs"]
+
+correlation_limits:
+  max_correlation: 0.80             # Max 80% correlation between positions
+  correlation_penalty_factor: 0.9   # Reduce position size by 10% for high correlation
+
+exposure_limits:
+  max_equity_exposure: 0.90         # 90% max exposure to equities
+  max_fixed_income_exposure: 0.70   # 70% max exposure to fixed income
+  max_alternative_exposure: 0.20    # 20% max exposure to alternatives
+  min_cash_allocation: 0.05         # Minimum 5% cash allocation

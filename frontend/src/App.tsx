@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { checkAuth } from './store/slices/authSlice';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { TradingContextProvider } from './contexts/TradingContext';
 import { TradingModeBanner } from './components/trading/TradingModeIndicator';
 import { TradingModeRedirect, TradingRouteGuard } from './components/routing/TradingModeRedirect';
@@ -61,11 +62,12 @@ function App() {
   }
 
   return (
-    <TradingContextProvider>
-      <TradingModeSync />
-      <div className="App">
-        <TradingModeBanner />
-        <Routes>
+    <ThemeProvider>
+      <TradingContextProvider>
+        <TradingModeSync />
+        <div className="App">
+          <TradingModeBanner />
+          <Routes>
           {/* Public routes */}
           <Route path="/home" element={
             isAuthenticated ? <Navigate to="/dashboard" replace /> : <HomePage />
@@ -172,13 +174,14 @@ function App() {
           <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/home"} replace />} />
         </Routes>
 
-        {/* Performance Dashboard (only in development or for admin users) */}
-        {(process.env.NODE_ENV === 'development' || 
-          (isAuthenticated && (window as any).__ENABLE_PERFORMANCE_DASHBOARD)) && (
-          <PerformanceDashboard autoRefresh={true} refreshInterval={5000} />
-        )}
-      </div>
-    </TradingContextProvider>
+          {/* Performance Dashboard (only in development or for admin users) */}
+          {(process.env.NODE_ENV === 'development' ||
+            (isAuthenticated && (window as any).__ENABLE_PERFORMANCE_DASHBOARD)) && (
+            <PerformanceDashboard autoRefresh={true} refreshInterval={5000} />
+          )}
+        </div>
+      </TradingContextProvider>
+    </ThemeProvider>
   );
 }
 

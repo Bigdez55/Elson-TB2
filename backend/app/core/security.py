@@ -201,6 +201,63 @@ def get_current_active_user(
     return current_user
 
 
+def get_current_admin_user(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """Get current admin user - raises exception if not admin"""
+    if not hasattr(current_user, 'role') or current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
+
+def get_current_active_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+        HTTPBearer(auto_error=False)
+    ),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Get current user if authenticated, None otherwise"""
+    if credentials is None:
+        return None
+
+    payload = verify_token(credentials.credentials)
+    if payload is None:
+        return None
+
+    email = payload.get("sub")
+    if email is None:
+        return None
+
+    user = db.query(User).filter(User.email == email).first()
+    if user is None or not user.is_active:
+        return None
+
+    return user
+
+
+async def get_current_user_ws(token: str, db: Session) -> Optional[User]:
+    """Get current user from WebSocket token"""
+    if not token:
+        return None
+
+    payload = verify_token(token)
+    if payload is None:
+        return None
+
+    email = payload.get("sub")
+    if email is None:
+        return None
+
+    user = db.query(User).filter(User.email == email).first()
+    if user is None or not user.is_active:
+        return None
+
+    return user
+
+
 def get_client_ip(request: Request) -> str:
     """Get client IP address from request"""
     forwarded = request.headers.get("X-Forwarded-For")

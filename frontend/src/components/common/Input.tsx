@@ -3,17 +3,20 @@ import React from 'react';
 interface InputProps {
   label?: string;
   type?: string;
-  value: string;
+  value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   className?: string;
-  min?: string;
-  max?: string;
-  step?: string;
+  min?: string | number;
+  max?: string | number;
+  step?: string | number;
   error?: string;
+  autoComplete?: string;
+  id?: string;
+  name?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -30,6 +33,9 @@ export const Input: React.FC<InputProps> = ({
   max,
   step,
   error,
+  autoComplete,
+  id,
+  name,
 }) => {
   return (
     <div className={`mb-4 ${className}`}>
@@ -40,6 +46,8 @@ export const Input: React.FC<InputProps> = ({
         </label>
       )}
       <input
+        id={id}
+        name={name}
         type={type}
         value={value}
         onChange={onChange}
@@ -50,6 +58,7 @@ export const Input: React.FC<InputProps> = ({
         min={min}
         max={max}
         step={step}
+        autoComplete={autoComplete}
         className={`
           w-full px-3 py-2 rounded-md border
           ${error ? 'border-red-500' : 'border-gray-600'}

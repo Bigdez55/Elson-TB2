@@ -1,17 +1,21 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Optional, Dict
+import enum
 import logging
 
 from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Enum,
     Float,
     ForeignKey,
     Integer,
+    Numeric,
     String,
     Text,
+    JSON,
 )
 from sqlalchemy.orm import relationship, Session
 from sqlalchemy.sql import func
@@ -19,6 +23,21 @@ from sqlalchemy.sql import func
 from app.db.base import Base
 
 logger = logging.getLogger(__name__)
+
+
+class RiskProfile(str, enum.Enum):
+    """Portfolio risk profile levels"""
+    CONSERVATIVE = "conservative"
+    MODERATE = "moderate"
+    AGGRESSIVE = "aggressive"
+
+
+class PortfolioType(str, enum.Enum):
+    """Portfolio type classifications"""
+    STANDARD = "standard"
+    CUSTODIAL = "custodial"
+    RETIREMENT = "retirement"
+    PAPER = "paper"
 
 
 class Portfolio(Base):
@@ -39,8 +58,23 @@ class Portfolio(Base):
     auto_rebalance = Column(Boolean, default=False)
     rebalance_threshold = Column(Float, default=0.05)  # 5% deviation threshold
 
+    # Portfolio type and risk configuration
+    portfolio_type = Column(Enum(PortfolioType), default=PortfolioType.STANDARD, nullable=False)
+    risk_profile = Column(Enum(RiskProfile), default=RiskProfile.MODERATE, nullable=False)
+    max_position_concentration = Column(Float, default=20.0)  # Max % of portfolio in single position
+
+    # Performance tracking
+    daily_return = Column(Float, default=0.0)
+    total_return_percent = Column(Float, default=0.0)
+    available_buying_power = Column(Float, default=0.0)
+
+    # Rebalancing
+    last_rebalanced_at = Column(DateTime(timezone=True), nullable=True)
+    last_valued_at = Column(DateTime(timezone=True), nullable=True)
+
     # Ownership
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Alias for owner_id compatibility
 
     # Account relationship for family accounts (temporarily commented out)
     # account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
@@ -230,3 +264,53 @@ class Portfolio(Base):
         except Exception as e:
             logger.error(f"Error calculating sector exposure: {str(e)}")
             return {}
+
+    def validate_position_concentration(self, symbol: str, amount: Decimal) -> bool:
+        """Check if adding this position would exceed concentration limits"""
+        # Calculate new position value
+        new_position_value = amount
+
+        # Get current position value for this symbol
+        current_position_value = Decimal("0")
+        for holding in self.holdings:
+            if holding.symbol == symbol:
+                current_position_value = Decimal(str(holding.market_value or 0))
+                break
+
+        # Calculate total position value after trade
+        total_position_value = current_position_value + new_position_value
+
+        # Check against concentration limit
+        if self.total_value and self.total_value > 0:
+            concentration_percent = (total_position_value / Decimal(str(self.total_value))) * 100
+            return concentration_percent <= Decimal(str(self.max_position_concentration))
+
+        return True
+
+    def update_performance_metrics(self) -> None:
+        """Update portfolio performance metrics"""
+        self.last_valued_at = datetime.utcnow()
+
+        # Calculate total portfolio value from holdings
+        total_value = Decimal(str(self.cash_balance)) if self.cash_balance else Decimal("0")
+        for holding in self.holdings:
+            if holding.market_value:
+                total_value += Decimal(str(holding.market_value))
+
+        self.total_value = float(total_value)
+
+    def check_rebalancing_needed(self) -> bool:
+        """Check if portfolio needs rebalancing based on drift from target allocation"""
+        if not self.total_value or self.total_value <= 0:
+            return False
+
+        for holding in self.holdings:
+            if holding.market_value:
+                position_percent = (Decimal(str(holding.market_value)) / Decimal(str(self.total_value))) * 100
+                # If any position has drifted more than threshold, rebalancing needed
+                holding_count = len(self.holdings) if self.holdings else 1
+                target_percent = Decimal("100") / Decimal(str(holding_count))
+                if abs(position_percent - target_percent) > Decimal(str(self.rebalance_threshold * 100)):
+                    return True
+
+        return False

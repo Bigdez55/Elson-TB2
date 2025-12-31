@@ -6,16 +6,17 @@ This module implements the Alpaca broker API integration.
 import logging
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from app.core.config import settings
-from app.core.secrets import get_secret, validate_broker_credentials, mask_secret
-from app.models.trade import Trade, TradeStatus, OrderType, OrderSide
-from app.services.broker.base import BaseBroker, BrokerError
+from app.core.exception_handlers import BrokerError, convert_exception, handle_errors
+from app.core.secrets import get_secret
+from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
+from app.services.broker.base import BaseBroker
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class AlpacaBroker(BaseBroker):
         db=None,
         api_key: Optional[str] = None,
         api_secret: Optional[str] = None,
-        use_paper: bool = False,
+        use_paper: Optional[bool] = None,
     ):
         """Initialize with API credentials.
 
@@ -45,26 +46,16 @@ class AlpacaBroker(BaseBroker):
             db: Database session
             api_key: Alpaca API key (will use env var if not provided)
             api_secret: Alpaca API secret (will use env var if not provided)
-            use_paper: Whether to use paper trading API
+            use_paper: Whether to use paper trading API (defaults to settings.ALPACA_PAPER_TRADING)
         """
+        from app.core.config import settings
+
         self.db = db
-        self.api_key = api_key or get_secret("ALPACA_API_KEY")
+        self.api_key = api_key or get_secret("ALPACA_API_KEY_ID")
         self.api_secret = api_secret or get_secret("ALPACA_API_SECRET")
-        self.use_paper = use_paper
-
-        # Validate credentials
-        if not self.api_key or not self.api_secret:
-            raise BrokerError(
-                message="Missing Alpaca API credentials. Please set ALPACA_API_KEY and ALPACA_API_SECRET.",
-                error_code="MISSING_CREDENTIALS",
-            )
-
-        # Validate broker credentials are complete
-        if not validate_broker_credentials("alpaca"):
-            raise BrokerError(
-                message="Invalid or incomplete Alpaca API credentials",
-                error_code="INVALID_CREDENTIALS",
-            )
+        self.use_paper = (
+            use_paper if use_paper is not None else settings.ALPACA_PAPER_TRADING
+        )
 
         # Use paper or live URL based on settings
         self.base_url = PAPER_API_BASE_URL if use_paper else LIVE_API_BASE_URL
@@ -75,12 +66,7 @@ class AlpacaBroker(BaseBroker):
         # Set up authentication
         self._configure_auth()
 
-        # Log initialization with masked credentials for security
-        logger.info(
-            f"Initialized Alpaca broker (paper={use_paper}, "
-            f"api_key={mask_secret(self.api_key)}, "
-            f"base_url={self.base_url})"
-        )
+        logger.info(f"Initialized Alpaca broker (paper={use_paper})")
 
     def _create_session(self) -> requests.Session:
         """Create a requests session with retry logic."""
@@ -177,19 +163,8 @@ class AlpacaBroker(BaseBroker):
 
     def execute_trade(self, trade: Trade) -> Dict[str, Any]:
         """Execute a trade and return execution details."""
-        # Safety checks for live trading
-        if not self.use_paper:
-            self._validate_live_trade(trade)
-
         # Translate trade model to Alpaca API format
         order_data = self._prepare_order_data(trade)
-
-        # Log order for auditing (mask sensitive data)
-        logger.info(
-            f"Submitting {'paper' if self.use_paper else 'live'} order: "
-            f"symbol={trade.symbol}, side={trade.side}, "
-            f"qty={trade.quantity}, type={trade.order_type}"
-        )
 
         # Submit order to Alpaca API
         response = self._api_request(
@@ -458,80 +433,6 @@ class AlpacaBroker(BaseBroker):
 
     # Helper methods
 
-    def _validate_live_trade(self, trade: Trade) -> None:
-        """Validate trade before executing in live environment.
-
-        Args:
-            trade: The trade to validate
-
-        Raises:
-            BrokerError: If trade validation fails
-        """
-        # Basic validation
-        if not trade.symbol:
-            raise BrokerError(
-                message="Trade symbol is required", error_code="INVALID_SYMBOL"
-            )
-
-        if not trade.side or trade.side not in [OrderSide.BUY, OrderSide.SELL]:
-            raise BrokerError(message="Invalid trade side", error_code="INVALID_SIDE")
-
-        if not trade.order_type:
-            raise BrokerError(
-                message="Order type is required", error_code="INVALID_ORDER_TYPE"
-            )
-
-        # Quantity/amount validation
-        if trade.is_fractional and trade.investment_amount:
-            if trade.investment_amount <= 0:
-                raise BrokerError(
-                    message="Investment amount must be positive",
-                    error_code="INVALID_AMOUNT",
-                )
-        else:
-            if not trade.quantity or trade.quantity <= 0:
-                raise BrokerError(
-                    message="Trade quantity must be positive",
-                    error_code="INVALID_QUANTITY",
-                )
-
-        # Price validation for limit orders
-        if trade.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]:
-            if not trade.limit_price or trade.limit_price <= 0:
-                raise BrokerError(
-                    message="Limit price is required for limit orders",
-                    error_code="INVALID_LIMIT_PRICE",
-                )
-
-        # Stop price validation for stop orders
-        if trade.order_type in [OrderType.STOP, OrderType.STOP_LIMIT]:
-            if not trade.stop_price or trade.stop_price <= 0:
-                raise BrokerError(
-                    message="Stop price is required for stop orders",
-                    error_code="INVALID_STOP_PRICE",
-                )
-
-        # Risk limits for live trading
-        if not self.use_paper:
-            # Maximum position size check (example: $50,000 per position)
-            max_position_value = 50000.0
-
-            if trade.is_fractional and trade.investment_amount:
-                position_value = trade.investment_amount
-            else:
-                # Estimate position value (would need current price in real implementation)
-                position_value = trade.quantity * (
-                    trade.limit_price or 100.0
-                )  # Conservative estimate
-
-            if position_value > max_position_value:
-                raise BrokerError(
-                    message=f"Position size ${position_value:,.2f} exceeds maximum allowed ${max_position_value:,.2f}",
-                    error_code="POSITION_SIZE_LIMIT_EXCEEDED",
-                )
-
-        logger.info(f"Live trade validation passed for {trade.symbol}")
-
     def _prepare_order_data(self, trade: Trade) -> Dict[str, Any]:
         """Translate trade model to Alpaca API format."""
         # Map order type to Alpaca API format
@@ -592,7 +493,6 @@ class AlpacaBroker(BaseBroker):
             "rejected": TradeStatus.REJECTED,
             "suspended": TradeStatus.PENDING,
             "canceled": TradeStatus.CANCELED,
-            "cancelled": TradeStatus.CANCELLED,  # Support both spellings
             "pending_cancel": TradeStatus.PENDING_CANCEL,
             "pending_replace": TradeStatus.PENDING,
             "replaced": TradeStatus.PENDING,
@@ -601,170 +501,3 @@ class AlpacaBroker(BaseBroker):
         }
 
         return status_map.get(broker_status.lower(), TradeStatus.UNKNOWN)
-
-    # Additional safety and monitoring methods for live trading
-
-    def get_account_buying_power(self, account_id: str) -> float:
-        """Get current buying power for risk management.
-
-        Args:
-            account_id: Account identifier (not used by Alpaca)
-
-        Returns:
-            Current buying power in USD
-        """
-        account_info = self.get_account_info(account_id)
-        return account_info.get("buying_power", 0.0)
-
-    def check_trade_affordability(self, trade: Trade) -> bool:
-        """Check if account has sufficient buying power for trade.
-
-        Args:
-            trade: The trade to check
-
-        Returns:
-            True if trade is affordable
-        """
-        try:
-            buying_power = self.get_account_buying_power("")
-
-            if trade.is_fractional and trade.investment_amount:
-                required_amount = trade.investment_amount
-            else:
-                # Estimate required amount (would need current price in real implementation)
-                estimated_price = trade.limit_price or 100.0  # Conservative estimate
-                required_amount = trade.quantity * estimated_price
-
-            return buying_power >= required_amount
-
-        except Exception as e:
-            logger.error(f"Error checking trade affordability: {str(e)}")
-            return False
-
-    def get_position_by_symbol(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Get current position for a specific symbol.
-
-        Args:
-            symbol: Stock symbol
-
-        Returns:
-            Position information or None if no position
-        """
-        try:
-            positions = self.get_positions("")
-            for position in positions:
-                if position.get("symbol") == symbol:
-                    return position
-            return None
-        except Exception as e:
-            logger.error(f"Error getting position for {symbol}: {str(e)}")
-            return None
-
-    def is_market_open(self) -> bool:
-        """Check if market is currently open.
-
-        Returns:
-            True if market is open
-        """
-        try:
-            market_info = self.get_market_hours()
-            return market_info.get("is_open", False)
-        except Exception as e:
-            logger.warning(f"Could not determine market status: {str(e)}")
-            return False  # Conservative approach - assume closed if unknown
-
-    def validate_symbol(self, symbol: str) -> bool:
-        """Validate that a symbol is tradeable on Alpaca.
-
-        Args:
-            symbol: Stock symbol to validate
-
-        Returns:
-            True if symbol is valid and tradeable
-        """
-        try:
-            response = self._api_request(
-                method="GET", endpoint=f"{ASSETS_ENDPOINT}/{symbol}"
-            )
-
-            # Check if asset is tradeable
-            return (
-                response.get("tradable", False)
-                and response.get("status") == "active"
-                and not response.get("fractionable", True)
-                is False  # Allow fractional trading
-            )
-
-        except BrokerError:
-            # Symbol not found or not tradeable
-            return False
-        except Exception as e:
-            logger.error(f"Error validating symbol {symbol}: {str(e)}")
-            return False
-
-    def get_daily_trade_count(self) -> int:
-        """Get number of trades executed today for PDT monitoring.
-
-        Returns:
-            Number of trades executed today
-        """
-        try:
-            from datetime import datetime, timezone
-
-            today = datetime.now(timezone.utc).date()
-            orders = self.get_order_history(
-                account_id="",
-                start_date=datetime.combine(
-                    today, datetime.min.time().replace(tzinfo=timezone.utc)
-                ),
-            )
-
-            # Count filled orders
-            filled_orders = [
-                order
-                for order in orders
-                if order.get("status")
-                in [TradeStatus.FILLED, TradeStatus.PARTIALLY_FILLED]
-            ]
-
-            return len(filled_orders)
-
-        except Exception as e:
-            logger.error(f"Error getting daily trade count: {str(e)}")
-            return 0
-
-    def check_pattern_day_trader_compliance(self, account_id: str) -> Dict[str, Any]:
-        """Check PDT compliance for the account.
-
-        Args:
-            account_id: Account identifier
-
-        Returns:
-            PDT compliance information
-        """
-        try:
-            account_info = self.get_account_info(account_id)
-            daily_trades = self.get_daily_trade_count()
-
-            is_pdt = account_info.get("pattern_day_trader", False)
-            account_value = account_info.get("balance", 0.0)
-
-            return {
-                "is_pattern_day_trader": is_pdt,
-                "account_value": account_value,
-                "daily_trade_count": daily_trades,
-                "pdt_compliant": account_value >= 25000.0 if is_pdt else True,
-                "day_trades_remaining": max(0, 3 - daily_trades)
-                if not is_pdt and account_value < 25000.0
-                else None,
-            }
-
-        except Exception as e:
-            logger.error(f"Error checking PDT compliance: {str(e)}")
-            return {
-                "is_pattern_day_trader": False,
-                "account_value": 0.0,
-                "daily_trade_count": 0,
-                "pdt_compliant": False,
-                "day_trades_remaining": 0,
-            }

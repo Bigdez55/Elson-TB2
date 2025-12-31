@@ -8,9 +8,12 @@ and paper trading.
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from decimal import Decimal
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from app.models.trade import Trade
+from app.core.exception_handlers import BrokerError
+from app.models.portfolio import Portfolio
+from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
 
 logger = logging.getLogger(__name__)
 
@@ -91,26 +94,4 @@ class BaseBroker(ABC):
         raise NotImplementedError("Conditional orders not supported by this broker")
 
 
-class BrokerError(Exception):
-    """Exception for broker-related errors."""
-
-    def __init__(
-        self,
-        message: str,
-        error_code: Optional[str] = None,
-        broker_response: Optional[Dict[str, Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ):
-        """Initialize with error details.
-
-        Args:
-            message: Error message
-            error_code: Error code from broker
-            broker_response: Full response from broker
-            metadata: Additional metadata about the error (retry info, etc.)
-        """
-        self.message = message
-        self.error_code = error_code
-        self.broker_response = broker_response
-        self.metadata = metadata or {}
-        super().__init__(self.message)
+# BrokerError has been moved to app.core.exception_handlers

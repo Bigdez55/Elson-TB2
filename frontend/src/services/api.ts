@@ -194,4 +194,10 @@ export const portfolioAPI = {
 // Export advanced trading API
 export { advancedTradingAPI } from './advancedTradingAPI';
 
+// Export trading service
+export { tradingService } from './tradingService';
+
+// Named export for slices that use { api } import pattern
+export { api };
+
 export default api;
