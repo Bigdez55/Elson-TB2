@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -46,12 +46,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Cache pip dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -80,7 +80,7 @@ jobs:
           pytest --cov=app --cov-report=xml --cov-report=html
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./backend/coverage.xml
           flags: backend
@@ -121,7 +121,7 @@ jobs:
         run: npm run build
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./frontend/coverage/lcov.info
           flags: frontend
@@ -170,13 +170,26 @@ jobs:
           cache-to: type=gha,mode=max
 
   # Deploy to Google Cloud Run (for main branch only)
+  #
+  # GCP SETUP REQUIREMENTS:
+  # 1. Create a GCP project and enable these APIs:
+  #    - Cloud Run API (run.googleapis.com)
+  #    - Artifact Registry API (artifactregistry.googleapis.com)
+  # 2. Create a service account with these roles:
+  #    - Cloud Run Developer (roles/run.developer)
+  #    - Artifact Registry Writer (roles/artifactregistry.writer)
+  #    - Service Account User (roles/iam.serviceAccountUser)
+  # 3. Generate a JSON key for the service account
+  # 4. Add the JSON key as GitHub secret: GCP_SA_KEY
+  # 5. Update the region/service name below if needed
+  #
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: [docker]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
