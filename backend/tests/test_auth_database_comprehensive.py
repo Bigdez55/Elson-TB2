@@ -39,7 +39,7 @@ try:
 except ImportError as e:
     print(f"Import error: {e}")
     print("Installing required packages...")
-    os.system("pip install fastapi pytest pytest-asyncio sqlalchemy bcrypt python-jose[cryptography] redis")
+    os.system("pip install fastapi pytest pytest-asyncio sqlalchemy bcrypt PyJWT redis")
     sys.exit(1)
 
 class AuthDatabaseTester:

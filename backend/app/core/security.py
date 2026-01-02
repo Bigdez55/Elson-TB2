@@ -6,7 +6,8 @@ import hashlib
 
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
+import jwt
+from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
@@ -136,7 +137,7 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
                 pass  # Continue without Redis check
 
         return payload
-    except JWTError:
+    except InvalidTokenError:
         return None
 
 

@@ -96,7 +96,7 @@ We run automated security scans on:
 - **@babel/helpers** - RegExp complexity (Moderate)
 - **@babel/runtime** - RegExp complexity (Moderate)
 - **esbuild** - Development server exposure (Moderate)
-- **python-jose** - ECDSA signature verification (Moderate)
+- **python-jose** - ECDSA signature verification (Moderate) - **FIXED: Migrated to PyJWT**
 - **jinja2** - Template injection potential (Low - mitigated)
 
 #### High Priority Issues

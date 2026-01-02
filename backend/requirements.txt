@@ -13,7 +13,7 @@ pydantic[email]>=2.10.0
 pydantic-settings>=2.6.0
 
 # Authentication and Security
-python-jose[cryptography]>=3.3.0
+PyJWT>=2.8.0
 passlib[bcrypt]>=1.7.4
 bcrypt>=4.2.0
 
@@ -60,3 +60,4 @@ prometheus-client>=0.19.0
 
 # Local packages
 -e ../trading-engine
+ruptures==1.1.10
