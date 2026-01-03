@@ -28,40 +28,21 @@ from app.services.reconciliation.order_reconciliation import OrderReconciliation
 
 logger = logging.getLogger(__name__)
 
-
-# Mock imports to avoid trading_engine dependencies
-class DummyMarketRegimeDetector:
-    def get_current_regime(self, *args, **kwargs):
-        return "low"
-
-
-class DummyTradeExecutor:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-
-    async def execute_trade(self, *args, **kwargs):
-        return {"status": "executed", "trade_id": "mock-123"}
-
-
-class DummyMarketPredictionModel:
-    def predict(self, *args, **kwargs):
-        return {"prediction": 0.5, "confidence": 0.8}
-
-
-class DummyCombinedStrategy:
-    def __init__(self, **kwargs):
-        pass
-
-    def evaluate(self, *args, **kwargs):
-        return {"signal": "hold", "confidence": 0.7}
-
-
-class DummyMovingAverageStrategy:
-    def __init__(self, **kwargs):
-        pass
-
-    def evaluate(self, *args, **kwargs):
-        return {"signal": "hold", "confidence": 0.7}
+# Import real implementations from trading-engine
+try:
+    from app.trading_engine.timeframe.market_regime_detector import MarketRegimeDetector
+    from app.trading_engine.engine.trade_executor import TradeExecutor
+    from app.trading_engine.strategies.moving_average import MovingAverageStrategy
+    from app.trading_engine.ml_models.volatility_regime import VolatilityDetector
+    TRADING_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Trading engine not fully available: {e}")
+    TRADING_ENGINE_AVAILABLE = False
+    # Fallback stubs only used if trading-engine package is not installed
+    MarketRegimeDetector = None
+    TradeExecutor = None
+    MovingAverageStrategy = None
+    VolatilityDetector = None
 
 
 class MarketIntegrationService:
@@ -99,13 +80,30 @@ class MarketIntegrationService:
 
         # Initialize trading engine components
         self.strategies = {}
-        self.trade_executor = DummyTradeExecutor()
 
-        # Initialize AI prediction models
-        self.prediction_models = {"default": DummyMarketPredictionModel()}
+        if TRADING_ENGINE_AVAILABLE and TradeExecutor is not None:
+            # Use real trade executor from trading-engine
+            self.trade_executor = TradeExecutor(
+                market_data_service=self.market_data,
+                strategy=None  # Strategy set per-trade
+            ) if MovingAverageStrategy else None
+        else:
+            self.trade_executor = None
+            logger.warning("TradeExecutor not available - trading functionality limited")
 
-        # Initialize market regime detector
-        self.market_regime_detector = DummyMarketRegimeDetector()
+        # Initialize AI prediction models from trading-engine
+        if TRADING_ENGINE_AVAILABLE and VolatilityDetector is not None:
+            self.prediction_models = {"volatility": VolatilityDetector()}
+        else:
+            self.prediction_models = {}
+            logger.warning("Prediction models not available - using basic mode")
+
+        # Initialize market regime detector from trading-engine
+        if TRADING_ENGINE_AVAILABLE and MarketRegimeDetector is not None:
+            self.market_regime_detector = MarketRegimeDetector()
+        else:
+            self.market_regime_detector = None
+            logger.warning("MarketRegimeDetector not available - regime detection disabled")
 
         # Metrics and monitoring
         self.last_strategy_run = {}

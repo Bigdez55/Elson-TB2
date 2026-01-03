@@ -325,27 +325,111 @@ async def get_symbol_risk_score(
     Get risk score and analysis for a specific symbol.
 
     Provides detailed risk assessment for individual securities including:
-    - Volatility analysis
+    - Volatility analysis using trading-engine's VolatilityDetector
     - Beta relative to market
     - Liquidity metrics
     - Sector risk factors
     - Current market conditions impact
     """
     try:
-        # Calculate symbol-specific risk metrics
-        # This would be a more comprehensive analysis in practice
+        import pandas as pd
+        from app.services.market_data import market_data_service
+
+        # Import trading-engine volatility detector
+        try:
+            from app.trading_engine.ml_models.volatility_regime import VolatilityDetector, VolatilityRegime
+            from app.trading_engine.engine.risk_config import get_risk_config
+            TRADING_ENGINE_AVAILABLE = True
+        except ImportError:
+            TRADING_ENGINE_AVAILABLE = False
+
+        symbol = symbol.upper()
+
+        # Get market data for the symbol
+        quote = await market_data_service.get_quote(symbol)
+        historical_data = await market_data_service.get_historical_data(
+            symbol,
+            start_date=(datetime.utcnow() - __import__('datetime').timedelta(days=60)).isoformat(),
+            end_date=datetime.utcnow().isoformat(),
+        )
+
+        # Calculate risk metrics using trading-engine if available
+        risk_score = 0.5  # Default moderate risk
+        volatility = 0.25
+        regime = "NORMAL"
+        recommendation = "Moderate risk - suitable for balanced portfolios"
+        optimal_position_size_pct = 0.05
+
+        if TRADING_ENGINE_AVAILABLE and historical_data:
+            try:
+                # Convert to DataFrame for volatility detector
+                df = pd.DataFrame(historical_data)
+                if 'close' not in df.columns and 'price' in df.columns:
+                    df['close'] = df['price']
+
+                if 'close' in df.columns and len(df) >= 5:
+                    detector = VolatilityDetector(lookback_periods=20)
+                    detected_regime, detected_volatility = detector.detect_regime(df)
+
+                    # Map volatility regime to risk score (0-1 scale)
+                    regime_risk_map = {
+                        VolatilityRegime.LOW: 0.25,
+                        VolatilityRegime.NORMAL: 0.5,
+                        VolatilityRegime.HIGH: 0.75,
+                        VolatilityRegime.EXTREME: 0.95,
+                    }
+                    risk_score = regime_risk_map.get(detected_regime, 0.5)
+                    volatility = detected_volatility / 100  # Convert to decimal
+                    regime = detected_regime.name
+
+                    # Get risk config for position sizing
+                    risk_config = get_risk_config()
+                    volatility_regime_str = regime.lower()
+                    optimal_position_size_pct = risk_config.get_param("position_sizing.max_position_size") or 0.05
+
+                    # Adjust position size based on volatility
+                    vol_multiplier = risk_config.get_param(f"volatility_adjustments.{volatility_regime_str}_vol_multiplier")
+                    if vol_multiplier:
+                        optimal_position_size_pct *= vol_multiplier
+
+                    # Generate recommendation based on regime
+                    regime_recommendations = {
+                        VolatilityRegime.LOW: "Low risk - suitable for growth-oriented portfolios",
+                        VolatilityRegime.NORMAL: "Moderate risk - suitable for balanced portfolios",
+                        VolatilityRegime.HIGH: "High risk - consider reduced position size",
+                        VolatilityRegime.EXTREME: "Extreme risk - proceed with caution, circuit breaker may activate",
+                    }
+                    recommendation = regime_recommendations.get(detected_regime, recommendation)
+
+            except Exception as calc_error:
+                # Log error but continue with default values
+                import logging
+                logging.getLogger(__name__).warning(f"Risk calculation error for {symbol}: {calc_error}")
+
+        # Determine risk factors based on volatility regime
+        risk_factors = []
+        if regime == "HIGH" or regime == "EXTREME":
+            risk_factors.append("High volatility detected")
+        if volatility > 0.3:
+            risk_factors.append("Above-average price swings")
+        if quote and quote.get("change_percent", 0) > 3:
+            risk_factors.append("Significant daily price movement")
+
+        # Build response
         symbol_risk = {
-            "symbol": symbol.upper(),
-            "risk_score": 0.5,  # Placeholder
-            "volatility": 0.25,
-            "beta": 1.0,
-            "liquidity_score": 0.8,
-            "sector": "Technology",
-            "market_cap_category": "Large",
-            "risk_factors": ["High volatility sector", "Sensitive to market sentiment"],
-            "recommendation": "Moderate risk - suitable for balanced portfolios",
-            "optimal_position_size_pct": 0.05,  # 5% recommended max
-            "analysis_timestamp": str(datetime.utcnow()),
+            "symbol": symbol,
+            "risk_score": round(risk_score, 3),
+            "volatility": round(volatility, 4),
+            "volatility_regime": regime,
+            "beta": 1.0,  # Would need additional market data to calculate
+            "liquidity_score": 0.8,  # Would need volume analysis
+            "sector": "N/A",  # Would need fundamental data lookup
+            "market_cap_category": "N/A",  # Would need fundamental data lookup
+            "risk_factors": risk_factors or ["No significant risk factors detected"],
+            "recommendation": recommendation,
+            "optimal_position_size_pct": round(optimal_position_size_pct, 4),
+            "trading_engine_available": TRADING_ENGINE_AVAILABLE,
+            "analysis_timestamp": datetime.utcnow().isoformat(),
         }
 
         return symbol_risk

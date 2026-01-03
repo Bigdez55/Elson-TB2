@@ -12,7 +12,7 @@ from typing import Optional
 from app.services.market_data import MarketDataService
 from app.services.advanced_trading import AdvancedTradingService
 from app.services.risk_management import RiskManagementService
-from trading_engine.engine.risk_config import RiskProfile
+from app.trading_engine.engine.risk_config import RiskProfile
 
 
 class TradingServiceFactory:

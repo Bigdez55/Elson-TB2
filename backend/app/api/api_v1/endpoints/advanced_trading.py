@@ -19,11 +19,11 @@ from app.models.user import User
 # Note: Schema imports removed as they are not used in current implementation
 from app.services.advanced_trading import AdvancedTradingService
 from app.services.market_data import MarketDataService
-from trading_engine.engine.circuit_breaker import (
+from app.trading_engine.engine.circuit_breaker import (
     CircuitBreakerType,
     get_circuit_breaker,
 )
-from trading_engine.engine.risk_config import RiskProfile, get_risk_config
+from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
 
 router = APIRouter()
 

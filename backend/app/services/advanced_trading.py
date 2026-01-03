@@ -17,10 +17,10 @@ from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClass
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
 from app.services.market_data import MarketDataService
-from trading_engine.engine.circuit_breaker import get_circuit_breaker
-from trading_engine.engine.risk_config import RiskProfile, get_risk_config
-from trading_engine.engine.trade_executor import TradeExecutor
-from trading_engine.strategies import (
+from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
+from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
+from app.trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.strategies import (
     StrategyRegistry,
     StrategyCategory,
     TradingStrategy,
@@ -52,7 +52,7 @@ from trading_engine.strategies import (
     TWAPExecutionStrategy,
     IcebergExecutionStrategy,
 )
-from trading_engine.strategies.moving_average import MovingAverageStrategy
+from app.trading_engine.strategies.moving_average import MovingAverageStrategy
 
 logger = logging.getLogger(__name__)
 

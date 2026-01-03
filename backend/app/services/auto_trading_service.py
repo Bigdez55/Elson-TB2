@@ -15,10 +15,10 @@ from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
 from app.services.market_data import MarketDataService
-from trading_engine.strategies.registry import StrategyRegistry
-from trading_engine.strategies.base import TradingStrategy
-from trading_engine.engine.trade_executor import TradeExecutor
-from trading_engine.engine.circuit_breaker import get_circuit_breaker
+from app.trading_engine.strategies.registry import StrategyRegistry
+from app.trading_engine.strategies.base import TradingStrategy
+from app.trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
 
 logger = logging.getLogger(__name__)
 

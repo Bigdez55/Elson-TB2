@@ -176,33 +176,107 @@ async def get_market_sentiment(
     """
     Get AI-analyzed market sentiment for a symbol.
 
-    Provides sentiment score and key factors affecting the sentiment.
+    Provides sentiment analysis based on available data:
+    - Price momentum analysis (available)
+    - Volatility assessment (available via trading-engine)
+    - News/social sentiment (beta - coming soon)
     """
+    from datetime import datetime, timedelta
+
     try:
         symbol = symbol.upper().strip()
 
-        # For now, return a placeholder sentiment analysis
-        # In a full implementation, this would integrate with news APIs
-        # and perform NLP sentiment analysis
+        # Get real market data for momentum-based sentiment
+        from app.services.market_data import market_data_service
+
+        quote = await market_data_service.get_quote(symbol)
+        historical_data = await market_data_service.get_historical_data(
+            symbol,
+            start_date=(datetime.utcnow() - timedelta(days=30)).isoformat(),
+            end_date=datetime.utcnow().isoformat(),
+        )
+
+        # Calculate momentum-based sentiment from actual price data
+        sentiment_score = 0.5  # Neutral default
+        sentiment_label = "Neutral"
+        confidence = 50.0
+        key_factors = []
+
+        # Use real price change if available
+        if quote:
+            change_percent = quote.get("change_percent", 0)
+
+            # Convert price momentum to sentiment (simple but real)
+            if change_percent > 3:
+                sentiment_score = 0.8
+                sentiment_label = "Very Positive"
+                key_factors.append(f"Strong positive momentum: +{change_percent:.2f}%")
+            elif change_percent > 1:
+                sentiment_score = 0.65
+                sentiment_label = "Positive"
+                key_factors.append(f"Positive price action: +{change_percent:.2f}%")
+            elif change_percent > -1:
+                sentiment_score = 0.5
+                sentiment_label = "Neutral"
+                key_factors.append(f"Stable price action: {change_percent:+.2f}%")
+            elif change_percent > -3:
+                sentiment_score = 0.35
+                sentiment_label = "Negative"
+                key_factors.append(f"Negative price pressure: {change_percent:.2f}%")
+            else:
+                sentiment_score = 0.2
+                sentiment_label = "Very Negative"
+                key_factors.append(f"Strong selling pressure: {change_percent:.2f}%")
+
+            confidence = min(85.0, 50.0 + abs(change_percent) * 5)
+
+        # Try to get volatility data from trading-engine
+        volatility_regime = None
+        try:
+            from app.trading_engine.ml_models.volatility_regime import VolatilityDetector, VolatilityRegime
+            import pandas as pd
+
+            if historical_data:
+                df = pd.DataFrame(historical_data)
+                if 'close' not in df.columns and 'price' in df.columns:
+                    df['close'] = df['price']
+
+                if 'close' in df.columns and len(df) >= 5:
+                    detector = VolatilityDetector()
+                    regime, vol_value = detector.detect_regime(df)
+                    volatility_regime = regime.name
+
+                    if regime == VolatilityRegime.LOW:
+                        key_factors.append("Low volatility - stable market conditions")
+                    elif regime == VolatilityRegime.HIGH:
+                        key_factors.append("High volatility - increased uncertainty")
+                        confidence = max(30.0, confidence - 15)
+                    elif regime == VolatilityRegime.EXTREME:
+                        key_factors.append("Extreme volatility - exercise caution")
+                        confidence = max(20.0, confidence - 25)
+
+        except ImportError:
+            pass
+        except Exception as vol_error:
+            logger.debug(f"Volatility analysis unavailable: {vol_error}")
 
         sentiment_data = {
             "symbol": symbol,
-            "sentiment_score": 0.65,  # Placeholder: 0-1 scale
-            "sentiment_label": "Positive",
-            "confidence": 78.5,
-            "key_factors": [
-                "Strong earnings growth expected",
-                "Positive analyst coverage increase",
-                "Sector outperformance trends",
-            ],
-            "social_sentiment": {
-                "twitter_sentiment": 0.72,
-                "reddit_sentiment": 0.58,
-                "news_sentiment": 0.68,
+            "sentiment_score": round(sentiment_score, 3),
+            "sentiment_label": sentiment_label,
+            "confidence": round(confidence, 1),
+            "key_factors": key_factors if key_factors else ["Analyzing market conditions..."],
+            "data_sources": {
+                "price_momentum": "available",
+                "volatility_analysis": "available" if volatility_regime else "unavailable",
+                "news_sentiment": "beta",
+                "social_sentiment": "coming_soon",
             },
-            "analysis_timestamp": "2025-07-12T03:45:00Z",
-            "note": "Sentiment analysis is in development. "
-            "Data shown is for demonstration purposes.",
+            "volatility_regime": volatility_regime,
+            "analysis_timestamp": datetime.utcnow().isoformat(),
+            "feature_status": "beta",
+            "note": "Sentiment is currently based on price momentum and volatility analysis. "
+            "Full NLP-based news and social media sentiment analysis is in development.",
         }
 
         logger.info(

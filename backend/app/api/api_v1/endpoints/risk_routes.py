@@ -45,13 +45,37 @@ def get_risk_profile_report(user_id: int, db):
         "recommendations": [],
     }
 
-# Using mock implementations for production readiness
-from .risk_mocks import (
-    CircuitBreakerType,
-    RiskProfile,
-    get_circuit_breaker,
-    get_risk_config,
-)
+# Import real implementations from trading-engine
+try:
+    from app.trading_engine.engine.circuit_breaker import (
+        CircuitBreaker,
+        CircuitBreakerType,
+        CircuitBreakerStatus,
+        get_circuit_breaker,
+    )
+    from app.trading_engine.engine.risk_config import (
+        RiskProfile,
+        RiskConfig,
+        get_risk_config,
+    )
+    TRADING_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Trading engine not available: {e}")
+    TRADING_ENGINE_AVAILABLE = False
+    # Define fallback types for when trading-engine is not installed
+    from enum import Enum
+    class RiskProfile(str, Enum):
+        CONSERVATIVE = "conservative"
+        MODERATE = "moderate"
+        AGGRESSIVE = "aggressive"
+    class CircuitBreakerType(str, Enum):
+        SYSTEM = "system"
+        VOLATILITY = "volatility"
+        DAILY_LOSS = "daily_loss"
+    CircuitBreaker = None
+    RiskConfig = None
+    get_circuit_breaker = None
+    get_risk_config = None
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -63,15 +87,23 @@ async def get_risk_profiles(
 ) -> Dict:
     """Get all available risk profiles and their parameters"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         risk_config = get_risk_config()
 
         profiles = {}
         for profile in RiskProfile:
-            if profile.value == RiskProfile.CUSTOM.value:
-                continue
-            profiles[profile.value] = risk_config.get_profile_params(profile)
+            # Get profile parameters from config
+            profile_params = risk_config.config.get(profile.value, {})
+            profiles[profile.value] = profile_params
 
         return {"profiles": profiles, "current_profile": risk_config.profile.value}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error getting risk profiles: {str(e)}")
         raise HTTPException(
@@ -86,6 +118,12 @@ async def get_risk_profile(
 ) -> Dict:
     """Get a specific risk profile and its parameters"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         risk_config = get_risk_config()
 
         # Validate profile
@@ -97,9 +135,12 @@ async def get_risk_profile(
                 detail=f"Invalid risk profile: {profile}",
             )
 
+        # Get profile parameters from config
+        profile_params = risk_config.config.get(profile_enum.value, {})
+
         return {
             "profile": profile,
-            "parameters": risk_config.get_profile_params(profile_enum),
+            "parameters": profile_params,
         }
     except HTTPException:
         raise
@@ -119,6 +160,12 @@ async def update_risk_profile(
 ) -> Dict:
     """Update parameters for a risk profile"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         risk_config = get_risk_config()
 
         # Validate profile
@@ -130,21 +177,28 @@ async def update_risk_profile(
                 detail=f"Invalid risk profile: {profile}",
             )
 
-        # Update parameters
+        # Temporarily switch to the target profile to update it
+        original_profile = risk_config.profile
+        risk_config.update_profile(profile_enum)
+
+        # Update parameters using the trading-engine set_param API
         updated_params = []
         for param_path, value in parameters.items():
-            if risk_config.set_param(
-                param_path,
-                value,
-                profile_enum,
-                reason=f"Updated by {current_user.email}",
-            ):
+            if risk_config.set_param(param_path, value):
                 updated_params.append(param_path)
+                logger.info(f"Updated {param_path} by {current_user.email}")
+
+        # Get updated profile params
+        updated_profile = risk_config.config.get(profile_enum.value, {})
+
+        # Restore original profile if different
+        if original_profile != profile_enum:
+            risk_config.update_profile(original_profile)
 
         return {
             "profile": profile,
             "updated_parameters": updated_params,
-            "updated_profile": risk_config.get_profile_params(profile_enum),
+            "updated_profile": updated_profile,
         }
     except HTTPException:
         raise
@@ -162,6 +216,12 @@ async def set_active_profile(
 ) -> Dict:
     """Set the active risk profile"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         risk_config = get_risk_config()
 
         # Validate profile
@@ -173,12 +233,15 @@ async def set_active_profile(
                 detail=f"Invalid risk profile: {profile}",
             )
 
-        # Set active profile
-        risk_config.set_profile(profile_enum)
+        # Set active profile using trading-engine API
+        risk_config.update_profile(profile_enum)
+
+        # Get profile parameters
+        profile_params = risk_config.config.get(profile_enum.value, {})
 
         return {
             "active_profile": profile,
-            "parameters": risk_config.get_profile_params(profile_enum),
+            "parameters": profile_params,
         }
     except HTTPException:
         raise
@@ -194,12 +257,20 @@ async def set_active_profile(
 async def get_circuit_breakers(current_user: User = Depends(get_current_user)) -> Dict:
     """Get all active circuit breakers"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         circuit_breaker = get_circuit_breaker()
 
         # Get all circuit breakers
         breakers = circuit_breaker.get_status()
 
         return {"breakers": breakers, "count": len(breakers)}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error getting circuit breakers: {str(e)}")
         raise HTTPException(
@@ -218,6 +289,12 @@ async def trip_circuit_breaker(
 ) -> Dict:
     """Manually trip a circuit breaker"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         circuit_breaker = get_circuit_breaker()
 
         # Validate breaker type
@@ -256,6 +333,12 @@ async def reset_circuit_breaker(
 ) -> Dict:
     """Reset a circuit breaker"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         circuit_breaker = get_circuit_breaker()
 
         # Validate breaker type
@@ -292,12 +375,20 @@ async def reset_all_circuit_breakers(
 ) -> Dict:
     """Reset all circuit breakers"""
     try:
+        if not TRADING_ENGINE_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading engine not available",
+            )
+
         circuit_breaker = get_circuit_breaker()
 
         # Reset all circuit breakers
         circuit_breaker.reset_all()
 
         return {"status": "success", "message": "All circuit breakers reset"}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error resetting all circuit breakers: {str(e)}")
         raise HTTPException(
@@ -465,9 +556,14 @@ async def get_risk_dashboard(
                     current_user, f"{category}.max_total_drawdown"
                 )
 
-        # Get circuit breakers
-        circuit_breaker = get_circuit_breaker()
-        breakers = circuit_breaker.get_status()
+        # Get circuit breakers (if trading engine available)
+        breakers = {}
+        trading_engine_profile_name = "moderate"
+        if TRADING_ENGINE_AVAILABLE and get_circuit_breaker:
+            circuit_breaker = get_circuit_breaker()
+            breakers = circuit_breaker.get_status()
+        if TRADING_ENGINE_AVAILABLE and get_risk_config:
+            trading_engine_profile_name = get_risk_config().profile.value
 
         # Build dashboard data
         dashboard = {
@@ -482,7 +578,7 @@ async def get_risk_dashboard(
                 "name": user_risk_profile.value,
                 "parameters": user_profile_params,
             },
-            "trading_engine_profile": {"name": get_risk_config().profile.value},
+            "trading_engine_profile": {"name": trading_engine_profile_name},
             "circuit_breakers": {"active": len(breakers) > 0, "breakers": breakers},
             "positions": [],
         }
@@ -523,18 +619,22 @@ async def get_risk_audit_log(
 ) -> Dict:
     """Get risk parameter audit log"""
     try:
-        risk_config = get_risk_config()
-
         # Default to last 7 days if no dates provided
         if not start_date:
             start_date = datetime.utcnow() - timedelta(days=7)
         if not end_date:
             end_date = datetime.utcnow()
 
+        # Define audit log file path
+        audit_log_file = os.path.join(
+            os.path.dirname(__file__),
+            "..", "..", "..", "..", "logs", "risk_audit.log"
+        )
+
         # Read from audit log file
         audit_log = []
-        if os.path.exists(risk_config.audit_log_file):
-            with open(risk_config.audit_log_file, "r") as f:
+        if os.path.exists(audit_log_file):
+            with open(audit_log_file, "r") as f:
                 for line in f:
                     try:
                         entry = json.loads(line.strip())
@@ -546,7 +646,7 @@ async def get_risk_audit_log(
                         if len(audit_log) >= limit:
                             break
                     except Exception as e:
-                        logger.error(f"Error parsing audit log entry: {str(e)}")
+                        logger.debug(f"Skipping non-JSON audit log entry: {str(e)}")
 
         return {
             "audit_log": audit_log,

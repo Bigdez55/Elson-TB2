@@ -22,7 +22,7 @@ from app.models.holding import Holding
 from app.models.trade import OrderType, Trade, TradeExecution, TradeStatus, TradeType
 from app.models.user import User
 from app.services.market_data import market_data_service
-from trading_engine.engine.circuit_breaker import (
+from app.trading_engine.engine.circuit_breaker import (
     get_circuit_breaker,
     CircuitBreakerType,
     CircuitBreakerStatus,

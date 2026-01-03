@@ -13,7 +13,7 @@ from app.api.deps import get_db, get_current_active_user
 from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.services.auto_trading_service import AutoTradingService
-from trading_engine.strategies.registry import StrategyRegistry, StrategyCategory
+from app.trading_engine.strategies.registry import StrategyRegistry, StrategyCategory
 
 router = APIRouter()
 

@@ -15,8 +15,8 @@ import pytest
 from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClassifier
 from app.models.portfolio import Portfolio
 from app.services.advanced_trading import AdvancedTradingService
-from trading_engine.engine.risk_config import RiskProfile
-from trading_engine.strategies.moving_average import MovingAverageStrategy
+from app.trading_engine.engine.risk_config import RiskProfile
+from app.trading_engine.strategies.moving_average import MovingAverageStrategy
 
 
 class TestAdvancedTradingIntegration:
