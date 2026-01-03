@@ -22,13 +22,23 @@ from app.models.holding import Holding
 from app.models.trade import OrderType, Trade, TradeExecution, TradeStatus, TradeType
 from app.models.user import User
 from app.services.market_data import market_data_service
-from app.trading_engine.engine.circuit_breaker import (
-    get_circuit_breaker,
-    CircuitBreakerType,
-    CircuitBreakerStatus,
-)
 
 logger = structlog.get_logger()
+
+# Optional trading engine imports
+try:
+    from app.trading_engine.engine.circuit_breaker import (
+        get_circuit_breaker,
+        CircuitBreakerType,
+        CircuitBreakerStatus,
+    )
+    TRADING_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Trading engine not available: {e}")
+    TRADING_ENGINE_AVAILABLE = False
+    get_circuit_breaker = None
+    CircuitBreakerType = None
+    CircuitBreakerStatus = None
 
 
 class TradingService:

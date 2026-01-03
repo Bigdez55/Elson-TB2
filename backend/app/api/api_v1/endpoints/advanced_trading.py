@@ -5,6 +5,7 @@ Provides sophisticated trading functionality with AI/ML integration,
 quantum-inspired models, and comprehensive risk management.
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
@@ -19,11 +20,24 @@ from app.models.user import User
 # Note: Schema imports removed as they are not used in current implementation
 from app.services.advanced_trading import AdvancedTradingService
 from app.services.market_data import MarketDataService
-from app.trading_engine.engine.circuit_breaker import (
-    CircuitBreakerType,
-    get_circuit_breaker,
-)
-from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
+
+logger = logging.getLogger(__name__)
+
+# Optional trading engine imports
+try:
+    from app.trading_engine.engine.circuit_breaker import (
+        CircuitBreakerType,
+        get_circuit_breaker,
+    )
+    from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
+    TRADING_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Trading engine not available: {e}")
+    TRADING_ENGINE_AVAILABLE = False
+    CircuitBreakerType = None
+    get_circuit_breaker = None
+    RiskProfile = None
+    get_risk_config = None
 
 router = APIRouter()
 

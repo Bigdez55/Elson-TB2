@@ -4,6 +4,7 @@ Auto Trading API Endpoints
 Provides REST API for managing automated trading strategies.
 """
 
+import logging
 from typing import Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -13,7 +14,18 @@ from app.api.deps import get_db, get_current_active_user
 from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.services.auto_trading_service import AutoTradingService
-from app.trading_engine.strategies.registry import StrategyRegistry, StrategyCategory
+
+logger = logging.getLogger(__name__)
+
+# Optional trading engine imports
+try:
+    from app.trading_engine.strategies.registry import StrategyRegistry, StrategyCategory
+    TRADING_ENGINE_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Trading engine not available: {e}")
+    TRADING_ENGINE_AVAILABLE = False
+    StrategyRegistry = None
+    StrategyCategory = None
 
 router = APIRouter()
 
