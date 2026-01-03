@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Logo } from '../components/common';
 
 interface PricingPlan {
   name: string;
@@ -112,9 +113,7 @@ const PricingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link to="/" className="flex items-center">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">E</span>
-              </div>
+              <Logo size="md" />
               <span className="ml-3 text-xl font-bold text-white">Elson</span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
@@ -340,9 +339,7 @@ const PricingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center">
-                <span className="text-white font-bold">E</span>
-              </div>
+              <Logo size="sm" />
               <span className="ml-2 text-lg font-bold text-white">Elson</span>
             </div>
             <p className="text-gray-400 text-sm">

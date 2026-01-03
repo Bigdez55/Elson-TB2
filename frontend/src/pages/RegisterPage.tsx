@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { RootState } from '../store/store';
 import { register, clearError } from '../store/slices/authSlice';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { LoadingSpinner, Logo } from '../components/common';
 
 const REGISTRATION_STORAGE_KEY = 'elson_registration_draft';
 const STORAGE_EXPIRY_HOURS = 24;
@@ -747,9 +747,7 @@ const RegisterPage: React.FC = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center">
-            <div className="h-12 w-12 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">E</span>
-            </div>
+            <Logo size="lg" />
             <span className="ml-3 text-2xl font-bold text-white">Elson</span>
           </Link>
         </div>
