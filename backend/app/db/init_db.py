@@ -1,15 +1,23 @@
 from sqlalchemy.orm import Session
+import structlog
 
 from app.db.base import Base, engine
 
-# Imports are handled by Base.metadata.create_all which discovers all models
+# Import all models to ensure they're registered with Base.metadata
+from app.models import user, portfolio, trade, notification, subscription, user_settings  # noqa
+
+logger = structlog.get_logger()
 
 
 async def init_db() -> None:
-    """Initialize database with tables"""
-    # Tables are managed by Alembic migrations, not auto-created
-    # Use: alembic upgrade head
-    pass
+    """Initialize database with tables on startup"""
+    logger.info("Initializing database tables...")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create database tables: {e}")
+        raise
 
 
 def create_initial_data(db: Session) -> None:
