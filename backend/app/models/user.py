@@ -55,7 +55,7 @@ class User(Base):
     last_login = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    portfolios = relationship("Portfolio", back_populates="owner")
+    portfolios = relationship("Portfolio", back_populates="owner", foreign_keys="[Portfolio.owner_id]")
     # accounts = relationship(
     #     "Account", foreign_keys="Account.user_id", back_populates="user"
     # )

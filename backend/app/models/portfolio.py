@@ -87,7 +87,7 @@ class Portfolio(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    owner = relationship("User", back_populates="portfolios")
+    owner = relationship("User", back_populates="portfolios", foreign_keys=[owner_id])
     # account = relationship("Account", back_populates="portfolio")  # Commented out until account_id FK is added
     holdings = relationship("Holding", back_populates="portfolio")
     trades = relationship("Trade", back_populates="portfolio")
