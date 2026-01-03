@@ -89,7 +89,8 @@
     "braces": "^3.0.3",
     "micromatch": "^4.0.8",
     "path-to-regexp": "^8.0.0",
-    "cookie": "^1.0.0"
+    "cookie": "^1.0.0",
+    "webpack-dev-server": "^5.2.1"
   },
   "proxy": "http://localhost:8000",
   "msw": {
