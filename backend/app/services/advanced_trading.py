@@ -13,84 +13,48 @@ import numpy as np
 import pandas as pd
 from sqlalchemy.orm import Session
 
+from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClassifier
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
 from app.services.market_data import MarketDataService
+from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
+from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
+from app.trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.strategies import (
+    StrategyRegistry,
+    StrategyCategory,
+    TradingStrategy,
+    # Technical Analysis
+    RSIStrategy,
+    BollingerBandsStrategy,
+    MACDStrategy,
+    IchimokuCloudStrategy,
+    ADXTrendStrategy,
+    StochasticStrategy,
+    CandlestickPatternStrategy,
+    # Breakout
+    SupportResistanceBreakout,
+    OpeningRangeBreakout,
+    DonchianBreakout,
+    # Mean Reversion
+    StatisticalMeanReversion,
+    RSIMeanReversion,
+    # Momentum
+    MomentumFactorStrategy,
+    TrendFollowingStrategy,
+    # Arbitrage
+    PairsTradingStrategy,
+    # Grid/DCA
+    GridTradingStrategy,
+    DCAStrategy,
+    # Execution
+    VWAPExecutionStrategy,
+    TWAPExecutionStrategy,
+    IcebergExecutionStrategy,
+)
+from app.trading_engine.strategies.moving_average import MovingAverageStrategy
 
 logger = logging.getLogger(__name__)
-
-# Optional quantum models import
-try:
-    from app.ml_models.quantum_models.quantum_classifier import QuantumInspiredClassifier
-    QUANTUM_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Quantum models not available: {e}")
-    QUANTUM_AVAILABLE = False
-    QuantumInspiredClassifier = None
-
-# Optional trading engine imports
-try:
-    from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
-    from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
-    from app.trading_engine.engine.trade_executor import TradeExecutor
-    from app.trading_engine.strategies import (
-        StrategyRegistry,
-        StrategyCategory,
-        TradingStrategy,
-        RSIStrategy,
-        BollingerBandsStrategy,
-        MACDStrategy,
-        IchimokuCloudStrategy,
-        ADXTrendStrategy,
-        StochasticStrategy,
-        CandlestickPatternStrategy,
-        SupportResistanceBreakout,
-        OpeningRangeBreakout,
-        DonchianBreakout,
-        StatisticalMeanReversion,
-        RSIMeanReversion,
-        MomentumFactorStrategy,
-        TrendFollowingStrategy,
-        PairsTradingStrategy,
-        GridTradingStrategy,
-        DCAStrategy,
-        VWAPExecutionStrategy,
-        TWAPExecutionStrategy,
-        IcebergExecutionStrategy,
-    )
-    from app.trading_engine.strategies.moving_average import MovingAverageStrategy
-    TRADING_ENGINE_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Trading engine not available: {e}")
-    TRADING_ENGINE_AVAILABLE = False
-    get_circuit_breaker = None
-    RiskProfile = None
-    get_risk_config = None
-    TradeExecutor = None
-    StrategyRegistry = None
-    StrategyCategory = None
-    TradingStrategy = None
-    RSIStrategy = None
-    BollingerBandsStrategy = None
-    MACDStrategy = None
-    IchimokuCloudStrategy = None
-    ADXTrendStrategy = None
-    StochasticStrategy = None
-    CandlestickPatternStrategy = None
-    SupportResistanceBreakout = None
-    OpeningRangeBreakout = None
-    DonchianBreakout = None
-    StatisticalMeanReversion = None
-    RSIMeanReversion = None
-    MomentumFactorStrategy = None
-    TrendFollowingStrategy = None
-    PairsTradingStrategy = None
-    GridTradingStrategy = None
-    DCAStrategy = None
-    VWAPExecutionStrategy = None
-    TWAPExecutionStrategy = None
-    IcebergExecutionStrategy = None
-    MovingAverageStrategy = None
 
 # Strategy configuration mapping
 STRATEGY_CONFIGS = {

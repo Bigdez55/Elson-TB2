@@ -6,24 +6,13 @@ This module provides factory methods to properly initialize complex services
 with their required dependencies.
 """
 
-import logging
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.services.market_data import MarketDataService
 from app.services.advanced_trading import AdvancedTradingService
 from app.services.risk_management import RiskManagementService
-
-logger = logging.getLogger(__name__)
-
-# Optional trading engine imports
-try:
-    from app.trading_engine.engine.risk_config import RiskProfile
-    TRADING_ENGINE_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Trading engine not available: {e}")
-    TRADING_ENGINE_AVAILABLE = False
-    RiskProfile = None
+from app.trading_engine.engine.risk_config import RiskProfile
 
 
 class TradingServiceFactory:

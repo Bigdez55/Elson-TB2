@@ -15,23 +15,12 @@ from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
 from app.services.market_data import MarketDataService
+from app.trading_engine.strategies.registry import StrategyRegistry
+from app.trading_engine.strategies.base import TradingStrategy
+from app.trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
 
 logger = logging.getLogger(__name__)
-
-# Optional trading engine imports
-try:
-    from app.trading_engine.strategies.registry import StrategyRegistry
-    from app.trading_engine.strategies.base import TradingStrategy
-    from app.trading_engine.engine.trade_executor import TradeExecutor
-    from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
-    TRADING_ENGINE_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Trading engine not available: {e}")
-    TRADING_ENGINE_AVAILABLE = False
-    StrategyRegistry = None
-    TradingStrategy = None
-    TradeExecutor = None
-    get_circuit_breaker = None
 
 
 class AutoTradingService:
