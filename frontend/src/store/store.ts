@@ -8,6 +8,7 @@ import subscriptionReducer from './slices/subscriptionSlice';
 import authReducer from './slices/authSlice';
 import websocketReducer from './slices/websocketSlice';
 import portfolioReducer from './slices/portfolioSlice';
+import toastReducer from './slices/toastSlice';
 import marketDataApi from '../services/marketDataApi';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
@@ -24,6 +25,7 @@ export const store = configureStore({
     auth: authReducer,
     websocket: websocketReducer,
     portfolio: portfolioReducer,
+    toast: toastReducer,
     [marketDataApi.reducerPath]: marketDataApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
