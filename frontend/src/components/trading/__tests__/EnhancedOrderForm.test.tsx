@@ -25,7 +25,17 @@ jest.mock('../../../services/tradingApi', () => ({
   useValidateOrderQuery: () => ({
     data: { valid: true, estimated_cost: 1502.5, buying_power: 8497.5 },
     isLoading: false
-  })
+  }),
+  useGetTradingAccountQuery: () => ({
+    data: { buying_power: 10000, cash: 10000, portfolio_value: 25000 },
+    isLoading: false,
+    error: null
+  }),
+  tradingApi: {
+    reducer: (state = {}) => state,
+    reducerPath: 'tradingApi',
+    middleware: () => (next: any) => (action: any) => next(action)
+  }
 }));
 
 // Mock TradingSafeguards component

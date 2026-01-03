@@ -344,4 +344,5 @@ export const {
   resetTradingState
 } = tradingSlice.actions;
 
+export { tradingSlice };
 export default tradingSlice.reducer;

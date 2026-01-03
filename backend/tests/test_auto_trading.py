@@ -3,10 +3,8 @@ Test script for automated trading system
 """
 
 import asyncio
-import sys
-sys.path.insert(0, '/workspaces/Elson-TB2/trading-engine')
 
-from trading_engine.strategies.registry import StrategyRegistry
+from app.trading_engine.strategies.registry import StrategyRegistry
 from app.services.auto_trading_service import AutoTradingService
 
 

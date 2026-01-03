@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
-import { 
-  fetchPortfolioSummary, 
-  fetchPerformance, 
-  refreshPortfolioData 
+import {
+  fetchPortfolioSummary,
+  fetchPerformance,
+  refreshPortfolioData
 } from '../store/slices/portfolioSlice';
 import Chart from 'chart.js/auto';
 import { TrendingUp, TrendingDown, RefreshCw, PieChart as PieChartIcon } from 'lucide-react';
+import { SkeletonPortfolio, SkeletonStatsCard, SkeletonChart, Skeleton } from '../components/common/Skeleton';
 
 const PortfolioPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -242,8 +243,33 @@ const PortfolioPage: React.FC = () => {
   
   if (isLoading && !portfolio) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center">
+          <Skeleton variant="text" width={250} height={36} />
+          <Skeleton variant="rectangular" width={120} height={40} className="rounded-md" />
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+        </div>
+
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <SkeletonChart />
+          </div>
+          <div>
+            <SkeletonChart />
+          </div>
+        </div>
+
+        {/* Holdings Table Skeleton */}
+        <SkeletonPortfolio positions={5} />
       </div>
     );
   }

@@ -63,9 +63,22 @@ interface WebSocketConfig {
   requireAuth: boolean;
 }
 
+// Build WebSocket URL dynamically based on current host for production compatibility
+const getDefaultWsUrl = (): string => {
+  if (process.env.REACT_APP_WS_URL) {
+    return process.env.REACT_APP_WS_URL;
+  }
+  // In browser, use current host; otherwise default to localhost for SSR/testing
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${protocol}//${window.location.host}/api/v1/streaming/ws`;
+  }
+  return 'ws://localhost:8000/api/v1/streaming/ws';
+};
+
 // Default configuration
 const DEFAULT_CONFIG: WebSocketConfig = {
-  url: process.env.REACT_APP_WS_URL || 'ws://localhost:8000/api/v1/streaming/ws',
+  url: getDefaultWsUrl(),
   reconnectInterval: 5000, // 5 seconds
   maxReconnectAttempts: 5,
   heartbeatInterval: 30000, // 30 seconds

@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Box, 
-  Button, 
-  FormControl, 
-  FormHelperText, 
-  FormLabel, 
-  Grid, 
-  InputAdornment, 
-  Radio, 
-  RadioGroup, 
-  FormControlLabel, 
-  Stack, 
-  TextField, 
-  Typography, 
-  Alert, 
-  AlertTitle, 
-  Tooltip, 
+import {
+  Box,
+  Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  InputAdornment,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Stack,
+  TextField,
+  Typography,
+  Alert,
+  AlertTitle,
+  Tooltip,
   Paper,
-  CircularProgress
+  CircularProgress,
+  Divider,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -26,9 +27,12 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import { useAuth } from '../../hooks/useAuth';
 import { formatCurrency, formatNumber } from '../../utils/formatters';
+import { calculateFees, FeeBreakdown } from '../../utils/tradingUtils';
+import { SuccessAnimation } from '../common/SuccessAnimation';
 
 // Type definitions
 interface Stock {
@@ -73,6 +77,12 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [requiresApproval, setRequiresApproval] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [lastOrderDetails, setLastOrderDetails] = useState<{
+    symbol: string;
+    amount: number;
+    shares: number;
+  } | null>(null);
   
   // Educational tooltips
   const tooltips = {
@@ -97,7 +107,7 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
-        const response = await axios.get('/api/v1/portfolios');
+        const response = await axios.get('/api/v1/portfolio');
         setPortfolios(response.data);
         if (response.data.length > 0) {
           setPortfolio(response.data[0]);
@@ -144,25 +154,35 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
     return () => clearTimeout(timeoutId);
   }, [symbol]);
 
-  // Calculate estimated shares or cost
+  // Calculate estimated shares or cost with fees
   const calculateEstimatedValues = () => {
     if (!stock) return null;
 
+    let estimatedShares: number;
+    let estimatedCost: number;
+
     if (investmentType === 'dollars' && amount !== '') {
-      const estimatedShares = +(amount as number / stock.price).toFixed(4);
-      return {
-        estimatedShares,
-        estimatedCost: amount
-      };
+      estimatedShares = +(amount as number / stock.price).toFixed(4);
+      estimatedCost = amount as number;
     } else if (investmentType === 'shares' && shares !== '') {
-      const estimatedCost = +(shares as number * stock.price).toFixed(2);
-      return {
-        estimatedShares: shares,
-        estimatedCost
-      };
+      estimatedShares = shares as number;
+      estimatedCost = +(shares as number * stock.price).toFixed(2);
+    } else {
+      return null;
     }
 
-    return null;
+    // Calculate fees (paper trading by default)
+    const fees = calculateFees(estimatedCost, estimatedShares, true);
+    const totalCost = orderType === 'buy'
+      ? estimatedCost + fees.totalFees
+      : estimatedCost - fees.totalFees;
+
+    return {
+      estimatedShares,
+      estimatedCost,
+      fees,
+      totalCost
+    };
   };
 
   const estimates = calculateEstimatedValues();
@@ -201,11 +221,20 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
       }
 
       const response = await axios.post('/api/v1/trades', orderData);
-      
+
+      // Store order details for success animation
+      setLastOrderDetails({
+        symbol: stock.symbol,
+        amount: estimates?.estimatedCost || 0,
+        shares: estimates?.estimatedShares || 0,
+      });
+
       if (response.data.requires_approval) {
         setSuccess('Your trade has been submitted and is waiting for approval from your guardian.');
       } else {
         setSuccess(`Your ${orderType} order has been successfully submitted!`);
+        // Show success animation
+        setShowSuccessAnimation(true);
       }
 
       // Reset form fields
@@ -455,57 +484,62 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
             {getEducationalNote('portfolio')}
           </FormControl>
 
-          {/* Order Summary */}
-          {stock && portfolio && (investmentType === 'dollars' ? amount !== '' : shares !== '') && (
-            <Box sx={{ 
-              p: 2, 
-              backgroundColor: 'background.paper', 
+          {/* Order Summary with Fee Breakdown */}
+          {stock && portfolio && (investmentType === 'dollars' ? amount !== '' : shares !== '') && estimates && (
+            <Box sx={{
+              p: 2,
+              backgroundColor: 'background.paper',
               borderRadius: 1,
               border: 1,
               borderColor: 'divider'
             }}>
-              <Typography variant="h6" gutterBottom>Order Summary</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <ReceiptIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="h6">Order Summary</Typography>
+              </Box>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">Order Type:</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="body2">{orderType.toUpperCase()}</Typography>
+                  <Typography variant="body2" fontWeight="medium" color={orderType === 'buy' ? 'success.main' : 'error.main'}>
+                    {orderType.toUpperCase()}
+                  </Typography>
                 </Grid>
-                
+
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">Stock:</Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2">{stock.symbol} @ ${formatNumber(stock.price)}</Typography>
                 </Grid>
-                
+
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">
-                    {investmentType === 'dollars' ? 'Amount:' : 'Shares:'}
+                    {investmentType === 'dollars' ? 'Investment:' : 'Shares:'}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2">
-                    {investmentType === 'dollars' 
-                      ? formatCurrency(amount as number) 
+                    {investmentType === 'dollars'
+                      ? formatCurrency(amount as number)
                       : formatNumber(shares as number)}
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">
-                    {investmentType === 'dollars' ? 'Estimated Shares:' : 'Estimated Cost:'}
+                    {investmentType === 'dollars' ? 'Est. Shares:' : 'Est. Cost:'}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body2">
-                    {investmentType === 'dollars' 
-                      ? formatNumber(estimates?.estimatedShares || 0)
-                      : formatCurrency(estimates?.estimatedCost || 0)}
+                    {investmentType === 'dollars'
+                      ? formatNumber(estimates.estimatedShares)
+                      : formatCurrency(estimates.estimatedCost)}
                   </Typography>
                 </Grid>
-                
+
                 <Grid item xs={6}>
                   <Typography variant="body2" color="text.secondary">Portfolio:</Typography>
                 </Grid>
@@ -513,7 +547,46 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
                   <Typography variant="body2">{portfolio.name}</Typography>
                 </Grid>
               </Grid>
-              
+
+              {/* Fee Breakdown */}
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ bgcolor: 'action.hover', borderRadius: 1, p: 1.5 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Fee Breakdown
+                </Typography>
+                <Grid container spacing={1}>
+                  <Grid item xs={8}>
+                    <Typography variant="body2" color="text.secondary">Order Value:</Typography>
+                  </Grid>
+                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">{formatCurrency(estimates.estimatedCost)}</Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Tooltip title={estimates.fees.feeDescription}>
+                      <Typography variant="body2" color="text.secondary" sx={{ cursor: 'help', textDecoration: 'underline dotted' }}>
+                        Trading Fee:
+                      </Typography>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">{formatCurrency(estimates.fees.totalFees)}</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider sx={{ my: 0.5 }} />
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography variant="body2" fontWeight="bold">
+                      Total {orderType === 'buy' ? 'Cost' : 'Proceeds'}:
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2" fontWeight="bold" color={orderType === 'buy' ? 'error.main' : 'success.main'}>
+                      {formatCurrency(estimates.totalCost)}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+
               {requiresApproval && (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   This order will require guardian approval
@@ -548,6 +621,17 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
           {getEducationalNote('submit')}
         </Stack>
       </form>
+
+      {/* Success Animation */}
+      <SuccessAnimation
+        show={showSuccessAnimation}
+        title="Order Placed!"
+        symbol={lastOrderDetails?.symbol}
+        amount={lastOrderDetails?.amount}
+        shares={lastOrderDetails?.shares}
+        onComplete={() => setShowSuccessAnimation(false)}
+        onClose={() => setShowSuccessAnimation(false)}
+      />
     </Paper>
   );
 };

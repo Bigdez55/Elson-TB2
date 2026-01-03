@@ -16,10 +16,19 @@ export { AITradingAssistant } from './AITradingAssistant';
 export { default as TradingSafeguards } from './TradingSafeguards';
 export { TradingSafeguardWrapper } from './TradingSafeguards';
 
+// User-Friendly Trading Components (Acorns/Stash/Robinhood style)
+export { default as BeginnerOrderForm } from './BeginnerOrderForm';
+export { OrderPreviewScreen, calculateFees as calculateOrderFees } from './OrderPreviewScreen';
+export { QuickInvestButtons } from './QuickInvestButtons';
+export { TradingConfirmationModal } from './TradingConfirmationModal';
+
 // Live Data Components
 export { LiveMarketData, MiniLiveMarketData } from './LiveMarketData';
 export { LivePortfolioUpdates, CompactPortfolioUpdates } from './LivePortfolioUpdates';
 export { LiveOrderUpdates, OrderNotification } from './LiveOrderUpdates';
+
+// Price Display with Flash Animation
+export { PriceDisplay, CompactPriceDisplay, LargePriceDisplay } from './PriceDisplay';
 
 // Re-export types for convenience
 export type { Asset, Trade, OrderData, Portfolio as PortfolioType, MarketQuote, WatchlistItem } from '../../types';

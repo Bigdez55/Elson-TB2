@@ -11,8 +11,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from trading_engine.engine.circuit_breaker import CircuitBreaker
-from trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.engine.circuit_breaker import CircuitBreaker
+from app.trading_engine.engine.trade_executor import TradeExecutor
 
 from app.db.database import get_db
 from app.main import app

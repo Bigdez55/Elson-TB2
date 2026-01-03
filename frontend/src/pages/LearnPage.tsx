@@ -5,6 +5,7 @@ import {
   useGetMyProgressQuery,
   useGetMyPermissionsQuery,
 } from '../services/educationApi';
+import { Skeleton, SkeletonStatsCard, SkeletonCard } from '../components/common/Skeleton';
 
 const LearnPage: React.FC = () => {
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
@@ -61,8 +62,94 @@ const LearnPage: React.FC = () => {
 
   if (contentLoading || pathsLoading || progressLoading || permissionsLoading) {
     return (
-      <div className="bg-gray-800 min-h-screen p-6 flex items-center justify-center">
-        <div className="text-white text-xl">Loading educational content...</div>
+      <div className="bg-gray-800 min-h-screen p-6">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <Skeleton variant="text" width="200px" height="36px" className="mb-2" />
+          <Skeleton variant="text" width="450px" height="20px" />
+        </div>
+
+        {/* Progress Overview Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonStatsCard key={i} />
+          ))}
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="mb-6 space-y-4">
+          <div>
+            <Skeleton variant="text" width="100px" height="16px" className="mb-2" />
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} variant="rectangular" width="100px" height="40px" className="rounded-lg" />
+              ))}
+            </div>
+          </div>
+          <div>
+            <Skeleton variant="text" width="100px" height="16px" className="mb-2" />
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} variant="rectangular" width="90px" height="40px" className="rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Content List Skeleton */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <Skeleton variant="text" width="200px" height="28px" />
+              <Skeleton variant="text" width="60px" height="16px" />
+            </div>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-gray-900 rounded-xl p-6">
+                <div className="flex items-start space-x-4">
+                  <Skeleton variant="rectangular" width="64px" height="64px" className="rounded-lg flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-2">
+                      <Skeleton variant="text" width="200px" height="24px" />
+                      <Skeleton variant="rectangular" width="80px" height="24px" className="rounded" />
+                    </div>
+                    <Skeleton variant="text" width="100%" height="16px" className="mb-2" />
+                    <Skeleton variant="text" width="80%" height="16px" className="mb-3" />
+                    <div className="flex space-x-4 mb-3">
+                      <Skeleton variant="text" width="60px" height="14px" />
+                      <Skeleton variant="text" width="80px" height="14px" />
+                    </div>
+                    <Skeleton variant="rectangular" width="120px" height="36px" className="rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="space-y-6">
+            {/* Learning Paths Skeleton */}
+            <div className="bg-gray-900 rounded-xl p-4">
+              <Skeleton variant="text" width="150px" height="24px" className="mb-4" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-3 rounded-lg bg-gray-800 mb-3">
+                  <Skeleton variant="text" width="140px" height="20px" className="mb-1" />
+                  <Skeleton variant="text" width="100%" height="14px" className="mb-2" />
+                  <Skeleton variant="text" width="80px" height="12px" />
+                </div>
+              ))}
+            </div>
+
+            {/* Permissions Skeleton */}
+            <div className="bg-gradient-to-br from-green-900 to-green-800 rounded-xl p-4">
+              <Skeleton variant="text" width="180px" height="24px" className="mb-3" />
+              <Skeleton variant="text" width="100%" height="14px" className="mb-2" />
+              <Skeleton variant="text" width="80%" height="14px" className="mb-4" />
+              <div className="bg-white/10 backdrop-blur rounded-lg p-3">
+                <Skeleton variant="text" width="100%" height="24px" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

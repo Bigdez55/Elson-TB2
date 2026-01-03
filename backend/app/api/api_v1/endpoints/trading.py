@@ -220,26 +220,63 @@ async def get_trading_stats(
         total_trades = len(trades)
         total_commission = sum(trade.commission + trade.fees for trade in trades)
 
-        # Group trades by symbol to calculate P&L
+        # Group trades by symbol to calculate P&L using FIFO matching
         profit_losses = []
         winning_trades = 0
         losing_trades = 0
 
-        # For simplicity, calculate P&L per trade (this could be enhanced)
+        # Group trades by symbol for FIFO P&L calculation
+        from collections import defaultdict
+        symbol_buys = defaultdict(list)  # symbol -> list of (quantity, price) remaining
+
+        # First pass: collect all buys
         for trade in trades:
-            if trade.trade_type.value == "buy":
-                continue  # Skip buy trades for P&L calculation
+            if trade.trade_type.value == "buy" and trade.filled_quantity and trade.filled_price:
+                symbol_buys[trade.symbol].append({
+                    "quantity": trade.filled_quantity,
+                    "price": trade.filled_price
+                })
 
-            # This is simplified - in reality, you'd match buy/sell pairs
-            # For now, just use the difference from average cost if available
-            pnl = 0.0  # Placeholder
+        # Second pass: match sells against buys using FIFO
+        for trade in trades:
+            if trade.trade_type.value == "sell" and trade.filled_quantity and trade.filled_price:
+                sell_qty = trade.filled_quantity
+                sell_price = trade.filled_price
+                buys = symbol_buys.get(trade.symbol, [])
 
-            if pnl > 0:
-                winning_trades += 1
-            elif pnl < 0:
-                losing_trades += 1
+                trade_pnl = 0.0
 
-            profit_losses.append(pnl)
+                # Match against available buys using FIFO
+                while sell_qty > 0 and buys:
+                    buy = buys[0]
+                    match_qty = min(sell_qty, buy["quantity"])
+
+                    # Calculate P&L for this matched portion
+                    pnl_per_share = sell_price - buy["price"]
+                    trade_pnl += pnl_per_share * match_qty
+
+                    # Reduce quantities
+                    sell_qty -= match_qty
+                    buy["quantity"] -= match_qty
+
+                    # Remove exhausted buy
+                    if buy["quantity"] <= 0:
+                        buys.pop(0)
+
+                # Account for sells without matching buys (use sell price as P&L)
+                if sell_qty > 0:
+                    # If no matching buy, treat as 100% profit (sold something acquired before tracking)
+                    trade_pnl += sell_qty * sell_price
+
+                # Subtract commission and fees from P&L
+                trade_pnl -= (trade.commission + trade.fees)
+
+                if trade_pnl > 0:
+                    winning_trades += 1
+                elif trade_pnl < 0:
+                    losing_trades += 1
+
+                profit_losses.append(trade_pnl)
 
         total_profit_loss = sum(profit_losses)
         win_rate = (winning_trades / max(total_trades, 1)) * 100
@@ -361,13 +398,27 @@ async def get_batch_data(
             .first()
         )
 
+        # Calculate day P&L from positions' unrealized gains
+        day_pnl = 0.0
+        total_value = portfolio.total_value if portfolio else 100000.0
+
+        if portfolio and portfolio.holdings:
+            # Sum unrealized P&L from all positions
+            # This represents the change in value since purchase (approximate day P&L)
+            for holding in portfolio.holdings:
+                if holding.quantity > 0 and holding.unrealized_gain_loss:
+                    day_pnl += holding.unrealized_gain_loss
+
+        # Calculate day P&L percent
+        day_pnl_percent = (day_pnl / total_value * 100) if total_value > 0 else 0.0
+
         # Build portfolio summary
         portfolio_summary: Dict[str, Any] = {
-            "total_value": portfolio.total_value if portfolio else 100000.0,
+            "total_value": total_value,
             "cash_balance": portfolio.cash_balance if portfolio else 100000.0,
             "positions_value": (portfolio.total_value - portfolio.cash_balance) if portfolio else 0.0,
-            "day_pnl": 0.0,
-            "day_pnl_percent": 0.0,
+            "day_pnl": round(day_pnl, 2),
+            "day_pnl_percent": round(day_pnl_percent, 2),
             "total_pnl": portfolio.total_return if portfolio else 0.0,
             "total_pnl_percent": portfolio.total_return_percentage if portfolio else 0.0,
             "paper_trading": trading_mode == "paper",

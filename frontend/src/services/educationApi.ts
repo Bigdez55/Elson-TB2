@@ -5,7 +5,8 @@
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+// Use relative URL for production compatibility - the proxy handles routing in dev
+const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
 // ==================== Type Definitions ====================
 

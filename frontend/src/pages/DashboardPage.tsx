@@ -7,6 +7,7 @@ import { PortfolioChart } from '../components/charts/PortfolioChart';
 import { AllocationChart } from '../components/charts/AllocationChart';
 import { useTradingContext } from '../contexts/TradingContext';
 import { useGetBatchDataQuery, useGetPortfolioPerformanceQuery } from '../services/tradingApi';
+import { Skeleton, SkeletonStatsCard, SkeletonChart, SkeletonListItem } from '../components/common/Skeleton';
 
 const DashboardPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -73,8 +74,55 @@ const DashboardPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-800 min-h-screen p-6 flex items-center justify-center">
-        <div className="text-white">Loading portfolio data...</div>
+      <div className="bg-gray-800 min-h-screen p-6">
+        {/* Skeleton Welcome Section */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="space-y-2">
+            <Skeleton variant="text" width={250} height={28} />
+            <Skeleton variant="text" width={350} height={16} />
+          </div>
+          <div className="flex space-x-4">
+            <Skeleton variant="rectangular" width={100} height={40} className="rounded-lg" />
+            <Skeleton variant="rectangular" width={100} height={40} className="rounded-lg" />
+          </div>
+        </div>
+
+        {/* Skeleton Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+          <SkeletonStatsCard />
+        </div>
+
+        {/* Skeleton Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <SkeletonChart className="h-80" />
+          </div>
+          <div>
+            <div className="bg-gray-800 rounded-lg p-4">
+              <Skeleton variant="text" width="40%" height={20} className="mb-4" />
+              <Skeleton variant="circular" width={200} height={200} className="mx-auto mb-4" />
+              <div className="space-y-2">
+                <Skeleton variant="text" width="60%" />
+                <Skeleton variant="text" width="50%" />
+                <Skeleton variant="text" width="70%" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Holdings List */}
+        <div className="bg-gray-900 rounded-xl p-4">
+          <Skeleton variant="text" width={120} height={20} className="mb-4" />
+          <div className="space-y-2">
+            <SkeletonListItem hasAvatar hasAction />
+            <SkeletonListItem hasAvatar hasAction />
+            <SkeletonListItem hasAvatar hasAction />
+            <SkeletonListItem hasAvatar hasAction />
+          </div>
+        </div>
       </div>
     );
   }

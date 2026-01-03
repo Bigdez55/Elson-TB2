@@ -1,5 +1,7 @@
 import React from 'react';
 import { useTradingContext } from '../../contexts/TradingContext';
+import { formatCurrency } from '../../utils/formatters';
+import { calculateFees } from '../../utils/tradingUtils';
 
 interface TradingConfirmationModalProps {
   isOpen: boolean;
@@ -106,7 +108,9 @@ export const TradingConfirmationModal: React.FC<TradingConfirmationModalProps> =
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Action:</span>
-                <span className="font-medium capitalize">{orderDetails.action}</span>
+                <span className={`font-medium capitalize ${orderDetails.action === 'buy' ? 'text-green-600' : 'text-red-600'}`}>
+                  {orderDetails.action}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Quantity:</span>
@@ -120,14 +124,31 @@ export const TradingConfirmationModal: React.FC<TradingConfirmationModalProps> =
                 <span className="text-gray-600">Order Type:</span>
                 <span className="font-medium">{orderDetails.orderType}</span>
               </div>
-              {orderDetails.quantity && orderDetails.price && (
-                <div className="flex justify-between border-t pt-1 mt-2">
-                  <span className="text-gray-600 font-medium">Total:</span>
-                  <span className="font-bold">
-                    ${(orderDetails.quantity * orderDetails.price).toFixed(2)}
-                  </span>
-                </div>
-              )}
+              {orderDetails.quantity && orderDetails.price && (() => {
+                const orderValue = orderDetails.quantity * orderDetails.price;
+                const fees = calculateFees(orderValue, orderDetails.quantity, mode === 'paper');
+                const totalAmount = orderDetails.action === 'buy'
+                  ? orderValue + fees.totalFees
+                  : orderValue - fees.totalFees;
+                return (
+                  <>
+                    <div className="flex justify-between border-t pt-1 mt-2">
+                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="font-medium">{formatCurrency(orderValue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Est. Fees:</span>
+                      <span className="font-medium">{formatCurrency(fees.totalFees)}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-1 mt-1">
+                      <span className="text-gray-600 font-medium">Total {orderDetails.action === 'buy' ? 'Cost' : 'Proceeds'}:</span>
+                      <span className={`font-bold ${orderDetails.action === 'buy' ? 'text-red-600' : 'text-green-600'}`}>
+                        {formatCurrency(totalAmount)}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}

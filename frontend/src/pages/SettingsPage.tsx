@@ -502,59 +502,803 @@ const SecuritySection: React.FC = () => {
   );
 };
 
-// Placeholder sections for other settings pages
-const APISection: React.FC = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-white mb-6">API Access</h1>
-    <div className="bg-gray-900 rounded-xl p-6">
-      <p className="text-gray-300">API Access settings will be implemented here.</p>
+// API Access Section
+const APISection: React.FC = () => {
+  const [apiKey, setApiKey] = useState('elsk_*****************************7a3f');
+  const [showKey, setShowKey] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const fullApiKey = 'elsk_live_abc123def456ghi789jkl012mno345pqr67a3f';
+
+  const handleCopyKey = () => {
+    navigator.clipboard.writeText(fullApiKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleRegenerateKey = () => {
+    // In production, this would call the API
+    alert('API key regeneration would be confirmed here');
+  };
+
+  const apiUsage = [
+    { endpoint: '/api/v1/market-data/quote', calls: 1243, lastUsed: '2 min ago' },
+    { endpoint: '/api/v1/trading/orders', calls: 89, lastUsed: '15 min ago' },
+    { endpoint: '/api/v1/portfolio/positions', calls: 456, lastUsed: '5 min ago' },
+    { endpoint: '/api/v1/account/balance', calls: 234, lastUsed: '1 hour ago' },
+  ];
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-white mb-6">API Access</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+            <h2 className="text-lg font-medium text-white mb-4">API Key Management</h2>
+            <p className="text-gray-400 text-sm mb-6">
+              Use your API key to access the Elson Trading API programmatically. Keep your key secure and never share it publicly.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-400 text-sm mb-2">Your API Key</label>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-gray-800 border border-gray-700 rounded-lg p-3 font-mono text-sm text-gray-300">
+                    {showKey ? fullApiKey : apiKey}
+                  </div>
+                  <button
+                    onClick={() => setShowKey(!showKey)}
+                    className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors"
+                    title={showKey ? 'Hide key' : 'Show key'}
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {showKey ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      )}
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleCopyKey}
+                    className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors"
+                    title="Copy key"
+                  >
+                    {copied ? (
+                      <svg className="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-4 flex space-x-4">
+                <button
+                  onClick={handleRegenerateKey}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  Regenerate Key
+                </button>
+                <button className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                  View Documentation
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-900 rounded-xl p-6 shadow-md mt-6">
+            <h2 className="text-lg font-medium text-white mb-4">API Usage (Last 24 Hours)</h2>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-800">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Endpoint</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Calls</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Last Used</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {apiUsage.map((item, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-3 text-sm font-mono text-gray-300">{item.endpoint}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{item.calls.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-sm text-gray-400">{item.lastUsed}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+            <h3 className="text-lg font-medium text-white mb-4">Rate Limits</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-400">Requests/min</span>
+                  <span className="text-white">45/100</span>
+                </div>
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 h-full" style={{ width: '45%' }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-400">Daily Requests</span>
+                  <span className="text-white">2,022/10,000</span>
+                </div>
+                <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="bg-blue-500 h-full" style={{ width: '20%' }}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-800">
+              <h4 className="text-sm font-medium text-white mb-3">Quick Links</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">API Documentation</a>
+                </li>
+                <li>
+                  <a href="#" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">SDK Downloads</a>
+                </li>
+                <li>
+                  <a href="#" className="text-purple-400 hover:text-purple-300 text-sm transition-colors">Webhook Settings</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-const NotificationsSection: React.FC = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-white mb-6">Notification Preferences</h1>
-    <div className="bg-gray-900 rounded-xl p-6">
-      <p className="text-gray-300">Notification preferences will be implemented here.</p>
+// Notifications Section
+const NotificationsSection: React.FC = () => {
+  const [notifications, setNotifications] = useState({
+    // Trading Notifications
+    orderExecuted: { email: true, push: true, sms: false },
+    orderFailed: { email: true, push: true, sms: true },
+    priceAlert: { email: false, push: true, sms: false },
+    dividendReceived: { email: true, push: false, sms: false },
+
+    // Account Notifications
+    loginAlert: { email: true, push: true, sms: true },
+    depositComplete: { email: true, push: true, sms: false },
+    withdrawalComplete: { email: true, push: true, sms: true },
+    securityAlert: { email: true, push: true, sms: true },
+
+    // Education & Marketing
+    newCourses: { email: true, push: false, sms: false },
+    weeklyDigest: { email: true, push: false, sms: false },
+    promotions: { email: false, push: false, sms: false },
+    tips: { email: true, push: false, sms: false },
+  });
+
+  const toggleNotification = (category: string, channel: 'email' | 'push' | 'sms') => {
+    setNotifications(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category as keyof typeof prev],
+        [channel]: !prev[category as keyof typeof prev][channel]
+      }
+    }));
+  };
+
+  const NotificationRow = ({
+    label,
+    description,
+    category
+  }: {
+    label: string;
+    description: string;
+    category: keyof typeof notifications;
+  }) => (
+    <div className="flex items-center justify-between py-4 border-b border-gray-800 last:border-b-0">
+      <div className="flex-1">
+        <h4 className="text-white font-medium">{label}</h4>
+        <p className="text-gray-400 text-sm">{description}</p>
+      </div>
+      <div className="flex items-center space-x-6">
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={notifications[category].email}
+            onChange={() => toggleNotification(category, 'email')}
+            className="sr-only"
+          />
+          <div className={`w-10 h-6 rounded-full transition-colors ${notifications[category].email ? 'bg-purple-600' : 'bg-gray-700'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform mt-1 ${notifications[category].email ? 'translate-x-5' : 'translate-x-1'}`}></div>
+          </div>
+          <span className="ml-2 text-gray-400 text-xs">Email</span>
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={notifications[category].push}
+            onChange={() => toggleNotification(category, 'push')}
+            className="sr-only"
+          />
+          <div className={`w-10 h-6 rounded-full transition-colors ${notifications[category].push ? 'bg-purple-600' : 'bg-gray-700'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform mt-1 ${notifications[category].push ? 'translate-x-5' : 'translate-x-1'}`}></div>
+          </div>
+          <span className="ml-2 text-gray-400 text-xs">Push</span>
+        </label>
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={notifications[category].sms}
+            onChange={() => toggleNotification(category, 'sms')}
+            className="sr-only"
+          />
+          <div className={`w-10 h-6 rounded-full transition-colors ${notifications[category].sms ? 'bg-purple-600' : 'bg-gray-700'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full transform transition-transform mt-1 ${notifications[category].sms ? 'translate-x-5' : 'translate-x-1'}`}></div>
+          </div>
+          <span className="ml-2 text-gray-400 text-xs">SMS</span>
+        </label>
+      </div>
     </div>
-  </div>
-);
+  );
 
-const DevicesSection: React.FC = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-white mb-6">Connected Devices</h1>
-    <div className="bg-gray-900 rounded-xl p-6">
-      <p className="text-gray-300">Device management will be implemented here.</p>
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-white mb-6">Notification Preferences</h1>
+
+      <div className="space-y-6">
+        <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+          <h2 className="text-lg font-medium text-white mb-4">Trading Notifications</h2>
+          <NotificationRow
+            label="Order Executed"
+            description="Get notified when your orders are filled"
+            category="orderExecuted"
+          />
+          <NotificationRow
+            label="Order Failed"
+            description="Get notified when an order fails to execute"
+            category="orderFailed"
+          />
+          <NotificationRow
+            label="Price Alerts"
+            description="Receive alerts when stocks hit your target prices"
+            category="priceAlert"
+          />
+          <NotificationRow
+            label="Dividend Received"
+            description="Get notified when dividends are credited"
+            category="dividendReceived"
+          />
+        </div>
+
+        <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+          <h2 className="text-lg font-medium text-white mb-4">Account Notifications</h2>
+          <NotificationRow
+            label="Login Alerts"
+            description="Get notified of new login attempts"
+            category="loginAlert"
+          />
+          <NotificationRow
+            label="Deposit Complete"
+            description="Notification when deposits are processed"
+            category="depositComplete"
+          />
+          <NotificationRow
+            label="Withdrawal Complete"
+            description="Notification when withdrawals are processed"
+            category="withdrawalComplete"
+          />
+          <NotificationRow
+            label="Security Alerts"
+            description="Important security-related notifications"
+            category="securityAlert"
+          />
+        </div>
+
+        <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+          <h2 className="text-lg font-medium text-white mb-4">Education & Marketing</h2>
+          <NotificationRow
+            label="New Courses Available"
+            description="Learn about new educational content"
+            category="newCourses"
+          />
+          <NotificationRow
+            label="Weekly Digest"
+            description="Weekly summary of your portfolio performance"
+            category="weeklyDigest"
+          />
+          <NotificationRow
+            label="Promotions & Offers"
+            description="Special offers and promotional content"
+            category="promotions"
+          />
+          <NotificationRow
+            label="Tips & Insights"
+            description="Trading tips and market insights"
+            category="tips"
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
+            Save Preferences
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-const PreferencesSection: React.FC = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-text-primary mb-6">App Preferences</h1>
+// Devices Section
+const DevicesSection: React.FC = () => {
+  const [devices] = useState([
+    {
+      id: '1',
+      name: 'MacBook Pro',
+      type: 'desktop',
+      browser: 'Chrome 121',
+      location: 'San Francisco, CA',
+      lastActive: 'Active now',
+      isCurrent: true,
+      ip: '192.168.1.1',
+      trusted: true
+    },
+    {
+      id: '2',
+      name: 'iPhone 15 Pro',
+      type: 'mobile',
+      browser: 'Safari iOS',
+      location: 'San Francisco, CA',
+      lastActive: '2 hours ago',
+      isCurrent: false,
+      ip: '192.168.1.2',
+      trusted: true
+    },
+    {
+      id: '3',
+      name: 'Windows Desktop',
+      type: 'desktop',
+      browser: 'Firefox 122',
+      location: 'New York, NY',
+      lastActive: '3 days ago',
+      isCurrent: false,
+      ip: '203.0.113.45',
+      trusted: false
+    },
+    {
+      id: '4',
+      name: 'iPad Pro',
+      type: 'tablet',
+      browser: 'Safari iPadOS',
+      location: 'San Francisco, CA',
+      lastActive: '1 week ago',
+      isCurrent: false,
+      ip: '192.168.1.5',
+      trusted: true
+    }
+  ]);
 
-    {/* Theme Selector */}
-    <ThemeSelector />
+  const getDeviceIcon = (type: string) => {
+    switch (type) {
+      case 'mobile':
+        return (
+          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'tablet':
+        return (
+          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        );
+    }
+  };
 
-    {/* Additional Preferences placeholder */}
-    <div className="theme-card p-6 mt-6">
-      <h3 className="text-lg font-semibold text-text-primary mb-2">Display Settings</h3>
-      <p className="text-text-muted text-sm">
-        Additional display preferences coming soon.
-      </p>
+  const handleRevokeDevice = (deviceId: string) => {
+    alert(`Revoking access for device ${deviceId}`);
+  };
+
+  const handleRevokeAll = () => {
+    alert('Revoking access for all devices except current');
+  };
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-white mb-6">Connected Devices</h1>
+
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md mb-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-lg font-medium text-white">Active Sessions</h2>
+            <p className="text-gray-400 text-sm">Manage devices that have access to your account</p>
+          </div>
+          <button
+            onClick={handleRevokeAll}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+          >
+            Sign Out All Devices
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {devices.map((device) => (
+            <div
+              key={device.id}
+              className={`flex items-center justify-between p-4 rounded-lg ${
+                device.isCurrent ? 'bg-purple-900/30 border border-purple-500/30' : 'bg-gray-800'
+              }`}
+            >
+              <div className="flex items-center space-x-4">
+                <div className={`p-2 rounded-lg ${device.isCurrent ? 'bg-purple-600/30 text-purple-400' : 'bg-gray-700 text-gray-400'}`}>
+                  {getDeviceIcon(device.type)}
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-white font-medium">{device.name}</h3>
+                    {device.isCurrent && (
+                      <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">
+                        Current
+                      </span>
+                    )}
+                    {device.trusted && !device.isCurrent && (
+                      <span className="bg-blue-600/20 text-blue-400 text-xs px-2 py-0.5 rounded-full">
+                        Trusted
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-sm">{device.browser} • {device.location}</p>
+                  <p className="text-gray-500 text-xs mt-1">IP: {device.ip} • {device.lastActive}</p>
+                </div>
+              </div>
+
+              {!device.isCurrent && (
+                <button
+                  onClick={() => handleRevokeDevice(device.id)}
+                  className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                >
+                  Revoke Access
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+        <h2 className="text-lg font-medium text-white mb-4">Session Settings</h2>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Remember Trusted Devices</h4>
+              <p className="text-gray-400 text-sm">Skip 2FA on devices you've marked as trusted</p>
+            </div>
+            <Toggle checked={true} onChange={() => {}} />
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Auto Sign-Out</h4>
+              <p className="text-gray-400 text-sm">Automatically sign out after inactivity</p>
+            </div>
+            <select className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm">
+              <option>15 minutes</option>
+              <option>30 minutes</option>
+              <option>1 hour</option>
+              <option>4 hours</option>
+              <option>Never</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <h4 className="text-white font-medium">Login Notifications</h4>
+              <p className="text-gray-400 text-sm">Get notified of new device logins</p>
+            </div>
+            <Toggle checked={true} onChange={() => {}} />
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-const SubscriptionSection: React.FC = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-white mb-6">Subscription Management</h1>
-    <div className="bg-gray-900 rounded-xl p-6">
-      <p className="text-gray-300">Subscription management will be implemented here.</p>
+// Preferences Section
+const PreferencesSection: React.FC = () => {
+  const [tradingPreferences, setTradingPreferences] = useState({
+    defaultOrderType: 'market',
+    confirmOrders: true,
+    showEducationalTips: true,
+    autoRefreshData: true,
+    soundEffects: false,
+    compactMode: false
+  });
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-white mb-6">App Preferences</h1>
+
+      {/* Theme Selector */}
+      <ThemeSelector />
+
+      {/* Trading Preferences */}
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md mt-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Trading Preferences</h3>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Default Order Type</h4>
+              <p className="text-gray-400 text-sm">Pre-selected order type when trading</p>
+            </div>
+            <select
+              value={tradingPreferences.defaultOrderType}
+              onChange={(e) => setTradingPreferences(prev => ({ ...prev, defaultOrderType: e.target.value }))}
+              className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm"
+            >
+              <option value="market">Market Order</option>
+              <option value="limit">Limit Order</option>
+              <option value="stop">Stop Order</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Confirm Before Trading</h4>
+              <p className="text-gray-400 text-sm">Show confirmation dialog before placing orders</p>
+            </div>
+            <Toggle
+              checked={tradingPreferences.confirmOrders}
+              onChange={() => setTradingPreferences(prev => ({ ...prev, confirmOrders: !prev.confirmOrders }))}
+            />
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Show Educational Tips</h4>
+              <p className="text-gray-400 text-sm">Display helpful tips and explanations</p>
+            </div>
+            <Toggle
+              checked={tradingPreferences.showEducationalTips}
+              onChange={() => setTradingPreferences(prev => ({ ...prev, showEducationalTips: !prev.showEducationalTips }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Display Preferences */}
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md mt-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Display Settings</h3>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Auto-Refresh Data</h4>
+              <p className="text-gray-400 text-sm">Automatically refresh market data</p>
+            </div>
+            <Toggle
+              checked={tradingPreferences.autoRefreshData}
+              onChange={() => setTradingPreferences(prev => ({ ...prev, autoRefreshData: !prev.autoRefreshData }))}
+            />
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div>
+              <h4 className="text-white font-medium">Sound Effects</h4>
+              <p className="text-gray-400 text-sm">Play sounds for trades and alerts</p>
+            </div>
+            <Toggle
+              checked={tradingPreferences.soundEffects}
+              onChange={() => setTradingPreferences(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
+            />
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <h4 className="text-white font-medium">Compact Mode</h4>
+              <p className="text-gray-400 text-sm">Reduce spacing for more information density</p>
+            </div>
+            <Toggle
+              checked={tradingPreferences.compactMode}
+              onChange={() => setTradingPreferences(prev => ({ ...prev, compactMode: !prev.compactMode }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
+          Save Preferences
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+// Subscription Section
+const SubscriptionSection: React.FC = () => {
+  const [currentPlan] = useState({
+    name: 'Premium',
+    price: 9.99,
+    billingCycle: 'monthly',
+    nextBilling: 'March 15, 2025',
+    features: [
+      'Unlimited trades',
+      'Real-time market data',
+      'Advanced charting',
+      'AI trading signals',
+      'Priority support',
+      'API access'
+    ]
+  });
+
+  const plans = [
+    {
+      name: 'Basic',
+      price: 0,
+      period: 'Free forever',
+      features: ['5 trades/month', 'Delayed quotes (15 min)', 'Basic charts', 'Email support'],
+      current: false
+    },
+    {
+      name: 'Premium',
+      price: 9.99,
+      period: '/month',
+      features: ['Unlimited trades', 'Real-time data', 'Advanced charts', 'AI signals', 'Priority support', 'API access'],
+      current: true
+    },
+    {
+      name: 'Pro',
+      price: 29.99,
+      period: '/month',
+      features: ['Everything in Premium', 'Options trading', 'Level 2 data', 'Strategy backtesting', 'Dedicated manager', 'Custom alerts'],
+      current: false
+    }
+  ];
+
+  const billingHistory = [
+    { date: 'Feb 15, 2025', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
+    { date: 'Jan 15, 2025', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
+    { date: 'Dec 15, 2024', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
+    { date: 'Nov 15, 2024', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' }
+  ];
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-white mb-6">Subscription Management</h1>
+
+      {/* Current Plan */}
+      <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-6 border border-purple-500/30 mb-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-xl font-bold text-white">{currentPlan.name} Plan</h2>
+              <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">Active</span>
+            </div>
+            <p className="text-gray-300 mt-1">
+              ${currentPlan.price}/{currentPlan.billingCycle} • Next billing: {currentPlan.nextBilling}
+            </p>
+          </div>
+          <button className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+            Cancel Subscription
+          </button>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+          {currentPlan.features.map((feature, index) => (
+            <div key={index} className="flex items-center text-gray-300 text-sm">
+              <svg className="h-4 w-4 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {feature}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Available Plans */}
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md mb-6">
+        <h2 className="text-lg font-medium text-white mb-6">Available Plans</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className={`rounded-xl p-4 border ${
+                plan.current
+                  ? 'bg-purple-900/30 border-purple-500/50'
+                  : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+              } transition-colors`}
+            >
+              <h3 className="text-lg font-bold text-white">{plan.name}</h3>
+              <div className="mt-2">
+                <span className="text-3xl font-bold text-white">${plan.price}</span>
+                <span className="text-gray-400 text-sm">{plan.period}</span>
+              </div>
+
+              <ul className="mt-4 space-y-2">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-center text-gray-300 text-sm">
+                    <svg className="h-4 w-4 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                className={`w-full mt-4 py-2 rounded-lg text-sm transition-colors ${
+                  plan.current
+                    ? 'bg-purple-600 text-white cursor-default'
+                    : 'bg-gray-700 hover:bg-gray-600 text-white'
+                }`}
+                disabled={plan.current}
+              >
+                {plan.current ? 'Current Plan' : plan.price === 0 ? 'Downgrade' : 'Upgrade'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Billing History */}
+      <div className="bg-gray-900 rounded-xl p-6 shadow-md">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-medium text-white">Billing History</h2>
+          <button className="text-purple-400 hover:text-purple-300 text-sm transition-colors">
+            Download All Invoices
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-800">
+            <thead>
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Date</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Description</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Amount</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Invoice</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {billingHistory.map((item, index) => (
+                <tr key={index}>
+                  <td className="px-4 py-3 text-sm text-gray-300">{item.date}</td>
+                  <td className="px-4 py-3 text-sm text-gray-300">{item.description}</td>
+                  <td className="px-4 py-3 text-sm text-white font-medium">{item.amount}</td>
+                  <td className="px-4 py-3">
+                    <Badge variant="success" size="sm">{item.status}</Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button className="text-purple-400 hover:text-purple-300 text-sm transition-colors">
+                      Download
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const SettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');

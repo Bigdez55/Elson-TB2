@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store/store';
 import { checkAuth } from './store/slices/authSlice';
@@ -34,6 +34,19 @@ import CardPage from './pages/CardPage';
 import InsurancePage from './pages/InsurancePage';
 import RetirementPage from './pages/RetirementPage';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { ToastContainer } from './components/common/ToastContainer';
+import { BottomNav } from './components/mobile/BottomNav';
+
+// Scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 function App() {
   const dispatch = useDispatch();
@@ -65,6 +78,7 @@ function App() {
     <ThemeProvider>
       <TradingContextProvider>
         <TradingModeSync />
+        <ScrollToTop />
         <div className="App">
           <TradingModeBanner />
           <Routes>
@@ -179,6 +193,12 @@ function App() {
             (isAuthenticated && (window as any).__ENABLE_PERFORMANCE_DASHBOARD)) && (
             <PerformanceDashboard autoRefresh={true} refreshInterval={5000} />
           )}
+
+          {/* Toast Notifications */}
+          <ToastContainer />
+
+          {/* Mobile Bottom Navigation */}
+          {isAuthenticated && <BottomNav />}
         </div>
       </TradingContextProvider>
     </ThemeProvider>

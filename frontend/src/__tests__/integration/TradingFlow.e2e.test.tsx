@@ -62,8 +62,11 @@ const mockLocalStorage = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
+  clear: jest.fn(),
+  length: 0,
+  key: jest.fn(),
 };
-Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
+Object.defineProperty(window, 'localStorage', { value: mockLocalStorage, writable: true });
 
 // Mock window.confirm for trading confirmations
 const mockConfirm = jest.fn();

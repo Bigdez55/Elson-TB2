@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '../components/common/Badge';
+import { Skeleton, SkeletonStatsCard, SkeletonListItem } from '../components/common/Skeleton';
 
 interface FamilyMember {
   id: string;
@@ -32,12 +33,19 @@ interface ActivityItem {
 
 const FamilyAccountsPage: React.FC = () => {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [newMemberData, setNewMemberData] = useState({
     name: '',
     email: '',
     role: 'adult',
     accountType: 'individual'
   });
+
+  // Simulate loading for future API integration
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Mock data - replace with API calls
   const familyMembers: FamilyMember[] = [
@@ -203,6 +211,112 @@ const FamilyAccountsPage: React.FC = () => {
   const handleDeny = (approvalId: string) => {
     console.log('Denying:', approvalId);
   };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="bg-gray-800 min-h-screen p-6">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <Skeleton variant="text" width="200px" height="32px" className="mb-2" />
+            <Skeleton variant="text" width="300px" height="20px" />
+          </div>
+          <Skeleton variant="rectangular" width="180px" height="42px" className="rounded-lg" />
+        </div>
+
+        {/* Family Overview Stats Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonStatsCard key={i} />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Family Members List Skeleton */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-900 rounded-xl p-6">
+              <Skeleton variant="text" width="150px" height="24px" className="mb-6" />
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <Skeleton variant="circular" width="48px" height="48px" />
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Skeleton variant="text" width="120px" height="20px" />
+                          <Skeleton variant="rectangular" width="50px" height="20px" className="rounded" />
+                          <Skeleton variant="rectangular" width="50px" height="20px" className="rounded" />
+                        </div>
+                        <Skeleton variant="text" width="180px" height="16px" className="mb-1" />
+                        <Skeleton variant="text" width="100px" height="12px" />
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Skeleton variant="text" width="100px" height="20px" className="mb-1" />
+                      <Skeleton variant="text" width="80px" height="16px" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pending Approvals Skeleton */}
+            <div className="bg-gray-900 rounded-xl p-6 mt-6">
+              <Skeleton variant="text" width="180px" height="24px" className="mb-6" />
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="p-4 bg-gray-800 rounded-lg">
+                    <div className="flex justify-between mb-3">
+                      <div>
+                        <Skeleton variant="text" width="160px" height="20px" className="mb-1" />
+                        <Skeleton variant="text" width="100px" height="16px" />
+                      </div>
+                      <Skeleton variant="text" width="80px" height="14px" />
+                    </div>
+                    <Skeleton variant="text" width="100%" height="16px" className="mb-3" />
+                    <div className="flex gap-3">
+                      <Skeleton variant="rectangular" width="100%" height="40px" className="rounded-lg" />
+                      <Skeleton variant="rectangular" width="100%" height="40px" className="rounded-lg" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Activity Feed Skeleton */}
+          <div>
+            <div className="bg-gray-900 rounded-xl p-6">
+              <Skeleton variant="text" width="150px" height="24px" className="mb-6" />
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <Skeleton variant="circular" width="40px" height="40px" />
+                    <div className="flex-1">
+                      <Skeleton variant="text" width="100px" height="16px" className="mb-1" />
+                      <Skeleton variant="text" width="100%" height="14px" className="mb-1" />
+                      <Skeleton variant="text" width="60px" height="12px" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions Skeleton */}
+            <div className="bg-gray-900 rounded-xl p-6 mt-6">
+              <Skeleton variant="text" width="120px" height="24px" className="mb-4" />
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} variant="rectangular" width="100%" height="48px" className="rounded-lg" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-800 min-h-screen p-6">

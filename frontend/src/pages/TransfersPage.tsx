@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { EmptyState } from '../components/common/ErrorDisplay';
 
 interface LinkedAccount {
   id: string;
@@ -221,35 +222,51 @@ const TransfersPage: React.FC = () => {
                 <h2 className="text-xl font-semibold text-white">Transfer History</h2>
               </div>
               <div className="divide-y divide-gray-700">
-                {transferHistory.map((transfer) => (
-                  <div key={transfer.id} className="p-4 hover:bg-gray-800 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          transfer.type === 'Deposit' ? 'bg-green-900/30' : 'bg-red-900/30'
-                        }`}>
-                          <span className="text-xl">{transfer.type === 'Deposit' ? '💵' : '💸'}</span>
+                {transferHistory.length === 0 ? (
+                  <EmptyState
+                    icon={
+                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                      </svg>
+                    }
+                    title="No Transfer History"
+                    message="You haven't made any transfers yet. Deposit funds to start investing."
+                    action={{
+                      label: 'Make Your First Deposit',
+                      onClick: () => setActiveTab('deposit'),
+                    }}
+                  />
+                ) : (
+                  transferHistory.map((transfer) => (
+                    <div key={transfer.id} className="p-4 hover:bg-gray-800 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            transfer.type === 'Deposit' ? 'bg-green-900/30' : 'bg-red-900/30'
+                          }`}>
+                            <span className="text-xl">{transfer.type === 'Deposit' ? '💵' : '💸'}</span>
+                          </div>
+                          <div>
+                            <div className="text-white font-medium">{transfer.type}</div>
+                            <div className="text-sm text-gray-400">{transfer.account}</div>
+                            <div className="text-xs text-gray-500">{transfer.transferMethod}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-white font-medium">{transfer.type}</div>
-                          <div className="text-sm text-gray-400">{transfer.account}</div>
-                          <div className="text-xs text-gray-500">{transfer.transferMethod}</div>
+                        <div className="text-right">
+                          <div className={`text-lg font-semibold ${
+                            transfer.type === 'Deposit' ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {transfer.type === 'Deposit' ? '+' : '-'}${transfer.amount.toLocaleString()}
+                          </div>
+                          <div className="text-sm text-gray-400">{new Date(transfer.date).toLocaleDateString()}</div>
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusColor(transfer.status)}`}>
+                            {transfer.status}
+                          </span>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-lg font-semibold ${
-                          transfer.type === 'Deposit' ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {transfer.type === 'Deposit' ? '+' : '-'}${transfer.amount.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-400">{new Date(transfer.date).toLocaleDateString()}</div>
-                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusColor(transfer.status)}`}>
-                          {transfer.status}
-                        </span>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           )}

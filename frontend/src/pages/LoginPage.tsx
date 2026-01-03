@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { login, clearError } from '../store/slices/authSlice';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { LoadingSpinner, Logo } from '../components/common';
 
 const LoginPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -36,6 +36,9 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full">
         <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+        <div className="flex justify-center mb-6">
+          <Logo size="2xl" />
+        </div>
         <div>
           <h2 className="text-center text-3xl font-bold text-white mb-2">
             Sign in to Elson Trading

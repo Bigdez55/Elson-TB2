@@ -92,7 +92,7 @@ class Portfolio(Base):
     holdings = relationship("Holding", back_populates="portfolio")
     trades = relationship("Trade", back_populates="portfolio")
 
-    def get_daily_drawdown(self, session: Optional[Session] = None) -> Optional[Decimal]:
+    def get_daily_drawdown(self, session: Optional[Session] = None) -> Decimal:
         """
         Calculate the daily drawdown as a percentage of portfolio value.
 
@@ -100,12 +100,12 @@ class Portfolio(Base):
             session: Optional SQLAlchemy session for database queries
 
         Returns:
-            Daily drawdown as a decimal (e.g., 0.02 for 2%) or None if not available
+            Daily drawdown as a decimal (e.g., 0.02 for 2%), defaults to 0.0
         """
         try:
             if not session:
-                # If no session provided, use simplified calculation
-                return None
+                # If no session provided, return 0 (no drawdown can be calculated)
+                return Decimal("0")
 
             # Import here to avoid circular dependency
             from app.models.trade import Trade, TradeStatus
@@ -140,7 +140,7 @@ class Portfolio(Base):
 
         except Exception as e:
             logger.error(f"Error calculating daily drawdown: {str(e)}")
-            return None
+            return Decimal("0")
 
     def daily_loss_limit_reached(self, session: Optional[Session] = None, limit: Optional[Decimal] = None) -> bool:
         """
@@ -155,8 +155,6 @@ class Portfolio(Base):
         """
         try:
             drawdown = self.get_daily_drawdown(session)
-            if drawdown is None:
-                return False
 
             # Default limit is 2%
             if limit is None:

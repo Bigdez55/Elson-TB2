@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Skeleton, SkeletonCard, SkeletonListItem } from '../components/common/Skeleton';
 
 interface Stock {
   symbol: string;
@@ -22,6 +23,13 @@ const DiscoverPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<'trending' | 'gainers' | 'losers' | 'volume'>('trending');
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 1000 });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading for future API integration
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Mock trending stocks
   const trendingStocks: Stock[] = [
@@ -87,6 +95,87 @@ const DiscoverPage: React.FC = () => {
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
   };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="bg-gray-800 min-h-screen p-6">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <Skeleton variant="text" width="250px" height="36px" className="mb-2" />
+          <Skeleton variant="text" width="400px" height="20px" />
+        </div>
+
+        {/* Category Tabs Skeleton */}
+        <div className="mb-6">
+          <div className="inline-flex space-x-2 bg-gray-900 p-2 rounded-lg">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} variant="rectangular" width="120px" height="40px" className="rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Stock List Skeleton */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-900 rounded-xl overflow-hidden">
+              <div className="p-4 border-b border-gray-700">
+                <Skeleton variant="text" width="200px" height="28px" />
+              </div>
+              <div className="divide-y divide-gray-700">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Skeleton variant="rectangular" width="40px" height="40px" className="rounded-lg" />
+                        <div>
+                          <Skeleton variant="text" width="60px" height="20px" className="mb-1" />
+                          <Skeleton variant="text" width="120px" height="16px" />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Skeleton variant="text" width="80px" height="20px" className="mb-1" />
+                        <Skeleton variant="text" width="100px" height="16px" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="space-y-6">
+            {/* Sector Performance Skeleton */}
+            <div className="bg-gray-900 rounded-xl p-4">
+              <Skeleton variant="text" width="180px" height="24px" className="mb-4" />
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-gray-800 rounded-lg p-3 mb-3">
+                  <div className="flex justify-between mb-2">
+                    <Skeleton variant="text" width="80px" height="18px" />
+                    <Skeleton variant="text" width="50px" height="18px" />
+                  </div>
+                  <Skeleton variant="rectangular" width="100%" height="8px" className="rounded-full" />
+                </div>
+              ))}
+            </div>
+
+            {/* Market Stats Skeleton */}
+            <div className="bg-gray-900 rounded-xl p-4">
+              <Skeleton variant="text" width="150px" height="24px" className="mb-4" />
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-gray-800 rounded-lg p-3 mb-3">
+                  <Skeleton variant="text" width="60px" height="14px" className="mb-1" />
+                  <Skeleton variant="text" width="100px" height="28px" className="mb-1" />
+                  <Skeleton variant="text" width="80px" height="14px" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-800 min-h-screen p-6">

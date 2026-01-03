@@ -274,7 +274,18 @@ class MicroInvestService:
         try:
             # Create trade directly since we don't have dollar-based investment service
             current_price = self.market_data.get_current_price(symbol)
-            shares = float(total_amount) / current_price if current_price > 0 else 0
+
+            # Validate we can calculate a valid share quantity
+            if current_price <= 0:
+                raise ValueError(f"Invalid price for {symbol}: {current_price}")
+
+            shares = float(total_amount) / current_price
+
+            # Validate that we have a meaningful quantity to trade
+            if shares <= 0:
+                raise ValueError(
+                    f"Investment amount ${total_amount:.2f} too small to purchase any shares of {symbol} at ${current_price:.2f}"
+                )
 
             trade = Trade(
                 user_id=user_id,
@@ -426,14 +437,19 @@ class MicroInvestService:
     # Scheduled Processing
 
     def process_scheduled_roundups(self) -> Dict[str, Any]:
-        """Process scheduled roundups based on frequency."""
+        """Process scheduled roundups based on frequency.
+
+        Includes idempotency checks to prevent double-processing on the same day.
+        """
         now = datetime.utcnow()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         result = {
             "daily": 0,
             "weekly": 0,
             "threshold": 0,
             "total_invested": 0,
             "errors": 0,
+            "skipped_already_processed": 0,
         }
 
         # Get all users with enabled roundups
@@ -464,6 +480,26 @@ class MicroInvestService:
                     _, total_amount = self.get_pending_roundups(settings.user_id)
                     if total_amount >= settings.roundup_threshold:
                         process_now = True
+
+                # Idempotency check: Skip if already processed today for daily/weekly
+                if process_now and settings.roundup_frequency in [RoundupFrequency.DAILY, RoundupFrequency.WEEKLY]:
+                    # Check if we already have an invested roundup today for this user
+                    already_processed = (
+                        self.db.query(RoundupTransaction)
+                        .filter(
+                            RoundupTransaction.user_id == settings.user_id,
+                            RoundupTransaction.status == "invested",
+                            RoundupTransaction.invested_at >= today_start,
+                        )
+                        .first()
+                    )
+
+                    if already_processed:
+                        logger.info(
+                            f"Skipping user {settings.user_id}: already processed roundups today"
+                        )
+                        result["skipped_already_processed"] += 1
+                        continue
 
                 # Process if needed
                 if process_now:

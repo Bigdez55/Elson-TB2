@@ -19,6 +19,7 @@ import { LivePortfolioUpdates, CompactPortfolioUpdates } from '../components/tra
 import { LiveOrderUpdates } from '../components/trading/LiveOrderUpdates';
 import { TradingModeStatusAlert, RiskLimitWarning } from '../components/trading/TradingSafeguards';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { Skeleton, SkeletonChart, SkeletonCard } from '../components/common/Skeleton';
 
 const TradingPage: React.FC = () => {
   const { symbol: urlSymbol } = useParams<{ symbol: string }>();
@@ -218,8 +219,56 @@ const TradingPage: React.FC = () => {
   // Error and loading states
   if (isQuoteLoading && !quoteData) {
     return (
-      <div className="bg-gray-800 min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
+      <div className="bg-gray-800 min-h-screen flex">
+        {/* Skeleton Sidebar */}
+        <div className="w-64 bg-gray-900 p-4 space-y-4">
+          <Skeleton variant="text" width="60%" height={24} />
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center space-x-2 p-2">
+                <Skeleton variant="circular" width={32} height={32} />
+                <div className="flex-1">
+                  <Skeleton variant="text" width="80%" height={16} />
+                  <Skeleton variant="text" width="50%" height={12} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="flex-1 p-6 space-y-6">
+          {/* Stock Header Skeleton */}
+          <div className="flex items-center space-x-4">
+            <Skeleton variant="circular" width={48} height={48} />
+            <div>
+              <Skeleton variant="text" width={150} height={28} />
+              <Skeleton variant="text" width={200} height={16} />
+            </div>
+            <div className="ml-auto text-right">
+              <Skeleton variant="text" width={100} height={32} />
+              <Skeleton variant="text" width={80} height={16} />
+            </div>
+          </div>
+
+          {/* Chart Skeleton */}
+          <SkeletonChart className="h-80" />
+
+          {/* Order Form Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <SkeletonCard />
+            </div>
+            <div>
+              <div className="bg-gray-800 rounded-lg p-4 space-y-4">
+                <Skeleton variant="text" width="50%" height={20} />
+                <Skeleton variant="rectangular" width="100%" height={40} className="rounded-lg" />
+                <Skeleton variant="rectangular" width="100%" height={40} className="rounded-lg" />
+                <Skeleton variant="rectangular" width="100%" height={48} className="rounded-lg" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

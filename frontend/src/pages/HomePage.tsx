@@ -74,8 +74,8 @@ const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <Logo size="md" />
-              <span className="ml-3 text-xl font-bold text-white">Elson</span>
+              <Logo size="lg" />
+              <span className="ml-3 text-2xl font-bold text-white">Elson</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
@@ -294,7 +294,7 @@ const HomePage: React.FC = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <Logo size="md" />
+                <Logo size="xl" />
                 <span className="ml-3 text-xl font-bold text-white">Elson</span>
               </div>
               <p className="text-gray-400 text-sm">
