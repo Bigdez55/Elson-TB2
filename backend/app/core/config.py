@@ -1,10 +1,52 @@
 import os
+import json
 from typing import List, Optional, Dict
 from functools import lru_cache
 from enum import Enum
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
+
+
+def _parse_origins(env_value: str) -> List[str]:
+    """Parse ALLOWED_ORIGINS from environment variable.
+
+    Accepts:
+    - JSON array: '["https://example.com", "https://other.com"]'
+    - Comma-separated: 'https://example.com,https://other.com'
+    - Empty: falls back to defaults
+    """
+    default_origins = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "https://localhost:3000",
+        "https://localhost:8000",
+        "https://elson-tb-2.vercel.app",
+        "https://elson-tb-2-*.vercel.app",
+        # Cloud Run URLs (GCP)
+        "https://elson-frontend-*.run.app",
+        "https://elson-backend-*.run.app",
+        "https://*.us-west1.run.app",
+        "https://*.us-central1.run.app",
+    ]
+
+    if not env_value:
+        return default_origins
+
+    # Try JSON array first
+    try:
+        origins = json.loads(env_value)
+        if isinstance(origins, list):
+            return origins
+    except json.JSONDecodeError:
+        pass
+
+    # Try comma-separated
+    if "," in env_value:
+        return [o.strip() for o in env_value.split(",") if o.strip()]
+
+    # Single value
+    return [env_value.strip()] if env_value.strip() else default_origins
 
 
 class BrokerEnum(str, Enum):
@@ -60,16 +102,9 @@ class Settings(BaseSettings):
     PAPER_TRADING_COMMISSION: float = 0.99  # Fixed commission per trade
     PAPER_TRADING_DELAY_SECONDS: int = 1  # Simulated execution delay
 
-    # CORS
+    # CORS - can be set via ALLOWED_ORIGINS env var as JSON array
     ALLOWED_HOSTS: List[str] = ["*"]
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "https://localhost:3000",
-        "https://localhost:8000",
-        "https://elson-tb-2.vercel.app",
-        "https://elson-tb-2-*.vercel.app",  # Preview deployments
-    ]
+    ALLOWED_ORIGINS: List[str] = _parse_origins(os.getenv("ALLOWED_ORIGINS", ""))
 
     # API Keys
     ALPHA_VANTAGE_API_KEY: Optional[str] = os.getenv("ALPHA_VANTAGE_API_KEY")
