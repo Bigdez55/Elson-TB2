@@ -167,13 +167,13 @@ const DiscoverPage: React.FC = () => {
     setError(null);
     try {
       // Combine all unique symbols
-      const allSymbols = [...new Set([
+      const allSymbols = Array.from(new Set([
         ...selections.trending,
         ...selections.techGiants,
         ...selections.finance,
         ...selections.healthcare,
         ...selections.consumer,
-      ])];
+      ]));
 
       const stockData = await fetchMarketData(allSymbols);
       setStocks(stockData);
