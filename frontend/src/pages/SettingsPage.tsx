@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Toggle } from '../components/common/Toggle';
 import { Badge } from '../components/common/Badge';
 import { ThemeSelector } from '../components/settings/ThemeSelector';
+import { RootState } from '../store';
 
 interface SettingsSidebarProps {
   activeSection: string;
@@ -58,20 +60,52 @@ const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ activeSection, onSect
 };
 
 const ProfileSection: React.FC = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // Parse full_name into first and last name
+  const nameParts = user?.full_name?.split(' ') || ['', ''];
+  const defaultFirstName = nameParts[0] || '';
+  const defaultLastName = nameParts.slice(1).join(' ') || '';
+
   const [formData, setFormData] = useState({
-    firstName: 'Alex',
-    lastName: 'Morgan',
-    email: 'alex.morgan@example.com',
-    phone: '+1 (555) 123-4567',
-    dateOfBirth: '05/12/1985',
-    address: '123 Trading Street\nSan Francisco, CA 94107\nUnited States',
-    taxId: '***-**-7890',
-    taxClassification: 'Individual'
+    firstName: defaultFirstName,
+    lastName: defaultLastName,
+    email: user?.email || '',
+    phone: user?.phone || '',
+    dateOfBirth: user?.date_of_birth || '',
+    address: user?.address || '',
+    taxId: user?.tax_id ? '***-**-' + user.tax_id.slice(-4) : '',
+    taxClassification: user?.tax_classification || 'Individual'
   });
+
+  // Update form when user data changes
+  useEffect(() => {
+    if (user) {
+      const nameParts = user.full_name?.split(' ') || ['', ''];
+      setFormData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dateOfBirth: user.date_of_birth || '',
+        address: user.address || '',
+        taxId: user.tax_id ? '***-**-' + user.tax_id.slice(-4) : '',
+        taxClassification: user.tax_classification || 'Individual'
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  // Generate initials for avatar
+  const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase() || 'U';
+
+  // Format member since date
+  const memberSince = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'N/A';
 
   return (
     <div>
@@ -205,35 +239,37 @@ const ProfileSection: React.FC = () => {
           <div className="bg-gray-900 rounded-xl p-6 shadow-md">
             <div className="text-center mb-6">
               <div className="h-24 w-24 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 mx-auto flex items-center justify-center">
-                <span className="text-white text-2xl font-bold">AM</span>
+                <span className="text-white text-2xl font-bold">{initials}</span>
               </div>
               <button className="text-purple-400 hover:text-purple-300 mt-4 text-sm transition-colors">
                 Change Avatar
               </button>
             </div>
-            
+
             <div className="border-t border-gray-800 pt-6">
               <h3 className="text-lg font-medium text-white mb-4">Account Information</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Member Since</span>
-                  <span className="text-white text-sm">January 15, 2023</span>
+                  <span className="text-white text-sm">{memberSince}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Account Type</span>
-                  <span className="text-white text-sm">Premium</span>
+                  <span className="text-white text-sm">{user?.subscription_tier || 'Paper Trading'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Account Status</span>
-                  <span className="text-green-400 text-sm">Active</span>
+                  <span className={`text-sm ${user?.is_active ? 'text-green-400' : 'text-red-400'}`}>
+                    {user?.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Account ID</span>
-                  <span className="text-white text-sm">ELS-78502</span>
+                  <span className="text-white text-sm">ELS-{user?.id?.toString().padStart(5, '0') || '00000'}</span>
                 </div>
               </div>
             </div>
-            
+
             <div className="border-t border-gray-800 pt-6 mt-6">
               <button className="w-full bg-red-900 hover:bg-red-800 text-red-200 px-4 py-2 rounded-lg text-sm transition-colors">
                 Deactivate Account
