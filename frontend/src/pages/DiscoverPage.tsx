@@ -19,16 +19,68 @@ interface Sector {
   companies: number;
 }
 
-// Popular stocks to fetch - these are real tickers
-const POPULAR_STOCKS_INFO: Record<string, { name: string; sector: string }> = {
+// Large pool of popular stocks to cycle through
+const ALL_STOCKS_INFO: Record<string, { name: string; sector: string }> = {
+  // Technology
   'AAPL': { name: 'Apple Inc', sector: 'Technology' },
   'MSFT': { name: 'Microsoft Corp', sector: 'Technology' },
   'GOOGL': { name: 'Alphabet Inc', sector: 'Technology' },
-  'AMZN': { name: 'Amazon.com Inc', sector: 'Consumer' },
   'NVDA': { name: 'NVIDIA Corp', sector: 'Technology' },
-  'TSLA': { name: 'Tesla Inc', sector: 'Automotive' },
   'META': { name: 'Meta Platforms', sector: 'Technology' },
+  'AVGO': { name: 'Broadcom Inc', sector: 'Technology' },
+  'ORCL': { name: 'Oracle Corp', sector: 'Technology' },
+  'CRM': { name: 'Salesforce Inc', sector: 'Technology' },
+  'AMD': { name: 'AMD Inc', sector: 'Technology' },
+  'INTC': { name: 'Intel Corp', sector: 'Technology' },
+  'CSCO': { name: 'Cisco Systems', sector: 'Technology' },
+  'IBM': { name: 'IBM Corp', sector: 'Technology' },
+  // Consumer
+  'AMZN': { name: 'Amazon.com Inc', sector: 'Consumer' },
+  'WMT': { name: 'Walmart Inc', sector: 'Consumer' },
+  'HD': { name: 'Home Depot', sector: 'Consumer' },
+  'COST': { name: 'Costco Wholesale', sector: 'Consumer' },
+  'NKE': { name: 'Nike Inc', sector: 'Consumer' },
+  'MCD': { name: 'McDonalds Corp', sector: 'Consumer' },
+  'SBUX': { name: 'Starbucks Corp', sector: 'Consumer' },
+  'TGT': { name: 'Target Corp', sector: 'Consumer' },
+  // Finance
   'JPM': { name: 'JPMorgan Chase', sector: 'Finance' },
+  'BAC': { name: 'Bank of America', sector: 'Finance' },
+  'WFC': { name: 'Wells Fargo', sector: 'Finance' },
+  'GS': { name: 'Goldman Sachs', sector: 'Finance' },
+  'MS': { name: 'Morgan Stanley', sector: 'Finance' },
+  'V': { name: 'Visa Inc', sector: 'Finance' },
+  'MA': { name: 'Mastercard Inc', sector: 'Finance' },
+  'AXP': { name: 'American Express', sector: 'Finance' },
+  // Healthcare
+  'JNJ': { name: 'Johnson & Johnson', sector: 'Healthcare' },
+  'UNH': { name: 'UnitedHealth Group', sector: 'Healthcare' },
+  'PFE': { name: 'Pfizer Inc', sector: 'Healthcare' },
+  'MRK': { name: 'Merck & Co', sector: 'Healthcare' },
+  'ABBV': { name: 'AbbVie Inc', sector: 'Healthcare' },
+  'LLY': { name: 'Eli Lilly', sector: 'Healthcare' },
+  // Automotive & Industrial
+  'TSLA': { name: 'Tesla Inc', sector: 'Automotive' },
+  'F': { name: 'Ford Motor', sector: 'Automotive' },
+  'GM': { name: 'General Motors', sector: 'Automotive' },
+  'CAT': { name: 'Caterpillar Inc', sector: 'Industrial' },
+  'BA': { name: 'Boeing Co', sector: 'Industrial' },
+  'GE': { name: 'General Electric', sector: 'Industrial' },
+  // Energy
+  'XOM': { name: 'Exxon Mobil', sector: 'Energy' },
+  'CVX': { name: 'Chevron Corp', sector: 'Energy' },
+  // Entertainment & Communication
+  'DIS': { name: 'Walt Disney Co', sector: 'Entertainment' },
+  'NFLX': { name: 'Netflix Inc', sector: 'Entertainment' },
+  'T': { name: 'AT&T Inc', sector: 'Communication' },
+  'VZ': { name: 'Verizon', sector: 'Communication' },
+};
+
+// Function to get random stocks from the pool
+const getRandomStocks = (count: number = 8): string[] => {
+  const allSymbols = Object.keys(ALL_STOCKS_INFO);
+  const shuffled = [...allSymbols].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 };
 
 const DiscoverPage: React.FC = () => {
@@ -38,13 +90,14 @@ const DiscoverPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Random stocks selected on component mount - changes on each page visit
+  const [selectedSymbols] = useState<string[]>(() => getRandomStocks(8));
 
   // Fetch real market data from API
   const fetchMarketData = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const baseUrl = process.env.REACT_APP_API_URL || '/api/v1';
-      const symbols = Object.keys(POPULAR_STOCKS_INFO);
 
       const response = await fetch(`${baseUrl}/market-data/quotes`, {
         method: 'POST',
@@ -52,7 +105,7 @@ const DiscoverPage: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(symbols),
+        body: JSON.stringify(selectedSymbols),
       });
 
       if (!response.ok) {
@@ -62,7 +115,7 @@ const DiscoverPage: React.FC = () => {
       const data = await response.json();
 
       const stockData: Stock[] = (data.quotes || []).map((quote: any) => {
-        const info = POPULAR_STOCKS_INFO[quote.symbol] || { name: quote.symbol, sector: 'Unknown' };
+        const info = ALL_STOCKS_INFO[quote.symbol] || { name: quote.symbol, sector: 'Unknown' };
         return {
           symbol: quote.symbol,
           name: info.name,
@@ -83,7 +136,7 @@ const DiscoverPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedSymbols]);
 
   useEffect(() => {
     fetchMarketData();
