@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Skeleton, SkeletonCard, SkeletonListItem } from '../components/common/Skeleton';
 
@@ -19,67 +19,155 @@ interface Sector {
   companies: number;
 }
 
+// Large pool of popular stocks to cycle through
+const ALL_STOCKS_INFO: Record<string, { name: string; sector: string }> = {
+  // Technology
+  'AAPL': { name: 'Apple Inc', sector: 'Technology' },
+  'MSFT': { name: 'Microsoft Corp', sector: 'Technology' },
+  'GOOGL': { name: 'Alphabet Inc', sector: 'Technology' },
+  'NVDA': { name: 'NVIDIA Corp', sector: 'Technology' },
+  'META': { name: 'Meta Platforms', sector: 'Technology' },
+  'AVGO': { name: 'Broadcom Inc', sector: 'Technology' },
+  'ORCL': { name: 'Oracle Corp', sector: 'Technology' },
+  'CRM': { name: 'Salesforce Inc', sector: 'Technology' },
+  'AMD': { name: 'AMD Inc', sector: 'Technology' },
+  'INTC': { name: 'Intel Corp', sector: 'Technology' },
+  'CSCO': { name: 'Cisco Systems', sector: 'Technology' },
+  'IBM': { name: 'IBM Corp', sector: 'Technology' },
+  // Consumer
+  'AMZN': { name: 'Amazon.com Inc', sector: 'Consumer' },
+  'WMT': { name: 'Walmart Inc', sector: 'Consumer' },
+  'HD': { name: 'Home Depot', sector: 'Consumer' },
+  'COST': { name: 'Costco Wholesale', sector: 'Consumer' },
+  'NKE': { name: 'Nike Inc', sector: 'Consumer' },
+  'MCD': { name: 'McDonalds Corp', sector: 'Consumer' },
+  'SBUX': { name: 'Starbucks Corp', sector: 'Consumer' },
+  'TGT': { name: 'Target Corp', sector: 'Consumer' },
+  // Finance
+  'JPM': { name: 'JPMorgan Chase', sector: 'Finance' },
+  'BAC': { name: 'Bank of America', sector: 'Finance' },
+  'WFC': { name: 'Wells Fargo', sector: 'Finance' },
+  'GS': { name: 'Goldman Sachs', sector: 'Finance' },
+  'MS': { name: 'Morgan Stanley', sector: 'Finance' },
+  'V': { name: 'Visa Inc', sector: 'Finance' },
+  'MA': { name: 'Mastercard Inc', sector: 'Finance' },
+  'AXP': { name: 'American Express', sector: 'Finance' },
+  // Healthcare
+  'JNJ': { name: 'Johnson & Johnson', sector: 'Healthcare' },
+  'UNH': { name: 'UnitedHealth Group', sector: 'Healthcare' },
+  'PFE': { name: 'Pfizer Inc', sector: 'Healthcare' },
+  'MRK': { name: 'Merck & Co', sector: 'Healthcare' },
+  'ABBV': { name: 'AbbVie Inc', sector: 'Healthcare' },
+  'LLY': { name: 'Eli Lilly', sector: 'Healthcare' },
+  // Automotive & Industrial
+  'TSLA': { name: 'Tesla Inc', sector: 'Automotive' },
+  'F': { name: 'Ford Motor', sector: 'Automotive' },
+  'GM': { name: 'General Motors', sector: 'Automotive' },
+  'CAT': { name: 'Caterpillar Inc', sector: 'Industrial' },
+  'BA': { name: 'Boeing Co', sector: 'Industrial' },
+  'GE': { name: 'General Electric', sector: 'Industrial' },
+  // Energy
+  'XOM': { name: 'Exxon Mobil', sector: 'Energy' },
+  'CVX': { name: 'Chevron Corp', sector: 'Energy' },
+  // Entertainment & Communication
+  'DIS': { name: 'Walt Disney Co', sector: 'Entertainment' },
+  'NFLX': { name: 'Netflix Inc', sector: 'Entertainment' },
+  'T': { name: 'AT&T Inc', sector: 'Communication' },
+  'VZ': { name: 'Verizon', sector: 'Communication' },
+};
+
+// Function to get random stocks from the pool
+const getRandomStocks = (count: number = 8): string[] => {
+  const allSymbols = Object.keys(ALL_STOCKS_INFO);
+  const shuffled = [...allSymbols].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+};
+
 const DiscoverPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<'trending' | 'gainers' | 'losers' | 'volume'>('trending');
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 1000 });
   const [isLoading, setIsLoading] = useState(true);
+  const [stocks, setStocks] = useState<Stock[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  // Random stocks selected on component mount - changes on each page visit
+  const [selectedSymbols] = useState<string[]>(() => getRandomStocks(8));
 
-  // Simulate loading for future API integration
+  // Fetch real market data from API
+  const fetchMarketData = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const baseUrl = process.env.REACT_APP_API_URL || '/api/v1';
+
+      const response = await fetch(`${baseUrl}/market-data/quotes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(selectedSymbols),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch market data');
+      }
+
+      const data = await response.json();
+
+      const stockData: Stock[] = (data.quotes || []).map((quote: any) => {
+        const info = ALL_STOCKS_INFO[quote.symbol] || { name: quote.symbol, sector: 'Unknown' };
+        return {
+          symbol: quote.symbol,
+          name: info.name,
+          price: quote.price || 0,
+          change: quote.change || 0,
+          changePercent: quote.change_percent || 0,
+          volume: quote.volume || 0,
+          marketCap: 0,
+          sector: info.sector,
+        };
+      });
+
+      setStocks(stockData);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching market data:', err);
+      setError('Unable to load live market data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedSymbols]);
+
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchMarketData();
+    // Refresh market data every 60 seconds
+    const interval = setInterval(fetchMarketData, 60000);
+    return () => clearInterval(interval);
+  }, [fetchMarketData]);
 
-  // Mock trending stocks
-  const trendingStocks: Stock[] = [
-    { symbol: 'TSLA', name: 'Tesla Inc', price: 242.84, change: 12.45, changePercent: 5.4, volume: 125000000, marketCap: 770000000000, sector: 'Technology' },
-    { symbol: 'NVDA', name: 'NVIDIA Corp', price: 495.22, change: 18.90, changePercent: 4.0, volume: 98000000, marketCap: 1200000000000, sector: 'Technology' },
-    { symbol: 'AAPL', name: 'Apple Inc', price: 189.25, change: 3.20, changePercent: 1.7, volume: 85000000, marketCap: 2900000000000, sector: 'Technology' },
-    { symbol: 'AMZN', name: 'Amazon.com Inc', price: 178.35, change: 5.60, changePercent: 3.2, volume: 72000000, marketCap: 1800000000000, sector: 'Consumer' },
-    { symbol: 'MSFT', name: 'Microsoft Corp', price: 415.26, change: 8.15, changePercent: 2.0, volume: 65000000, marketCap: 3100000000000, sector: 'Technology' },
-    { symbol: 'GOOGL', name: 'Alphabet Inc', price: 175.43, change: 4.22, changePercent: 2.5, volume: 58000000, marketCap: 2200000000000, sector: 'Technology' },
-  ];
-
-  const topGainers: Stock[] = [
-    { symbol: 'GME', name: 'GameStop Corp', price: 24.55, change: 5.20, changePercent: 26.8, volume: 45000000, marketCap: 8500000000, sector: 'Consumer' },
-    { symbol: 'AMC', name: 'AMC Entertainment', price: 8.90, change: 1.85, changePercent: 26.2, volume: 62000000, marketCap: 4500000000, sector: 'Entertainment' },
-    { symbol: 'PLTR', name: 'Palantir Technologies', price: 28.40, change: 3.80, changePercent: 15.4, volume: 38000000, marketCap: 58000000000, sector: 'Technology' },
-  ];
-
-  const topLosers: Stock[] = [
-    { symbol: 'RIVN', name: 'Rivian Automotive', price: 18.20, change: -2.85, changePercent: -13.5, volume: 35000000, marketCap: 18000000000, sector: 'Automotive' },
-    { symbol: 'LCID', name: 'Lucid Group Inc', price: 3.45, change: -0.48, changePercent: -12.2, volume: 28000000, marketCap: 7500000000, sector: 'Automotive' },
-    { symbol: 'COIN', name: 'Coinbase Global', price: 198.50, change: -18.30, changePercent: -8.4, volume: 22000000, marketCap: 48000000000, sector: 'Finance' },
-  ];
-
-  const mostActive: Stock[] = [
-    { symbol: 'SPY', name: 'SPDR S&P 500 ETF', price: 458.12, change: 2.45, changePercent: 0.5, volume: 180000000, marketCap: 450000000000, sector: 'ETF' },
-    { symbol: 'QQQ', name: 'Invesco QQQ Trust', price: 389.55, change: 4.20, changePercent: 1.1, volume: 125000000, marketCap: 220000000000, sector: 'ETF' },
-    { symbol: 'TSLA', name: 'Tesla Inc', price: 242.84, change: 12.45, changePercent: 5.4, volume: 125000000, marketCap: 770000000000, sector: 'Technology' },
-  ];
-
+  // Sector performance is calculated from live data
   const sectors: Sector[] = [
-    { name: 'Technology', performance: 12.5, companies: 1250 },
-    { name: 'Healthcare', performance: 8.2, companies: 850 },
-    { name: 'Finance', performance: 5.8, companies: 920 },
-    { name: 'Consumer', performance: 7.4, companies: 1100 },
-    { name: 'Energy', performance: -3.2, companies: 380 },
-    { name: 'Industrials', performance: 4.6, companies: 670 },
+    { name: 'Technology', performance: 0, companies: 0 },
+    { name: 'Finance', performance: 0, companies: 0 },
+    { name: 'Consumer', performance: 0, companies: 0 },
+    { name: 'Automotive', performance: 0, companies: 0 },
   ];
 
+  // Get stocks sorted/filtered by category
   const getCurrentStocks = () => {
+    if (stocks.length === 0) return [];
+
+    const sortedStocks = [...stocks];
     switch (selectedCategory) {
-      case 'trending':
-        return trendingStocks;
       case 'gainers':
-        return topGainers;
+        return sortedStocks.filter(s => s.changePercent > 0).sort((a, b) => b.changePercent - a.changePercent);
       case 'losers':
-        return topLosers;
+        return sortedStocks.filter(s => s.changePercent < 0).sort((a, b) => a.changePercent - b.changePercent);
       case 'volume':
-        return mostActive;
+        return sortedStocks.sort((a, b) => b.volume - a.volume);
+      case 'trending':
       default:
-        return trendingStocks;
+        return sortedStocks;
     }
   };
 
@@ -223,39 +311,69 @@ const DiscoverPage: React.FC = () => {
                 {selectedCategory === 'volume' && '📊 Most Active'}
               </h2>
             </div>
-            <div className="divide-y divide-gray-700">
-              {getCurrentStocks().map((stock) => (
-                <Link
-                  key={stock.symbol}
-                  to={`/paper/trading/${stock.symbol}`}
-                  className="block p-4 hover:bg-gray-800 transition-colors"
+            {error ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-white font-medium mb-2">Unable to Load Market Data</h3>
+                <p className="text-gray-400 text-sm mb-4">{error}</p>
+                <button
+                  onClick={() => { setIsLoading(true); fetchMarketData(); }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">{stock.symbol.substring(0, 2)}</span>
-                        </div>
-                        <div>
-                          <h3 className="text-white font-semibold">{stock.symbol}</h3>
-                          <p className="text-sm text-gray-400">{stock.name}</p>
+                  Try Again
+                </button>
+              </div>
+            ) : getCurrentStocks().length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">📊</span>
+                </div>
+                <h3 className="text-white font-medium mb-2">No Stocks to Display</h3>
+                <p className="text-gray-400 text-sm">
+                  {selectedCategory === 'gainers' && 'No stocks are currently showing gains.'}
+                  {selectedCategory === 'losers' && 'No stocks are currently showing losses.'}
+                  {(selectedCategory === 'trending' || selectedCategory === 'volume') && 'Market data is loading...'}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-700">
+                {getCurrentStocks().map((stock) => (
+                  <Link
+                    key={stock.symbol}
+                    to={`/paper/trading/${stock.symbol}`}
+                    className="block p-4 hover:bg-gray-800 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">{stock.symbol.substring(0, 2)}</span>
+                          </div>
+                          <div>
+                            <h3 className="text-white font-semibold">{stock.symbol}</h3>
+                            <p className="text-sm text-gray-400">{stock.name}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right mr-6">
-                      <div className="text-white font-semibold">${stock.price.toFixed(2)}</div>
-                      <div className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
+                      <div className="text-right mr-6">
+                        <div className="text-white font-semibold">${stock.price.toFixed(2)}</div>
+                        <div className={`text-sm font-medium ${stock.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-400">Vol: {formatVolume(stock.volume)}</div>
+                        <div className="text-sm text-gray-400">Cap: {formatNumber(stock.marketCap)}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-400">Vol: {formatVolume(stock.volume)}</div>
-                      <div className="text-sm text-gray-400">Cap: {formatNumber(stock.marketCap)}</div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -264,22 +382,13 @@ const DiscoverPage: React.FC = () => {
           {/* Sector Performance */}
           <div className="bg-gray-900 rounded-xl p-4">
             <h3 className="text-lg font-semibold text-white mb-4">📊 Sector Performance</h3>
-            <div className="space-y-3">
-              {sectors.map((sector) => (
-                <div key={sector.name} className="bg-gray-800 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white font-medium">{sector.name}</span>
-                    <span className={`text-sm font-semibold ${sector.performance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {sector.performance >= 0 ? '+' : ''}{sector.performance.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${sector.performance >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
-                      style={{ width: `${Math.min(100, Math.abs(sector.performance) * 5)}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-gray-400 mt-1">{sector.companies} companies</div>
+            <p className="text-gray-400 text-sm mb-4">
+              Detailed sector analysis and performance metrics coming soon.
+            </p>
+            <div className="space-y-2">
+              {['Technology', 'Finance', 'Consumer', 'Healthcare'].map((sector) => (
+                <div key={sector} className="bg-gray-800 rounded-lg p-2 px-3">
+                  <span className="text-gray-300 text-sm">{sector}</span>
                 </div>
               ))}
             </div>
@@ -288,46 +397,28 @@ const DiscoverPage: React.FC = () => {
           {/* Market Stats */}
           <div className="bg-gray-900 rounded-xl p-4">
             <h3 className="text-lg font-semibold text-white mb-4">📈 Market Overview</h3>
-            <div className="space-y-3">
-              <div className="bg-gray-800 rounded-lg p-3">
-                <div className="text-sm text-gray-400">S&P 500</div>
-                <div className="text-xl font-bold text-white">4,567.89</div>
-                <div className="text-sm text-green-400">+0.8% (+34.52)</div>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Nasdaq</div>
-                <div className="text-xl font-bold text-white">14,234.56</div>
-                <div className="text-sm text-green-400">+1.2% (+168.42)</div>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-3">
-                <div className="text-sm text-gray-400">Dow Jones</div>
-                <div className="text-xl font-bold text-white">35,678.90</div>
-                <div className="text-sm text-red-400">-0.3% (-107.25)</div>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Recommendations */}
-          <div className="bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl p-4">
-            <h3 className="text-lg font-semibold text-white mb-2">🤖 AI Picks</h3>
-            <p className="text-sm text-gray-300 mb-3">
-              Based on your portfolio and risk profile
+            <p className="text-gray-400 text-sm mb-3">
+              View detailed market indices and analysis in our trading section.
             </p>
-            <div className="space-y-2">
-              <div className="bg-white/10 backdrop-blur rounded-lg p-2">
-                <div className="text-white font-medium">NVDA</div>
-                <div className="text-xs text-gray-300">Strong Buy - 95% confidence</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur rounded-lg p-2">
-                <div className="text-white font-medium">MSFT</div>
-                <div className="text-xs text-gray-300">Buy - 88% confidence</div>
-              </div>
-            </div>
             <Link
               to="/paper/trading"
-              className="mt-3 block text-center bg-white/20 hover:bg-white/30 text-white text-sm py-2 rounded-lg transition-colors"
+              className="block text-center bg-purple-600 hover:bg-purple-700 text-white text-sm py-2 rounded-lg transition-colors"
             >
-              View All Recommendations
+              Go to Trading
+            </Link>
+          </div>
+
+          {/* Start Trading */}
+          <div className="bg-gradient-to-br from-purple-900 to-blue-900 rounded-xl p-4">
+            <h3 className="text-lg font-semibold text-white mb-2">🚀 Start Trading</h3>
+            <p className="text-sm text-gray-300 mb-3">
+              Practice with ${(250000).toLocaleString()} in paper trading funds
+            </p>
+            <Link
+              to="/paper/trading"
+              className="block text-center bg-white/20 hover:bg-white/30 text-white text-sm py-2 rounded-lg transition-colors"
+            >
+              Open Trading Platform
             </Link>
           </div>
         </div>
