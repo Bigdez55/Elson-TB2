@@ -27,22 +27,23 @@ const PortfolioPage: React.FC = () => {
   }, [dispatch]);
   
   const initializeCharts = useCallback(() => {
-    // Performance Chart
+    // Performance Chart - NO MOCK DATA
+    const hasPerformanceData = performance?.values && performance.values.length > 0;
     if (performanceChartRef.current && performance) {
       if (chartInstancesRef.current.performance) {
         chartInstancesRef.current.performance.destroy();
       }
-      
+
       const ctx = performanceChartRef.current.getContext('2d');
       if (ctx) {
         chartInstancesRef.current.performance = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: performance.dates || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: hasPerformanceData ? performance.dates : [],
             datasets: [
               {
                 label: 'Portfolio Value',
-                data: performance.values || [18500, 19200, 18900, 20100, 22000, 23400],
+                data: hasPerformanceData ? performance.values : [],
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 borderColor: 'rgba(59, 130, 246, 1)',
                 borderWidth: 2,
@@ -51,7 +52,7 @@ const PortfolioPage: React.FC = () => {
               },
               {
                 label: 'S&P 500',
-                data: performance.benchmark || [18500, 18700, 19100, 19800, 20400, 21000],
+                data: hasPerformanceData ? (performance.benchmark || []) : [],
                 borderColor: 'rgba(156, 163, 175, 0.7)',
                 borderWidth: 2,
                 borderDash: [5, 5],

@@ -26,15 +26,18 @@ const DashboardPage: React.FC = () => {
   const positions = batchData?.positions || [];
   const account = batchData?.account;
 
-  // Transform portfolio performance data for charts
+  // Transform portfolio performance data for charts - NO MOCK DATA
+  const hasPerformanceData = performanceData?.daily_returns && performanceData.daily_returns.length > 0;
   const portfolioData = {
-    labels: performanceData?.daily_returns?.map(d =>
-      new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })
-    ) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    portfolio: performanceData?.daily_returns?.map(d => d.portfolio_value) ||
-      [32400, 33100, 32800, 33500, 34100, 34300, 34567],
-    benchmark: performanceData?.daily_returns?.map(d => 32400 * (1 + d.return * 0.8)) ||
-      [32400, 32600, 32900, 33000, 33400, 33600, 33900],
+    labels: hasPerformanceData
+      ? performanceData.daily_returns.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' }))
+      : [],
+    portfolio: hasPerformanceData
+      ? performanceData.daily_returns.map(d => d.portfolio_value)
+      : [],
+    benchmark: hasPerformanceData
+      ? performanceData.daily_returns.map(d => (account?.cash_balance || 0) * (1 + d.return * 0.8))
+      : [],
   };
 
   // Calculate allocation from positions
