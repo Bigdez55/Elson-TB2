@@ -9,7 +9,7 @@ import { useGetMyPermissionsQuery, useListPermissionsQuery } from '../../service
 interface OrderFormProps {
   symbol: string;
   currentPrice: number;
-  availableBalance?: number;
+  availableBalance: number;
 }
 
 type OrderType = 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_LIMIT';
@@ -18,7 +18,7 @@ type OrderSide = 'BUY' | 'SELL';
 const OrderForm: React.FC<OrderFormProps> = ({
   symbol,
   currentPrice,
-  availableBalance = 10000
+  availableBalance,
 }) => {
   const { mode } = useTradingContext();
   const [executeTrade, { isLoading }] = useExecuteTradeMutation();

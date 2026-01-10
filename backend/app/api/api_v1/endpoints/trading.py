@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import get_current_active_user
 from app.db.base import get_db
 from app.models.trade import Trade, TradeStatus
@@ -355,8 +356,9 @@ async def get_trading_account(
             .first()
         )
 
-        cash_balance = portfolio.cash_balance if portfolio else 100000.0
-        portfolio_value = portfolio.total_value if portfolio else 100000.0
+        initial_balance = settings.PAPER_TRADING_INITIAL_BALANCE
+        cash_balance = portfolio.cash_balance if portfolio else initial_balance
+        portfolio_value = portfolio.total_value if portfolio else initial_balance
 
         return TradingAccountResponse(
             account_id=f"{current_user.id}_{trading_mode}",
@@ -400,7 +402,8 @@ async def get_batch_data(
 
         # Calculate day P&L from positions' unrealized gains
         day_pnl = 0.0
-        total_value = portfolio.total_value if portfolio else 100000.0
+        initial_balance = settings.PAPER_TRADING_INITIAL_BALANCE
+        total_value = portfolio.total_value if portfolio else initial_balance
 
         if portfolio and portfolio.holdings:
             # Sum unrealized P&L from all positions
@@ -415,7 +418,7 @@ async def get_batch_data(
         # Build portfolio summary
         portfolio_summary: Dict[str, Any] = {
             "total_value": total_value,
-            "cash_balance": portfolio.cash_balance if portfolio else 100000.0,
+            "cash_balance": portfolio.cash_balance if portfolio else initial_balance,
             "positions_value": (portfolio.total_value - portfolio.cash_balance) if portfolio else 0.0,
             "day_pnl": round(day_pnl, 2),
             "day_pnl_percent": round(day_pnl_percent, 2),
@@ -456,8 +459,8 @@ async def get_batch_data(
             recent_orders = [TradeResponse.from_orm(trade) for trade in trades]
 
         # Build account info
-        cash_balance = portfolio.cash_balance if portfolio else 100000.0
-        portfolio_value = portfolio.total_value if portfolio else 100000.0
+        cash_balance = portfolio.cash_balance if portfolio else initial_balance
+        portfolio_value = portfolio.total_value if portfolio else initial_balance
         account = TradingAccountResponse(
             account_id=f"{current_user.id}_{trading_mode}",
             account_type=trading_mode,
@@ -521,8 +524,6 @@ async def sync_trading_modes(
         )
 
 
-# Paper trading initial balance constant
-PAPER_TRADING_INITIAL_BALANCE = 100000.0
 
 
 @router.post("/reset-paper-account")
@@ -531,7 +532,7 @@ async def reset_paper_account(
     db: Session = Depends(get_db),
 ):
     """
-    Reset paper trading account to initial $100,000 balance.
+    Reset paper trading account to initial balance (configurable via PAPER_TRADING_INITIAL_BALANCE).
 
     This clears all positions and trades, resetting the account for fresh paper trading.
     """
@@ -546,14 +547,16 @@ async def reset_paper_account(
             .first()
         )
 
+        initial_balance = settings.PAPER_TRADING_INITIAL_BALANCE
+
         if not portfolio:
             # Create new paper trading portfolio
             portfolio = Portfolio(
                 name="My Portfolio",
                 description="Default personal trading portfolio",
                 owner_id=current_user.id,
-                cash_balance=PAPER_TRADING_INITIAL_BALANCE,
-                total_value=PAPER_TRADING_INITIAL_BALANCE,
+                cash_balance=initial_balance,
+                total_value=initial_balance,
             )
             db.add(portfolio)
             db.commit()
@@ -561,9 +564,9 @@ async def reset_paper_account(
 
             return {
                 "success": True,
-                "message": "Paper trading account created with $100,000",
-                "cash_balance": PAPER_TRADING_INITIAL_BALANCE,
-                "total_value": PAPER_TRADING_INITIAL_BALANCE,
+                "message": f"Paper trading account created with ${initial_balance:,.0f}",
+                "cash_balance": initial_balance,
+                "total_value": initial_balance,
             }
 
         # Delete all holdings for this portfolio
@@ -573,8 +576,8 @@ async def reset_paper_account(
         db.query(Trade).filter(Trade.portfolio_id == portfolio.id).delete()
 
         # Reset portfolio to initial state
-        portfolio.cash_balance = PAPER_TRADING_INITIAL_BALANCE
-        portfolio.total_value = PAPER_TRADING_INITIAL_BALANCE
+        portfolio.cash_balance = initial_balance
+        portfolio.total_value = initial_balance
         portfolio.invested_amount = 0.0
         portfolio.total_return = 0.0
         portfolio.total_return_percentage = 0.0
@@ -583,7 +586,7 @@ async def reset_paper_account(
 
         return {
             "success": True,
-            "message": "Paper trading account reset to $100,000",
+            "message": f"Paper trading account reset to ${initial_balance:,.0f}",
             "cash_balance": portfolio.cash_balance,
             "total_value": portfolio.total_value,
         }

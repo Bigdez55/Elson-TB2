@@ -4,21 +4,27 @@ import Portfolio from './Portfolio';
 import LiveQuoteDisplay from './LiveQuoteDisplay';
 import TradeHistory from './TradeHistory';
 import Watchlist from './Watchlist';
+import { useTradingContext } from '../../contexts/TradingContext';
+import { useGetPortfolioQuery } from '../../services/tradingApi';
 
 const TradingDashboard: React.FC = () => {
-  const [selectedSymbol, setSelectedSymbol] = useState('AAPL');
-  const [currentPrice, setCurrentPrice] = useState(150.25);
+  const { mode } = useTradingContext();
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [watchlistSymbols] = useState(['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA']);
+
+  // Fetch portfolio data to get available balance
+  const { data: portfolioData } = useGetPortfolioQuery({ mode });
+  const availableBalance = portfolioData?.cash_balance ?? 0;
 
   const handleSymbolSelect = (symbol: string) => {
     setSelectedSymbol(symbol);
-    // In a real app, you'd fetch the current price for this symbol
-    setCurrentPrice(Math.random() * 200 + 50);
+    // Price will be updated via handleQuoteUpdate when LiveQuoteDisplay fetches the quote
   };
 
   const handleQuoteUpdate = (quotes: any) => {
     // Update current price when live quotes change
-    if (quotes[selectedSymbol]) {
+    if (selectedSymbol && quotes[selectedSymbol]) {
       setCurrentPrice(quotes[selectedSymbol].price);
     }
   };
@@ -35,11 +41,17 @@ const TradingDashboard: React.FC = () => {
             <Portfolio />
             
             {/* Order Form */}
-            <OrderForm 
-              symbol={selectedSymbol}
-              currentPrice={currentPrice}
-              availableBalance={10000}
-            />
+            {selectedSymbol && currentPrice !== null ? (
+              <OrderForm
+                symbol={selectedSymbol}
+                currentPrice={currentPrice}
+                availableBalance={availableBalance}
+              />
+            ) : (
+              <div className="bg-gray-800 rounded-lg p-6 text-center">
+                <p className="text-gray-400">Select a symbol from the watchlist to place an order</p>
+              </div>
+            )}
           </div>
 
           {/* Middle Column - Live Quotes & Watchlist */}
@@ -66,18 +78,19 @@ const TradingDashboard: React.FC = () => {
           <div className="bg-gray-800 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-4">
-              <button 
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
-                onClick={() => setSelectedSymbol('AAPL')}
-              >
-                Trade AAPL
-              </button>
-              <button 
-                className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
-                onClick={() => setSelectedSymbol('TSLA')}
-              >
-                Trade TSLA
-              </button>
+              {watchlistSymbols.slice(0, 4).map((symbol) => (
+                <button
+                  key={symbol}
+                  className={`py-2 px-4 rounded transition-colors ${
+                    selectedSymbol === symbol
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  }`}
+                  onClick={() => handleSymbolSelect(symbol)}
+                >
+                  Trade {symbol}
+                </button>
+              ))}
             </div>
           </div>
         </div>

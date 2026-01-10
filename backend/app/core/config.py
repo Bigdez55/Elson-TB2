@@ -98,6 +98,7 @@ class Settings(BaseSettings):
 
     # Paper Trading Settings
     PAPER_TRADING_ENABLED: bool = True
+    PAPER_TRADING_INITIAL_BALANCE: float = float(os.getenv("PAPER_TRADING_INITIAL_BALANCE", "100000.0"))
     PAPER_TRADING_SLIPPAGE: float = 0.0005  # 0.05% slippage
     PAPER_TRADING_COMMISSION: float = 0.99  # Fixed commission per trade
     PAPER_TRADING_DELAY_SECONDS: int = 1  # Simulated execution delay
