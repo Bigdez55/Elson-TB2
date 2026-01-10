@@ -5,7 +5,10 @@ from app.db.base import (
     SessionLocal,
     Base,
     get_db,
+    get_db_session,
     get_redis,
+    is_database_healthy,
+    is_using_fallback_database,
 )
 
 __all__ = [
@@ -13,5 +16,8 @@ __all__ = [
     "SessionLocal",
     "Base",
     "get_db",
+    "get_db_session",
     "get_redis",
+    "is_database_healthy",
+    "is_using_fallback_database",
 ]

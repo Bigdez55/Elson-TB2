@@ -108,7 +108,24 @@ async def shutdown_event():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "elson-trading-platform"}
+    """
+    Health check endpoint for Cloud Run.
+
+    Returns database status and whether using fallback database.
+    """
+    from app.db.base import is_database_healthy, is_using_fallback_database
+
+    db_healthy = is_database_healthy()
+    using_fallback = is_using_fallback_database()
+
+    return {
+        "status": "healthy" if db_healthy else "degraded",
+        "service": "elson-trading-platform",
+        "database": {
+            "connected": db_healthy,
+            "fallback_mode": using_fallback,
+        },
+    }
 
 
 @app.get("/")

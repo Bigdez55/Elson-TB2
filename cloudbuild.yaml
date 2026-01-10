@@ -1,5 +1,18 @@
 # Google Cloud Build configuration for Elson Trading Platform
 # Deploys to elsontb.com domain
+#
+# Cloud SQL Setup Required:
+# 1. Create Cloud SQL instance: elson-postgres in us-west1
+# 2. Create database: elson_trading
+# 3. Create user and set password in Secret Manager as DB_PASS
+# 4. Grant Cloud Run service account access to Cloud SQL
+#
+# Secret Manager secrets required:
+# - DB_PASS: Database password
+# - SECRET_KEY: JWT signing key
+# - ALPACA_API_KEY: Alpaca trading API key (optional)
+# - ALPACA_SECRET_KEY: Alpaca trading secret (optional)
+
 steps:
   # Build Backend Image
   - name: 'gcr.io/cloud-builders/docker'
@@ -10,9 +23,11 @@ steps:
       - 'gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
       - '-t'
       - 'gcr.io/$PROJECT_ID/elson-backend:latest'
-      - './backend'
+      - '-f'
+      - './Dockerfile'
+      - '.'
 
-  # Build Frontend Image  
+  # Build Frontend Image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-frontend'
     args:
@@ -39,7 +54,7 @@ steps:
       - 'gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
     waitFor: ['build-frontend']
 
-  # Deploy Backend to Cloud Run
+  # Deploy Backend to Cloud Run with Cloud SQL
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-backend'
     entrypoint: gcloud
@@ -48,7 +63,7 @@ steps:
       - 'deploy'
       - 'elson-backend'
       - '--image=gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
-      - '--region=us-central1'
+      - '--region=${_DEPLOY_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
       - '--port=8080'
@@ -58,11 +73,16 @@ steps:
       - '--min-instances=1'
       - '--concurrency=80'
       - '--timeout=300'
-      - '--set-env-vars=ENVIRONMENT=production,PROJECT_ID=$PROJECT_ID'
+      # Cloud SQL connection (use region, NOT zone)
+      - '--add-cloudsql-instances=$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE}'
+      # Environment variables
+      - '--set-env-vars=ENVIRONMENT=production,PROJECT_ID=$PROJECT_ID,CLOUD_SQL_CONNECTION_NAME=$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE},DB_USER=${_DB_USER},DB_NAME=${_DB_NAME},DATABASE_URL=postgresql://${_DB_USER}@/${_DB_NAME}?host=/cloudsql/$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE}'
+      # Secrets from Secret Manager
+      - '--update-secrets=DB_PASS=DB_PASS:latest,SECRET_KEY=SECRET_KEY:latest'
       - '--quiet'
     waitFor: ['push-backend']
 
-  # Deploy Frontend to Cloud Run  
+  # Deploy Frontend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-frontend'
     entrypoint: gcloud
@@ -71,7 +91,7 @@ steps:
       - 'deploy'
       - 'elson-frontend'
       - '--image=gcr.io/$PROJECT_ID/elson-frontend:$COMMIT_SHA'
-      - '--region=us-central1'
+      - '--region=${_DEPLOY_REGION}'
       - '--platform=managed'
       - '--allow-unauthenticated'
       - '--port=8080'
@@ -93,8 +113,12 @@ options:
 timeout: 1200s
 
 # Substitutions for build variables
+# Override these with: --substitutions=_DEPLOY_REGION=us-west1,_CLOUD_SQL_INSTANCE=elson-postgres
 substitutions:
-  _DEPLOY_REGION: us-central1
+  _DEPLOY_REGION: us-west1
+  _CLOUD_SQL_INSTANCE: elson-postgres
+  _DB_USER: postgres
+  _DB_NAME: elson_trading
   _SERVICE_NAME: elson-trading-platform
 
 images:
