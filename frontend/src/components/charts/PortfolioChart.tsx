@@ -28,7 +28,7 @@ interface PortfolioChartProps {
     labels: string[];
     portfolio: number[];
     benchmark: number[];
-  };
+  } | null;
   timeframe?: '1D' | '1W' | '1M' | '3M' | '1Y' | 'All';
   onTimeframeChange?: (timeframe: string) => void;
   className?: string;
@@ -41,6 +41,41 @@ export const PortfolioChart: React.FC<PortfolioChartProps> = ({
   className = '',
 }) => {
   const timeframes = ['1D', '1W', '1M', '3M', '1Y', 'All'];
+
+  // Handle null data case
+  if (!data || !data.labels || data.labels.length === 0) {
+    return (
+      <div className={`bg-gray-900 rounded-xl p-6 shadow-md ${className}`}>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold text-white">Portfolio Performance</h3>
+          <div className="flex space-x-2">
+            {timeframes.map((tf) => (
+              <button
+                key={tf}
+                onClick={() => onTimeframeChange?.(tf)}
+                className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                  timeframe === tf
+                    ? 'bg-purple-800 text-purple-200'
+                    : 'bg-gray-800 text-gray-300 hover:bg-purple-800 hover:text-purple-200'
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="h-80 flex items-center justify-center">
+          <div className="text-center">
+            <svg className="h-16 w-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <p className="text-gray-400 font-medium">No Performance Data Yet</p>
+            <p className="text-gray-500 text-sm mt-2">Start trading to see your portfolio performance</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const chartData = {
     labels: data.labels,

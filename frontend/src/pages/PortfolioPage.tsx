@@ -27,37 +27,37 @@ const PortfolioPage: React.FC = () => {
   }, [dispatch]);
   
   const initializeCharts = useCallback(() => {
-    // Performance Chart
-    if (performanceChartRef.current && performance) {
+    // Performance Chart - only render if we have real data
+    if (performanceChartRef.current && performance?.dates && performance?.values) {
       if (chartInstancesRef.current.performance) {
         chartInstancesRef.current.performance.destroy();
       }
-      
+
       const ctx = performanceChartRef.current.getContext('2d');
       if (ctx) {
         chartInstancesRef.current.performance = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: performance.dates || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: performance.dates,
             datasets: [
               {
                 label: 'Portfolio Value',
-                data: performance.values || [18500, 19200, 18900, 20100, 22000, 23400],
+                data: performance.values,
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 borderColor: 'rgba(59, 130, 246, 1)',
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4
               },
-              {
+              ...(performance.benchmark ? [{
                 label: 'S&P 500',
-                data: performance.benchmark || [18500, 18700, 19100, 19800, 20400, 21000],
+                data: performance.benchmark,
                 borderColor: 'rgba(156, 163, 175, 0.7)',
                 borderWidth: 2,
                 borderDash: [5, 5],
                 fill: false,
                 tension: 0.4
-              }
+              }] : [])
             ]
           },
           options: {
@@ -451,9 +451,19 @@ const PortfolioPage: React.FC = () => {
               {/* Performance Chart */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Chart</h3>
-                <div className="h-80">
-                  <canvas ref={performanceChartRef}></canvas>
-                </div>
+                {performance?.dates && performance?.values ? (
+                  <div className="h-80">
+                    <canvas ref={performanceChartRef}></canvas>
+                  </div>
+                ) : (
+                  <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">No performance data yet</p>
+                      <p className="text-sm text-gray-400">Start trading to see your performance history</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -529,9 +539,19 @@ const PortfolioPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Performance</h3>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <div className="h-96">
-                    <canvas ref={performanceChartRef}></canvas>
-                  </div>
+                  {performance?.dates && performance?.values ? (
+                    <div className="h-96">
+                      <canvas ref={performanceChartRef}></canvas>
+                    </div>
+                  ) : (
+                    <div className="h-96 bg-gray-50 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">No performance history</p>
+                        <p className="text-sm text-gray-400">Performance data will appear after you start trading</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-4">
                   <div className="bg-gray-50 rounded-lg p-4">
