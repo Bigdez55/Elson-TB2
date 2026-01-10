@@ -100,6 +100,10 @@ class PaperTradingService:
 
             # Check market hours (simplified)
             if not self._is_market_open():
+                # Update trade status to pending with note about market hours
+                trade.status = TradeStatus.PENDING
+                trade.notes = (trade.notes or "") + "\nQueued: Market closed - will execute when market opens"
+                self.db.commit()
                 return self._create_queued_result(trade, "Market closed - order queued")
 
             # Simulate execution delay
@@ -112,15 +116,23 @@ class PaperTradingService:
             )
 
             if execution_result["status"] == "filled":
-                # Update trade record
-                await self._update_trade_execution(trade, execution_result)
+                try:
+                    # Update trade record
+                    await self._update_trade_execution(trade, execution_result)
 
-                # Update portfolio holdings
-                await self._update_portfolio_holdings(trade, execution_result)
+                    # Update portfolio holdings
+                    await self._update_portfolio_holdings(trade, execution_result)
 
-                logger.info(
-                    f"Paper trade executed: {trade.symbol} {trade.trade_type} {execution_result['filled_quantity']} @ {execution_result['execution_price']}"
-                )
+                    logger.info(
+                        f"Paper trade executed: {trade.symbol} {trade.trade_type} {execution_result['filled_quantity']} @ {execution_result['execution_price']}"
+                    )
+                except Exception as update_error:
+                    # Revert trade status if updates fail
+                    logger.error(f"Failed to complete trade {trade.id}: {update_error}")
+                    trade.status = TradeStatus.REJECTED
+                    trade.notes = (trade.notes or "") + f"\nExecution failed: {str(update_error)}"
+                    self.db.commit()
+                    return self._create_error_result(trade, str(update_error))
 
             return execution_result
 
@@ -453,22 +465,35 @@ class PaperTradingService:
     ) -> None:
         """Update trade record with execution results."""
         try:
+            # Validate required fields
+            execution_price = execution_result.get("execution_price")
+            filled_quantity = execution_result.get("filled_quantity")
+
+            if execution_price is None or filled_quantity is None:
+                raise ValueError(
+                    f"Invalid execution result: missing execution_price or filled_quantity"
+                )
+
+            if execution_price <= 0 or filled_quantity <= 0:
+                raise ValueError(
+                    f"Invalid execution result: execution_price={execution_price}, filled_quantity={filled_quantity}"
+                )
+
             trade.status = (
                 TradeStatus.FILLED
                 if execution_result["status"] == "filled"
                 else TradeStatus.PARTIALLY_FILLED
             )
-            trade.filled_quantity = execution_result["filled_quantity"]
-            trade.filled_price = execution_result["execution_price"]
-            trade.commission = execution_result["commission"]
-            trade.fees = execution_result["fees"]
-            trade.executed_at = execution_result["execution_time"]
-            trade.filled_at = execution_result["execution_time"]
+            trade.filled_quantity = filled_quantity
+            trade.filled_price = execution_price
+            trade.commission = execution_result.get("commission", 0.0)
+            trade.fees = execution_result.get("fees", 0.0)
+            trade.executed_at = execution_result.get("execution_time")
+            trade.filled_at = execution_result.get("execution_time")
             trade.total_cost = (
-                execution_result["filled_quantity"]
-                * execution_result["execution_price"]
-                + execution_result["commission"]
-                + execution_result["fees"]
+                filled_quantity * execution_price
+                + trade.commission
+                + trade.fees
             )
 
             # Add execution notes
@@ -479,15 +504,34 @@ class PaperTradingService:
 
             self.db.commit()
 
+        except ValueError:
+            # Re-raise validation errors after rollback
+            self.db.rollback()
+            raise
         except Exception as e:
             logger.error(f"Failed to update trade execution: {e}")
             self.db.rollback()
+            raise ValueError(f"Trade execution update failed: {str(e)}")
 
     async def _update_portfolio_holdings(
         self, trade: Trade, execution_result: Dict
     ) -> None:
         """Update portfolio holdings after trade execution."""
         try:
+            # Validate required fields
+            filled_quantity = execution_result.get("filled_quantity")
+            execution_price = execution_result.get("execution_price")
+
+            if execution_price is None or filled_quantity is None:
+                raise ValueError(
+                    f"Invalid execution result: missing execution_price or filled_quantity"
+                )
+
+            if execution_price <= 0 or filled_quantity <= 0:
+                raise ValueError(
+                    f"Invalid execution result: execution_price={execution_price}, filled_quantity={filled_quantity}"
+                )
+
             # Get or create holding
             holding = (
                 self.db.query(Holding)
@@ -498,6 +542,16 @@ class PaperTradingService:
                 .first()
             )
 
+            # For SELL orders, validate holding exists and has sufficient quantity
+            if trade.trade_type == TradeType.SELL:
+                if not holding:
+                    raise ValueError(f"Cannot sell {trade.symbol}: no position exists")
+                if holding.quantity < filled_quantity:
+                    raise ValueError(
+                        f"Cannot sell {filled_quantity} shares of {trade.symbol}: "
+                        f"only {holding.quantity} available"
+                    )
+
             if not holding:
                 holding = Holding(
                     portfolio_id=trade.portfolio_id,
@@ -505,14 +559,10 @@ class PaperTradingService:
                     asset_type="stock",  # Default to stock
                     quantity=0.0,
                     average_cost=0.0,
-                    current_price=execution_result["execution_price"],
+                    current_price=execution_price,
                     market_value=0.0,
                 )
                 self.db.add(holding)
-
-            # Update holding quantity and average cost
-            filled_quantity = execution_result["filled_quantity"]
-            execution_price = execution_result["execution_price"]
 
             if trade.trade_type == TradeType.BUY:
                 # Add to position
@@ -586,9 +636,14 @@ class PaperTradingService:
 
             self.db.commit()
 
+        except ValueError:
+            # Re-raise validation errors after rollback
+            self.db.rollback()
+            raise
         except Exception as e:
             logger.error(f"Failed to update portfolio holdings: {e}")
             self.db.rollback()
+            raise ValueError(f"Portfolio update failed: {str(e)}")
 
     def _create_rejection_result(self, trade: Trade, reason: str) -> Dict[str, any]:
         """Create rejection result."""

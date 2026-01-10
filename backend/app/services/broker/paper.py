@@ -380,8 +380,13 @@ class PaperBroker(BaseBroker):
         elif trade_type == "sell":
             # For sell, reduce position quantity
             if not position:
-                logger.warning(f"Selling {symbol} but no position exists")
-                return
+                raise ValueError(f"Cannot sell {symbol}: no position exists")
+
+            # Validate sufficient quantity
+            if position["quantity"] < quantity:
+                raise ValueError(
+                    f"Cannot sell {quantity} shares of {symbol}: only {position['quantity']} available"
+                )
 
             # Reduce quantity
             position["quantity"] -= quantity

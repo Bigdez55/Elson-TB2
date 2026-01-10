@@ -674,16 +674,19 @@ class TradingService:
             # Update portfolio cash balance
             try:
                 if trade.trade_type == TradeType.BUY:
+                    # Validate sufficient funds before deducting
+                    if trade.total_cost > portfolio.cash_balance:
+                        raise ValueError(
+                            f"Insufficient funds: need ${trade.total_cost:.2f}, "
+                            f"available ${portfolio.cash_balance:.2f}"
+                        )
                     portfolio.cash_balance -= trade.total_cost
                 else:  # SELL
                     portfolio.cash_balance += trade.total_cost
 
-                # Ensure cash balance doesn't go negative
-                if portfolio.cash_balance < 0:
-                    logger.warning(
-                        f"Portfolio {portfolio.id} cash balance went negative: {portfolio.cash_balance}"
-                    )
-
+            except ValueError:
+                # Re-raise validation errors
+                raise
             except Exception as e:
                 logger.error(f"Error updating cash balance: {str(e)}")
                 raise ValueError("Failed to update portfolio cash balance")
