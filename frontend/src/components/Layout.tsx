@@ -15,8 +15,8 @@ const Layout: React.FC = () => {
   };
 
   const userData = {
-    name: user?.full_name || user?.email || 'Alex Morgan',
-    avatar: '/api/placeholder/32/32',
+    name: user?.full_name || user?.email || 'User',
+    avatar: null, // Will use initials if no avatar
     isPremium: true, // This should come from user subscription data
   };
 

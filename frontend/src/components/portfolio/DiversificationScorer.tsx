@@ -52,45 +52,15 @@ const DiversificationScorer: React.FC<DiversificationScorerProps> = ({
   const [sectors, setSectors] = useState<{ [key: string]: number }>({});
   const [issues, setIssues] = useState<string[]>([]);
   const [strengths, setStrengths] = useState<string[]>([]);
-  
-  // Mock portfolio data for demonstration
-  const demoPortfolio = {
-    allocation: {
-      'US Stocks': 45,
-      'International Stocks': 15,
-      'Bonds': 25,
-      'Real Estate': 5,
-      'Commodities': 5,
-      'Cash': 5,
-    },
-    sectors: {
-      'Technology': 30,
-      'Healthcare': 12,
-      'Financial': 15,
-      'Consumer Cyclical': 8,
-      'Industrial': 10,
-      'Energy': 5,
-      'Utilities': 5,
-      'Basic Materials': 5,
-      'Communication Services': 5,
-      'Consumer Defensive': 5,
-    },
-    holdings: [
-      { symbol: 'AAPL', name: 'Apple Inc.', percentage: 12, sector: 'Technology' },
-      { symbol: 'MSFT', name: 'Microsoft Corp.', percentage: 10, sector: 'Technology' },
-      { symbol: 'AMZN', name: 'Amazon.com Inc.', percentage: 8, sector: 'Consumer Cyclical' },
-      { symbol: 'JNJ', name: 'Johnson & Johnson', percentage: 5, sector: 'Healthcare' },
-      { symbol: 'JPM', name: 'JPMorgan Chase & Co.', percentage: 5, sector: 'Financial' },
-      { symbol: 'V', name: 'Visa Inc.', percentage: 4, sector: 'Financial' },
-      { symbol: 'PG', name: 'Procter & Gamble Co.', percentage: 3, sector: 'Consumer Defensive' },
-      { symbol: 'UNH', name: 'UnitedHealth Group Inc.', percentage: 3, sector: 'Healthcare' },
-      { symbol: 'HD', name: 'Home Depot Inc.', percentage: 3, sector: 'Consumer Cyclical' },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', percentage: 3, sector: 'Technology' },
-      { symbol: 'Other', name: 'Other Holdings', percentage: 44, sector: 'Various' },
-    ]
+
+  // Default empty portfolio when no data is provided
+  const emptyPortfolio = {
+    allocation: {},
+    sectors: {},
+    holdings: [] as Holding[]
   };
-  
-  const actualPortfolio = portfolioData || demoPortfolio;
+
+  const actualPortfolio = portfolioData || emptyPortfolio;
   
   // Analyze the portfolio diversification
   const analyzePortfolio = () => {

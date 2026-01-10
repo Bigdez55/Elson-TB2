@@ -153,11 +153,11 @@ const HomePage: React.FC = () => {
               <div className="bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="text-gray-400 text-sm">Total Portfolio Value</p>
-                    <p className="text-3xl font-bold text-white">$34,567.89</p>
+                    <p className="text-gray-400 text-sm">Paper Trading Balance</p>
+                    <p className="text-3xl font-bold text-white">$250,000</p>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-sm bg-green-900 text-green-300">
-                    +12.5% YTD
+                  <span className="px-3 py-1 rounded-full text-sm bg-purple-900 text-purple-300">
+                    Start Free
                   </span>
                 </div>
                 <div className="h-48 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl flex items-end p-4">
