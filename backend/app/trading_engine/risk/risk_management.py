@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.account import Account, AccountType
-from app.models.portfolio import Portfolio, Position
+from app.models.portfolio import Portfolio
+from app.models.holding import Position
 from app.models.trade import Trade, TradeStatus
 from app.models.user import User, UserRole
 

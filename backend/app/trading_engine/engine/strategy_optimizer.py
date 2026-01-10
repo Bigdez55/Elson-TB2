@@ -118,7 +118,7 @@ class StrategyOptimizer:
                 'sharpe_ratio': -np.inf
             }
 
-   def _run_backtest(self, strategy: MovingAverageStrategy, data: pd.DataFrame) -> Dict:
+    def _run_backtest(self, strategy: MovingAverageStrategy, data: pd.DataFrame) -> Dict:
         """Run backtest simulation"""
         try:
             # Initialize metrics

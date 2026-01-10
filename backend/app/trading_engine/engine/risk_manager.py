@@ -2,9 +2,11 @@ from typing import Dict, List, Optional
 from decimal import Decimal
 import logging
 import numpy as np
+import pandas as pd
 from datetime import datetime, timedelta
 
-from ...models.portfolio import Portfolio, Position
+from ...models.portfolio import Portfolio
+from ...models.holding import Position
 from ...models.trade import Trade
 from ...services.market_data import MarketDataService
 

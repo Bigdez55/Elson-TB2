@@ -17,8 +17,8 @@ import datetime
 import json
 import os
 
-from .volatility_regime.volatility_detector import VolatilityRegime, VolatilityDetector
-from .engine.circuit_breaker import CircuitBreakerStatus, VolatilityLevel
+from ..ml_models.volatility_regime.volatility_detector import VolatilityRegime, VolatilityDetector
+from ..engine.circuit_breaker import CircuitBreakerStatus, VolatilityLevel
 
 logger = logging.getLogger(__name__)
 
