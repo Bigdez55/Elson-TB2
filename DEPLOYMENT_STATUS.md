@@ -8,94 +8,117 @@
 
 ## Current Status
 
-### Frontend: WORKING
-- **URL:** https://elson-frontend-490677787763.us-west1.run.app (or similar)
-- **API URL baked in:** `https://elson-backend-490677787763.us-west1.run.app/api/v1`
-- **Build:** Successful (with `--legacy-peer-deps` flag)
+| Service | URL | Status |
+|---------|-----|--------|
+| Frontend | https://elson-frontend-490677787763.us-west1.run.app | Running |
+| Backend | https://elson-backend-490677787763.us-west1.run.app | Running |
+| API Proxy | `/api/*` via nginx | Working |
+| Cloud SQL | `elson-postgres` in us-west1 | Connected |
 
-### Backend: NOT DEPLOYED
-- **Expected URL:** https://elson-backend-490677787763.us-west1.run.app
-- **Current Cloud Run services in us-west1:**
-  - `idx-elson-tb2git-26326678` (old, from Jan 3) - https://idx-elson-tb2git-26326678-490677787763.us-west1.run.app
-- **Status:** `elson-backend` service does not exist yet - needs to be deployed
-- **Cloud SQL:** Should connect via us-west1
+### What's Working
+- User Registration (creates users in Cloud SQL)
+- User Login (returns JWT tokens)
+- Health Check (`/health` returns database status)
+- API Proxy (nginx forwards `/api/*` to backend)
 
----
+### Known Issue: `/api/v1/auth/me` Endpoint Timeout
 
-## Issues Found
+The `/me` endpoint times out while other endpoints work fine.
 
-### 1. package-lock.json Issue
-- The `package-lock.json` in frontend had dependency conflicts
-- **Fix:** Use `npm install --legacy-peer-deps` when installing
+**Symptoms:**
+- Login works and returns tokens
+- Register works and creates users
+- `/me` endpoint hangs and times out after ~60 seconds
 
-### 2. Global vs Regional Builds
-- Builds were running in `global` region instead of `us-west1`
-- Global builds fail because they can't connect to Cloud SQL in us-west1
-- **Fix:** Always specify `--region us-west1` in deploy commands
-
-### 3. Cancelled Builds
-- Build `ca00e447-f7f2-4a12-b719-816daef426ab` was cancelled (was stuck for 17+ minutes)
-- No Cloud Build triggers are configured (builds are manual)
+**Likely Causes:**
+1. Missing related tables - User model has relationships to security models (Device, Session, TwoFactorConfig, etc.) that may not be created
+2. Connection pool exhaustion
+3. Lazy loading triggering additional queries
 
 ---
 
-## Next Steps
+## Next Steps (Resume Here)
 
-1. [ ] Fix backend deployment to us-west1
-2. [ ] Verify Cloud SQL connection string is correct
-3. [ ] Ensure backend Dockerfile/cloudbuild.yaml uses correct region
-4. [ ] Test backend health endpoint
-5. [ ] Verify frontend can communicate with backend
+1. **Debug `/me` timeout**
+   ```bash
+   # Check Cloud Run logs
+   gcloud run services logs read elson-backend --region=us-west1 --limit=100
+
+   # Connect to Cloud SQL and check tables
+   gcloud sql connect elson-postgres --user=postgres --database=elson_trading
+   \dt  # List all tables
+   ```
+
+2. **Fix missing model imports** - Add security models to `backend/app/db/init_db.py`:
+   ```python
+   from app.models import (
+       user, portfolio, trade, notification, subscription,
+       user_settings, account, education,
+       # Add security models if they exist
+   )
+   ```
+
+3. **Test full auth flow after fix**
 
 ---
 
-## Deployment Commands
+## Configuration
 
-### Frontend Build (local)
-```bash
-cd /home/bigdez55/Elson-TB2/frontend
-npm install --legacy-peer-deps
-REACT_APP_API_URL=https://elson-backend-490677787763.us-west1.run.app/api/v1 npm run build
+### cloudbuild.yaml
+- Region: `us-west1`
+- Cloud SQL: `$PROJECT_ID:us-west1:elson-postgres`
+- Secrets: `DB_PASS`, `SECRET_KEY` from Secret Manager
+
+### Frontend nginx.conf
+- Proxy: `https://elson-backend-490677787763.us-west1.run.app`
+- Resolver: `8.8.8.8`
+- SSL: `proxy_ssl_server_name on`
+
+### Backend Database (backend/app/db/base.py)
+- Cloud SQL Unix socket support
+- Fallback to in-memory SQLite if connection fails
+- Connection pooling for PostgreSQL
+
+---
+
+## Recent Commits
+
+```
+ae1e776 chore: Add build script and deployment status
+466765f fix: Robust Cloud SQL database configuration for Cloud Run
+6e3ddc9 fix: Update nginx proxy to use Cloud Run backend URL
+eda2820 refactor: Remove duplicate files and enhance risk configuration
 ```
 
-### Deploy to Cloud Run (always use us-west1)
-```bash
-# Backend
-cd /home/bigdez55/Elson-TB2/backend
-gcloud run deploy elson-backend \
-  --source . \
-  --region us-west1 \
-  --platform managed
+---
 
-# Frontend
-cd /home/bigdez55/Elson-TB2/frontend
-gcloud run deploy elson-frontend \
-  --source . \
-  --region us-west1 \
-  --platform managed
-```
+## Useful Commands
 
-### Cancel stuck global builds
 ```bash
-gcloud builds list --limit=5
-gcloud builds cancel BUILD_ID
+# Test endpoints
+curl -s https://elson-backend-490677787763.us-west1.run.app/health
+
+# Register user
+curl -s -X POST https://elson-backend-490677787763.us-west1.run.app/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"TestPass123!","full_name":"Test"}'
+
+# Login
+curl -s -X POST https://elson-backend-490677787763.us-west1.run.app/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"TestPass123!"}'
+
+# Test /me (currently times out)
+curl -s https://elson-backend-490677787763.us-west1.run.app/api/v1/auth/me \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Check logs
+gcloud run services logs read elson-backend --region=us-west1 --limit=50
 ```
 
 ---
 
-## GCP Resources
+## Dependencies Warning
 
-| Resource | Region | Status |
-|----------|--------|--------|
-| Cloud SQL | us-west1 | Active |
-| Cloud Run (backend) | us-west1 | Needs fix |
-| Cloud Run (frontend) | us-west1 | Working |
-| Cloud Build triggers | N/A | None configured |
-
----
-
-## Troubleshooting Notes
-
-- If builds hang, check if they're running in `global` - cancel and redeploy with `--region us-west1`
-- Frontend needs `--legacy-peer-deps` due to dependency conflicts
-- Backend must have Cloud SQL connection string for us-west1 instance
+GitHub detected 103 vulnerabilities (5 critical, 29 high, 45 moderate, 24 low).
+Review at: https://github.com/Bigdez55/Elson-TB2/security/dependabot
