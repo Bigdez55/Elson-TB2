@@ -52,11 +52,15 @@ def register(user_data: UserRegister, request: Request, db: Session = Depends(ge
     db.commit()
     db.refresh(new_user)
 
-    # Create default portfolio for the user
+    # Create default portfolio for the user with paper trading funds
+    # Paper trading accounts start with $100,000 virtual cash
+    PAPER_TRADING_INITIAL_BALANCE = 100000.0
     default_portfolio = Portfolio(
         name="My Portfolio",
         description="Default personal trading portfolio",
         owner_id=new_user.id,
+        cash_balance=PAPER_TRADING_INITIAL_BALANCE,
+        total_value=PAPER_TRADING_INITIAL_BALANCE,
     )
     db.add(default_portfolio)
     db.commit()

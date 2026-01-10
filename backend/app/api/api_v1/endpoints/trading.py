@@ -519,3 +519,136 @@ async def sync_trading_modes(
         raise HTTPException(
             status_code=500, detail=f"Failed to sync trading modes: {str(e)}"
         )
+
+
+# Paper trading initial balance constant
+PAPER_TRADING_INITIAL_BALANCE = 100000.0
+
+
+@router.post("/reset-paper-account")
+async def reset_paper_account(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Reset paper trading account to initial $100,000 balance.
+
+    This clears all positions and trades, resetting the account for fresh paper trading.
+    """
+    try:
+        from app.models.portfolio import Portfolio
+        from app.models.holding import Holding
+
+        # Get user's active portfolio
+        portfolio = (
+            db.query(Portfolio)
+            .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active == True)
+            .first()
+        )
+
+        if not portfolio:
+            # Create new paper trading portfolio
+            portfolio = Portfolio(
+                name="My Portfolio",
+                description="Default personal trading portfolio",
+                owner_id=current_user.id,
+                cash_balance=PAPER_TRADING_INITIAL_BALANCE,
+                total_value=PAPER_TRADING_INITIAL_BALANCE,
+            )
+            db.add(portfolio)
+            db.commit()
+            db.refresh(portfolio)
+
+            return {
+                "success": True,
+                "message": "Paper trading account created with $100,000",
+                "cash_balance": PAPER_TRADING_INITIAL_BALANCE,
+                "total_value": PAPER_TRADING_INITIAL_BALANCE,
+            }
+
+        # Delete all holdings for this portfolio
+        db.query(Holding).filter(Holding.portfolio_id == portfolio.id).delete()
+
+        # Delete all trades for this portfolio
+        db.query(Trade).filter(Trade.portfolio_id == portfolio.id).delete()
+
+        # Reset portfolio to initial state
+        portfolio.cash_balance = PAPER_TRADING_INITIAL_BALANCE
+        portfolio.total_value = PAPER_TRADING_INITIAL_BALANCE
+        portfolio.invested_amount = 0.0
+        portfolio.total_return = 0.0
+        portfolio.total_return_percentage = 0.0
+
+        db.commit()
+
+        return {
+            "success": True,
+            "message": "Paper trading account reset to $100,000",
+            "cash_balance": portfolio.cash_balance,
+            "total_value": portfolio.total_value,
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Failed to reset paper account: {str(e)}"
+        )
+
+
+@router.post("/fund-paper-account")
+async def fund_paper_account(
+    amount: float = Query(default=100000.0, ge=1000, le=1000000, description="Amount to add to paper account"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Add virtual funds to paper trading account without clearing positions.
+
+    Useful for continuing paper trading when running low on virtual cash.
+    """
+    try:
+        from app.models.portfolio import Portfolio
+
+        # Get user's active portfolio
+        portfolio = (
+            db.query(Portfolio)
+            .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active == True)
+            .first()
+        )
+
+        if not portfolio:
+            # Create new paper trading portfolio with requested amount
+            portfolio = Portfolio(
+                name="My Portfolio",
+                description="Default personal trading portfolio",
+                owner_id=current_user.id,
+                cash_balance=amount,
+                total_value=amount,
+            )
+            db.add(portfolio)
+            db.commit()
+            db.refresh(portfolio)
+
+            return {
+                "success": True,
+                "message": f"Paper trading account created with ${amount:,.2f}",
+                "cash_balance": portfolio.cash_balance,
+                "total_value": portfolio.total_value,
+            }
+
+        # Add funds to existing portfolio
+        portfolio.cash_balance += amount
+        portfolio.total_value += amount
+
+        db.commit()
+
+        return {
+            "success": True,
+            "message": f"Added ${amount:,.2f} to paper trading account",
+            "cash_balance": portfolio.cash_balance,
+            "total_value": portfolio.total_value,
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fund paper account: {str(e)}"
+        )
