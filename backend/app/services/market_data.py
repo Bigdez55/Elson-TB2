@@ -16,6 +16,7 @@ from fastapi import HTTPException
 
 from app.core.config import settings
 from app.models.market_data import MarketData
+from app.db.base import get_redis
 
 logger = structlog.get_logger()
 std_logger = logging.getLogger(__name__)
@@ -499,11 +500,17 @@ class MarketDataService:
             PolygonProvider(),  # Fallback option
         ]
 
-        # Enhanced caching with cache result objects
-        self.cache = {}  # Simple in-memory cache
+        # Redis caching with in-memory fallback
+        self._redis_client = get_redis()
+        self.cache = {}  # In-memory fallback cache
         self.cache_ttl = cache_ttl or getattr(
             settings, "MARKET_DATA_CACHE_TTL", 60
         )  # Default 1 minute cache
+        self._use_redis = self._redis_client is not None
+        if self._use_redis:
+            std_logger.info("MarketDataService using Redis cache")
+        else:
+            std_logger.info("MarketDataService using in-memory cache (Redis unavailable)")
 
         # Health tracking for providers with dynamic thresholds
         self.source_health = {
@@ -537,7 +544,32 @@ class MarketDataService:
     def _get_cached_data(
         self, cache_key: str, allow_stale: bool = False
     ) -> Optional[CacheResult]:
-        """Get data from cache with enhanced stale data handling"""
+        """Get data from cache with enhanced stale data handling (Redis or in-memory)"""
+        # Try Redis first if available
+        if self._use_redis and self._redis_client:
+            try:
+                redis_key = f"market_data:{cache_key}"
+                cached_json = self._redis_client.get(redis_key)
+                if cached_json:
+                    cached_data = json.loads(cached_json)
+                    timestamp = cached_data.get("_timestamp", time.time())
+                    source = cached_data.get("_source", "redis")
+                    # Remove metadata from data
+                    data = {k: v for k, v in cached_data.items() if not k.startswith("_")}
+                    age = time.time() - timestamp
+                    if age < self.cache_ttl:
+                        self.cache_hits += 1
+                        return CacheResult(data, timestamp, source)
+                    elif allow_stale and age < self.stale_data_threshold:
+                        data["is_stale"] = True
+                        data["stale_age_seconds"] = age
+                        self.cache_hits += 1
+                        return CacheResult(data, timestamp, source)
+            except Exception as e:
+                std_logger.warning(f"Redis cache read error: {e}")
+                # Fall through to in-memory cache
+
+        # Fall back to in-memory cache
         if cache_key in self.cache:
             cached_result = self.cache[cache_key]
             if isinstance(cached_result, CacheResult):
@@ -574,10 +606,27 @@ class MarketDataService:
         return None
 
     def _cache_data(self, cache_key: str, data: Dict[str, Any], source: str) -> None:
-        """Cache data with metadata and size management"""
+        """Cache data with metadata and size management (Redis or in-memory)"""
+        current_time = time.time()
+
+        # Store in Redis if available
+        if self._use_redis and self._redis_client:
+            try:
+                redis_key = f"market_data:{cache_key}"
+                # Add metadata to data for Redis storage
+                redis_data = {**data, "_timestamp": current_time, "_source": source}
+                self._redis_client.setex(
+                    redis_key,
+                    self.cache_ttl,  # TTL in seconds
+                    json.dumps(redis_data)
+                )
+            except Exception as e:
+                std_logger.warning(f"Redis cache write error: {e}")
+                # Continue to store in memory as fallback
+
+        # Also store in memory (for faster access and fallback)
         # Clean up stale entries if cache is getting large
         if len(self.cache) > 1000:  # Reasonable limit for personal use
-            current_time = time.time()
             stale_keys = [
                 key
                 for key, cached_result in self.cache.items()
@@ -587,7 +636,7 @@ class MarketDataService:
             for key in stale_keys[:100]:  # Remove up to 100 stale entries
                 del self.cache[key]
 
-        cache_result = CacheResult(data, time.time(), source)
+        cache_result = CacheResult(data, current_time, source)
         self.cache[cache_key] = cache_result
 
     def _update_provider_health(self, provider_name: str, success: bool) -> None:

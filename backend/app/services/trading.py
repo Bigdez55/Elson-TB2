@@ -805,11 +805,17 @@ class TradingService:
             total_invested = 0.0
             positions = []
 
-            # Process holdings with error handling
+            # Batch fetch all quotes at once to avoid N+1 API calls
+            symbols = [holding.symbol for holding in portfolio.holdings if holding.quantity > 0]
+            quotes = {}
+            if symbols:
+                quotes = await market_data_service.get_multiple_quotes(symbols)
+
+            # Process holdings with pre-fetched quotes
             for holding in portfolio.holdings:
                 try:
-                    # Get current price with fallback to stored price
-                    quote = await market_data_service.get_quote(holding.symbol)
+                    # Get current price from batch quotes with fallback to stored price
+                    quote = quotes.get(holding.symbol, {})
                     if quote and "price" in quote:
                         current_price = float(quote["price"])
                         holding.current_price = current_price

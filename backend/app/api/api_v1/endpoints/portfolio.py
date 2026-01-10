@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.security import get_current_active_user
 from app.db.base import get_db
@@ -24,9 +24,10 @@ async def get_portfolio_summary(
     db: Session = Depends(get_db),
 ):
     """Get portfolio summary with holdings"""
-    # Get user's active portfolio
+    # Get user's active portfolio with holdings eagerly loaded
     portfolio = (
         db.query(Portfolio)
+        .options(selectinload(Portfolio.holdings))
         .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
         .first()
     )
@@ -76,6 +77,7 @@ async def get_portfolio_details(
     """Get detailed portfolio information"""
     portfolio = (
         db.query(Portfolio)
+        .options(selectinload(Portfolio.holdings))
         .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
         .first()
     )
@@ -97,6 +99,7 @@ async def get_holdings(
     """Get all portfolio holdings"""
     portfolio = (
         db.query(Portfolio)
+        .options(selectinload(Portfolio.holdings))
         .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
         .first()
     )
@@ -147,6 +150,7 @@ async def get_portfolio_performance(
     """Get portfolio performance metrics"""
     portfolio = (
         db.query(Portfolio)
+        .options(selectinload(Portfolio.holdings))
         .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
         .first()
     )
@@ -197,6 +201,7 @@ async def refresh_portfolio_data(
     """Manually refresh portfolio data with latest market prices"""
     portfolio = (
         db.query(Portfolio)
+        .options(selectinload(Portfolio.holdings))
         .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
         .first()
     )

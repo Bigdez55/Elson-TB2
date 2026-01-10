@@ -71,7 +71,7 @@ steps:
       - '--cpu=1'
       - '--max-instances=10'
       - '--min-instances=1'
-      - '--concurrency=80'
+      - '--concurrency=40'
       - '--timeout=300'
       # Cloud SQL connection (use region, NOT zone)
       - '--add-cloudsql-instances=$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE}'

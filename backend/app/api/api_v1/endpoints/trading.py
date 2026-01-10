@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from sqlalchemy.orm import selectinload
+
 from app.core.config import settings
 from app.core.security import get_current_active_user
 from app.db.base import get_db
@@ -103,9 +105,10 @@ async def get_positions(
     try:
         from app.models.portfolio import Portfolio
 
-        # Get user's active portfolio
+        # Get user's active portfolio with holdings eagerly loaded
         portfolio = (
             db.query(Portfolio)
+            .options(selectinload(Portfolio.holdings))
             .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
             .first()
         )
@@ -151,9 +154,10 @@ async def get_position_by_symbol(
 
         symbol = symbol.upper()
 
-        # Get user's active portfolio
+        # Get user's active portfolio with holdings eagerly loaded
         portfolio = (
             db.query(Portfolio)
+            .options(selectinload(Portfolio.holdings))
             .filter(Portfolio.owner_id == current_user.id, Portfolio.is_active)
             .first()
         )
@@ -390,9 +394,10 @@ async def get_batch_data(
 
         trading_mode = x_trading_mode or "paper"
 
-        # Get user's portfolio
+        # Get user's portfolio with holdings eagerly loaded
         portfolio = (
             db.query(Portfolio)
+            .options(selectinload(Portfolio.holdings))
             .filter(
                 Portfolio.owner_id == current_user.id,
                 Portfolio.is_active == True,

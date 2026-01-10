@@ -38,7 +38,7 @@ class Holding(Base):
     current_allocation_percentage = Column(Float, nullable=True)
 
     # Portfolio relationship
-    portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False)
+    portfolio_id = Column(Integer, ForeignKey("portfolios.id"), nullable=False, index=True)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

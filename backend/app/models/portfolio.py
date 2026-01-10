@@ -73,14 +73,14 @@ class Portfolio(Base):
     last_valued_at = Column(DateTime(timezone=True), nullable=True)
 
     # Ownership
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Alias for owner_id compatibility
 
     # Account relationship for family accounts (temporarily commented out)
     # account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
 
     # Status
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, index=True)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
