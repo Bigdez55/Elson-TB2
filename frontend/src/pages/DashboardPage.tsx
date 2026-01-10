@@ -142,7 +142,7 @@ const DashboardPage: React.FC = () => {
       {/* Welcome Section */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Welcome back, {user?.full_name?.split(' ')[0] || 'Alex'}</h1>
+          <h1 className="text-2xl font-bold text-white">Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}</h1>
           <p className="text-gray-400">Here's what's happening with your investments today</p>
         </div>
         <div className="flex space-x-4">
@@ -198,32 +198,22 @@ const DashboardPage: React.FC = () => {
         />
       </div>
 
-      {/* New Wealth Features Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatsCard
-          title="Retirement"
-          value="$8,067.43"
-          badge={{ text: 'Roth IRA', variant: 'info' }}
-          change={{ value: '+$1,250 (15.5%) YTD', positive: true }}
-        />
-        <StatsCard
-          title="Elson Card"
-          value="$145.32"
-          badge={{ text: 'Stock-Back®', variant: 'premium' }}
-          change={{ value: 'Rewards earned this month', positive: true }}
-        />
-        <StatsCard
-          title="Crypto"
-          value="$3,724.51"
-          badge={{ text: '4 Assets', variant: 'warning' }}
-          change={{ value: '+$425.21 (12.9%) today', positive: true }}
-        />
-        <StatsCard
-          title="Tax Savings"
-          value="$347.92"
-          badge={{ text: 'Harvesting', variant: 'success' }}
-          change={{ value: 'Est. tax savings YTD', positive: true }}
-        />
+      {/* Premium Features - Coming Soon */}
+      <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 mb-8 border border-purple-500/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-purple-600/30 flex items-center justify-center">
+              <svg className="h-5 w-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-white font-medium">Premium Features Coming Soon</h3>
+              <p className="text-gray-400 text-sm">Retirement accounts, Elson Card rewards, crypto trading, and tax optimization</p>
+            </div>
+          </div>
+          <span className="text-purple-400 text-sm px-3 py-1 bg-purple-900/30 rounded-full">Coming Soon</span>
+        </div>
       </div>
 
       {/* Portfolio Performance & Allocation */}

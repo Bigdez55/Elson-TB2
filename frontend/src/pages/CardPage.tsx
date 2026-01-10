@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 interface Transaction {
   id: string;
@@ -11,31 +13,22 @@ interface Transaction {
 }
 
 const CardPage: React.FC = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [selectedTab, setSelectedTab] = useState<'card' | 'transactions' | 'rewards'>('card');
 
-  const cardBalance = 2450.75;
+  // Card feature is coming soon - show preview mode
+  const isCardActive = false; // This would come from user's account data
+
+  const cardBalance = 0;
   const availableCredit = 7549.25;
   const totalCashback = 148.50;
   const monthlySpend = 1850.00;
 
-  const transactions: Transaction[] = [
-    { id: '1', merchant: 'Amazon', category: 'Shopping', amount: 156.42, date: '2024-03-15', status: 'Completed', cashback: 3.13 },
-    { id: '2', merchant: 'Whole Foods', category: 'Groceries', amount: 87.23, date: '2024-03-14', status: 'Completed', cashback: 1.74 },
-    { id: '3', merchant: 'Shell Gas Station', category: 'Gas', amount: 52.18, date: '2024-03-14', status: 'Completed', cashback: 1.04 },
-    { id: '4', merchant: 'Starbucks', category: 'Dining', amount: 12.45, date: '2024-03-13', status: 'Completed', cashback: 0.25 },
-    { id: '5', merchant: 'Netflix', category: 'Entertainment', amount: 15.99, date: '2024-03-12', status: 'Pending', cashback: 0.32 },
-    { id: '6', merchant: 'Target', category: 'Shopping', amount: 248.90, date: '2024-03-11', status: 'Completed', cashback: 4.98 },
-    { id: '7', merchant: 'Uber', category: 'Transportation', amount: 28.50, date: '2024-03-10', status: 'Completed', cashback: 0.57 },
-  ];
+  // Transactions will be populated once the card is activated
+  const transactions: Transaction[] = [];
 
-  const spendingByCategory = [
-    { category: 'Shopping', amount: 405.32, percentage: 21.9, color: 'bg-purple-500' },
-    { category: 'Groceries', amount: 287.65, percentage: 15.6, color: 'bg-green-500' },
-    { category: 'Dining', amount: 542.18, percentage: 29.3, color: 'bg-yellow-500' },
-    { category: 'Gas', amount: 215.42, percentage: 11.6, color: 'bg-blue-500' },
-    { category: 'Entertainment', amount: 198.50, percentage: 10.7, color: 'bg-pink-500' },
-    { category: 'Other', amount: 200.93, percentage: 10.9, color: 'bg-gray-500' },
-  ];
+  // Spending data will be populated once the card is activated
+  const spendingByCategory: { category: string; amount: number; percentage: number; color: string }[] = [];
 
   const getCategoryIcon = (category: string) => {
     const icons: { [key: string]: string } = {
@@ -59,7 +52,23 @@ const CardPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Quick Stats */}
+      {/* Coming Soon Banner */}
+      <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 rounded-xl p-4 mb-6 border border-purple-500/30">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-purple-600/30 flex items-center justify-center">
+            <span className="text-xl">💳</span>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-medium">Elson Card - Coming Soon</h3>
+            <p className="text-gray-400 text-sm">We're working on bringing you a debit card with instant stock-back rewards. Join the waitlist below!</p>
+          </div>
+          <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+            Join Waitlist
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Stats - Preview Mode */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-xl p-4">
           <div className="text-purple-300 text-sm mb-1">Card Balance</div>
@@ -133,7 +142,7 @@ const CardPage: React.FC = () => {
                 <div className="flex items-end justify-between">
                   <div>
                     <div className="text-purple-200 text-xs mb-1">CARD HOLDER</div>
-                    <div className="text-white font-semibold">JOHN DOE</div>
+                    <div className="text-white font-semibold">{user?.full_name?.toUpperCase() || 'YOUR NAME'}</div>
                   </div>
                   <div>
                     <div className="text-purple-200 text-xs mb-1">EXPIRES</div>
@@ -196,33 +205,43 @@ const CardPage: React.FC = () => {
               <div className="p-4 border-b border-gray-700">
                 <h2 className="text-xl font-semibold text-white">Recent Transactions</h2>
               </div>
-              <div className="divide-y divide-gray-700">
-                {transactions.map((transaction) => (
-                  <div key={transaction.id} className="p-4 hover:bg-gray-800 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                          <span className="text-xl">{getCategoryIcon(transaction.category)}</span>
+              {transactions.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">💳</span>
+                  </div>
+                  <h3 className="text-white font-medium mb-2">No Transactions Yet</h3>
+                  <p className="text-gray-400 text-sm">Your card transactions will appear here once you activate your Elson Card.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-700">
+                  {transactions.map((transaction) => (
+                    <div key={transaction.id} className="p-4 hover:bg-gray-800 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <span className="text-xl">{getCategoryIcon(transaction.category)}</span>
+                          </div>
+                          <div>
+                            <div className="text-white font-medium">{transaction.merchant}</div>
+                            <div className="text-sm text-gray-400">{transaction.category}</div>
+                            <div className="text-xs text-green-400">+${transaction.cashback.toFixed(2)} cashback</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-white font-medium">{transaction.merchant}</div>
-                          <div className="text-sm text-gray-400">{transaction.category}</div>
-                          <div className="text-xs text-green-400">+${transaction.cashback.toFixed(2)} cashback</div>
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-white">-${transaction.amount.toFixed(2)}</div>
+                          <div className="text-sm text-gray-400">{new Date(transaction.date).toLocaleDateString()}</div>
+                          <span className={`inline-block text-xs px-2 py-1 rounded ${
+                            transaction.status === 'Completed' ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
+                          }`}>
+                            {transaction.status}
+                          </span>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-white">-${transaction.amount.toFixed(2)}</div>
-                        <div className="text-sm text-gray-400">{new Date(transaction.date).toLocaleDateString()}</div>
-                        <span className={`inline-block text-xs px-2 py-1 rounded ${
-                          transaction.status === 'Completed' ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'
-                        }`}>
-                          {transaction.status}
-                        </span>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

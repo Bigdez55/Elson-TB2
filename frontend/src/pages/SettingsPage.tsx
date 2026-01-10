@@ -303,12 +303,8 @@ const SecuritySection: React.FC = () => {
     }));
   };
 
-  const loginHistory = [
-    { date: 'Feb 28, 2025 10:23 AM', device: 'MacBook Pro (Chrome)', location: 'San Francisco, CA, USA', ip: '192.168.1.1', status: 'Success' },
-    { date: 'Feb 27, 2025 3:45 PM', device: 'iPhone 15 Pro (Safari)', location: 'San Francisco, CA, USA', ip: '192.168.1.2', status: 'Success' },
-    { date: 'Feb 25, 2025 7:12 PM', device: 'Unknown Device (Firefox)', location: 'New York, NY, USA', ip: '203.0.113.5', status: 'Failed' },
-    { date: 'Feb 24, 2025 11:30 AM', device: 'MacBook Pro (Chrome)', location: 'San Francisco, CA, USA', ip: '192.168.1.1', status: 'Success' }
-  ];
+  // Login history - will be populated from API when available
+  const loginHistory: { date: string; device: string; location: string; ip: string; status: string }[] = [];
 
   return (
     <div>
@@ -500,30 +496,38 @@ const SecuritySection: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {loginHistory.map((entry, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {entry.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {entry.device}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {entry.location}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {entry.ip}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge 
-                      variant={entry.status === 'Success' ? 'success' : 'error'}
-                      size="sm"
-                    >
-                      {entry.status}
-                    </Badge>
+              {loginHistory.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center">
+                    <p className="text-gray-400">Login history tracking coming soon</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                loginHistory.map((entry, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      {entry.date}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      {entry.device}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      {entry.location}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      {entry.ip}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge
+                        variant={entry.status === 'Success' ? 'success' : 'error'}
+                        size="sm"
+                      >
+                        {entry.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -874,49 +878,17 @@ const NotificationsSection: React.FC = () => {
 
 // Devices Section
 const DevicesSection: React.FC = () => {
+  // Only show current device - other device tracking coming soon
   const [devices] = useState([
     {
       id: '1',
-      name: 'MacBook Pro',
+      name: 'Current Browser',
       type: 'desktop',
-      browser: 'Chrome 121',
-      location: 'San Francisco, CA',
+      browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Browser',
+      location: 'Current Session',
       lastActive: 'Active now',
       isCurrent: true,
-      ip: '192.168.1.1',
-      trusted: true
-    },
-    {
-      id: '2',
-      name: 'iPhone 15 Pro',
-      type: 'mobile',
-      browser: 'Safari iOS',
-      location: 'San Francisco, CA',
-      lastActive: '2 hours ago',
-      isCurrent: false,
-      ip: '192.168.1.2',
-      trusted: true
-    },
-    {
-      id: '3',
-      name: 'Windows Desktop',
-      type: 'desktop',
-      browser: 'Firefox 122',
-      location: 'New York, NY',
-      lastActive: '3 days ago',
-      isCurrent: false,
-      ip: '203.0.113.45',
-      trusted: false
-    },
-    {
-      id: '4',
-      name: 'iPad Pro',
-      type: 'tablet',
-      browser: 'Safari iPadOS',
-      location: 'San Francisco, CA',
-      lastActive: '1 week ago',
-      isCurrent: false,
-      ip: '192.168.1.5',
+      ip: 'Current',
       trusted: true
     }
   ]);
@@ -1206,12 +1178,8 @@ const SubscriptionSection: React.FC = () => {
     }
   ];
 
-  const billingHistory = [
-    { date: 'Feb 15, 2025', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
-    { date: 'Jan 15, 2025', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
-    { date: 'Dec 15, 2024', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' },
-    { date: 'Nov 15, 2024', description: 'Premium Plan - Monthly', amount: '$9.99', status: 'Paid' }
-  ];
+  // Billing history - will be populated when subscription features are enabled
+  const billingHistory: { date: string; description: string; amount: string; status: string }[] = [];
 
   return (
     <div>
@@ -1313,21 +1281,30 @@ const SubscriptionSection: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {billingHistory.map((item, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-3 text-sm text-gray-300">{item.date}</td>
-                  <td className="px-4 py-3 text-sm text-gray-300">{item.description}</td>
-                  <td className="px-4 py-3 text-sm text-white font-medium">{item.amount}</td>
-                  <td className="px-4 py-3">
-                    <Badge variant="success" size="sm">{item.status}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button className="text-purple-400 hover:text-purple-300 text-sm transition-colors">
-                      Download
-                    </button>
+              {billingHistory.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center">
+                    <p className="text-gray-400">No billing history yet</p>
+                    <p className="text-gray-500 text-sm mt-1">Your payment history will appear here</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                billingHistory.map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-3 text-sm text-gray-300">{item.date}</td>
+                    <td className="px-4 py-3 text-sm text-gray-300">{item.description}</td>
+                    <td className="px-4 py-3 text-sm text-white font-medium">{item.amount}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant="success" size="sm">{item.status}</Badge>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button className="text-purple-400 hover:text-purple-300 text-sm transition-colors">
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

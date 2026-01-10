@@ -71,85 +71,79 @@ const Watchlist: React.FC<{ onSymbolSelect?: (symbol: string) => void }> = ({
   const [filter, setFilter] = useState('');
   const [addingSymbol, setAddingSymbol] = useState(false);
 
-  useEffect(() => {
-    const loadWatchlist = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Mock watchlist data
-        const mockItems: WatchlistItem[] = [
-          {
-            symbol: 'AAPL',
-            price: 150.25,
-            change24h: 2.5,
-            volume24h: 45000000,
-            high24h: 152.50,
-            low24h: 148.00,
-          },
-          {
-            symbol: 'MSFT',
-            price: 310.75,
-            change24h: -1.2,
-            volume24h: 32000000,
-            high24h: 315.00,
-            low24h: 308.50,
-          },
-          {
-            symbol: 'GOOGL',
-            price: 140.85,
-            change24h: 0.8,
-            volume24h: 28000000,
-            high24h: 142.20,
-            low24h: 139.50,
-          },
-          {
-            symbol: 'TSLA',
-            price: 245.60,
-            change24h: -3.2,
-            volume24h: 55000000,
-            high24h: 252.00,
-            low24h: 243.10,
-          },
-          {
-            symbol: 'NVDA',
-            price: 450.20,
-            change24h: 5.7,
-            volume24h: 38000000,
-            high24h: 458.90,
-            low24h: 442.30,
-          },
-        ];
+  // Load watchlist from localStorage and fetch real prices
+  const loadWatchlist = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        setTimeout(() => {
-          setItems(mockItems);
-          setLoading(false);
-        }, 1000);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load watchlist');
+      // Get saved symbols from localStorage
+      const savedSymbols = JSON.parse(localStorage.getItem('watchlist') || '[]') as string[];
+
+      if (savedSymbols.length === 0) {
+        setItems([]);
         setLoading(false);
+        return;
       }
-    };
 
+      // Fetch real prices from API
+      const token = localStorage.getItem('token');
+      const baseUrl = process.env.REACT_APP_API_URL || '/api/v1';
+
+      const response = await fetch(`${baseUrl}/market-data/quotes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(savedSymbols),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch quotes');
+      }
+
+      const data = await response.json();
+
+      const watchlistItems: WatchlistItem[] = (data.quotes || []).map((quote: any) => ({
+        symbol: quote.symbol,
+        price: quote.price || 0,
+        change24h: quote.change_percent || 0,
+        volume24h: quote.volume || 0,
+        high24h: quote.high || quote.price * 1.02,
+        low24h: quote.low || quote.price * 0.98,
+      }));
+
+      setItems(watchlistItems);
+    } catch (err) {
+      logger.error('Error loading watchlist:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load watchlist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadWatchlist();
-    
-    const interval = setInterval(loadWatchlist, 10000);
+
+    // Refresh prices every 60 seconds
+    const interval = setInterval(loadWatchlist, 60000);
     return () => clearInterval(interval);
   }, []);
 
   const handleAddSymbol = async () => {
     const trimmedSymbol = newSymbol.trim().toUpperCase();
-    
+
     if (!trimmedSymbol) {
       setError('Please enter a symbol');
       return;
     }
-    
+
     if (!isValidSymbol(trimmedSymbol)) {
       setError('Please enter a valid symbol (e.g., AAPL, MSFT)');
       return;
     }
-    
+
     if (items.some(item => item.symbol === trimmedSymbol)) {
       setError('Symbol already in watchlist');
       return;
@@ -158,33 +152,53 @@ const Watchlist: React.FC<{ onSymbolSelect?: (symbol: string) => void }> = ({
     try {
       setAddingSymbol(true);
       setError(null);
-      
-      // Mock adding symbol
-      const newItem: WatchlistItem = {
-        symbol: trimmedSymbol,
-        price: Math.random() * 200 + 50,
-        change24h: (Math.random() - 0.5) * 10,
-        volume24h: Math.random() * 50000000,
-        high24h: 0,
-        low24h: 0,
-      };
-      
-      newItem.high24h = newItem.price * 1.05;
-      newItem.low24h = newItem.price * 0.95;
 
-      setTimeout(() => {
-        setItems(prev => [...prev, newItem]);
-        setNewSymbol('');
-        setAddingSymbol(false);
-      }, 500);
+      // Fetch real quote from API
+      const token = localStorage.getItem('token');
+      const baseUrl = process.env.REACT_APP_API_URL || '/api/v1';
+
+      const response = await fetch(`${baseUrl}/market-data/quote/${trimmedSymbol}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Symbol ${trimmedSymbol} not found`);
+      }
+
+      const quote = await response.json();
+
+      const newItem: WatchlistItem = {
+        symbol: quote.symbol,
+        price: quote.price || 0,
+        change24h: quote.change_percent || 0,
+        volume24h: quote.volume || 0,
+        high24h: quote.high || quote.price * 1.02,
+        low24h: quote.low || quote.price * 0.98,
+      };
+
+      // Save to localStorage
+      const savedSymbols = JSON.parse(localStorage.getItem('watchlist') || '[]') as string[];
+      savedSymbols.push(trimmedSymbol);
+      localStorage.setItem('watchlist', JSON.stringify(savedSymbols));
+
+      setItems(prev => [...prev, newItem]);
+      setNewSymbol('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add symbol');
+    } finally {
       setAddingSymbol(false);
     }
   };
 
   const handleRemoveSymbol = async (symbol: string) => {
     try {
+      // Remove from localStorage
+      const savedSymbols = JSON.parse(localStorage.getItem('watchlist') || '[]') as string[];
+      const updatedSymbols = savedSymbols.filter(s => s !== symbol);
+      localStorage.setItem('watchlist', JSON.stringify(updatedSymbols));
+
       setItems(prev => prev.filter(item => item.symbol !== symbol));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove symbol');
