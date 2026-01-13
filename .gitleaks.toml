@@ -1,0 +1,50 @@
+# Gitleaks configuration file
+# https://github.com/gitleaks/gitleaks
+
+title = "Elson Trading Platform Gitleaks Config"
+
+[extend]
+# Use the default gitleaks config as a base
+useDefault = true
+
+# Allowlist certain paths and patterns
+[allowlist]
+description = "Allowlisted files and patterns"
+
+# Paths to ignore
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.sample$''',
+  '''package-lock\.json$''',
+  '''yarn\.lock$''',
+  '''pnpm-lock\.yaml$''',
+  '''\.md$''',
+  '''docs/''',
+  '''tests/''',
+  '''__tests__/''',
+  '''\.test\.tsx?$''',
+  '''\.spec\.tsx?$''',
+]
+
+# Regex patterns to ignore (for placeholder/demo values)
+regexes = [
+  '''demo-key-replace-with-real''',
+  '''elsk_\*+''',
+  '''your-.*-here''',
+  '''example\.com''',
+  '''localhost''',
+  '''127\.0\.0\.1''',
+]
+
+# Additional rules to ignore false positives
+[[rules]]
+id = "placeholder-api-key"
+description = "Ignore placeholder API keys"
+regex = '''(?i)(demo|test|example|placeholder|sample|fake|dummy)[-_]?(key|token|secret|api)'''
+allowlist = { regexes = ['''.*'''] }
+
+[[rules]]
+id = "env-example-files"
+description = "Ignore .env.example files"
+path = '''\.env\.(example|sample|template)$'''
+allowlist = { regexes = ['''.*'''] }

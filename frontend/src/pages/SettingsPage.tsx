@@ -504,12 +504,15 @@ const SecuritySection: React.FC = () => {
 
 // API Access Section
 const APISection: React.FC = () => {
-  const [apiKey, setApiKey] = useState('elsk_*****************************7a3f');
+  // Demo placeholder - in production, this would come from the API
+  const [apiKey, setApiKey] = useState('elsk_****************************xxxx');
   const [showKey, setShowKey] = useState(false);
   const [copied, setCopied] = useState(false);
-  const fullApiKey = 'elsk_live_abc123def456ghi789jkl012mno345pqr67a3f';
+  // Placeholder for demo - real key would be fetched from backend
+  const fullApiKey = 'demo-key-replace-with-real-api-call';
 
   const handleCopyKey = () => {
+    // In production, fetch the real key from the API first
     navigator.clipboard.writeText(fullApiKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
