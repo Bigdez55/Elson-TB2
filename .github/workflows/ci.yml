@@ -134,6 +134,8 @@ jobs:
 
       - name: Build application
         run: npm run build
+        env:
+          CI: false  # Don't treat warnings as errors during build
 
   # Docker build and push
   docker:

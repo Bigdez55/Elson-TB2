@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_active_user, get_current_admin_user
+
+logger = logging.getLogger(__name__)
 from app.db.base import get_db
 from app.models.portfolio import Portfolio
 from app.models.holding import Position

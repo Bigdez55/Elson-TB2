@@ -63,7 +63,6 @@ class PaperBroker(BaseBroker):
 
             # Initialize paper_trading service lazily if not done yet
             if self.paper_trading is None:
-                global PaperTradingService
                 self.paper_trading = PaperTradingService(
                     self.db, simulation_service=self.market_simulation
                 )
