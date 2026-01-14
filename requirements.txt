@@ -18,7 +18,7 @@ pydantic-settings>=2.6.0
 # Authentication and Security
 PyJWT>=2.8.0
 passlib[bcrypt]>=1.7.4
-bcrypt>=4.2.0
+bcrypt>=4.0.0,<4.1.0  # Pin to 4.0.x for passlib compatibility
 pyotp>=2.9.0
 webauthn>=2.5.1
 
