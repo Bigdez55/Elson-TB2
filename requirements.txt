@@ -61,6 +61,15 @@ torch>=2.1.0
 transformers>=4.35.0
 plotly>=5.17.0
 
+# Elson Financial AI - LLM Model Merging & Inference
+# Note: mergekit is for model creation (run on GPU VM, not in production)
+# mergekit>=0.0.4.3  # Uncomment when running model merge
+safetensors>=0.4.0
+accelerate>=0.25.0
+peft>=0.7.0  # LoRA adapters for fine-tuning
+bitsandbytes>=0.41.0  # Quantization support
+sentencepiece>=0.1.99  # Tokenization
+
 # Quantum Computing (Optional - for quantum ML models)
 qiskit>=0.45.0
 qiskit-algorithms>=0.2.0

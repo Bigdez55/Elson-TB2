@@ -80,12 +80,16 @@ secrets/
 
 # Testing
 .coverage
+coverage/
 htmlcov/
 .pytest_cache/
 .mypy_cache/
 .tox/
 *test_results*.json
 *_results.json
+
+# Runtime state files
+**/circuit_breaker_status.json
 
 # Redis
 dump.rdb
