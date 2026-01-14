@@ -71,6 +71,8 @@ stripe>=7.0.0
 # Security: Pin these to fix known vulnerabilities
 pillow>=11.3.0
 aiohttp>=3.9.0
+werkzeug>=3.1.5  # Fix CVE-2025-66221, CVE-2026-21860
+filelock>=3.20.3  # Fix CVE-2025-68146, CVE-2026-22701
 
 # Redis and Caching
 redis>=5.0.0
