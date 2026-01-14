@@ -22,7 +22,11 @@ from .nlp_models import (
     TransformerSentimentAnalyzer,
     FinancialNewsClassifier,
     sentiment_analysis_batch,
-    find_market_moving_news
+    find_market_moving_news,
+    # Phase 1: FinGPT sentiment analysis
+    FinGPTSentimentAnalyzer,
+    fingpt_sentiment_analysis,
+    analyze_market_sentiment
 )
 
 __all__ = [
@@ -38,5 +42,9 @@ __all__ = [
     'TransformerSentimentAnalyzer',
     'FinancialNewsClassifier',
     'sentiment_analysis_batch',
-    'find_market_moving_news'
+    'find_market_moving_news',
+    # Phase 1: FinGPT
+    'FinGPTSentimentAnalyzer',
+    'fingpt_sentiment_analysis',
+    'analyze_market_sentiment'
 ]

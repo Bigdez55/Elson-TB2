@@ -21,3 +21,9 @@ try:
     from .anomaly_detector import *
 except ImportError:
     pass  # anomaly_detector requires backend app dependencies
+
+# Phase 1: Financial Ratios Engine (FinanceToolkit)
+try:
+    from .ratios_engine import ElsonFinancialRatios, quick_ratio_analysis
+except ImportError:
+    pass  # ratios_engine requires financetoolkit
