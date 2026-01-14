@@ -85,3 +85,22 @@ prometheus-client>=0.19.0
 
 # Local packages (trading-engine now integrated in app/trading_engine)
 pyyaml>=6.0
+
+# ========================================
+# Phase 1: ELSON Financial AI Integration
+# ========================================
+
+# OpenBB Platform - 100+ data sources
+openbb>=4.3.0
+
+# FinanceToolkit - 150+ financial ratios
+financetoolkit>=1.9.0
+
+# FinGPT Dependencies - Enhanced sentiment analysis
+peft>=0.7.0                    # LoRA adapter support
+bitsandbytes>=0.41.0           # Quantization for large models
+sentencepiece>=0.2.0           # Tokenizer support
+
+# RAG Components (for Phase 2+)
+chromadb>=0.4.0                # Vector store
+sentence-transformers>=2.3.0   # Embeddings

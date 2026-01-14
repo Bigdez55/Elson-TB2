@@ -1,6 +1,8 @@
 """
 Data Sources module for the trading engine.
 Implements connections to various data sources like market data, news, economic data, etc.
+
+Phase 1 Enhancement: OpenBB Platform integration for 100+ data sources
 """
 import os
 import logging
@@ -15,6 +17,13 @@ import aiohttp
 import asyncio
 import json
 from dotenv import load_dotenv
+
+# OpenBB Platform import (Phase 1)
+try:
+    from openbb import obb
+    OPENBB_AVAILABLE = True
+except ImportError:
+    OPENBB_AVAILABLE = False
 
 # Load environment variables
 load_dotenv()
@@ -329,6 +338,343 @@ class OrderBookDataSource(DataSource):
         }
 
 
+class OpenBBDataProvider(DataSource):
+    """
+    OpenBB Platform data provider - Access 100+ financial data sources
+
+    Phase 1 Enhancement: Unified access to multiple data providers including:
+    - Alpha Vantage, Polygon.io, Intrinio, FRED, Quandl, IEX Cloud, and more
+
+    Usage:
+        provider = OpenBBDataProvider()
+        stock_data = await provider.get_stock_data('AAPL')
+        options_data = await provider.get_options_chain('AAPL')
+        macro_data = await provider.get_macro_indicators()
+    """
+
+    def __init__(self, credentials: Optional[Dict[str, str]] = None):
+        """
+        Initialize OpenBB data provider
+
+        Args:
+            credentials: Dictionary of API credentials for various providers
+                        e.g., {'fmp_api_key': 'xxx', 'polygon_api_key': 'xxx'}
+        """
+        super().__init__()
+        self.name = "openbb_data"
+        self.available = OPENBB_AVAILABLE
+
+        if not self.available:
+            logger.warning("OpenBB not installed. Install with: pip install openbb")
+            return
+
+        # Configure credentials if provided
+        if credentials:
+            self._configure_credentials(credentials)
+
+    def _configure_credentials(self, credentials: Dict[str, str]) -> None:
+        """Configure OpenBB with API credentials"""
+        if not self.available:
+            return
+
+        try:
+            for key, value in credentials.items():
+                setattr(obb.user.credentials, key, value)
+            logger.info("OpenBB credentials configured successfully")
+        except Exception as e:
+            logger.error(f"Error configuring OpenBB credentials: {str(e)}")
+
+    async def fetch_data(self, *args, **kwargs) -> Any:
+        """Generic fetch method - delegates to specific methods"""
+        raise NotImplementedError("Use specific methods like get_stock_data, get_options_chain, etc.")
+
+    async def get_stock_data(
+        self,
+        symbol: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        provider: str = "yfinance"
+    ) -> pd.DataFrame:
+        """
+        Get historical stock price data
+
+        Args:
+            symbol: Stock ticker symbol
+            start_date: Start date (YYYY-MM-DD)
+            end_date: End date (YYYY-MM-DD)
+            provider: Data provider (yfinance, fmp, polygon, intrinio, etc.)
+
+        Returns:
+            DataFrame with OHLCV data
+        """
+        if not self.available:
+            logger.warning("OpenBB not available, falling back to yfinance")
+            return await self._fallback_stock_data(symbol, start_date, end_date)
+
+        try:
+            if not start_date:
+                start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+            if not end_date:
+                end_date = datetime.now().strftime('%Y-%m-%d')
+
+            result = obb.equity.price.historical(
+                symbol=symbol,
+                start_date=start_date,
+                end_date=end_date,
+                provider=provider
+            )
+
+            # Convert to DataFrame
+            df = result.to_df()
+            df.columns = [col.lower() for col in df.columns]
+            return df
+
+        except Exception as e:
+            logger.error(f"OpenBB error fetching {symbol}: {str(e)}")
+            return await self._fallback_stock_data(symbol, start_date, end_date)
+
+    async def _fallback_stock_data(
+        self,
+        symbol: str,
+        start_date: Optional[str],
+        end_date: Optional[str]
+    ) -> pd.DataFrame:
+        """Fallback to yfinance if OpenBB fails"""
+        try:
+            data = yf.download(
+                symbol,
+                start=start_date,
+                end=end_date,
+                progress=False
+            )
+            data.columns = [col.lower() for col in data.columns]
+            return data
+        except Exception as e:
+            logger.error(f"Fallback yfinance error: {str(e)}")
+            return pd.DataFrame()
+
+    async def get_options_chain(
+        self,
+        symbol: str,
+        provider: str = "intrinio"
+    ) -> Dict[str, pd.DataFrame]:
+        """
+        Get options chain data
+
+        Args:
+            symbol: Stock ticker symbol
+            provider: Data provider (intrinio, tradier, cboe, etc.)
+
+        Returns:
+            Dictionary with 'calls' and 'puts' DataFrames
+        """
+        if not self.available:
+            logger.warning("OpenBB not available for options data")
+            return {"calls": pd.DataFrame(), "puts": pd.DataFrame()}
+
+        try:
+            result = obb.derivatives.options.chains(symbol=symbol, provider=provider)
+            df = result.to_df()
+
+            # Split into calls and puts
+            calls = df[df['option_type'].str.lower() == 'call'] if 'option_type' in df.columns else df
+            puts = df[df['option_type'].str.lower() == 'put'] if 'option_type' in df.columns else pd.DataFrame()
+
+            return {"calls": calls, "puts": puts}
+
+        except Exception as e:
+            logger.error(f"Error fetching options chain for {symbol}: {str(e)}")
+            return {"calls": pd.DataFrame(), "puts": pd.DataFrame()}
+
+    async def get_macro_indicators(
+        self,
+        indicators: List[str] = None,
+        provider: str = "fred"
+    ) -> Dict[str, pd.DataFrame]:
+        """
+        Get macroeconomic indicators
+
+        Args:
+            indicators: List of indicator codes (e.g., ['GDP', 'UNRATE', 'CPIAUCSL'])
+            provider: Data provider (fred, oecd, etc.)
+
+        Returns:
+            Dictionary of indicator DataFrames
+        """
+        if not self.available:
+            logger.warning("OpenBB not available for macro data")
+            return {}
+
+        if indicators is None:
+            indicators = ['GDP', 'UNRATE', 'CPIAUCSL', 'FEDFUNDS', 'DGS10']
+
+        results = {}
+        for indicator in indicators:
+            try:
+                result = obb.economy.fred_series(
+                    symbol=indicator,
+                    provider=provider
+                )
+                results[indicator] = result.to_df()
+            except Exception as e:
+                logger.error(f"Error fetching {indicator}: {str(e)}")
+
+        return results
+
+    async def get_crypto_data(
+        self,
+        symbol: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        provider: str = "yfinance"
+    ) -> pd.DataFrame:
+        """
+        Get cryptocurrency price data
+
+        Args:
+            symbol: Crypto symbol (e.g., 'BTC-USD', 'ETH-USD')
+            start_date: Start date
+            end_date: End date
+            provider: Data provider
+
+        Returns:
+            DataFrame with OHLCV data
+        """
+        if not self.available:
+            return await self._fallback_stock_data(symbol, start_date, end_date)
+
+        try:
+            result = obb.crypto.price.historical(
+                symbol=symbol,
+                start_date=start_date,
+                end_date=end_date,
+                provider=provider
+            )
+            return result.to_df()
+        except Exception as e:
+            logger.error(f"Error fetching crypto data for {symbol}: {str(e)}")
+            return pd.DataFrame()
+
+    async def get_forex_data(
+        self,
+        pair: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        provider: str = "yfinance"
+    ) -> pd.DataFrame:
+        """
+        Get forex pair data
+
+        Args:
+            pair: Currency pair (e.g., 'EURUSD', 'GBPUSD')
+            start_date: Start date
+            end_date: End date
+            provider: Data provider
+
+        Returns:
+            DataFrame with OHLCV data
+        """
+        if not self.available:
+            # Convert to yfinance format (e.g., EURUSD -> EURUSD=X)
+            yf_symbol = f"{pair}=X"
+            return await self._fallback_stock_data(yf_symbol, start_date, end_date)
+
+        try:
+            result = obb.currency.price.historical(
+                symbol=pair,
+                start_date=start_date,
+                end_date=end_date,
+                provider=provider
+            )
+            return result.to_df()
+        except Exception as e:
+            logger.error(f"Error fetching forex data for {pair}: {str(e)}")
+            return pd.DataFrame()
+
+    async def get_company_fundamentals(
+        self,
+        symbol: str,
+        provider: str = "fmp"
+    ) -> Dict[str, Any]:
+        """
+        Get company fundamental data
+
+        Args:
+            symbol: Stock ticker symbol
+            provider: Data provider (fmp, polygon, intrinio, etc.)
+
+        Returns:
+            Dictionary with fundamental data
+        """
+        if not self.available:
+            logger.warning("OpenBB not available for fundamental data")
+            return {}
+
+        try:
+            fundamentals = {}
+
+            # Get various fundamental data
+            try:
+                income = obb.equity.fundamental.income(symbol=symbol, provider=provider)
+                fundamentals['income_statement'] = income.to_df()
+            except Exception:
+                pass
+
+            try:
+                balance = obb.equity.fundamental.balance(symbol=symbol, provider=provider)
+                fundamentals['balance_sheet'] = balance.to_df()
+            except Exception:
+                pass
+
+            try:
+                cash = obb.equity.fundamental.cash(symbol=symbol, provider=provider)
+                fundamentals['cash_flow'] = cash.to_df()
+            except Exception:
+                pass
+
+            return fundamentals
+
+        except Exception as e:
+            logger.error(f"Error fetching fundamentals for {symbol}: {str(e)}")
+            return {}
+
+    async def get_earnings_calendar(
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        provider: str = "fmp"
+    ) -> pd.DataFrame:
+        """
+        Get earnings calendar
+
+        Args:
+            start_date: Start date
+            end_date: End date
+            provider: Data provider
+
+        Returns:
+            DataFrame with earnings calendar data
+        """
+        if not self.available:
+            return pd.DataFrame()
+
+        try:
+            if not start_date:
+                start_date = datetime.now().strftime('%Y-%m-%d')
+            if not end_date:
+                end_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+
+            result = obb.equity.calendar.earnings(
+                start_date=start_date,
+                end_date=end_date,
+                provider=provider
+            )
+            return result.to_df()
+        except Exception as e:
+            logger.error(f"Error fetching earnings calendar: {str(e)}")
+            return pd.DataFrame()
+
+
 # Factory to create the appropriate data source
 def create_data_source(source_type: str, api_key: Optional[str] = None) -> DataSource:
     """
@@ -349,5 +695,7 @@ def create_data_source(source_type: str, api_key: Optional[str] = None) -> DataS
         return EconomicDataSource(api_key)
     elif source_type == 'order_book':
         return OrderBookDataSource(api_key)
+    elif source_type == 'openbb':
+        return OpenBBDataProvider()
     else:
         raise ValueError(f"Unsupported data source type: {source_type}")
