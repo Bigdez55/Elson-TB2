@@ -10,7 +10,7 @@
 
 substitutions:
   _REGION: us-west1
-  _BUCKET_NAME: ${PROJECT_ID}-elson-models
+  _BUCKET_NAME: elson-33a95-elson-models
 
 steps:
   # Step 1: Create GCS bucket for model storage (if not exists)
@@ -185,12 +185,22 @@ steps:
 
         JOB_NAME="elson-model-merge-$(date +%Y%m%d-%H%M%S)"
 
+        # Write env vars to script header
+        cat > /tmp/env_header.sh << ENVEOF
+        export HF_TOKEN="$$HF_TOKEN"
+        export BUCKET_NAME="${_BUCKET_NAME}"
+        ENVEOF
+
+        # Download, prepend env vars, and re-upload script
+        gsutil cp gs://${_BUCKET_NAME}/scripts/train.sh /tmp/train_orig.sh
+        cat /tmp/env_header.sh /tmp/train_orig.sh > /tmp/train_final.sh
+        gsutil cp /tmp/train_final.sh gs://${_BUCKET_NAME}/scripts/train.sh
+
         gcloud ai custom-jobs create \
           --region=${_REGION} \
           --display-name="$${JOB_NAME}" \
-          --worker-pool-spec=machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_A100,accelerator-count=1,replica-count=1,container-image-uri=pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime \
-          --args="bash,-c,gsutil cp gs://${_BUCKET_NAME}/scripts/train.sh /workspace/train.sh && chmod +x /workspace/train.sh && /workspace/train.sh" \
-          --env-vars="HF_TOKEN=$$HF_TOKEN,BUCKET_NAME=${_BUCKET_NAME}"
+          --worker-pool-spec=machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_T4,accelerator-count=1,replica-count=1,container-image-uri=pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime \
+          --args="bash,-c,gsutil cp gs://${_BUCKET_NAME}/scripts/train.sh /workspace/train.sh && chmod +x /workspace/train.sh && /workspace/train.sh"
 
         echo ""
         echo "╔═══════════════════════════════════════════════════════════════════╗"
@@ -209,7 +219,7 @@ steps:
 # Use Secret Manager for HuggingFace token
 availableSecrets:
   secretManager:
-    - versionName: projects/${PROJECT_ID}/secrets/HF_TOKEN/versions/latest
+    - versionName: projects/elson-33a95/secrets/HF_TOKEN/versions/latest
       env: 'HF_TOKEN'
 
 options:
