@@ -78,7 +78,7 @@ steps:
       # Environment variables
       - '--set-env-vars=ENVIRONMENT=production,PROJECT_ID=$PROJECT_ID,CLOUD_SQL_CONNECTION_NAME=$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE},DB_USER=${_DB_USER},DB_NAME=${_DB_NAME},DATABASE_URL=postgresql://${_DB_USER}@/${_DB_NAME}?host=/cloudsql/$PROJECT_ID:${_DEPLOY_REGION}:${_CLOUD_SQL_INSTANCE}'
       # Secrets from Secret Manager
-      - '--update-secrets=DB_PASS=DB_PASS:latest,SECRET_KEY=SECRET_KEY:latest'
+      - '--update-secrets=DB_PASS=DB_PASSWORD:latest,SECRET_KEY=SECRET_KEY:latest'
       - '--quiet'
     waitFor: ['push-backend']
 
