@@ -1,0 +1,41 @@
+# ADVANCED: Frankenmerge - Layer-Level Specialization
+# Instead of blending weights, STACK layers from different models
+# Each layer range gets specialized capabilities
+
+slices:
+  # LAYERS 0-12: DeepSeek for input processing and reasoning setup
+  # These early layers handle tokenization and initial understanding
+  - sources:
+      - model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+        layer_range: [0, 12]
+
+  # LAYERS 13-24: Qwen-Math for quantitative processing
+  # Middle layers where numerical reasoning happens
+  - sources:
+      - model: Qwen/Qwen2.5-Math-14B-Instruct
+        layer_range: [12, 24]
+
+  # LAYERS 25-36: FinGPT for financial domain understanding
+  # These layers specialize in financial terminology and patterns
+  - sources:
+      - model: FinGPT/fingpt-mt_llama2-13b_lora
+        layer_range: [12, 24]  # Map FinGPT's middle layers here
+
+  # LAYERS 37-48: DeepSeek for reasoning output and verification
+  # Final layers for chain-of-thought and verification
+  - sources:
+      - model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+        layer_range: [36, 48]
+
+merge_method: passthrough  # Stack, don't blend
+dtype: bfloat16
+
+# Result: A "Frankenstein" model with ~48 layers where:
+# - Input processing: DeepSeek reasoning
+# - Math computation: Qwen precision
+# - Financial knowledge: FinGPT domain expertise
+# - Output generation: DeepSeek verification
+
+# WARNING: This creates a non-standard architecture
+# May need custom inference code
+# Best used for experimentation

@@ -1,0 +1,219 @@
+# Elson Financial AI - Model Merge via Vertex AI
+#
+# This Cloud Build config creates and submits a Vertex AI custom training job
+# to merge AI models into the proprietary Elson-Finance-Trading-14B.
+#
+# Trigger manually:
+#   gcloud builds submit --config=cloudbuild-model-merge.yaml --no-source
+#
+# Or from GitHub: push to main with [model-merge] in commit message
+
+substitutions:
+  _REGION: us-west1
+  _MODEL_NAME: elson-finance-trading-14b-final
+  _BUCKET_NAME: ${PROJECT_ID}-elson-models
+
+steps:
+  # Step 1: Create GCS bucket for model storage (if not exists)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'create-bucket'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gsutil ls gs://${_BUCKET_NAME}/ 2>/dev/null || \
+        gsutil mb -l ${_REGION} gs://${_BUCKET_NAME}/
+        echo "Bucket ready: gs://${_BUCKET_NAME}/"
+
+  # Step 2: Create the training script
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'create-training-script'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cat > /workspace/train.sh << 'SCRIPT_EOF'
+        #!/bin/bash
+        set -e
+
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║           ELSON FINANCIAL AI - MODEL MERGE PIPELINE               ║"
+        echo "║                                                                   ║"
+        echo "║  Stage 1: SLERP (DeepSeek-R1 + Qwen2.5-Math)                     ║"
+        echo "║  Stage 2: TIES (+ FinGPT + FinLLaMA)                             ║"
+        echo "║  Stage 3: DARE (Pruning & Refinement)                            ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+        echo ""
+        echo "Started at: $(date)"
+        echo ""
+
+        # Install dependencies
+        echo "=== Installing dependencies ==="
+        pip install -q mergekit transformers safetensors accelerate huggingface_hub sentencepiece protobuf
+
+        # Login to HuggingFace
+        echo "=== Authenticating with HuggingFace ==="
+        python -c "from huggingface_hub import login; login(token='${HF_TOKEN}')"
+
+        # Create workspace
+        mkdir -p /workspace/checkpoints /workspace/configs
+        cd /workspace
+
+        # ============================================
+        # STAGE 1: SLERP - Reasoning + Math Foundation
+        # ============================================
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║  STAGE 1: SLERP MERGE                                             ║"
+        echo "║  Combining: DeepSeek-R1-Distill-Qwen-14B + Qwen2.5-Math-14B      ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+
+        cat > configs/stage1.yaml << 'EOF'
+        slices:
+          - sources:
+              - model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+                layer_range: [0, 48]
+              - model: Qwen/Qwen2.5-Math-14B-Instruct
+                layer_range: [0, 48]
+        merge_method: slerp
+        base_model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+        parameters:
+          t:
+            - filter: self_attn
+              value: [0, 0.3, 0.5, 0.7, 1]
+            - filter: mlp
+              value: 0.4
+            - value: 0.5
+        dtype: bfloat16
+        EOF
+
+        mergekit-yaml configs/stage1.yaml ./checkpoints/elson-reason-math-14b --cuda --low-cpu-memory
+        echo "Stage 1 complete: ./checkpoints/elson-reason-math-14b"
+
+        # ============================================
+        # STAGE 2: DARE-TIES - Prune and Refine
+        # ============================================
+        # NOTE: FinGPT/FinLLaMA (LLaMA 7B/13B) cannot be merged with Qwen 14B
+        # due to architecture mismatch. Financial knowledge will be added via
+        # LoRA fine-tuning on proprietary trading data in a separate step.
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║  STAGE 2: DARE-TIES REFINEMENT                                    ║"
+        echo "║  Pruning redundant weights from Stage 1 output                   ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+
+        cat > configs/stage2.yaml << 'EOF'
+        models:
+          - model: ./checkpoints/elson-reason-math-14b
+            parameters:
+              density: 1.0
+              weight: 1.0
+        merge_method: dare_ties
+        base_model: ./checkpoints/elson-reason-math-14b
+        parameters:
+          dare_pruning_rate: 0.15
+          normalize: true
+          rescale: true
+        dtype: bfloat16
+        EOF
+
+        mergekit-yaml configs/stage2.yaml ./checkpoints/elson-finance-trading-14b --cuda --low-cpu-memory
+        echo "Stage 2 complete: ./checkpoints/elson-finance-trading-14b"
+
+        # ============================================
+        # STAGE 3: DARE - Prune and Refine
+        # ============================================
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║  STAGE 3: DARE REFINEMENT                                         ║"
+        echo "║  Pruning redundant weights, rescaling for efficiency             ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+
+        cat > configs/stage3.yaml << 'EOF'
+        models:
+          - model: ./checkpoints/elson-finance-trading-14b
+            parameters:
+              weight: 1.0
+        merge_method: dare_ties
+        base_model: ./checkpoints/elson-finance-trading-14b
+        parameters:
+          dare_pruning_rate: 0.2
+          normalize: true
+          rescale: true
+        dtype: bfloat16
+        EOF
+
+        mergekit-yaml configs/stage3.yaml ./checkpoints/elson-finance-trading-14b-final --cuda --low-cpu-memory
+        echo "Stage 3 complete: ./checkpoints/elson-finance-trading-14b-final"
+
+        # ============================================
+        # Upload to GCS
+        # ============================================
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║  UPLOADING TO GOOGLE CLOUD STORAGE                                ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+
+        gsutil -m cp -r ./checkpoints/elson-finance-trading-14b-final gs://${BUCKET_NAME}/
+
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║                    MODEL MERGE COMPLETE                           ║"
+        echo "╠═══════════════════════════════════════════════════════════════════╣"
+        echo "║  Your proprietary Elson-Finance-Trading-14B model is ready!      ║"
+        echo "║                                                                   ║"
+        echo "║  Location: gs://${BUCKET_NAME}/elson-finance-trading-14b-final   ║"
+        echo "║                                                                   ║"
+        echo "║  Next steps:                                                      ║"
+        echo "║  1. Deploy with vLLM or Ollama                                   ║"
+        echo "║  2. Fine-tune on proprietary trading data                        ║"
+        echo "║  3. Integrate with trading engine                                ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+        echo ""
+        echo "Completed at: $(date)"
+        SCRIPT_EOF
+        chmod +x /workspace/train.sh
+        gsutil cp /workspace/train.sh gs://${_BUCKET_NAME}/scripts/train.sh
+
+  # Step 3: Submit Vertex AI Custom Training Job
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'submit-vertex-job'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Submitting Vertex AI Custom Training Job..."
+
+        JOB_NAME="elson-model-merge-$(date +%Y%m%d-%H%M%S)"
+
+        gcloud ai custom-jobs create \
+          --region=${_REGION} \
+          --display-name="$${JOB_NAME}" \
+          --worker-pool-spec=machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_A100,accelerator-count=1,replica-count=1,container-image-uri=pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime \
+          --args="bash,-c,gsutil cp gs://${_BUCKET_NAME}/scripts/train.sh /workspace/train.sh && chmod +x /workspace/train.sh && /workspace/train.sh" \
+          --env-vars="HF_TOKEN=$$HF_TOKEN,BUCKET_NAME=${_BUCKET_NAME}"
+
+        echo ""
+        echo "╔═══════════════════════════════════════════════════════════════════╗"
+        echo "║  VERTEX AI JOB SUBMITTED                                          ║"
+        echo "╠═══════════════════════════════════════════════════════════════════╣"
+        echo "║  Job: $${JOB_NAME}                                                ║"
+        echo "║  Region: ${_REGION}                                               ║"
+        echo "║                                                                   ║"
+        echo "║  Monitor at:                                                      ║"
+        echo "║  https://console.cloud.google.com/vertex-ai/training/custom-jobs ║"
+        echo "║                                                                   ║"
+        echo "║  Estimated time: 2-3 hours                                       ║"
+        echo "╚═══════════════════════════════════════════════════════════════════╝"
+    secretEnv: ['HF_TOKEN']
+
+# Use Secret Manager for HuggingFace token
+availableSecrets:
+  secretManager:
+    - versionName: projects/${PROJECT_ID}/secrets/HF_TOKEN/versions/latest
+      env: 'HF_TOKEN'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '600s'

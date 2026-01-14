@@ -1,0 +1,18 @@
+# Stage 1: SLERP - Reasoning + Math Foundation
+# Both models are Qwen-based 14B (48 layers) - compatible for SLERP
+slices:
+  - sources:
+      - model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+        layer_range: [0, 48]
+      - model: Qwen/Qwen2.5-Math-14B-Instruct
+        layer_range: [0, 48]
+merge_method: slerp
+base_model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+parameters:
+  t:
+    - filter: self_attn
+      value: [0, 0.3, 0.5, 0.7, 1]
+    - filter: mlp
+      value: 0.4
+    - value: 0.5
+dtype: bfloat16

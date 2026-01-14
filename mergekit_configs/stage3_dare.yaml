@@ -1,0 +1,30 @@
+# Elson Financial AI - Stage 3: DARE Refinement
+# Prunes noise and redundant weights using Drop And REscale
+# Output: elson-finance-trading-14b-final (production model)
+
+models:
+  - model: ./checkpoints/elson-finance-trading-14b
+    parameters:
+      weight: 1.0
+
+merge_method: dare_ties
+base_model: ./checkpoints/elson-finance-trading-14b
+
+parameters:
+  # DARE: Drop 20% of small weight deltas to reduce noise
+  dare_pruning_rate: 0.2
+  # Normalize after pruning
+  normalize: true
+  # Rescale remaining weights to maintain performance
+  rescale: true
+
+dtype: bfloat16
+
+# Run command:
+# mergekit-yaml stage3_dare.yaml ./checkpoints/elson-finance-trading-14b-final --cuda
+# Estimated time: ~30 minutes on A100
+
+# After this stage, the model is ready for:
+# 1. Quantization (GGUF for Ollama)
+# 2. Upload to GCS for production deployment
+# 3. Optional: LoRA fine-tuning on proprietary data

@@ -1,0 +1,35 @@
+# Elson Financial AI - Stage 2: Financial Domain Injection
+# Merges Stage 1 output with FinGPT financial knowledge using TIES
+# Output: elson-finance-trading-14b (intermediate checkpoint)
+
+models:
+  # Primary: Stage 1 reasoning+math foundation (highest weight)
+  - model: ./checkpoints/elson-reason-math-14b
+    parameters:
+      density: 1.0    # Keep all parameters from Stage 1
+      weight: 0.6     # 60% contribution
+
+  # FinGPT: Financial sentiment, news analysis, market understanding
+  - model: FinGPT/fingpt-mt_llama2-13b_lora
+    parameters:
+      density: 0.5    # Trim 50% redundant params (TIES feature)
+      weight: 0.25    # 25% contribution
+
+  # FinLLaMA: Trading strategy reasoning, structured financial analysis
+  - model: FinGPT/FinLLaMA
+    parameters:
+      density: 0.5    # Trim 50% redundant params
+      weight: 0.15    # 15% contribution
+
+merge_method: ties
+base_model: ./checkpoints/elson-reason-math-14b
+
+parameters:
+  normalize: true    # Normalize weights to prevent any model from dominating
+  int8_mask: true    # Use int8 for efficiency during merge
+
+dtype: bfloat16
+
+# Run command:
+# mergekit-yaml stage2_financial.yaml ./checkpoints/elson-finance-trading-14b --cuda
+# Estimated time: ~60 minutes on A100

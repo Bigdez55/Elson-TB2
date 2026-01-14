@@ -1,0 +1,50 @@
+# ADVANCED Stage 2: Expanded Financial Domain Injection
+# Adds more specialized financial models for deeper domain knowledge
+
+models:
+  # Primary: Stage 1 reasoning+math foundation
+  - model: ./checkpoints/elson-reason-math-14b
+    parameters:
+      density: 1.0
+      weight: 0.45  # Reduced to make room for more models
+
+  # FinGPT: Sentiment analysis, news understanding
+  - model: FinGPT/fingpt-mt_llama2-13b_lora
+    parameters:
+      density: 0.5
+      weight: 0.20
+
+  # FinLLaMA: Trading strategy reasoning
+  - model: FinGPT/FinLLaMA
+    parameters:
+      density: 0.5
+      weight: 0.15
+
+  # InvestLM: Investment analysis and summarization
+  - model: yixuantt/InvestLM-7B
+    parameters:
+      density: 0.4
+      weight: 0.10
+
+  # AdaptLLM Finance: Financial conversation tuning
+  - model: AdaptLLM/finance-chat
+    parameters:
+      density: 0.4
+      weight: 0.10
+
+merge_method: ties
+base_model: ./checkpoints/elson-reason-math-14b
+
+parameters:
+  normalize: true
+  int8_mask: true
+
+dtype: bfloat16
+
+# This creates a model with:
+# - Deep reasoning (DeepSeek)
+# - Math precision (Qwen)
+# - Sentiment analysis (FinGPT)
+# - Trading strategies (FinLLaMA)
+# - Investment analysis (InvestLM)
+# - Financial conversation (AdaptLLM)

@@ -11,12 +11,7 @@ import {
   TradingMode,
 } from '../TradingContext';
 
-// Mock navigation
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
+// Navigation mock is provided globally in setupTests.ts
 
 // Test component to access and display context values
 const TestComponent: React.FC = () => {

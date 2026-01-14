@@ -73,8 +73,11 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "node_modules/(?!(axios|@reduxjs/toolkit|@standard-schema|msw|until-async|@mswjs)/)"
-    ]
+      "node_modules/(?!(axios|@reduxjs/toolkit|@standard-schema|msw|until-async|@mswjs|react-router|react-router-dom|@remix-run)/)"
+    ],
+    "moduleNameMapper": {
+      "^react-router-dom$": "<rootDir>/src/__mocks__/react-router-dom.tsx"
+    }
   },
   "overrides": {
     "form-data": "^4.0.4",

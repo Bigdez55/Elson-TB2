@@ -31,6 +31,9 @@ global.BroadcastChannel = BroadcastChannelPolyfill as any;
 // Now safe to import MSW and testing utilities
 import '@testing-library/jest-dom';
 
+// react-router-dom v7 is mocked via moduleNameMapper in package.json
+// See src/__mocks__/react-router-dom.tsx for the mock implementation
+
 // Use require for MSW to ensure polyfills are applied first
 const { server } = require('./mocks/server');
 const { resetTradingState } = require('./mocks/handlers/trading');

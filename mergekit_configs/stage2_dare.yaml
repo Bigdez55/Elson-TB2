@@ -1,0 +1,19 @@
+# Stage 2: DARE-TIES - Prune and Refine
+#
+# NOTE: Original plan to merge FinGPT/FinLLaMA is not possible due to
+# architecture mismatch (LLaMA 7B/13B vs Qwen 14B have different layer counts
+# and dimensions). Instead, we refine Stage 1 output and add financial
+# knowledge via LoRA fine-tuning in Stage 3.
+
+models:
+  - model: ./checkpoints/elson-reason-math-14b
+    parameters:
+      density: 1.0
+      weight: 1.0
+merge_method: dare_ties
+base_model: ./checkpoints/elson-reason-math-14b
+parameters:
+  dare_pruning_rate: 0.15
+  normalize: true
+  rescale: true
+dtype: bfloat16

@@ -1,0 +1,43 @@
+# ADVANCED: Task Arithmetic
+# Treat fine-tuned models as "task vectors" that can be added/subtracted
+# This lets you surgically add capabilities without full retraining
+
+# Formula: Final = Base + α(FinanceTuned - Base) + β(TradingTuned - Base)
+# Where α and β control the strength of each capability
+
+models:
+  # Base model (the foundation)
+  - model: ./checkpoints/elson-reason-math-14b
+    parameters:
+      weight: 1.0
+
+  # Task Vector 1: Financial understanding
+  # (FinGPT - Base) represents "pure financial knowledge"
+  - model: FinGPT/fingpt-mt_llama2-13b_lora
+    parameters:
+      weight: 0.8  # α = 0.8 (strong financial injection)
+
+  # Task Vector 2: Trading strategy
+  - model: FinGPT/FinLLaMA
+    parameters:
+      weight: 0.5  # β = 0.5 (moderate trading injection)
+
+  # Task Vector 3: Risk assessment (negative weight = subtract)
+  # If you had a model that was TOO aggressive, you could subtract it
+  # - model: some-aggressive-trading-model
+  #   parameters:
+  #     weight: -0.3  # Remove aggressive tendencies
+
+merge_method: task_arithmetic
+base_model: ./checkpoints/elson-reason-math-14b
+
+parameters:
+  # Scaling factor for task vectors
+  scaling_coefficient: 1.0
+
+dtype: bfloat16
+
+# Advanced use cases:
+# - Add: financial knowledge, trading strategy, risk awareness
+# - Subtract: hallucination tendencies, overly verbose responses
+# - Fine-tune balance by adjusting weights

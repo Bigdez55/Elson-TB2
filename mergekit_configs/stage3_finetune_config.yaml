@@ -1,0 +1,43 @@
+# Stage 3: LoRA Fine-tuning Configuration
+#
+# Since FinGPT/FinLLaMA can't be merged with Qwen models,
+# we apply financial knowledge through LoRA fine-tuning instead.
+#
+# Use this with PEFT/LoRA on your proprietary trading data
+
+# LoRA Configuration for financial fine-tuning
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+# Training Configuration
+training:
+  learning_rate: 2e-5
+  batch_size: 4
+  gradient_accumulation_steps: 4
+  num_epochs: 3
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+
+# Dataset Format (JSONL)
+# {"instruction": "Analyze AAPL sentiment", "input": "Apple reports...", "output": "BULLISH..."}
+dataset:
+  train_file: "data/financial_trading_train.jsonl"
+  eval_file: "data/financial_trading_eval.jsonl"
+  max_seq_length: 4096
+
+# Quantization for training on consumer GPUs
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: bfloat16
+  bnb_4bit_quant_type: nf4
