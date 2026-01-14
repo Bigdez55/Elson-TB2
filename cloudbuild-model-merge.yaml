@@ -10,7 +10,6 @@
 
 substitutions:
   _REGION: us-west1
-  _MODEL_NAME: elson-finance-trading-14b-final
   _BUCKET_NAME: ${PROJECT_ID}-elson-models
 
 steps:
@@ -53,7 +52,7 @@ steps:
 
         # Login to HuggingFace
         echo "=== Authenticating with HuggingFace ==="
-        python -c "from huggingface_hub import login; login(token='${HF_TOKEN}')"
+        python -c "from huggingface_hub import login; login(token='$${HF_TOKEN}')"
 
         # Create workspace
         mkdir -p /workspace/checkpoints /workspace/configs
@@ -154,7 +153,7 @@ steps:
         echo "║  UPLOADING TO GOOGLE CLOUD STORAGE                                ║"
         echo "╚═══════════════════════════════════════════════════════════════════╝"
 
-        gsutil -m cp -r ./checkpoints/elson-finance-trading-14b-final gs://${BUCKET_NAME}/
+        gsutil -m cp -r ./checkpoints/elson-finance-trading-14b-final gs://$${BUCKET_NAME}/
 
         echo ""
         echo "╔═══════════════════════════════════════════════════════════════════╗"
@@ -162,7 +161,7 @@ steps:
         echo "╠═══════════════════════════════════════════════════════════════════╣"
         echo "║  Your proprietary Elson-Finance-Trading-14B model is ready!      ║"
         echo "║                                                                   ║"
-        echo "║  Location: gs://${BUCKET_NAME}/elson-finance-trading-14b-final   ║"
+        echo "║  Location: gs://$${BUCKET_NAME}/elson-finance-trading-14b-final   ║"
         echo "║                                                                   ║"
         echo "║  Next steps:                                                      ║"
         echo "║  1. Deploy with vLLM or Ollama                                   ║"
