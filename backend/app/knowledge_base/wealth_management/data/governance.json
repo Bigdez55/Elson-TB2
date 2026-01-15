@@ -1,0 +1,316 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Elson Financial Comprehensive Guide",
+    "last_updated": "2025-01-14",
+    "description": "Family office governance, investment committees, and family councils"
+  },
+  "governance_overview": {
+    "definition": "Family governance encompasses the structures, policies, and processes that guide decision-making, manage family dynamics, and ensure effective stewardship of family wealth across generations.",
+    "importance": [
+      "Provides structure for decision-making",
+      "Manages family dynamics and conflicts",
+      "Ensures continuity across generations",
+      "Protects family assets and values",
+      "Professionalizes family wealth management"
+    ],
+    "key_components": [
+      "Investment Committee",
+      "Family Council",
+      "Family Office Board/Advisory Board",
+      "Audit Committee",
+      "Governance Documents"
+    ]
+  },
+  "investment_committee": {
+    "purpose": "Provide oversight of investment strategy and performance (not day-to-day management)",
+    "meeting_frequency": "Typically quarterly",
+    "composition": {
+      "recommended_members": [
+        "Family members with investment expertise",
+        "Chief Investment Officer (CIO)",
+        "External independent advisors with specialized knowledge"
+      ],
+      "size": "3-7 members typical",
+      "chair": "Often senior family member or CIO"
+    },
+    "charter_components": {
+      "purpose_and_scope": "Define committee's role and boundaries",
+      "authority": "Decision-making vs advisory authority",
+      "voting_standards": "Majority, supermajority, or consensus",
+      "meeting_frequency": "Quarterly minimum recommended",
+      "quorum_requirements": "Minimum attendance for valid decisions",
+      "relationship_to_other_bodies": "How it interfaces with family council, board"
+    },
+    "key_responsibilities": [
+      "Review and approve Investment Policy Statement (IPS)",
+      "Monitor portfolio performance against benchmarks",
+      "Review asset allocation and rebalancing",
+      "Evaluate and select investment managers",
+      "Oversee risk management",
+      "Review and approve major investments",
+      "Ensure compliance with IPS"
+    ],
+    "investment_policy_statement": {
+      "definition": "Document outlining investment philosophy, objectives, and guidelines",
+      "key_sections": [
+        {
+          "section": "Investment Objectives",
+          "content": ["Return targets", "Risk tolerance", "Time horizon", "Liquidity needs"]
+        },
+        {
+          "section": "Asset Allocation",
+          "content": ["Target percentages", "Allowable ranges", "Rebalancing triggers"]
+        },
+        {
+          "section": "Investment Guidelines",
+          "content": ["Permitted investments", "Prohibited investments", "Concentration limits"]
+        },
+        {
+          "section": "Manager Selection",
+          "content": ["Selection criteria", "Due diligence process", "Performance evaluation"]
+        },
+        {
+          "section": "Risk Management",
+          "content": ["Risk metrics", "Limits", "Monitoring frequency"]
+        },
+        {
+          "section": "Reporting",
+          "content": ["Report format", "Frequency", "Recipients"]
+        }
+      ],
+      "review_frequency": "Annual minimum, or when circumstances change"
+    }
+  },
+  "family_council": {
+    "purpose": "Provide forum for multi-generational family alignment on values, mission, and priorities",
+    "meeting_frequency": "Quarterly or semi-annually",
+    "composition": {
+      "members": "Representatives from different generations and family branches",
+      "selection": "May be elected, appointed, or voluntary",
+      "facilitator": "Often external professional facilitator"
+    },
+    "key_functions": [
+      "Align on family values and mission",
+      "Discuss strategic priorities",
+      "Address family governance issues",
+      "Plan family education and development",
+      "Manage family communication",
+      "Address succession planning",
+      "Resolve family conflicts"
+    ],
+    "best_practices": [
+      {
+        "practice": "Clear meeting agendas",
+        "benefit": "Keeps discussions focused and productive"
+      },
+      {
+        "practice": "Professional facilitation",
+        "benefit": "Ensures neutrality and effective process"
+      },
+      {
+        "practice": "Formal documentation of decisions",
+        "benefit": "Creates accountability and institutional memory"
+      },
+      {
+        "practice": "Inclusive representation",
+        "benefit": "Ensures all family branches have voice"
+      },
+      {
+        "practice": "Regular schedule",
+        "benefit": "Maintains momentum and engagement"
+      }
+    ],
+    "family_mission_statement": {
+      "definition": "Document articulating family's shared values, purpose, and aspirations",
+      "benefits": [
+        "Aligns family around common purpose",
+        "Guides decision-making",
+        "Provides continuity across generations",
+        "Helps resolve conflicts"
+      ],
+      "components": [
+        "Family values (what we believe)",
+        "Family purpose (why we exist as family enterprise)",
+        "Vision (what we aspire to)",
+        "Behavioral expectations"
+      ]
+    }
+  },
+  "audit_committee": {
+    "purpose": "Provide financial oversight, review audits, and ensure integrity",
+    "composition": {
+      "members": "Independent members with financial expertise",
+      "independence": "Should not include family office management"
+    },
+    "key_responsibilities": [
+      "Review financial statements and reports",
+      "Oversee internal controls",
+      "Engage and oversee external auditors",
+      "Review audit findings and management responses",
+      "Ensure regulatory compliance",
+      "Address whistleblower concerns"
+    ]
+  },
+  "family_office_board": {
+    "purpose": "Provide strategic oversight of family office operations",
+    "types": {
+      "advisory_board": {
+        "authority": "Advisory only, no fiduciary duty",
+        "benefit": "Expert guidance without legal liability"
+      },
+      "governing_board": {
+        "authority": "Decision-making authority",
+        "fiduciary_duty": "May have fiduciary obligations"
+      }
+    },
+    "composition": [
+      "Senior family members",
+      "Family office CEO",
+      "External independent advisors",
+      "Industry experts"
+    ],
+    "key_responsibilities": [
+      "Strategic direction setting",
+      "CEO oversight and evaluation",
+      "Major decision approval",
+      "Risk oversight",
+      "Succession planning"
+    ]
+  },
+  "governance_documents": {
+    "family_constitution": {
+      "definition": "Comprehensive document governing family enterprise",
+      "components": [
+        "Family values and mission",
+        "Governance structure and processes",
+        "Decision-making rules",
+        "Conflict resolution procedures",
+        "Employment policies (family in business)",
+        "Ownership policies",
+        "Education and development",
+        "Philanthropy guidelines"
+      ]
+    },
+    "operating_agreements": {
+      "description": "Legal documents governing family entities",
+      "types": ["LLC operating agreements", "Partnership agreements", "Trust documents"]
+    },
+    "employment_policies": {
+      "description": "Rules for family member employment in family enterprise",
+      "common_provisions": [
+        "Education and experience requirements",
+        "Application and hiring process",
+        "Compensation guidelines",
+        "Performance evaluation",
+        "Advancement criteria"
+      ]
+    },
+    "buy_sell_agreements": {
+      "description": "Governs transfer of ownership interests",
+      "triggers": ["Death", "Disability", "Divorce", "Termination of employment", "Voluntary transfer"],
+      "valuation_mechanisms": ["Formula", "Appraisal", "Book value", "Fair market value"]
+    }
+  },
+  "succession_planning": {
+    "leadership_succession": {
+      "description": "Planning for transition of family office leadership",
+      "key_elements": [
+        "Identify potential successors",
+        "Develop leadership pipeline",
+        "Create transition timeline",
+        "Define selection criteria",
+        "Plan knowledge transfer"
+      ]
+    },
+    "wealth_succession": {
+      "description": "Planning for transfer of wealth to next generation",
+      "key_elements": [
+        "Estate planning documents",
+        "Trust structures",
+        "Gifting strategies",
+        "Education of next generation"
+      ]
+    },
+    "governance_succession": {
+      "description": "Planning for governance role transitions",
+      "key_elements": [
+        "Committee member rotation",
+        "Board refreshment",
+        "Next generation development programs"
+      ]
+    }
+  },
+  "next_generation_development": {
+    "importance": "Preparing next generation for responsible wealth stewardship",
+    "components": {
+      "financial_education": {
+        "topics": [
+          "Basic financial literacy",
+          "Investment fundamentals",
+          "Tax concepts",
+          "Estate planning basics",
+          "Philanthropy"
+        ],
+        "methods": ["Family meetings", "Formal programs", "Mentorship", "Internships"]
+      },
+      "governance_participation": {
+        "approaches": [
+          "Junior family council",
+          "Observer roles on committees",
+          "Rotational participation",
+          "Special projects"
+        ]
+      },
+      "values_transmission": {
+        "approaches": [
+          "Family history and storytelling",
+          "Philanthropic involvement",
+          "Family retreats",
+          "Mission statement discussions"
+        ]
+      }
+    },
+    "age_appropriate_programs": {
+      "children_under_12": ["Basic money concepts", "Allowance management", "Saving goals"],
+      "teens_13_17": ["Budgeting", "Banking basics", "Compound interest", "First investments"],
+      "young_adults_18_25": ["Investment portfolios", "Tax planning basics", "Trust beneficiary education", "Career planning"],
+      "adults_26_plus": ["Complex planning", "Governance participation", "Leadership development", "Philanthropic leadership"]
+    }
+  },
+  "conflict_resolution": {
+    "common_sources_of_conflict": [
+      "Distribution decisions",
+      "Investment philosophy differences",
+      "Leadership succession",
+      "In-law inclusion",
+      "Lifestyle differences",
+      "Business vs non-business family",
+      "Compensation and benefits"
+    ],
+    "resolution_mechanisms": {
+      "informal": [
+        "Direct communication",
+        "Family council discussion",
+        "Facilitated dialogue"
+      ],
+      "formal": [
+        "Mediation (neutral third party)",
+        "Arbitration (binding decision)",
+        "Family governance committee review"
+      ],
+      "last_resort": [
+        "Litigation (avoid if possible)",
+        "Buyout provisions"
+      ]
+    },
+    "prevention_strategies": [
+      "Clear governance documents",
+      "Regular communication",
+      "Transparent decision-making",
+      "Fair and consistent policies",
+      "Professional facilitation",
+      "Family education"
+    ]
+  }
+}

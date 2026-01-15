@@ -1,0 +1,395 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Elson Financial Comprehensive Guide",
+    "last_updated": "2025-01-14",
+    "description": "Estate planning concepts, strategies, and legal instruments"
+  },
+  "fundamentals": {
+    "definition": "Estate planning is the process of anticipating and arranging for the management and disposal of a person's estate during their life and after death, while minimizing taxes and ensuring assets transfer to intended beneficiaries.",
+    "key_objectives": [
+      "Wealth preservation for current and future generations",
+      "Tax optimization (estate, gift, GST, income)",
+      "Asset protection from creditors",
+      "Probate avoidance when appropriate",
+      "Beneficiary confidentiality and privacy",
+      "Healthcare decision documentation",
+      "Business succession planning",
+      "Charitable giving objectives"
+    ]
+  },
+  "core_documents": {
+    "will": {
+      "name": "Last Will and Testament",
+      "purpose": "Direct distribution of assets and name guardians for minor children",
+      "key_provisions": [
+        "Executor/personal representative appointment",
+        "Asset distribution instructions",
+        "Guardian nomination for minors",
+        "Specific bequests and residuary estate",
+        "Debt and expense payment instructions"
+      ],
+      "limitations": [
+        "Subject to probate",
+        "Public record",
+        "Can be contested",
+        "Does not cover all assets (beneficiary designations override)"
+      ],
+      "types": {
+        "simple_will": "Basic distribution instructions",
+        "testamentary_trust_will": "Creates trust upon death",
+        "pour_over_will": "Transfers assets to existing trust"
+      }
+    },
+    "revocable_living_trust": {
+      "name": "Revocable Living Trust (RLT)",
+      "purpose": "Avoid probate, maintain control, provide for incapacity",
+      "key_benefits": [
+        "Probate avoidance",
+        "Privacy (not public record)",
+        "Incapacity planning",
+        "Flexibility to modify",
+        "Seamless asset management"
+      ],
+      "key_components": [
+        "Grantor/settlor (creator)",
+        "Trustee (manager, often grantor initially)",
+        "Successor trustee (takes over at incapacity/death)",
+        "Beneficiaries (who receives benefits)",
+        "Trust property (funded assets)"
+      ],
+      "funding_requirement": "Assets must be titled in trust name to avoid probate"
+    },
+    "irrevocable_trust": {
+      "name": "Irrevocable Trust",
+      "purpose": "Tax planning, asset protection, Medicaid planning",
+      "key_features": [
+        "Cannot be modified or revoked (with limited exceptions)",
+        "Removes assets from estate for tax purposes",
+        "Provides asset protection from creditors",
+        "Can minimize estate taxes"
+      ],
+      "types": {
+        "irrevocable_life_insurance_trust": {
+          "acronym": "ILIT",
+          "purpose": "Remove life insurance from taxable estate"
+        },
+        "grantor_retained_annuity_trust": {
+          "acronym": "GRAT",
+          "purpose": "Transfer appreciation to beneficiaries tax-free"
+        },
+        "qualified_personal_residence_trust": {
+          "acronym": "QPRT",
+          "purpose": "Transfer residence at reduced gift tax cost"
+        },
+        "intentionally_defective_grantor_trust": {
+          "acronym": "IDGT",
+          "purpose": "Income tax paid by grantor, assets grow tax-free for beneficiaries"
+        },
+        "spousal_lifetime_access_trust": {
+          "acronym": "SLAT",
+          "purpose": "Married couples preserve access while removing from estate"
+        }
+      }
+    },
+    "power_of_attorney": {
+      "financial_poa": {
+        "name": "Financial Power of Attorney",
+        "purpose": "Authorize agent to manage financial affairs",
+        "types": {
+          "general": "Broad financial powers",
+          "limited": "Specific powers only",
+          "durable": "Survives incapacity",
+          "springing": "Effective only upon triggering event"
+        },
+        "common_powers": [
+          "Banking transactions",
+          "Investment management",
+          "Real estate transactions",
+          "Tax filing",
+          "Business operations",
+          "Government benefits"
+        ]
+      },
+      "healthcare_poa": {
+        "name": "Healthcare Power of Attorney / Healthcare Proxy",
+        "purpose": "Authorize agent to make medical decisions",
+        "scope": [
+          "Medical treatment decisions",
+          "Healthcare facility selection",
+          "Access to medical records",
+          "End-of-life decisions"
+        ]
+      }
+    },
+    "advance_healthcare_directive": {
+      "name": "Advance Healthcare Directive / Living Will",
+      "purpose": "Document end-of-life treatment preferences",
+      "typical_provisions": [
+        "Life-sustaining treatment preferences",
+        "Pain management wishes",
+        "Organ donation preferences",
+        "Funeral arrangement wishes"
+      ]
+    }
+  },
+  "tax_planning": {
+    "estate_tax": {
+      "description": "Tax on transfer of assets at death",
+      "federal_exemption_2024": "$13.61 million per individual",
+      "federal_rate": "40% on amounts above exemption",
+      "portability": "Deceased spouse unused exemption can transfer to surviving spouse",
+      "state_estate_taxes": "Some states have separate estate taxes with lower exemptions"
+    },
+    "gift_tax": {
+      "description": "Tax on lifetime transfers",
+      "annual_exclusion_2024": "$18,000 per recipient",
+      "lifetime_exemption": "Unified with estate tax exemption",
+      "federal_rate": "40%",
+      "strategies": {
+        "annual_exclusion_gifting": "Give up to annual exclusion to unlimited recipients",
+        "gift_splitting": "Married couples can split gifts",
+        "direct_payment_exclusion": "Tuition and medical payments directly to institutions are exempt"
+      }
+    },
+    "generation_skipping_transfer_tax": {
+      "acronym": "GST",
+      "description": "Tax on transfers to grandchildren or younger generations",
+      "exemption": "Same as estate tax exemption",
+      "rate": "40%",
+      "purpose": "Prevent skipping estate tax through generation-skipping"
+    },
+    "income_tax_considerations": {
+      "step_up_in_basis": "Assets receive new cost basis at death, eliminating capital gains",
+      "trust_income_taxation": {
+        "grantor_trust": "Income taxed to grantor",
+        "non_grantor_trust": "Trust pays tax at compressed rates (highest rate at ~$14,000)"
+      },
+      "dnr_deduction": "Distributable Net Income deduction for trust distributions"
+    }
+  },
+  "asset_protection": {
+    "definition": "Legal strategies to shield assets from creditors and lawsuits",
+    "legitimate_planning": {
+      "timing": "Must be done BEFORE creditor claims arise (fraudulent transfer rules)",
+      "strategies": [
+        "Irrevocable trusts in favorable jurisdictions",
+        "Domestic Asset Protection Trusts (DAPTs) - 19+ states allow",
+        "Foreign Asset Protection Trusts (FAPTs)",
+        "Family Limited Partnerships (FLPs)",
+        "Limited Liability Companies (LLCs)",
+        "Proper insurance coverage",
+        "Retirement accounts (ERISA protection)",
+        "Homestead exemptions"
+      ]
+    },
+    "dapt_states": [
+      "Nevada",
+      "Delaware",
+      "South Dakota",
+      "Alaska",
+      "Wyoming",
+      "Ohio",
+      "Tennessee",
+      "And others"
+    ],
+    "fraudulent_transfer_rules": {
+      "description": "Transfers made to defraud creditors can be reversed",
+      "look_back_periods": "Vary by state (typically 2-6 years)",
+      "badges_of_fraud": [
+        "Transfer to insider",
+        "Retention of control",
+        "Concealment of transfer",
+        "Pending litigation",
+        "Insolvency after transfer"
+      ]
+    }
+  },
+  "special_situations": {
+    "blended_families": {
+      "considerations": [
+        "Balance between current spouse and children from prior marriage",
+        "QTIP trusts for spousal support while preserving remainder for children",
+        "Prenuptial agreements addressing estate planning",
+        "Beneficiary designation coordination"
+      ]
+    },
+    "special_needs_planning": {
+      "special_needs_trust": {
+        "purpose": "Provide for disabled beneficiary without disqualifying government benefits",
+        "types": {
+          "first_party": "Funded with beneficiary's own assets (Medicaid payback required)",
+          "third_party": "Funded by others (no payback required)"
+        },
+        "pooled_trust": "Nonprofit manages pooled funds for multiple beneficiaries"
+      },
+      "able_accounts": "Tax-advantaged accounts for people with disabilities"
+    },
+    "business_owners": {
+      "considerations": [
+        "Business succession planning",
+        "Buy-sell agreements",
+        "Key person insurance",
+        "Entity structuring for liability protection",
+        "Valuation discounts (minority interest, lack of marketability)"
+      ]
+    },
+    "international_assets": {
+      "considerations": [
+        "Foreign real property",
+        "Non-resident alien spouse issues",
+        "Tax treaty implications",
+        "FATCA/FBAR reporting",
+        "Foreign trust rules"
+      ]
+    }
+  },
+  "charitable_planning": {
+    "charitable_remainder_trust": {
+      "acronym": "CRT",
+      "purpose": "Income stream to donor, remainder to charity",
+      "types": {
+        "crat": "Charitable Remainder Annuity Trust - fixed payment",
+        "crut": "Charitable Remainder Unitrust - percentage of value annually"
+      },
+      "benefits": [
+        "Current income tax deduction",
+        "Avoid capital gains on appreciated assets",
+        "Lifetime income stream",
+        "Charitable gift"
+      ]
+    },
+    "charitable_lead_trust": {
+      "acronym": "CLT",
+      "purpose": "Income to charity, remainder to family",
+      "benefits": [
+        "Reduce gift/estate taxes",
+        "Transfer appreciation to family",
+        "Support charity during trust term"
+      ]
+    },
+    "donor_advised_fund": {
+      "acronym": "DAF",
+      "purpose": "Simplified charitable giving vehicle",
+      "benefits": [
+        "Immediate tax deduction",
+        "Investment growth",
+        "Flexibility in grant timing",
+        "Low administrative burden"
+      ]
+    },
+    "private_foundation": {
+      "purpose": "Family-controlled charitable entity",
+      "benefits": [
+        "Maximum control over grants",
+        "Family involvement",
+        "Perpetual existence"
+      ],
+      "requirements": [
+        "5% annual distribution requirement",
+        "Excise taxes",
+        "Reporting requirements",
+        "Self-dealing restrictions"
+      ]
+    }
+  },
+  "planning_by_wealth_level": {
+    "starter": {
+      "range": "$0 - $100,000",
+      "essential_documents": [
+        "Simple will",
+        "Financial power of attorney",
+        "Healthcare power of attorney",
+        "Beneficiary designations review"
+      ],
+      "focus": "Basic protection and guardian nomination"
+    },
+    "emerging": {
+      "range": "$100,000 - $1,000,000",
+      "essential_documents": [
+        "Revocable living trust (consider)",
+        "Pour-over will",
+        "Powers of attorney",
+        "Healthcare directive"
+      ],
+      "focus": "Probate avoidance, incapacity planning"
+    },
+    "affluent": {
+      "range": "$1,000,000 - $10,000,000",
+      "essential_documents": [
+        "Revocable living trust",
+        "Pour-over will",
+        "Powers of attorney",
+        "Insurance trust (if applicable)"
+      ],
+      "strategies": [
+        "Annual exclusion gifting",
+        "Education funding (529 plans)",
+        "Life insurance review"
+      ],
+      "focus": "Tax efficiency, asset protection foundations"
+    },
+    "high_net_worth": {
+      "range": "$10,000,000 - $100,000,000",
+      "essential_documents": "All above plus",
+      "advanced_strategies": [
+        "Irrevocable trusts (ILIT, GRAT, SLAT)",
+        "Family limited partnerships",
+        "Charitable vehicles",
+        "Dynasty trust planning"
+      ],
+      "focus": "Estate tax minimization, multi-generational planning"
+    },
+    "ultra_high_net_worth": {
+      "range": "$100,000,000+",
+      "comprehensive_planning": [
+        "All above strategies",
+        "Private placement life insurance",
+        "Family office governance",
+        "International structuring",
+        "Private foundations",
+        "Art and collectibles planning",
+        "Family bank concepts"
+      ],
+      "focus": "Dynasty wealth, family governance, legacy"
+    }
+  },
+  "probate_process": {
+    "definition": "Court-supervised process of validating will and distributing assets",
+    "steps": [
+      "File will with probate court",
+      "Appoint executor/personal representative",
+      "Inventory assets",
+      "Notify creditors",
+      "Pay debts and taxes",
+      "Distribute assets to beneficiaries",
+      "Close estate"
+    ],
+    "assets_subject_to_probate": [
+      "Individually titled property",
+      "Bank accounts in decedent's name alone",
+      "Vehicles in decedent's name",
+      "Personal property"
+    ],
+    "assets_avoiding_probate": [
+      "Trust property",
+      "Joint tenancy with right of survivorship",
+      "Beneficiary designation accounts (IRA, 401k, life insurance)",
+      "Payable/transfer on death accounts",
+      "Community property with right of survivorship"
+    ],
+    "pros_and_cons": {
+      "cons": [
+        "Time-consuming (6 months to years)",
+        "Expensive (court costs, attorney fees)",
+        "Public record",
+        "Court supervision constraints"
+      ],
+      "pros": [
+        "Court oversight protects beneficiaries",
+        "Clear creditor claim period",
+        "Dispute resolution mechanism"
+      ]
+    }
+  }
+}

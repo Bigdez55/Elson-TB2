@@ -3,6 +3,14 @@ Wealth Management Model Loader
 
 Downloads and loads the fine-tuned QDoRA model from GCS for wealth management
 advisory services. Supports caching, lazy loading, and multiple deployment modes.
+
+Model: elson-finance-trading-wealth-14b-q4
+Location: gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/
+
+Architecture:
+- Base Model: Qwen2.5-14B-Instruct
+- Fine-tuning: DVoRA (training) → QDoRA (production, 4-bit quantized)
+- Specialization: 70+ professional roles across wealth management domains
 """
 
 import os
@@ -26,14 +34,14 @@ class ModelSource(Enum):
 @dataclass
 class ModelConfig:
     """Configuration for wealth management model."""
-    model_name: str = "elson-wealth-qdora"
-    base_model: str = "mistralai/Mistral-7B-v0.1"
+    model_name: str = "elson-finance-trading-wealth-14b-q4"
+    base_model: str = "Qwen/Qwen2.5-14B-Instruct"  # Correct base model for 14B
     gcs_bucket: str = "elson-33a95-elson-models"
     gcs_path: str = "elson-finance-trading-wealth-14b-q4"
     local_cache_dir: str = "~/.cache/elson/wealth-models"
     quantization: str = "4bit"  # 4bit, 8bit, none
     device_map: str = "auto"
-    torch_dtype: str = "float16"
+    torch_dtype: str = "bfloat16"  # bfloat16 for Qwen models
     max_memory: Optional[Dict[int, str]] = None
 
 

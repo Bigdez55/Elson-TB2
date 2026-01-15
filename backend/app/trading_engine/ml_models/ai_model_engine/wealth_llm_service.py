@@ -8,12 +8,14 @@ Implements the 5-layer hybrid architecture for democratized wealth management:
 4. LLM Layer - QDoRA fine-tuned model
 5. Validation Layer - Response validation and formatting
 
-Service Tiers:
-- Foundation: $0-10K (Basic guidance, educational focus)
-- Growth: $10K-100K (Strategic advice, diversification)
-- Premium: $100K-1M (Comprehensive planning, tax optimization)
-- Private: $1M-5M (Personalized strategies, estate planning)
-- HNW/UHNW: $5M+ (Family office services, alternative investments)
+Democratized Service Tiers (aligned with $66,622 US average salary):
+- Foundation: $0-10K (Full CFP access, financial literacy foundation)
+- Builder: $10K-75K (~1 year median US savings, CFP + CPA, tax optimization)
+- Growth: $75K-500K (Earlier CFA access for middle-class families)
+- Affluent: $500K-5M (Full team, trust structures, estate planning)
+- HNW/UHNW: $5M+ (Family office, philanthropy, specialists)
+
+Philosophy: Same quality advice for everyone - only complexity differs by tier.
 """
 
 import logging
@@ -32,13 +34,18 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 class ServiceTier(Enum):
-    """Democratized service tiers based on portfolio value."""
-    FOUNDATION = "foundation"      # $0-10K
-    GROWTH = "growth"              # $10K-100K
-    PREMIUM = "premium"            # $100K-1M
-    PRIVATE = "private"            # $1M-5M
-    HNW = "hnw"                    # $5M+ (High Net Worth)
-    UHNW = "uhnw"                  # $30M+ (Ultra High Net Worth)
+    """
+    Democratized service tiers aligned with US average salary ($66,622/year).
+
+    Philosophy: Help clients establish generational wealth EARLY.
+    Traditional wealth management gatekeeps advice behind high AUM minimums -
+    Elson breaks this barrier with same quality advice for everyone.
+    """
+    FOUNDATION = "foundation"      # $0-10K: Full CFP access, financial literacy foundation
+    BUILDER = "builder"            # $10K-75K: ~1 year median US savings, achievable for most
+    GROWTH = "growth"              # $75K-500K: Earlier CFA access for middle-class families
+    AFFLUENT = "affluent"          # $500K-5M: Full team, trust structures
+    HNW_UHNW = "hnw_uhnw"          # $5M+: Family office, philanthropy, specialists
 
 
 class AdvisoryMode(Enum):
@@ -83,14 +90,13 @@ class ComplianceCategory(Enum):
     PATTERN_DAY_TRADING = "pattern_day_trading"
 
 
-# Service tier thresholds
+# Democratized service tier thresholds (aligned with $66,622 US average salary)
 TIER_THRESHOLDS = {
-    ServiceTier.FOUNDATION: (0, 10_000),
-    ServiceTier.GROWTH: (10_000, 100_000),
-    ServiceTier.PREMIUM: (100_000, 1_000_000),
-    ServiceTier.PRIVATE: (1_000_000, 5_000_000),
-    ServiceTier.HNW: (5_000_000, 30_000_000),
-    ServiceTier.UHNW: (30_000_000, float('inf')),
+    ServiceTier.FOUNDATION: (0, 10_000),            # $0-10K
+    ServiceTier.BUILDER: (10_000, 75_000),          # $10K-75K (~1 year median US savings)
+    ServiceTier.GROWTH: (75_000, 500_000),          # $75K-500K (earlier CFA access)
+    ServiceTier.AFFLUENT: (500_000, 5_000_000),     # $500K-5M (full team)
+    ServiceTier.HNW_UHNW: (5_000_000, float('inf')),  # $5M+ (family office)
 }
 
 

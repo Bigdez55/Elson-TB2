@@ -1,0 +1,480 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "source": "Elson Financial Comprehensive Guide + Three-Pass Analysis",
+    "last_updated": "2026-01-15",
+    "description": "70+ professional roles with decision authority levels for Elson Financial AI",
+    "decision_authority_levels": {
+      "BINDING": "Deterministic rules, must be followed - LLM cannot override (compliance, legal)",
+      "SENIOR_ADVISORY": "High-weight recommendations, near-binding",
+      "ADVISORY": "Standard recommendations, user decides",
+      "SUPPORT_ROLE": "Informational only, background context"
+    },
+    "service_tiers": {
+      "foundation": "$0-10K - Full CFP access, financial literacy foundation",
+      "builder": "$10K-75K - Tax optimization, retirement accounts (achievable for most Americans)",
+      "growth": "$75K-500K - Portfolio construction, CFA access (middle-class families)",
+      "affluent": "$500K-5M - Full team, trust structures",
+      "hnw_uhnw": "$5M+ - Family office, philanthropy, specialists"
+    }
+  },
+  "legal_specialists": {
+    "estate_planning_attorney": {
+      "title": "Estate Planning Attorney",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "growth",
+      "credentials": {
+        "required": ["Bar License"],
+        "preferred": ["Board Certified in Estate Planning, Trust & Probate Law"]
+      },
+      "key_responsibilities": [
+        "Draft wills and establish revocable/irrevocable trusts",
+        "Structure powers of attorney (financial and healthcare)",
+        "Prepare healthcare directives",
+        "Strategic counsel on trust structures for tax minimization",
+        "Asset protection from creditors",
+        "Probate avoidance strategies",
+        "Beneficiary confidentiality preservation",
+        "Trust protector and trustee identification",
+        "Beneficiary distribution structuring"
+      ],
+      "collaboration": ["Central coordinator among advisory team", "CPAs", "Wealth managers", "Tax advisors"],
+      "reports_to": "Family / Collaborates with full advisory team",
+      "specializations": [
+        "High-net-worth planning",
+        "Business succession",
+        "Philanthropic planning",
+        "International wealth transfer"
+      ]
+    },
+    "probate_attorney": {
+      "title": "Probate Attorney",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "affluent",
+      "credentials": {
+        "required": ["Bar License"],
+        "preferred": ["Probate Law Specialization"]
+      },
+      "key_responsibilities": [
+        "Estate settlement and administration",
+        "Probate court navigation and proceedings",
+        "Asset inventory compilation",
+        "Creditor claims identification and resolution",
+        "Tax payment oversight during probate",
+        "Titled property transfer to new owners or trusts",
+        "Executor/personal representative guidance"
+      ],
+      "collaboration": ["Executors", "Beneficiaries", "Probate courts", "Trust attorneys"],
+      "reports_to": "Executors / Beneficiaries"
+    },
+    "trust_administration_attorney": {
+      "title": "Trust Administration Attorney",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "affluent",
+      "credentials": {
+        "required": ["Bar License"],
+        "preferred": ["Trust Law Specialization"]
+      },
+      "key_responsibilities": [
+        "Trust document interpretation",
+        "Trustee guidance on required actions",
+        "Record maintenance oversight",
+        "Tax return filing guidance (Form 1041, K-1s)",
+        "Beneficiary distribution oversight",
+        "Fiduciary duty compliance (care, loyalty, good faith)",
+        "Conflict of interest identification",
+        "Decanting advice (transfer to new trust)",
+        "Trust situs changes",
+        "Dispute resolution between trustees and beneficiaries"
+      ],
+      "collaboration": ["Trustees", "CPAs", "Investment advisors", "Beneficiaries"],
+      "reports_to": "Trustees / Family"
+    },
+    "international_tax_attorney": {
+      "title": "International Tax Attorney",
+      "decision_authority": "BINDING",
+      "min_service_tier": "hnw_uhnw",
+      "credentials": {
+        "required": ["Bar License"],
+        "preferred": ["LLM in Taxation", "International Tax Specialization"]
+      },
+      "key_responsibilities": [
+        "Cross-border wealth transfer planning",
+        "Transfer tax minimization (estate, gift, GST)",
+        "Foreign trust structuring",
+        "Domiciliary status determination",
+        "Inbound/outbound investment planning",
+        "Non-U.S. person transfer planning",
+        "Tax treaty application",
+        "FATCA and CRS compliance"
+      ],
+      "collaboration": ["Estate planners", "Tax specialists", "CPAs"],
+      "reports_to": "Family / Estate Planning Team"
+    },
+    "business_succession_attorney": {
+      "title": "Business Succession / M&A Attorney",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "affluent",
+      "credentials": {
+        "required": ["Bar License"],
+        "preferred": ["M&A Experience", "Corporate Law Background"]
+      },
+      "key_responsibilities": [
+        "Transaction structure from legal standpoint",
+        "Purchase agreement drafting and negotiation",
+        "Non-compete agreement preparation",
+        "Earnout structuring",
+        "Legal risk identification",
+        "Regulatory compliance requirements",
+        "Legal due diligence management"
+      ],
+      "collaboration": ["CFP (quarterback)", "CPA", "Valuation experts", "Estate attorneys"],
+      "reports_to": "Family / Transaction Team"
+    }
+  },
+  "financial_advisors": {
+    "certified_financial_planner": {
+      "title": "Certified Financial Planner (CFP)",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "foundation",
+      "credential": "CFP",
+      "issuing_body": "CFP Board of Standards",
+      "study_hours": "300+",
+      "requirements": {
+        "education": "150+ credit hours",
+        "examination": "Comprehensive exam covering ~100 integrated topics",
+        "experience": "3 years relevant experience",
+        "continuing_education": "30 hours biennially",
+        "ethics": "Strict ethical standards emphasizing fiduciary duty"
+      },
+      "key_responsibilities": [
+        "Comprehensive financial plan development",
+        "Short-term and long-term goal planning",
+        "Portfolio management",
+        "Budgeting",
+        "Estate planning coordination",
+        "Tax strategy",
+        "Insurance planning",
+        "Retirement planning",
+        "Quarterback role coordinating specialists"
+      ],
+      "collaboration": ["Attorneys", "Tax advisors", "Investment managers"],
+      "primary_role": "Relationship management and comprehensive coordination",
+      "reports_to": "Primary advisor to family / Collaborates with entire team"
+    },
+    "chartered_financial_analyst": {
+      "title": "Chartered Financial Analyst (CFA)",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "growth",
+      "credential": "CFA",
+      "issuing_body": "CFA Institute",
+      "study_hours": "2000+ total (700-950 per level)",
+      "requirements": {
+        "examination": "Three six-hour exams (Levels I, II, III)",
+        "experience": "4 years relevant work experience",
+        "ethics": "Adherence to ethical guidelines"
+      },
+      "key_responsibilities": [
+        "Investment analysis",
+        "Portfolio management",
+        "Financial modeling",
+        "Economics analysis",
+        "Accounting analysis",
+        "Corporate finance",
+        "Alternative investment evaluation"
+      ],
+      "typical_roles": ["Portfolio Manager", "Investment Analyst", "CIO"],
+      "reports_to": "Family office investment team / CIO"
+    },
+    "certified_public_accountant": {
+      "title": "Certified Public Accountant (CPA)",
+      "decision_authority": "BINDING",
+      "min_service_tier": "builder",
+      "credential": "CPA",
+      "issuing_body": "State Boards of Accountancy",
+      "study_hours": "200-240 total",
+      "requirements": {
+        "education": "150+ credit hours",
+        "examination": "Four sections (FAR, AUD, REG, BEC)",
+        "continuing_education": "State-specific requirements"
+      },
+      "key_responsibilities": [
+        "Tax planning and preparation (individual, business, trust)",
+        "Financial statement preparation",
+        "Audit coordination",
+        "Transaction due diligence",
+        "Strategic tax advice"
+      ],
+      "additional_credential": {
+        "name": "Personal Financial Specialist (PFS)",
+        "requirements": "CPA + 2 years tax/financial planning experience",
+        "benefit": "Integrates tax knowledge with broader wealth planning"
+      },
+      "collaboration": ["Attorneys", "Wealth managers", "Family office CFO"],
+      "reports_to": "Family office CFO or external"
+    },
+    "certified_private_wealth_advisor": {
+      "title": "Certified Private Wealth Advisor (CPWA)",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "hnw_uhnw",
+      "credential": "CPWA",
+      "issuing_body": "Investments & Wealth Institute",
+      "prerequisites": ["CFP", "CFA", "or CIMA"],
+      "focus_areas": [
+        "Ultra-high-net-worth planning",
+        "Asset protection",
+        "Tax and estate planning",
+        "Legacy planning",
+        "Family dynamics",
+        "International considerations",
+        "Sophisticated trust arrangements",
+        "Multi-generational transfer strategies"
+      ],
+      "key_responsibilities": [
+        "UHNW client planning",
+        "Complex asset protection strategies",
+        "Multi-generational wealth transfer",
+        "Integration of all wealth management disciplines"
+      ],
+      "reports_to": "Senior advisory / Full team interface"
+    },
+    "chartered_financial_consultant": {
+      "title": "Chartered Financial Consultant (ChFC)",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "builder",
+      "credential": "ChFC",
+      "issuing_body": "American College of Financial Services",
+      "study_hours": "200+",
+      "requirements": {
+        "education": "8 required courses",
+        "experience": "3 years business experience",
+        "continuing_education": "30 hours biennially"
+      },
+      "key_responsibilities": [
+        "Financial planning (similar to CFP scope)",
+        "Investment planning",
+        "Tax planning",
+        "Estate planning",
+        "Insurance planning"
+      ],
+      "note": "Does not require board examination like CFP"
+    },
+    "certified_investment_management_analyst": {
+      "title": "Certified Investment Management Analyst (CIMA)",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "growth",
+      "credential": "CIMA",
+      "issuing_body": "Investments & Wealth Institute",
+      "study_hours": "500+",
+      "focus_areas": [
+        "Discretionary investment management",
+        "Investment policy and plan design",
+        "Portfolio construction",
+        "Advanced investment theory"
+      ],
+      "typical_roles": ["Investment consultant", "Family office advisor", "Institutional investment advisor"]
+    }
+  },
+  "fiduciary_roles": {
+    "trustee": {
+      "title": "Trustee (Individual or Corporate)",
+      "decision_authority": "BINDING",
+      "min_service_tier": "affluent",
+      "description": "Individual or institution managing trust assets for beneficiaries",
+      "fiduciary_duties": ["Care", "Loyalty", "Good faith"],
+      "key_responsibilities": [
+        "Trust asset management and investment",
+        "Accurate transaction records maintenance",
+        "Tax return filing (Form 1041, K-1s)",
+        "Discretionary distributions to beneficiaries",
+        "Beneficiary communication",
+        "Balance current vs future beneficiary needs"
+      ],
+      "individual_trustee_requirements": [
+        "Financial sophistication",
+        "Disciplined record-keeping",
+        "Strong interpersonal skills",
+        "Independence and objectivity"
+      ],
+      "corporate_trustee_benefits": [
+        "Institutional resources",
+        "Professional expertise",
+        "Liability protection"
+      ],
+      "co_trustee_arrangements": "Common: Individual + Corporate trustee for balance"
+    },
+    "trust_protector": {
+      "title": "Trust Protector",
+      "decision_authority": "BINDING",
+      "min_service_tier": "hnw_uhnw",
+      "description": "Oversight position serving as 'board of directors' to trustee",
+      "powers": [
+        "Remove and replace underperforming trustees",
+        "Approve or veto investment decisions",
+        "Amend trust terms for unforeseen circumstances",
+        "Change trust situs of administration",
+        "Resolve trustee-beneficiary disputes",
+        "Decanting authority (transfer to new trust)",
+        "Appoint or remove successor protectors"
+      ],
+      "selection_criteria": {
+        "recommended": ["Attorneys", "Accountants", "Experienced fiduciaries"],
+        "avoid": "Family members (independence is essential)"
+      },
+      "key_attributes": ["Financial acumen", "Objectivity", "Independence"]
+    },
+    "investment_adviser": {
+      "title": "Investment Adviser (Trust Role)",
+      "decision_authority": "SENIOR_ADVISORY",
+      "min_service_tier": "affluent",
+      "description": "Fiduciary directing trustee's investment decisions",
+      "powers": [
+        "Direct trustee on specific investments",
+        "Asset selection, retention, and sale decisions",
+        "Investment manager selection and evaluation",
+        "Trustee removal and successor appointment"
+      ],
+      "purpose": "Ensure investment decisions align with beneficiary long-term interests"
+    },
+    "special_fiduciary": {
+      "title": "Special Fiduciary / Special Administrator",
+      "decision_authority": "BINDING",
+      "min_service_tier": "affluent",
+      "description": "Court-appointed oversight during probate or administration",
+      "purpose": "Collect and protect estate assets, exercise necessary preservation powers",
+      "jurisdiction_note": "Available in some jurisdictions like Nevada"
+    }
+  },
+  "specialized_advisors": {
+    "philanthropic_advisor": {
+      "title": "Philanthropic Advisor",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "hnw_uhnw",
+      "key_responsibilities": [
+        "Identify philanthropic values and missions",
+        "Structure charitable giving for tax efficiency",
+        "Establish giving frameworks and goals",
+        "Curate and vet nonprofit organizations",
+        "Coordinate with wealth managers and tax advisors",
+        "Monitor grants and assess charitable impact"
+      ],
+      "giving_vehicles": [
+        "Donor-Advised Funds (DAFs)",
+        "Private foundations",
+        "Charitable Remainder Trusts (CRTs)",
+        "Charitable Lead Trusts (CLTs)",
+        "Direct giving programs"
+      ]
+    },
+    "business_valuation_expert": {
+      "title": "Business Valuation Expert",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "affluent",
+      "credentials": ["ASA (Accredited Senior Appraiser)", "CVA (Certified Valuation Analyst)"],
+      "key_responsibilities": [
+        "Objective business valuations",
+        "Buy-sell agreement pricing",
+        "Succession planning valuations",
+        "Litigation support",
+        "Fairness opinions"
+      ],
+      "methodologies": [
+        "Comparable company analysis",
+        "Discounted cash flow (DCF)",
+        "Precedent transactions"
+      ]
+    },
+    "insurance_risk_advisor": {
+      "title": "Insurance and Risk Advisor",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "builder",
+      "key_responsibilities": [
+        "Risk profile assessment",
+        "Coverage structuring (property, casualty, life)",
+        "Life insurance and estate planning coordination",
+        "Liability protection strategies"
+      ],
+      "collaboration": ["Estate planning attorneys", "Tax attorneys"]
+    },
+    "family_enterprise_advisor": {
+      "title": "Family Governance Facilitator / Family Enterprise Advisor (FEA)",
+      "decision_authority": "ADVISORY",
+      "min_service_tier": "hnw_uhnw",
+      "credential": "FEA (Family Enterprise Advisor)",
+      "key_responsibilities": [
+        "Succession planning facilitation",
+        "Conflict resolution",
+        "Family governance structure development",
+        "Leadership development",
+        "Family business transition guidance",
+        "Intergenerational dynamics navigation"
+      ],
+      "background": "Family systems, organizational development, family business transitions"
+    }
+  },
+  "wealth_levels": {
+    "description": "Democratized service tiers aligned with US average salary ($66,622/year)",
+    "philosophy": "Same quality advice for everyone - only complexity of needs differs by tier. Financial literacy is the foundation of generational wealth.",
+    "tiers": {
+      "foundation": {
+        "range": "$0 - $10,000",
+        "recommended_professionals": [
+          "CFP (FULL access, not simplified)",
+          "Financial coach/educator"
+        ],
+        "focus": "Financial literacy foundation, budgeting, emergency fund, debt payoff strategy, credit building, savings automation",
+        "key_insight": "Foundation tier gets FULL CFP-level advice from day one - financial literacy builds generational wealth"
+      },
+      "builder": {
+        "range": "$10,000 - $75,000",
+        "recommended_professionals": [
+          "CFP for comprehensive planning",
+          "CPA for tax optimization",
+          "Insurance advisor for fundamentals"
+        ],
+        "focus": "Tax optimization, retirement account selection (401k/IRA), insurance fundamentals, first investment portfolio",
+        "key_insight": "Aligned with ~1 year of median US savings - achievable for most Americans"
+      },
+      "growth": {
+        "range": "$75,000 - $500,000",
+        "recommended_professionals": [
+          "CFP as quarterback",
+          "CFA for investment expertise",
+          "CPA for tax strategy",
+          "Estate planning attorney for basics"
+        ],
+        "focus": "Portfolio construction, estate basics, tax-loss harvesting, real estate considerations",
+        "key_insight": "Earlier CFA access gives middle-class families sophisticated investment expertise"
+      },
+      "affluent": {
+        "range": "$500,000 - $5,000,000",
+        "recommended_professionals": [
+          "Full advisory team",
+          "CFP/CPWA",
+          "CFA/CIMA",
+          "CPA with wealth focus",
+          "Estate planning attorney",
+          "Trust administration attorney",
+          "Insurance specialist"
+        ],
+        "focus": "Trust structures, multi-entity planning, business succession, family governance",
+        "key_insight": "Full team access for growing wealth - all advisory disciplines engaged"
+      },
+      "hnw_uhnw": {
+        "range": "$5,000,000+",
+        "recommended_professionals": [
+          "CPWA + full specialist team",
+          "Family office structure",
+          "Multiple specialized attorneys",
+          "International tax attorney",
+          "Trust protector",
+          "Philanthropic advisor",
+          "Business valuation experts",
+          "Family enterprise advisor"
+        ],
+        "focus": "Family office setup, philanthropy, multi-generational planning, alternative investments, complex structures",
+        "key_insight": "Specialist access for complex needs - consolidated HNW and UHNW tiers"
+      }
+    }
+  }
+}

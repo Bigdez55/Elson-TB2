@@ -1,0 +1,437 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Elson Financial Comprehensive Guide",
+    "last_updated": "2025-01-14",
+    "description": "Trust administration, fiduciary duties, and trustee responsibilities"
+  },
+  "trust_fundamentals": {
+    "definition": "A trust is a fiduciary arrangement where a trustee holds legal title to property for the benefit of beneficiaries according to trust terms.",
+    "parties": {
+      "grantor_settlor_trustor": {
+        "description": "Person who creates and funds the trust",
+        "alternate_names": ["Grantor", "Settlor", "Trustor"]
+      },
+      "trustee": {
+        "description": "Person or entity that holds legal title and manages trust assets",
+        "types": ["Individual trustee", "Corporate trustee", "Co-trustees"]
+      },
+      "beneficiaries": {
+        "description": "Persons entitled to benefit from trust assets",
+        "types": {
+          "current_beneficiaries": "Entitled to current distributions",
+          "remainder_beneficiaries": "Entitled to assets at trust termination"
+        }
+      },
+      "trust_protector": {
+        "description": "Third party with oversight powers over trustee"
+      }
+    }
+  },
+  "fiduciary_duties": {
+    "overview": "Trustees are held to the highest legal standard of conduct",
+    "core_duties": {
+      "duty_of_loyalty": {
+        "description": "Act solely in beneficiaries' interests, not self-interest",
+        "requirements": [
+          "Avoid conflicts of interest",
+          "No self-dealing",
+          "No personal profit from position",
+          "Impartial treatment of beneficiaries",
+          "Full disclosure of material facts"
+        ],
+        "self_dealing_examples": [
+          "Buying trust assets for self",
+          "Lending trust money to self",
+          "Using trust property for personal benefit",
+          "Hiring self or family for services"
+        ]
+      },
+      "duty_of_care": {
+        "description": "Exercise reasonable skill and diligence",
+        "prudent_investor_standard": {
+          "description": "Manage investments as prudent investor would",
+          "requirements": [
+            "Diversify unless otherwise prudent",
+            "Consider risk/return objectives",
+            "Consider beneficiaries' needs",
+            "Act with care, skill, and caution"
+          ]
+        },
+        "delegation": {
+          "allowed": "Can delegate to qualified advisors",
+          "requirements": [
+            "Exercise care in selecting agents",
+            "Define scope of delegation",
+            "Monitor agent performance",
+            "Review and act on information received"
+          ]
+        }
+      },
+      "duty_of_impartiality": {
+        "description": "Balance interests of current vs remainder beneficiaries",
+        "tensions": [
+          "Income beneficiaries want higher yields",
+          "Remainder beneficiaries want growth",
+          "Trust terms may provide guidance"
+        ],
+        "total_return_approach": "Some states allow conversion to total return unitrust"
+      },
+      "duty_of_good_faith": {
+        "description": "Act honestly and fairly",
+        "requirements": [
+          "Follow trust terms",
+          "Make decisions for proper purposes",
+          "Exercise discretion reasonably"
+        ]
+      }
+    }
+  },
+  "trustee_responsibilities": {
+    "administrative_duties": {
+      "record_keeping": {
+        "requirements": [
+          "Maintain complete financial records",
+          "Document all transactions",
+          "Keep receipts and invoices",
+          "Track cost basis of assets",
+          "Maintain correspondence files"
+        ],
+        "retention_period": "Typically entire trust term plus statute of limitations"
+      },
+      "asset_management": {
+        "initial_steps": [
+          "Inventory all trust assets",
+          "Ensure proper titling in trust name",
+          "Consolidate accounts when appropriate",
+          "Review asset allocation"
+        ],
+        "ongoing_duties": [
+          "Monitor investment performance",
+          "Rebalance as needed",
+          "Ensure proper insurance",
+          "Maintain real property",
+          "Manage business interests"
+        ]
+      },
+      "tax_compliance": {
+        "income_tax_returns": {
+          "form_1041": "Fiduciary Income Tax Return (annual for non-grantor trusts)",
+          "schedule_k1": "Beneficiary tax information",
+          "estimated_taxes": "Quarterly payments if required"
+        },
+        "state_returns": "Required in trust situs and potentially beneficiary states",
+        "record_retention": "Keep all tax records for required period"
+      },
+      "reporting_to_beneficiaries": {
+        "typical_requirements": [
+          "Annual accounting/statement",
+          "Notification of distributions",
+          "Copies of tax information (K-1s)",
+          "Notification of significant decisions"
+        ],
+        "state_requirements": "Vary by jurisdiction"
+      }
+    },
+    "distribution_decisions": {
+      "mandatory_distributions": {
+        "description": "Required by trust terms",
+        "examples": [
+          "All income to spouse",
+          "Specific dollar amounts at certain ages",
+          "Distribution of principal at termination"
+        ]
+      },
+      "discretionary_distributions": {
+        "description": "Trustee judgment required",
+        "common_standards": {
+          "hems": "Health, Education, Maintenance, Support - ascertainable standard",
+          "best_interests": "Broader trustee discretion",
+          "absolute_discretion": "Maximum trustee discretion"
+        },
+        "factors_to_consider": [
+          "Beneficiary's needs and circumstances",
+          "Other resources available to beneficiary",
+          "Trust purposes and grantor's intent",
+          "Impact on other beneficiaries",
+          "Tax consequences",
+          "Trust corpus preservation"
+        ]
+      }
+    }
+  },
+  "trust_protector_role": {
+    "description": "Independent third party with oversight powers over trustee",
+    "common_powers": [
+      {
+        "power": "Remove and replace trustee",
+        "purpose": "Address underperformance or conflicts"
+      },
+      {
+        "power": "Approve or veto investments",
+        "purpose": "Oversight of investment decisions"
+      },
+      {
+        "power": "Modify trust terms",
+        "purpose": "Adapt to changed circumstances or law"
+      },
+      {
+        "power": "Change trust situs",
+        "purpose": "Move to more favorable jurisdiction"
+      },
+      {
+        "power": "Resolve disputes",
+        "purpose": "Mediate trustee-beneficiary conflicts"
+      },
+      {
+        "power": "Decanting authority",
+        "purpose": "Transfer assets to new trust with modified terms"
+      },
+      {
+        "power": "Add or remove beneficiaries",
+        "purpose": "Adapt to family changes"
+      }
+    ],
+    "selection_criteria": {
+      "recommended": [
+        "Independent professional (attorney, CPA)",
+        "No beneficial interest in trust",
+        "Financial sophistication",
+        "Objectivity and impartiality",
+        "Availability to serve"
+      ],
+      "avoid": [
+        "Family members (lack independence)",
+        "Persons with conflicts of interest",
+        "Anyone who might be a beneficiary"
+      ]
+    },
+    "fiduciary_status": "May or may not be fiduciary depending on jurisdiction and powers"
+  },
+  "investment_adviser_role": {
+    "description": "Directs trustee on investment decisions",
+    "typical_powers": [
+      "Direct trustee on specific investments",
+      "Approve or disapprove investment recommendations",
+      "Select and terminate investment managers",
+      "Set asset allocation parameters",
+      "Remove trustee for investment failures"
+    ],
+    "purpose": "Separate investment expertise from administrative duties",
+    "fiduciary_standard": "Held to fiduciary duty for investment decisions"
+  },
+  "types_of_trustees": {
+    "individual_trustee": {
+      "pros": [
+        "Personal knowledge of family",
+        "Flexibility and responsiveness",
+        "Lower fees (if family member)",
+        "Emotional understanding"
+      ],
+      "cons": [
+        "May lack expertise",
+        "Mortality risk",
+        "Potential conflicts",
+        "Personal liability",
+        "Time commitment"
+      ],
+      "best_for": "Smaller trusts, family-oriented decisions"
+    },
+    "corporate_trustee": {
+      "description": "Bank, trust company, or financial institution",
+      "pros": [
+        "Professional expertise",
+        "Continuity (no mortality risk)",
+        "Institutional resources",
+        "Liability protection",
+        "Regulatory oversight"
+      ],
+      "cons": [
+        "Higher fees",
+        "Less personal approach",
+        "Bureaucratic procedures",
+        "Staff turnover",
+        "Minimum asset requirements"
+      ],
+      "best_for": "Larger trusts, complex administration, long-term trusts"
+    },
+    "co_trustees": {
+      "description": "Combination of individual and corporate trustee",
+      "arrangement": "Individual handles family matters, corporate handles investments/admin",
+      "pros": [
+        "Best of both worlds",
+        "Checks and balances",
+        "Continuity plus personal touch"
+      ],
+      "cons": [
+        "Coordination required",
+        "Potential for disagreement",
+        "Higher total cost"
+      ],
+      "decision_making": "Usually requires unanimous agreement (or as specified in trust)"
+    }
+  },
+  "trust_administration_timeline": {
+    "upon_incapacity_or_death": {
+      "immediate_actions": [
+        "Locate and review trust document",
+        "Identify all trust assets",
+        "Notify relevant parties",
+        "Secure trust property",
+        "Obtain death certificate (if applicable)"
+      ],
+      "first_30_days": [
+        "Open trust bank account if needed",
+        "Begin asset inventory",
+        "Notify financial institutions",
+        "Review insurance coverage",
+        "Identify immediate cash needs"
+      ]
+    },
+    "ongoing_administration": {
+      "monthly": [
+        "Pay bills and expenses",
+        "Process distribution requests",
+        "Monitor investments",
+        "Maintain records"
+      ],
+      "quarterly": [
+        "Review investment performance",
+        "Pay estimated taxes",
+        "Prepare informal reports"
+      ],
+      "annually": [
+        "File tax returns (Form 1041, state)",
+        "Provide K-1s to beneficiaries",
+        "Prepare formal accounting",
+        "Review asset allocation",
+        "Review trust terms and distributions"
+      ]
+    },
+    "trust_termination": {
+      "triggering_events": [
+        "Specified date or age",
+        "Death of beneficiary",
+        "Trust purpose fulfilled",
+        "Judicial termination"
+      ],
+      "termination_steps": [
+        "Final accounting",
+        "Reserve for expenses and taxes",
+        "Final tax returns",
+        "Asset distribution to remaindermen",
+        "Obtain beneficiary receipts and releases"
+      ]
+    }
+  },
+  "common_issues_and_solutions": {
+    "trustee_beneficiary_conflicts": {
+      "common_sources": [
+        "Distribution disputes",
+        "Investment philosophy differences",
+        "Communication breakdowns",
+        "Perceived favoritism"
+      ],
+      "resolution_approaches": [
+        "Review trust terms for guidance",
+        "Engage trust protector",
+        "Mediation",
+        "Court petition for instructions",
+        "Trustee resignation/removal"
+      ]
+    },
+    "trustee_liability": {
+      "sources_of_liability": [
+        "Breach of fiduciary duty",
+        "Investment losses from imprudence",
+        "Tax penalties",
+        "Self-dealing",
+        "Failure to distribute properly"
+      ],
+      "protection_measures": [
+        "Follow trust terms carefully",
+        "Document all decisions",
+        "Seek professional advice",
+        "Maintain proper insurance",
+        "Obtain beneficiary releases",
+        "Court approval for major decisions"
+      ]
+    },
+    "trust_modification": {
+      "decanting": {
+        "description": "Transfer assets to new trust with modified terms",
+        "availability": "About 30 states permit",
+        "common_uses": [
+          "Fix drafting errors",
+          "Add flexibility provisions",
+          "Change governing law",
+          "Extend trust term"
+        ]
+      },
+      "non_judicial_modification": {
+        "description": "Agreement by all interested parties",
+        "requirements": [
+          "Consent of all beneficiaries",
+          "Not violate material purpose",
+          "Some states require court approval"
+        ]
+      },
+      "judicial_modification": {
+        "description": "Court-approved changes",
+        "grounds": [
+          "Unanticipated circumstances",
+          "Changed tax laws",
+          "Administrative impracticability",
+          "Best interests of beneficiaries"
+        ]
+      }
+    }
+  },
+  "special_trust_types": {
+    "special_needs_trust": {
+      "purpose": "Provide for disabled beneficiary without disqualifying government benefits",
+      "key_features": [
+        "Discretionary distributions only",
+        "Supplemental support standard",
+        "No distributions for food/shelter (in some versions)",
+        "Medicaid payback if first-party funded"
+      ]
+    },
+    "irrevocable_life_insurance_trust": {
+      "acronym": "ILIT",
+      "purpose": "Remove life insurance from taxable estate",
+      "key_features": [
+        "Trust owns policy",
+        "Premiums paid via Crummey powers",
+        "Proceeds avoid estate tax"
+      ]
+    },
+    "grantor_retained_annuity_trust": {
+      "acronym": "GRAT",
+      "purpose": "Transfer appreciation to beneficiaries tax-free",
+      "key_features": [
+        "Grantor receives annuity payments",
+        "Assets transfer at end of term",
+        "Most effective for appreciating assets"
+      ]
+    },
+    "charitable_remainder_trust": {
+      "acronym": "CRT",
+      "purpose": "Income to individual, remainder to charity",
+      "key_features": [
+        "Current income tax deduction",
+        "Avoid capital gains on contributed assets",
+        "Lifetime income stream"
+      ]
+    },
+    "dynasty_trust": {
+      "purpose": "Multi-generational wealth transfer",
+      "key_features": [
+        "Can last multiple generations (perpetual in some states)",
+        "Avoid estate tax at each generation",
+        "Asset protection from beneficiaries' creditors"
+      ],
+      "favorable_jurisdictions": ["Nevada", "South Dakota", "Delaware", "Alaska"]
+    }
+  }
+}

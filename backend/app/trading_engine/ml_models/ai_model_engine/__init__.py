@@ -1,58 +1,68 @@
 """
 AI Model Engine for the trading bot.
-Implements various machine learning models for price prediction and analysis.
+Implements various machine learning models for price prediction and analysis,
+including the comprehensive wealth management QDoRA model integration.
 """
 
-from .quantum_models import (
-    QuantumFeatureEncoder,
-    QuantumKernelClassifier,
-    QuantumVariationalClassifier,
-    quantum_range_prediction
-)
+import logging
 
-from .deep_learning_models import (
-    TimeSeriesGenerator,
-    LSTMPricePredictor,
-    CNNPricePredictor,
-    deep_learning_range_prediction
-)
+logger = logging.getLogger(__name__)
 
-from .nlp_models import (
-    TextPreprocessor,
-    TransformerSentimentAnalyzer,
-    FinancialNewsClassifier,
-    sentiment_analysis_batch,
-    find_market_moving_news,
-    # Phase 1: FinGPT sentiment analysis
-    FinGPTSentimentAnalyzer,
-    fingpt_sentiment_analysis,
-    analyze_market_sentiment
-)
+# Optional quantum models (requires qiskit)
+try:
+    from .quantum_models import (  # noqa: E402
+        QuantumFeatureEncoder,
+        QuantumKernelClassifier,
+        QuantumVariationalClassifier,
+        quantum_range_prediction
+    )
+    _QUANTUM_AVAILABLE = True
+except ImportError:
+    QuantumFeatureEncoder = None
+    QuantumKernelClassifier = None
+    QuantumVariationalClassifier = None
+    quantum_range_prediction = None
+    _QUANTUM_AVAILABLE = False
+    logger.debug("Quantum models not available (qiskit not installed)")
 
-# Phase 2: Sentiment Benchmark (FinGPT vs DistilBERT comparison)
-from .sentiment_benchmark import (
-    SentimentBenchmark,
-    BenchmarkResult,
-    BenchmarkDataset,
-    FinancialSentimentDatasets,
-    run_quick_benchmark
-)
+# Optional deep learning models (requires tensorflow/torch)
+try:
+    from .deep_learning_models import (  # noqa: E402
+        TimeSeriesGenerator,
+        LSTMPricePredictor,
+        CNNPricePredictor,
+        deep_learning_range_prediction
+    )
+    _DEEP_LEARNING_AVAILABLE = True
+except ImportError:
+    TimeSeriesGenerator = None
+    LSTMPricePredictor = None
+    CNNPricePredictor = None
+    deep_learning_range_prediction = None
+    _DEEP_LEARNING_AVAILABLE = False
+    logger.debug("Deep learning models not available")
 
-# Phase 2: Advanced PEFT Adapters (DoRA, QDoRA, DVoRA)
-from .advanced_adapters import (
-    AdapterType,
-    AdapterConfig,
-    AdvancedFinancialAnalyzer,
-    create_adapter_config,
-    create_quantization_config,
-    create_qdora_analyzer,
-    create_dvora_analyzer,
-    get_adapter_comparison,
-    check_dora_support
-)
+# NLP models
+try:
+    from .nlp_models import (  # noqa: E402
+        TextPreprocessor,
+        TransformerSentimentAnalyzer,
+        FinancialNewsClassifier,
+        sentiment_analysis_batch,
+        find_market_moving_news
+    )
+    _NLP_AVAILABLE = True
+except ImportError:
+    TextPreprocessor = None
+    TransformerSentimentAnalyzer = None
+    FinancialNewsClassifier = None
+    sentiment_analysis_batch = None
+    find_market_moving_news = None
+    _NLP_AVAILABLE = False
+    logger.debug("NLP models not available")
 
-# Phase 3: Wealth Management Integration (5-Layer Architecture)
-from .wealth_model_loader import (
+# Wealth Management Integration (5-Layer Hybrid Architecture)
+from .wealth_model_loader import (  # noqa: E402
     WealthModelLoader,
     ModelConfig,
     ModelSource,
@@ -61,7 +71,7 @@ from .wealth_model_loader import (
     get_wealth_model_info
 )
 
-from .wealth_llm_service import (
+from .wealth_llm_service import (  # noqa: E402
     # Enums
     ServiceTier,
     AdvisoryMode,
@@ -84,46 +94,30 @@ from .wealth_llm_service import (
 )
 
 __all__ = [
+    # Quantum models (optional - requires qiskit)
     'QuantumFeatureEncoder',
     'QuantumKernelClassifier',
     'QuantumVariationalClassifier',
     'quantum_range_prediction',
+    # Deep learning models (optional - requires tensorflow/torch)
     'TimeSeriesGenerator',
     'LSTMPricePredictor',
     'CNNPricePredictor',
     'deep_learning_range_prediction',
+    # NLP models
     'TextPreprocessor',
     'TransformerSentimentAnalyzer',
     'FinancialNewsClassifier',
     'sentiment_analysis_batch',
     'find_market_moving_news',
-    # Phase 1: FinGPT
-    'FinGPTSentimentAnalyzer',
-    'fingpt_sentiment_analysis',
-    'analyze_market_sentiment',
-    # Phase 2: Benchmark
-    'SentimentBenchmark',
-    'BenchmarkResult',
-    'BenchmarkDataset',
-    'FinancialSentimentDatasets',
-    'run_quick_benchmark',
-    # Phase 2: Advanced Adapters (DoRA, QDoRA, DVoRA)
-    'AdapterType',
-    'AdapterConfig',
-    'AdvancedFinancialAnalyzer',
-    'create_adapter_config',
-    'create_quantization_config',
-    'create_qdora_analyzer',
-    'create_dvora_analyzer',
-    'get_adapter_comparison',
-    'check_dora_support',
-    # Phase 3: Wealth Management (5-Layer Architecture)
+    # Wealth Management Model Loader
     'WealthModelLoader',
     'ModelConfig',
     'ModelSource',
     'create_wealth_model_loader',
     'load_wealth_model',
     'get_wealth_model_info',
+    # Wealth Management LLM Service (5-Layer Architecture)
     'ServiceTier',
     'AdvisoryMode',
     'DecisionAuthority',
@@ -138,5 +132,5 @@ __all__ = [
     'ValidationLayer',
     'WealthLLMService',
     'create_wealth_service',
-    'quick_wealth_query'
+    'quick_wealth_query',
 ]

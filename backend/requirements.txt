@@ -47,11 +47,21 @@ torch>=2.1.0
 transformers>=4.36.0
 joblib>=1.3.0
 
+# Fine-tuning and Adapters (DVoRA/QDoRA)
+peft>=0.10.0                   # PEFT 0.10.0+ required for DVoRA support
+bitsandbytes>=0.42.0           # QDoRA quantization support
+accelerate>=0.27.0             # Training acceleration for fine-tuning
+datasets>=2.16.0               # Hugging Face datasets for training data
+
 # Reinforcement Learning
 gymnasium>=0.29.0
 
 # NLP
 nltk>=3.8.0
+
+# RAG and Vector Database
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
 
 # Quantum Computing
 qiskit>=1.0.0

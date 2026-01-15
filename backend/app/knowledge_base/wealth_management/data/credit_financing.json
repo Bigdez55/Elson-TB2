@@ -1,0 +1,341 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Elson Financial Comprehensive Guide",
+    "last_updated": "2025-01-14",
+    "description": "Business credit, financing options, and capital access strategies"
+  },
+  "business_credit_fundamentals": {
+    "business_vs_personal_credit": {
+      "business_credit": {
+        "description": "Credit profile tied to business entity (EIN)",
+        "bureaus": ["Dun & Bradstreet", "Experian Business", "Equifax Business"],
+        "scores": {
+          "paydex": {
+            "range": "0-100",
+            "provider": "Dun & Bradstreet",
+            "excellent": "80+",
+            "description": "Payment performance score based on trade payment data"
+          },
+          "intelliscore_plus": {
+            "range": "1-100",
+            "provider": "Experian",
+            "description": "Predictive score for risk of serious delinquency"
+          }
+        }
+      },
+      "benefits_of_separation": [
+        "Protect personal credit score",
+        "Build business borrowing capacity",
+        "Establish business identity",
+        "Access business-specific financing"
+      ]
+    },
+    "building_business_credit": {
+      "steps": [
+        {
+          "step": 1,
+          "action": "Establish legal business entity",
+          "details": ["Register LLC or corporation", "Obtain EIN from IRS", "Open business bank account"]
+        },
+        {
+          "step": 2,
+          "action": "Establish business identity",
+          "details": ["Dedicated business phone", "Business address", "Professional website", "D-U-N-S number"]
+        },
+        {
+          "step": 3,
+          "action": "Open trade accounts",
+          "details": ["Vendor accounts that report to credit bureaus", "Start with easy-approval vendors", "Use and pay on time"]
+        },
+        {
+          "step": 4,
+          "action": "Obtain business credit cards",
+          "details": ["Start with secured card if needed", "Graduate to unsecured cards", "Keep utilization low"]
+        },
+        {
+          "step": 5,
+          "action": "Establish credit lines",
+          "details": ["Business lines of credit", "Equipment financing", "SBA loans"]
+        }
+      ],
+      "timeline": "6-12 months to establish basic profile, 2-3 years for strong credit",
+      "tradelines_that_report": [
+        "Major office supply companies",
+        "Shipping companies",
+        "Business credit card issuers",
+        "Equipment financing companies"
+      ]
+    }
+  },
+  "traditional_financing": {
+    "bank_loans": {
+      "term_loans": {
+        "description": "Lump sum with fixed repayment schedule",
+        "uses": ["Equipment purchase", "Business expansion", "Acquisition financing"],
+        "typical_terms": {
+          "amount": "$25,000 to $5,000,000+",
+          "term": "1-10 years",
+          "rates": "Prime + 1% to Prime + 5% (varies with credit)"
+        },
+        "requirements": [
+          "2+ years in business",
+          "Strong revenue/profitability",
+          "Good business and personal credit",
+          "Collateral often required"
+        ]
+      },
+      "lines_of_credit": {
+        "description": "Revolving credit facility",
+        "uses": ["Working capital", "Seasonal inventory", "Cash flow management"],
+        "typical_terms": {
+          "amount": "$10,000 to $1,000,000+",
+          "rates": "Variable, Prime + 0.5% to Prime + 3%"
+        },
+        "types": {
+          "secured": "Backed by collateral (AR, inventory)",
+          "unsecured": "No collateral, higher rates"
+        }
+      }
+    },
+    "commercial_real_estate_loans": {
+      "description": "Financing for property purchase or development",
+      "typical_terms": {
+        "ltv": "65-80% loan-to-value",
+        "term": "5-25 years",
+        "amortization": "Often 25-30 years with balloon"
+      },
+      "types": {
+        "conventional": "Traditional bank financing",
+        "cmbs": "Commercial mortgage-backed securities",
+        "sba_504": "SBA program for real estate"
+      }
+    }
+  },
+  "sba_programs": {
+    "overview": {
+      "description": "Government-guaranteed loans to reduce lender risk",
+      "guarantee": "Up to 85% government guarantee",
+      "administrator": "Small Business Administration"
+    },
+    "sba_7a": {
+      "name": "SBA 7(a) Loan Program",
+      "description": "Most common SBA program, general purpose",
+      "uses": [
+        "Working capital",
+        "Equipment purchase",
+        "Debt refinancing",
+        "Real estate acquisition",
+        "Business acquisition"
+      ],
+      "terms": {
+        "maximum_amount": "$5,000,000",
+        "working_capital_term": "Up to 10 years",
+        "equipment_term": "Up to 10 years (or useful life)",
+        "real_estate_term": "Up to 25 years",
+        "rates": "Prime + 2.25% to Prime + 4.75%"
+      },
+      "requirements": [
+        "For-profit business",
+        "Operate in US",
+        "Owner equity investment",
+        "Exhausted other financing options"
+      ]
+    },
+    "sba_504": {
+      "name": "CDC/504 Loan Program",
+      "description": "For major fixed assets (real estate, equipment)",
+      "structure": {
+        "bank_portion": "50% from bank",
+        "cdc_portion": "40% from CDC (SBA-guaranteed)",
+        "borrower_equity": "10% from borrower"
+      },
+      "terms": {
+        "maximum_cdc_portion": "$5,500,000 (up to $5.5M)",
+        "real_estate_term": "20 years",
+        "equipment_term": "10 years",
+        "rates": "Below-market fixed rates on CDC portion"
+      },
+      "requirements": [
+        "Net worth under $15M",
+        "Average net income under $5M (2 years)",
+        "Job creation/retention goals"
+      ]
+    },
+    "sba_microloans": {
+      "name": "SBA Microloan Program",
+      "description": "Small loans through nonprofit intermediaries",
+      "terms": {
+        "maximum_amount": "$50,000",
+        "average_loan": "~$13,000",
+        "maximum_term": "6 years"
+      },
+      "uses": ["Working capital", "Inventory", "Supplies", "Equipment"],
+      "best_for": "Startups, very small businesses"
+    }
+  },
+  "alternative_financing": {
+    "venture_debt": {
+      "description": "Debt financing for venture-backed companies",
+      "typical_terms": {
+        "amount": "25-50% of last equity round",
+        "term": "24-48 months",
+        "rates": "10-15%",
+        "warrants": "Often includes equity warrants"
+      },
+      "use_cases": [
+        "Extend runway between equity rounds",
+        "Finance growth with less dilution",
+        "Bridge to profitability"
+      ],
+      "providers": ["Silicon Valley Bank", "Hercules Capital", "Western Technology Investment"]
+    },
+    "convertible_debt": {
+      "description": "Debt that converts to equity at future round",
+      "key_terms": {
+        "valuation_cap": "Maximum valuation for conversion",
+        "discount": "Discount to next round price (typically 15-25%)",
+        "interest_rate": "Usually 4-8% (converts, not paid)",
+        "maturity": "12-24 months typical"
+      },
+      "advantages": {
+        "for_company": "Defer valuation negotiation",
+        "for_investor": "Downside protection with upside potential"
+      },
+      "safe_note": {
+        "name": "Simple Agreement for Future Equity",
+        "description": "Y Combinator alternative to convertible note",
+        "difference": "Not debt, no interest or maturity date"
+      }
+    },
+    "revenue_based_financing": {
+      "description": "Repayment tied to revenue percentage",
+      "typical_terms": {
+        "amount": "1-3x monthly recurring revenue",
+        "repayment": "3-8% of monthly revenue",
+        "total_repayment": "1.3-1.5x original amount"
+      },
+      "advantages": ["No equity dilution", "Flexible payments", "No personal guarantee often"],
+      "best_for": "SaaS companies, subscription businesses",
+      "providers": ["Pipe", "Capchase", "Clearco"]
+    },
+    "invoice_factoring": {
+      "description": "Sell accounts receivable at discount",
+      "typical_terms": {
+        "advance_rate": "70-90% of invoice value",
+        "fees": "1-5% of invoice value",
+        "remaining_balance": "Paid when customer pays (minus fees)"
+      },
+      "types": {
+        "recourse": "Business liable if customer doesn't pay",
+        "non_recourse": "Factor assumes credit risk"
+      },
+      "advantages": ["Immediate cash flow", "No debt on books", "Based on customer credit"],
+      "best_for": "B2B businesses with creditworthy customers"
+    },
+    "asset_based_lending": {
+      "acronym": "ABL",
+      "description": "Credit facility secured by business assets",
+      "eligible_collateral": {
+        "accounts_receivable": "Typically 80-85% advance rate",
+        "inventory": "Typically 50-65% advance rate",
+        "equipment": "Varies by type and age",
+        "real_estate": "Typically 70-80% of appraised value"
+      },
+      "best_for": "Businesses with significant assets but limited cash flow history"
+    },
+    "merchant_cash_advance": {
+      "acronym": "MCA",
+      "description": "Advance against future credit card sales",
+      "typical_terms": {
+        "factor_rate": "1.1 to 1.5 (not APR)",
+        "repayment": "Daily percentage of card sales",
+        "term": "3-18 months"
+      },
+      "warning": "Very expensive when converted to APR (often 40-150%)",
+      "best_for": "Emergency only, not recommended for most situations"
+    }
+  },
+  "private_equity_and_fund_structures": {
+    "private_equity_overview": {
+      "description": "Investment funds that acquire and grow companies",
+      "fund_structure": {
+        "general_partner": {
+          "role": "Manages fund, makes investment decisions",
+          "compensation": ["Management fee (2%)", "Carried interest (20%)"]
+        },
+        "limited_partners": {
+          "role": "Passive investors providing capital",
+          "types": ["Pension funds", "Endowments", "Family offices", "HNW individuals"]
+        }
+      }
+    },
+    "fee_structures": {
+      "management_fee": {
+        "typical_rate": "1.5-2% of committed capital",
+        "basis": "Initially committed capital, may step down after investment period"
+      },
+      "carried_interest": {
+        "typical_rate": "20% of profits",
+        "calculation": "Profits above preferred return hurdle",
+        "preferred_return": "Typically 8% annually (hurdle rate)"
+      }
+    },
+    "distribution_waterfalls": {
+      "american_style": {
+        "description": "Deal-by-deal carry calculation",
+        "flow": ["Return of capital per deal", "Preferred return per deal", "Carry on deal profits"]
+      },
+      "european_style": {
+        "description": "Fund-level (whole fund) carry calculation",
+        "flow": ["Return all capital first", "Pay preferred return on all capital", "Then split carry"]
+      }
+    },
+    "fund_terms": {
+      "fund_life": "Typically 10 years with extension options",
+      "investment_period": "3-5 years",
+      "commitment_period": "Capital called as needed during investment period",
+      "key_documents": ["Limited Partnership Agreement (LPA)", "Private Placement Memorandum (PPM)", "Subscription Agreement"]
+    }
+  },
+  "commercial_banking_relationships": {
+    "key_bank_personnel": {
+      "relationship_manager": {
+        "role": "Primary contact, understands business needs",
+        "value": "Can advocate internally, connect to bank resources"
+      },
+      "credit_analyst": {
+        "role": "Underwrites loans, assesses credit risk",
+        "what_they_review": ["Financial statements", "Tax returns", "Business plan", "Industry analysis"]
+      },
+      "treasury_management_specialist": {
+        "role": "Cash management solutions",
+        "services": ["Lockbox", "ACH", "Wire transfers", "Sweep accounts"]
+      }
+    },
+    "building_bank_relationships": {
+      "strategies": [
+        "Start with deposit relationship",
+        "Maintain operating accounts at lending bank",
+        "Provide regular financial updates",
+        "Meet relationship manager regularly",
+        "Be transparent about challenges"
+      ]
+    },
+    "lending_criteria": {
+      "five_cs_of_credit": {
+        "character": "Business owner's credit history and reputation",
+        "capacity": "Ability to repay (cash flow analysis)",
+        "capital": "Owner's investment in business",
+        "collateral": "Assets to secure loan",
+        "conditions": "Industry conditions, loan purpose"
+      },
+      "financial_ratios_reviewed": {
+        "debt_service_coverage": "EBITDA / Total Debt Service (target: 1.25x+)",
+        "current_ratio": "Current Assets / Current Liabilities (target: 1.5x+)",
+        "debt_to_equity": "Total Debt / Equity (varies by industry)",
+        "quick_ratio": "(Current Assets - Inventory) / Current Liabilities"
+      }
+    }
+  }
+}

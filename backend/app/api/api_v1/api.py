@@ -19,6 +19,7 @@ from app.api.api_v1.endpoints import (
     risk_routes,
     security,
     trading,
+    wealth_advisory,
 )
 
 api_router = APIRouter()
@@ -77,4 +78,9 @@ api_router.include_router(biometric.router, prefix="/biometric", tags=["biometri
 api_router.include_router(education.router, prefix="/education", tags=["education"])
 api_router.include_router(
     micro_invest.router, prefix="/micro-invest", tags=["micro-investing"]
+)
+
+# Wealth Management Advisory
+api_router.include_router(
+    wealth_advisory.router, prefix="/wealth", tags=["wealth-advisory"]
 )

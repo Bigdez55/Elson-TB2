@@ -1,0 +1,587 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Elson Financial AI - Financial Literacy Foundation",
+    "last_updated": "2025-01-14",
+    "description": "Financial literacy fundamentals for users at all wealth levels, from $0 to building first savings",
+    "target_audience": "Beginners, individuals building financial foundation"
+  },
+  "getting_started": {
+    "first_steps": {
+      "step_1": {
+        "title": "Know Your Numbers",
+        "description": "Understanding where you stand is the foundation of all financial progress",
+        "actions": [
+          "List all sources of income (job, side gigs, benefits)",
+          "List all monthly expenses (rent, utilities, food, transportation)",
+          "List all debts (credit cards, loans, amounts owed)",
+          "Calculate: Income minus Expenses = What you have to work with"
+        ]
+      },
+      "step_2": {
+        "title": "Open a Bank Account",
+        "description": "Having a safe place for your money is essential",
+        "options": {
+          "traditional_bank": {
+            "pros": ["Physical branches", "ATM access", "Full services"],
+            "cons": ["May have fees", "Lower interest rates"]
+          },
+          "online_bank": {
+            "pros": ["Higher interest rates", "Lower/no fees", "24/7 access"],
+            "cons": ["No physical branches", "May take longer for deposits"]
+          },
+          "credit_union": {
+            "pros": ["Member-owned", "Often lower fees", "Personal service"],
+            "cons": ["May have fewer ATMs", "Membership requirements"]
+          }
+        },
+        "what_to_look_for": [
+          "No monthly fees (or easy ways to avoid them)",
+          "Free ATM access",
+          "Mobile banking app",
+          "FDIC or NCUA insurance"
+        ]
+      },
+      "step_3": {
+        "title": "Track Every Dollar",
+        "description": "You can't improve what you don't measure",
+        "methods": {
+          "pen_and_paper": "Simple but requires discipline",
+          "spreadsheet": "Free, customizable",
+          "apps": ["Mint", "YNAB", "Personal Capital", "EveryDollar"]
+        },
+        "categories_to_track": [
+          "Housing (rent/mortgage)",
+          "Utilities (electric, water, phone, internet)",
+          "Food (groceries, dining out)",
+          "Transportation (car payment, gas, insurance, transit)",
+          "Insurance (health, auto, renters)",
+          "Debt payments",
+          "Personal (clothing, entertainment, subscriptions)",
+          "Savings"
+        ]
+      }
+    }
+  },
+  "budgeting_fundamentals": {
+    "why_budget": {
+      "benefits": [
+        "Know where money goes",
+        "Spend intentionally",
+        "Reduce financial stress",
+        "Reach goals faster",
+        "Prepare for emergencies"
+      ]
+    },
+    "popular_methods": {
+      "50_30_20_rule": {
+        "description": "Simple percentage-based budget",
+        "allocation": {
+          "needs_50_percent": ["Housing", "Utilities", "Food", "Transportation", "Insurance", "Minimum debt payments"],
+          "wants_30_percent": ["Entertainment", "Dining out", "Subscriptions", "Hobbies", "Vacations"],
+          "savings_debt_20_percent": ["Emergency fund", "Retirement", "Extra debt payments", "Other savings goals"]
+        },
+        "example": {
+          "income": "$3,000/month",
+          "needs": "$1,500",
+          "wants": "$900",
+          "savings": "$600"
+        },
+        "best_for": "Beginners, those wanting simple structure"
+      },
+      "zero_based_budget": {
+        "description": "Every dollar has a job (income minus expenses equals zero)",
+        "process": [
+          "List all income",
+          "List all expenses",
+          "Assign every dollar to a category",
+          "Adjust until income minus expenses equals zero"
+        ],
+        "best_for": "Those wanting detailed control"
+      },
+      "envelope_system": {
+        "description": "Cash in physical or digital envelopes for each category",
+        "process": [
+          "Create envelope for each spending category",
+          "Put budgeted cash amount in each",
+          "When envelope is empty, stop spending in that category"
+        ],
+        "best_for": "Those who overspend with cards"
+      },
+      "pay_yourself_first": {
+        "description": "Automate savings before spending",
+        "process": [
+          "Set savings goal (10-20% of income)",
+          "Automate transfer to savings on payday",
+          "Live on what remains"
+        ],
+        "best_for": "Those who struggle to save"
+      }
+    },
+    "budgeting_tips": [
+      "Be realistic - don't cut everything fun",
+      "Build in buffer for unexpected expenses",
+      "Review and adjust monthly",
+      "Use cash for problem categories",
+      "Celebrate small wins"
+    ]
+  },
+  "emergency_fund": {
+    "what_is_it": {
+      "description": "Money set aside for unexpected expenses or income loss",
+      "purpose": "Financial safety net to avoid debt when emergencies happen"
+    },
+    "how_much": {
+      "starter_goal": "$500 - $1,000 (covers most small emergencies)",
+      "intermediate_goal": "1 month of expenses",
+      "full_goal": "3-6 months of expenses",
+      "extended_goal": "6-12 months (self-employed, single income, unstable industry)"
+    },
+    "building_strategies": {
+      "small_amounts": [
+        "Save $25/week = $1,300/year",
+        "Save $50/week = $2,600/year"
+      ],
+      "windfalls": [
+        "Tax refunds",
+        "Bonus at work",
+        "Cash gifts",
+        "Side gig income"
+      ],
+      "cutting_back": [
+        "Reduce one subscription",
+        "Eat out one less time per week",
+        "Use coupons/cashback apps"
+      ]
+    },
+    "where_to_keep_it": {
+      "requirements": [
+        "Accessible (liquid)",
+        "Safe (FDIC insured)",
+        "Separate from daily spending"
+      ],
+      "best_options": [
+        "High-yield savings account",
+        "Money market account"
+      ],
+      "avoid": [
+        "Checking account (too easy to spend)",
+        "Investments (too risky, not liquid)",
+        "CDs (penalties for early withdrawal)"
+      ]
+    },
+    "what_counts_as_emergency": {
+      "yes": [
+        "Job loss",
+        "Medical emergency",
+        "Car breakdown (needed for work)",
+        "Essential home repair",
+        "Unexpected necessary travel (family emergency)"
+      ],
+      "no": [
+        "Vacation",
+        "New phone (unless broken)",
+        "Sale items",
+        "Holiday gifts",
+        "Routine expenses you forgot to budget"
+      ]
+    }
+  },
+  "debt_management": {
+    "types_of_debt": {
+      "good_debt": {
+        "description": "Debt that can increase net worth or income",
+        "examples": ["Mortgage (builds equity)", "Student loans (increases earning potential)", "Business loans (generates income)"],
+        "note": "Still needs to be managed responsibly"
+      },
+      "bad_debt": {
+        "description": "High-interest debt for depreciating assets or consumption",
+        "examples": ["Credit card debt", "Payday loans", "Car loans (cars depreciate)"],
+        "priority": "Pay off as quickly as possible"
+      }
+    },
+    "debt_payoff_strategies": {
+      "debt_avalanche": {
+        "method": "Pay minimums on all, extra money to highest interest rate debt",
+        "pros": ["Mathematically optimal", "Pay least total interest"],
+        "cons": ["May take longer to see progress"],
+        "best_for": "Motivated by saving money"
+      },
+      "debt_snowball": {
+        "method": "Pay minimums on all, extra money to smallest balance debt",
+        "pros": ["Quick wins build momentum", "Psychological boost"],
+        "cons": ["May pay more interest total"],
+        "best_for": "Those who need motivation from progress"
+      },
+      "debt_consolidation": {
+        "description": "Combine multiple debts into one payment",
+        "options": ["Balance transfer credit card (0% intro APR)", "Personal loan", "Debt consolidation loan"],
+        "caution": "Don't rack up new debt after consolidating"
+      }
+    },
+    "getting_out_of_debt_steps": [
+      "Stop adding new debt (cut up cards if needed)",
+      "List all debts with balance, rate, and minimum payment",
+      "Choose payoff strategy (avalanche or snowball)",
+      "Find extra money to throw at debt",
+      "Celebrate milestones",
+      "Stay focused on the goal"
+    ],
+    "credit_card_basics": {
+      "how_interest_works": {
+        "apr": "Annual Percentage Rate - yearly cost of borrowing",
+        "calculation": "If you carry a balance, interest is charged on average daily balance",
+        "grace_period": "Pay full balance by due date = no interest charges"
+      },
+      "key_rules": [
+        "Pay full balance every month if possible",
+        "Never pay just the minimum (interest trap)",
+        "Know your due date",
+        "Keep utilization under 30% of limit",
+        "Don't close old cards (hurts credit history)"
+      ]
+    }
+  },
+  "credit_score_basics": {
+    "what_is_it": {
+      "description": "Three-digit number (300-850) representing creditworthiness",
+      "used_for": ["Loan approvals", "Interest rates", "Rental applications", "Insurance rates", "Some job applications"]
+    },
+    "score_ranges": {
+      "excellent": "750-850",
+      "good": "700-749",
+      "fair": "650-699",
+      "poor": "550-649",
+      "very_poor": "300-549"
+    },
+    "factors": {
+      "payment_history_35_percent": {
+        "description": "Most important - do you pay on time?",
+        "improve": "Always pay at least minimum by due date"
+      },
+      "amounts_owed_30_percent": {
+        "description": "How much of available credit are you using?",
+        "improve": "Keep credit card balances under 30% of limit (under 10% is ideal)"
+      },
+      "length_of_history_15_percent": {
+        "description": "How long have you had credit?",
+        "improve": "Keep old accounts open, be patient"
+      },
+      "credit_mix_10_percent": {
+        "description": "Variety of credit types (cards, loans, mortgage)",
+        "improve": "Don't open accounts just for mix - it develops naturally"
+      },
+      "new_credit_10_percent": {
+        "description": "Recent applications for new credit",
+        "improve": "Don't apply for many accounts at once"
+      }
+    },
+    "building_credit_from_zero": {
+      "options": [
+        {
+          "option": "Secured Credit Card",
+          "description": "Deposit equals credit limit, easy approval",
+          "tip": "Use for small purchases, pay in full monthly"
+        },
+        {
+          "option": "Credit Builder Loan",
+          "description": "Bank holds money while you make payments, released at end",
+          "tip": "Builds payment history without risk"
+        },
+        {
+          "option": "Authorized User",
+          "description": "Be added to someone else's card (with good history)",
+          "tip": "Their good history helps your score"
+        },
+        {
+          "option": "Retail Store Card",
+          "description": "Often easier to get approved",
+          "tip": "Watch out for high interest rates"
+        }
+      ]
+    },
+    "monitoring": {
+      "free_reports": "AnnualCreditReport.com - free weekly from all 3 bureaus",
+      "free_scores": "Many banks and cards provide free scores",
+      "check_regularly": "At least once per year, ideally quarterly"
+    }
+  },
+  "saving_and_investing_basics": {
+    "saving_vs_investing": {
+      "saving": {
+        "purpose": "Short-term goals, emergency fund",
+        "risk": "Low",
+        "return": "Low (but safe)",
+        "liquidity": "High",
+        "examples": ["Savings account", "Money market", "CDs"]
+      },
+      "investing": {
+        "purpose": "Long-term growth (5+ years)",
+        "risk": "Higher (but manageable)",
+        "return": "Higher over long term",
+        "liquidity": "Varies",
+        "examples": ["Stocks", "Bonds", "Mutual funds", "ETFs", "Real estate"]
+      }
+    },
+    "when_to_start_investing": {
+      "prerequisites": [
+        "Starter emergency fund in place ($500-$1,000)",
+        "High-interest debt under control",
+        "Stable income",
+        "Basic budget working"
+      ],
+      "start_early_why": {
+        "compound_interest": "Your money earns money, then that earns money",
+        "example": {
+          "scenario": "$200/month from age 25 to 65 at 7% return",
+          "result": "~$525,000",
+          "if_wait_10_years": "Starting at 35 = ~$244,000 (less than half)"
+        }
+      }
+    },
+    "investment_basics": {
+      "stocks": {
+        "description": "Ownership shares in a company",
+        "risk": "Higher volatility",
+        "return": "Historically 7-10% average annual return"
+      },
+      "bonds": {
+        "description": "Loans to companies or government",
+        "risk": "Lower than stocks",
+        "return": "Historically 3-5% average annual return"
+      },
+      "mutual_funds": {
+        "description": "Pool of many stocks and/or bonds, professionally managed",
+        "benefit": "Instant diversification",
+        "cost": "Expense ratios (look for low-cost options)"
+      },
+      "etfs": {
+        "description": "Like mutual funds but trade like stocks",
+        "benefit": "Low cost, diversified, flexible",
+        "popular_types": ["Index funds (track market)", "Sector funds"]
+      },
+      "index_funds": {
+        "description": "Track a market index (like S&P 500)",
+        "benefit": "Very low cost, broad diversification",
+        "recommendation": "Great starting point for beginners"
+      }
+    },
+    "retirement_accounts": {
+      "401k_403b": {
+        "description": "Employer-sponsored retirement account",
+        "contribution_limit_2024": "$23,000 (plus $7,500 if 50+)",
+        "employer_match": "Free money - always contribute enough to get full match",
+        "tax_treatment": "Traditional: tax-deferred; Roth 401k: tax-free growth"
+      },
+      "ira": {
+        "description": "Individual Retirement Account - you open it yourself",
+        "contribution_limit_2024": "$7,000 (plus $1,000 if 50+)",
+        "types": {
+          "traditional": "Tax deduction now, taxed in retirement",
+          "roth": "No deduction now, tax-free in retirement"
+        },
+        "which_to_choose": "Roth if you expect higher taxes in retirement; Traditional if you need deduction now"
+      }
+    },
+    "investment_priority_order": [
+      "1. Employer 401(k) up to match (free money)",
+      "2. Pay off high-interest debt",
+      "3. Build emergency fund",
+      "4. Max out IRA",
+      "5. Max out 401(k) beyond match",
+      "6. Taxable investment accounts"
+    ]
+  },
+  "insurance_basics": {
+    "why_insurance": {
+      "purpose": "Transfer risk of major financial losses",
+      "principle": "Pay small amount (premium) to avoid potentially huge loss"
+    },
+    "essential_types": {
+      "health_insurance": {
+        "importance": "Critical - medical debt is leading cause of bankruptcy",
+        "options": ["Employer plan", "ACA marketplace", "Medicaid (if eligible)"],
+        "key_terms": {
+          "premium": "Monthly payment",
+          "deductible": "Amount you pay before insurance kicks in",
+          "copay": "Fixed amount per visit",
+          "coinsurance": "Percentage you pay after deductible",
+          "out_of_pocket_max": "Most you pay in a year"
+        }
+      },
+      "auto_insurance": {
+        "importance": "Required by law in most states",
+        "coverage_types": [
+          "Liability (damage to others - required)",
+          "Collision (damage to your car from accident)",
+          "Comprehensive (theft, weather, etc.)",
+          "Uninsured motorist"
+        ],
+        "saving_tips": ["Shop around", "Bundle with other insurance", "Raise deductible", "Good driver discounts"]
+      },
+      "renters_insurance": {
+        "importance": "Protects your belongings if renting",
+        "covers": ["Personal property", "Liability", "Additional living expenses"],
+        "cost": "Often $15-30/month - very affordable"
+      },
+      "life_insurance": {
+        "who_needs_it": "Those with dependents relying on their income",
+        "types": {
+          "term": "Coverage for set period (10, 20, 30 years) - most affordable",
+          "whole": "Permanent coverage with cash value - more expensive"
+        },
+        "how_much": "10-12x annual income as starting point"
+      }
+    }
+  },
+  "building_wealth_from_zero": {
+    "mindset_shifts": [
+      {
+        "from": "I'll never have money",
+        "to": "I'm building my financial future one step at a time"
+      },
+      {
+        "from": "I deserve to spend on myself",
+        "to": "I deserve financial security and peace of mind"
+      },
+      {
+        "from": "Rich people are lucky",
+        "to": "Wealth is built through consistent habits over time"
+      },
+      {
+        "from": "I'll save what's left",
+        "to": "I'll spend what's left after saving"
+      }
+    ],
+    "progressive_milestones": {
+      "milestone_1": {
+        "achievement": "First $500 saved",
+        "impact": "Can handle most small emergencies",
+        "next_step": "Keep going to $1,000"
+      },
+      "milestone_2": {
+        "achievement": "First $1,000 saved",
+        "impact": "Starter emergency fund complete",
+        "next_step": "Start attacking high-interest debt"
+      },
+      "milestone_3": {
+        "achievement": "High-interest debt paid off",
+        "impact": "Money working for you instead of against",
+        "next_step": "Build full emergency fund"
+      },
+      "milestone_4": {
+        "achievement": "3-6 months emergency fund",
+        "impact": "True financial security",
+        "next_step": "Maximize retirement contributions"
+      },
+      "milestone_5": {
+        "achievement": "First $10,000 net worth",
+        "impact": "Officially building wealth",
+        "next_step": "Continue growing investments"
+      },
+      "milestone_6": {
+        "achievement": "First $100,000 net worth",
+        "impact": "Compound growth accelerating",
+        "next_step": "Diversify and continue"
+      }
+    },
+    "habits_of_wealth_builders": [
+      "Live below your means",
+      "Pay yourself first (automate savings)",
+      "Avoid lifestyle inflation with raises",
+      "Invest consistently regardless of market",
+      "Continuously learn about money",
+      "Surround yourself with financially responsible people",
+      "Have specific, written goals",
+      "Track progress regularly"
+    ]
+  },
+  "common_financial_mistakes": {
+    "mistakes_to_avoid": [
+      {
+        "mistake": "No emergency fund",
+        "consequence": "Forced into debt for any unexpected expense",
+        "fix": "Start with $500, build to 3-6 months"
+      },
+      {
+        "mistake": "Paying only minimum on credit cards",
+        "consequence": "Interest compounds, debt takes decades to pay",
+        "fix": "Pay as much as possible, focus on one card at a time"
+      },
+      {
+        "mistake": "No budget",
+        "consequence": "Money disappears without progress toward goals",
+        "fix": "Start with simple budget, track spending"
+      },
+      {
+        "mistake": "Lifestyle inflation",
+        "consequence": "Raises don't translate to wealth building",
+        "fix": "Save at least 50% of every raise"
+      },
+      {
+        "mistake": "Not investing early",
+        "consequence": "Miss decades of compound growth",
+        "fix": "Start with small amounts immediately"
+      },
+      {
+        "mistake": "Not getting employer 401(k) match",
+        "consequence": "Leaving free money on the table",
+        "fix": "Always contribute enough to get full match"
+      },
+      {
+        "mistake": "Co-signing loans",
+        "consequence": "Responsible for someone else's debt",
+        "fix": "Almost never do this"
+      },
+      {
+        "mistake": "Buying too much car",
+        "consequence": "Large depreciating asset drains wealth",
+        "fix": "Buy reliable used car, avoid payments if possible"
+      }
+    ]
+  },
+  "resources_for_learning": {
+    "free_resources": {
+      "websites": [
+        "Investopedia.com - comprehensive financial education",
+        "NerdWallet.com - comparisons and guides",
+        "Khan Academy - free courses",
+        "Federal Reserve Education"
+      ],
+      "podcasts": [
+        "The Dave Ramsey Show (debt-free focus)",
+        "ChooseFI (financial independence)",
+        "The Money Guy Show",
+        "Afford Anything"
+      ],
+      "youtube_channels": [
+        "Two Cents",
+        "The Financial Diet",
+        "Graham Stephan",
+        "Andrei Jikh"
+      ]
+    },
+    "books_for_beginners": [
+      {
+        "title": "The Total Money Makeover",
+        "author": "Dave Ramsey",
+        "focus": "Getting out of debt"
+      },
+      {
+        "title": "I Will Teach You to Be Rich",
+        "author": "Ramit Sethi",
+        "focus": "Automation and systems"
+      },
+      {
+        "title": "The Simple Path to Wealth",
+        "author": "JL Collins",
+        "focus": "Index fund investing"
+      },
+      {
+        "title": "Rich Dad Poor Dad",
+        "author": "Robert Kiyosaki",
+        "focus": "Mindset shift"
+      }
+    ]
+  }
+}
