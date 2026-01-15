@@ -259,31 +259,29 @@ class RAGLayer:
         return base_context
 
     def _get_tier_disclaimer(self, tier: ServiceTier) -> str:
-        """Get tier-appropriate disclaimer."""
+        """Get tier-appropriate disclaimer for democratized service tiers."""
         disclaimers = {
             ServiceTier.FOUNDATION: (
-                "This guidance is educational in nature. Consider consulting "
-                "a financial advisor for personalized advice."
+                "This guidance provides full CFP-level educational content. "
+                "Financial literacy is the foundation of generational wealth."
+            ),
+            ServiceTier.BUILDER: (
+                "This analysis includes CFP + CPA expertise for tax optimization "
+                "and retirement account strategies. Past performance does not "
+                "guarantee future results."
             ),
             ServiceTier.GROWTH: (
-                "This analysis is based on your current portfolio. "
-                "Past performance does not guarantee future results."
+                "This recommendation incorporates CFA investment expertise for "
+                "portfolio construction. Please review before implementation."
             ),
-            ServiceTier.PREMIUM: (
-                "This recommendation considers your stated goals and risk tolerance. "
-                "Please review with your financial advisor before implementation."
+            ServiceTier.AFFLUENT: (
+                "This personalized strategy leverages our full advisory team "
+                "including estate planning and trust structure expertise."
             ),
-            ServiceTier.PRIVATE: (
-                "This personalized strategy is tailored to your financial situation. "
-                "Your dedicated advisor can provide implementation support."
-            ),
-            ServiceTier.HNW: (
-                "This analysis incorporates advanced strategies suitable for "
-                "high-net-worth portfolios. Consult your wealth management team."
-            ),
-            ServiceTier.UHNW: (
+            ServiceTier.HNW_UHNW: (
                 "This family office level analysis includes sophisticated "
-                "strategies. Coordinate with your advisory team for execution."
+                "strategies for philanthropy and multi-generational planning. "
+                "Coordinate with your advisory team for execution."
             ),
         }
         return disclaimers.get(tier, disclaimers[ServiceTier.FOUNDATION])
@@ -762,45 +760,48 @@ Response:"""
         return {"tier": "foundation", "tier_name": "FOUNDATION"}
 
     def _get_tier_features(self, tier: ServiceTier) -> List[str]:
-        """Get features available for a service tier."""
+        """Get features available for a service tier (democratized access model)."""
         features = {
             ServiceTier.FOUNDATION: [
-                "Investment education",
-                "Basic portfolio analysis",
-                "Risk assessment",
-                "General market insights"
+                "Full CFP-level financial literacy",
+                "Budgeting and emergency fund planning",
+                "Debt payoff strategy",
+                "Credit building guidance",
+                "Savings automation",
+                "Basic investment education"
+            ],
+            ServiceTier.BUILDER: [
+                "All Foundation features",
+                "CFP + CPA access",
+                "Tax optimization fundamentals",
+                "Retirement account selection (401k/IRA)",
+                "Insurance fundamentals",
+                "First investment portfolio construction"
             ],
             ServiceTier.GROWTH: [
-                "All Foundation features",
-                "Strategic asset allocation",
-                "Diversification analysis",
-                "Goal-based planning"
-            ],
-            ServiceTier.PREMIUM: [
-                "All Growth features",
-                "Tax optimization strategies",
-                "Retirement planning",
-                "Comprehensive financial planning"
-            ],
-            ServiceTier.PRIVATE: [
-                "All Premium features",
-                "Personalized strategies",
+                "All Builder features",
+                "CFP + CFA + CPA access",
+                "Strategic portfolio construction",
                 "Estate planning basics",
-                "Alternative investment education"
+                "Tax-loss harvesting strategies",
+                "Real estate investment considerations"
             ],
-            ServiceTier.HNW: [
-                "All Private features",
-                "Advanced tax strategies",
-                "Estate planning",
-                "Alternative investments",
-                "Concentrated stock strategies"
+            ServiceTier.AFFLUENT: [
+                "All Growth features",
+                "Full advisory team access",
+                "Trust structures and planning",
+                "Multi-entity tax planning",
+                "Business succession planning",
+                "Family governance fundamentals"
             ],
-            ServiceTier.UHNW: [
-                "All HNW features",
+            ServiceTier.HNW_UHNW: [
+                "All Affluent features",
+                "CPWA + specialist access",
                 "Family office services",
-                "Multi-generational planning",
-                "Philanthropic planning",
-                "Private equity access"
+                "Multi-generational wealth planning",
+                "Philanthropic planning (DAFs, foundations)",
+                "Alternative investments (PE, hedge funds)",
+                "International tax planning"
             ],
         }
         return features.get(tier, features[ServiceTier.FOUNDATION])

@@ -15,7 +15,6 @@ Architecture:
 
 import os
 import logging
-import hashlib
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass
@@ -390,15 +389,16 @@ def get_wealth_model_info() -> Dict[str, Any]:
     """Get information about the wealth management model."""
     return {
         "name": "ELSON Wealth Management QDoRA",
-        "base_model": "mistralai/Mistral-7B-v0.1",
-        "adapter_type": "QDoRA",
+        "base_model": "Qwen/Qwen2.5-14B-Instruct",
+        "adapter_type": "QDoRA (DVoRA-trained, 4-bit quantized)",
         "gcs_location": DEFAULT_GCS_URI,
         "trainable_params": "~0.15%",
-        "adapter_size": "173MB",
+        "adapter_size": "~500MB",
         "supported_quantization": ["4bit", "8bit", "none"],
         "recommended_vram": {
-            "4bit": "~5GB",
-            "8bit": "~8GB",
-            "none": "~14GB"
-        }
+            "4bit": "~12GB",
+            "8bit": "~18GB",
+            "none": "~28GB"
+        },
+        "specialization": "70+ professional roles across wealth management domains"
     }
