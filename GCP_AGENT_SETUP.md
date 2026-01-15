@@ -118,7 +118,7 @@ gsutil ls gs://elson-financial-ai/
 | Resource | Region | Quota |
 |----------|--------|-------|
 | Cloud Build CPUs | us-west1 | 12 |
-| GPUs (on-demand) | all regions | 2-3 |
+| GPUs (on-demand) | all regions | 4 ✓ |
 
 **Note:** Committed T4/A100 GPU requests were denied. Use L4 GPUs instead.
 
