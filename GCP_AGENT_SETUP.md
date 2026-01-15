@@ -1,0 +1,247 @@
+# Elson Financial AI - GCP Agent Setup Guide
+
+**Last Updated:** 2026-01-15
+**Status:** 95% Complete
+
+This document tracks everything needed to restore the GCP environment after ephemeral session ends.
+
+---
+
+## 1. Environment Setup (Run First)
+
+```bash
+# Clone repository
+git clone https://github.com/YOUR_REPO/Elson-TB2.git
+cd Elson-TB2
+
+# Create Python virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+
+# Install sentence-transformers for RAG
+pip install sentence-transformers chromadb
+
+# Return to root
+cd ..
+```
+
+---
+
+## 2. Knowledge Base Ingestion (Required)
+
+The ChromaDB vector database needs to be rebuilt on each new session:
+
+```bash
+cd backend
+python scripts/ingest_knowledge.py
+```
+
+**Expected Output:**
+- 17 knowledge base files found
+- 1618 total documents indexed
+- 5/5 retrieval quality tests pass
+
+**Knowledge Base Files (17 total):**
+- family_office_structure.json (76 chunks)
+- professional_roles.json (129 chunks)
+- certifications.json (94 chunks)
+- study_materials.json (74 chunks)
+- estate_planning.json (73 chunks)
+- trust_administration.json (104 chunks)
+- financial_advisors.json (71 chunks)
+- governance.json (67 chunks)
+- succession_planning.json (83 chunks)
+- generational_wealth.json (101 chunks)
+- credit_financing.json (93 chunks)
+- treasury_banking.json (75 chunks)
+- compliance_operations.json (89 chunks)
+- financial_literacy_basics.json (135 chunks)
+- **retirement_planning.json (122 chunks)** ← NEW
+- **college_planning.json (105 chunks)** ← NEW
+- **goal_tier_progression.json (127 chunks)** ← NEW
+
+---
+
+## 3. Verify API Endpoints
+
+```bash
+cd backend
+
+# Start the server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# In another terminal, test endpoints:
+curl -X POST http://localhost:8000/api/v1/wealth/advisory/retirement-planning \
+  -H "Content-Type: application/json" \
+  -d '{
+    "current_age": 35,
+    "target_retirement_age": 65,
+    "annual_income": 100000,
+    "current_retirement_savings": 150000,
+    "employer_401k_match": 0.04,
+    "risk_tolerance": "moderate"
+  }'
+```
+
+---
+
+## 4. DVoRA/QDoRA Model Training (PENDING)
+
+### 4.1 Training Data Generation
+
+Need to generate 2000+ Q&A pairs covering:
+- [ ] Retirement planning scenarios (401k, IRA, Roth, FIRE)
+- [ ] College planning scenarios (529, Coverdell, FAFSA)
+- [ ] Goal-based tier progression scenarios
+- [ ] All 70+ professional roles
+- [ ] 5 wealth tiers (Foundation → HNW/UHNW)
+
+**Script location:** `backend/scripts/generate_training_data.py` (TO CREATE)
+
+### 4.2 GCS Bucket Location
+
+```bash
+# Check existing model artifacts
+gsutil ls gs://YOUR_BUCKET/elson-financial-ai/
+
+# Expected structure:
+# gs://YOUR_BUCKET/elson-financial-ai/
+#   ├── dvora_base_model/
+#   ├── training_data/
+#   └── fine_tuned_model/
+```
+
+### 4.3 Fine-tuning Command
+
+```bash
+# Authenticate
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+
+# Run fine-tuning (adjust parameters as needed)
+python scripts/finetune_dvora.py \
+  --base_model gs://YOUR_BUCKET/elson-financial-ai/dvora_base_model \
+  --training_data gs://YOUR_BUCKET/elson-financial-ai/training_data \
+  --output_dir gs://YOUR_BUCKET/elson-financial-ai/fine_tuned_model \
+  --epochs 3 \
+  --batch_size 8
+```
+
+---
+
+## 5. Deployment Checklist
+
+### Backend API
+- [x] FastAPI application structure
+- [x] 13 advisory modes in RAG service
+- [x] Compliance rules engine (17 rules)
+- [x] All wealth advisory endpoints
+- [x] Retirement planning endpoint
+- [x] College planning endpoint
+- [x] Goal planning endpoint
+
+### Frontend
+- [x] RTK Query API integration
+- [x] WealthAdvisoryDashboard component
+- [x] GoalPlanner component
+- [x] RetirementCalculator component
+- [x] CollegeSavingsPlanner component
+
+### GCP Infrastructure
+- [ ] Cloud Run deployment
+- [ ] Vertex AI model endpoint
+- [ ] Cloud SQL (if needed)
+- [ ] Secret Manager for API keys
+- [ ] Cloud CDN for frontend
+
+---
+
+## 6. API Endpoints Reference
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/wealth/advisory/query` | POST | General wealth advisory |
+| `/wealth/advisory/estate-planning` | POST | Estate planning guidance |
+| `/wealth/advisory/succession-planning` | POST | Business succession |
+| `/wealth/advisory/retirement-planning` | POST | **NEW** Retirement planning |
+| `/wealth/advisory/college-planning` | POST | **NEW** College/529 planning |
+| `/wealth/goals/create-plan` | POST | **NEW** Tier progression roadmap |
+| `/wealth/team/coordinate` | POST | Professional team assembly |
+| `/wealth/knowledge/stats` | GET | RAG statistics |
+
+---
+
+## 7. Service Tiers (Democratized Model)
+
+Based on US average salary ($66,622/year):
+
+| Tier | Asset Range | Access Level |
+|------|-------------|--------------|
+| Foundation | $0 - $10K | Full CFP access, financial literacy |
+| Builder | $10K - $75K | ~1 year savings, achievable for most |
+| Growth | $75K - $500K | CFA access for middle-class |
+| Affluent | $500K - $5M | Full professional team |
+| HNW/UHNW | $5M+ | Family office, specialists |
+
+---
+
+## 8. Quick Verification Tests
+
+```bash
+cd backend
+
+# Test 1: RAG retrieval
+python -c "
+from app.services.knowledge_rag import WealthManagementRAG, AdvisoryMode
+import asyncio
+
+async def test():
+    rag = WealthManagementRAG()
+    results = await rag.query('401k vs Roth IRA', n_results=3, advisory_mode=AdvisoryMode.RETIREMENT_PLANNING)
+    print(f'Results: {len(results)} documents')
+    print(f'Category: {results[0].get(\"category\", \"N/A\")}')
+
+asyncio.run(test())
+"
+
+# Test 2: Helper functions
+python -c "
+from app.api.api_v1.endpoints.wealth_advisory import _calculate_retirement_projections
+from app.schemas.wealth_advisory import RetirementPlanningRequest
+
+req = RetirementPlanningRequest(
+    current_age=35, target_retirement_age=65, annual_income=100000,
+    current_retirement_savings=150000, employer_401k_match=0.04, risk_tolerance='moderate'
+)
+calcs = _calculate_retirement_projections(req)
+print(f'Target: \${calcs[\"target_savings\"]:,.0f}')
+print(f'Projected: \${calcs[\"projected_savings\"]:,.0f}')
+"
+```
+
+---
+
+## 9. Files Modified in This Session
+
+| File | Changes |
+|------|---------|
+| `backend/app/schemas/wealth_advisory.py` | Added response models for retirement, college, goal planning |
+| `backend/app/api/api_v1/endpoints/wealth_advisory.py` | Added 3 new endpoints + helper functions |
+| `backend/app/services/knowledge_rag.py` | Added 3 new AdvisoryModes + categories |
+| `backend/app/knowledge_base/wealth_management/data/retirement_planning.json` | NEW - 122 chunks |
+| `backend/app/knowledge_base/wealth_management/data/college_planning.json` | NEW - 105 chunks |
+| `backend/app/knowledge_base/wealth_management/data/goal_tier_progression.json` | NEW - 127 chunks |
+
+---
+
+## 10. Next Session TODO
+
+1. **Generate training data** - 2000+ Q&A pairs for DVoRA fine-tuning
+2. **Upload training data to GCS** - `gs://YOUR_BUCKET/elson-financial-ai/training_data/`
+3. **Run fine-tuning** - Use Vertex AI or local GPU
+4. **Deploy to Cloud Run** - Container with FastAPI backend
+5. **Final QA testing** - All tiers, all endpoints

@@ -28,6 +28,9 @@ class AdvisoryMode(str, Enum):
     CREDIT_FINANCING = "credit_financing"
     COMPLIANCE_OPERATIONS = "compliance_operations"
     FINANCIAL_LITERACY = "financial_literacy"
+    RETIREMENT_PLANNING = "retirement_planning"  # NEW: Retirement income, Social Security, pensions
+    COLLEGE_PLANNING = "college_planning"  # NEW: 529s, financial aid, education funding
+    GOAL_PLANNING = "goal_planning"  # NEW: Goal-based tier progression roadmaps
 
 
 class WealthTier(str, Enum):
@@ -226,6 +229,61 @@ class RoleInfoRequest(BaseModel):
     )
 
 
+class RetirementPlanningRequest(BaseModel):
+    """Retirement planning advisory request."""
+    current_age: int = Field(..., ge=18, le=100, description="Current age")
+    target_retirement_age: int = Field(default=65, ge=30, le=100, description="Target retirement age")
+    current_retirement_savings: float = Field(default=0, ge=0, description="Current retirement savings")
+    annual_income: float = Field(..., ge=0, description="Current annual income")
+    employer_401k_match: Optional[float] = Field(None, ge=0, le=1, description="Employer 401k match percentage")
+    current_contributions: Optional[dict[str, float]] = Field(
+        None,
+        description="Current retirement contributions by account type"
+    )
+    has_pension: bool = Field(default=False, description="Whether client has a pension")
+    desired_retirement_income: Optional[float] = Field(None, ge=0, description="Desired annual retirement income")
+    social_security_estimate: Optional[float] = Field(None, ge=0, description="Estimated Social Security benefit")
+    risk_tolerance: str = Field(default="moderate", description="Risk tolerance: conservative, moderate, aggressive")
+    specific_questions: Optional[list[str]] = Field(None, description="Specific retirement questions")
+
+
+class CollegePlanningRequest(BaseModel):
+    """College/education planning advisory request."""
+    child_current_age: int = Field(..., ge=0, le=25, description="Child's current age")
+    target_college_start_age: int = Field(default=18, ge=16, le=30, description="Age when starting college")
+    current_529_balance: float = Field(default=0, ge=0, description="Current 529 plan balance")
+    monthly_contribution: Optional[float] = Field(None, ge=0, description="Current monthly contribution")
+    target_school_type: str = Field(
+        default="public_in_state",
+        description="Target school type: public_in_state, public_out_of_state, private, elite_private"
+    )
+    number_of_children: int = Field(default=1, ge=1, description="Number of children to plan for")
+    household_income: Optional[float] = Field(None, ge=0, description="Household income for financial aid estimates")
+    state_of_residence: Optional[str] = Field(None, description="State of residence for 529 tax benefits")
+    interested_in_financial_aid: bool = Field(default=True, description="Interested in financial aid optimization")
+    specific_questions: Optional[list[str]] = Field(None, description="Specific college planning questions")
+
+
+class GoalPlanningRequest(BaseModel):
+    """Goal-based tier progression planning request."""
+    current_age: int = Field(..., ge=18, le=100, description="Current age")
+    annual_income: float = Field(..., ge=0, description="Current annual income")
+    current_assets: float = Field(default=0, ge=0, description="Current total investable assets")
+    monthly_savings: Optional[float] = Field(None, ge=0, description="Current monthly savings")
+    current_debt: Optional[float] = Field(None, ge=0, description="Current total debt")
+    target_tier: WealthTier = Field(..., description="Target wealth tier to achieve")
+    target_assets: Optional[float] = Field(None, ge=0, description="Specific target asset amount")
+    target_timeline_years: Optional[int] = Field(None, ge=1, description="Target years to achieve goal")
+    career_flexibility: str = Field(default="medium", description="Career flexibility: low, medium, high")
+    geographic_flexibility: bool = Field(default=False, description="Willing to relocate for opportunities")
+    risk_tolerance: str = Field(default="moderate", description="Risk tolerance: conservative, moderate, aggressive")
+    specific_goals: Optional[list[str]] = Field(
+        None,
+        description="Specific goals: retirement, education, home, business, family_office"
+    )
+    constraints: Optional[dict[str, Any]] = Field(None, description="Any constraints or preferences")
+
+
 # =============================================================================
 # RESPONSE MODELS
 # =============================================================================
@@ -416,3 +474,195 @@ class KnowledgeBaseStatsResponse(BaseModel):
     embedding_model: str = Field(..., description="Embedding model used")
     categories: list[str] = Field(default_factory=list, description="Available categories")
     last_updated: Optional[datetime] = Field(None, description="Last update timestamp")
+
+
+# =============================================================================
+# NEW PLANNING RESPONSE MODELS
+# =============================================================================
+
+class RetirementMilestone(BaseModel):
+    """A milestone in the retirement plan."""
+    age: int = Field(..., description="Age at milestone")
+    milestone: str = Field(..., description="Description of milestone")
+    target_savings: float = Field(..., description="Target savings at this milestone")
+    actions: list[str] = Field(default_factory=list, description="Actions to take")
+
+
+class RetirementAccountRecommendation(BaseModel):
+    """Recommendation for a retirement account type."""
+    account_type: str = Field(..., description="Type of retirement account")
+    recommended_contribution: float = Field(..., description="Recommended annual contribution")
+    tax_treatment: str = Field(..., description="Tax treatment (pre-tax, Roth, etc.)")
+    rationale: str = Field(..., description="Why this account is recommended")
+    priority: int = Field(default=1, ge=1, le=5, description="Priority 1-5")
+
+
+class RetirementPlanningResponse(BaseModel):
+    """Retirement planning advisory response."""
+    summary: str = Field(..., description="Summary of retirement plan")
+    years_to_retirement: int = Field(..., description="Years until retirement")
+    current_trajectory: str = Field(
+        ...,
+        description="Current trajectory: on_track, needs_adjustment, significant_gap"
+    )
+    target_retirement_savings: float = Field(..., description="Target savings at retirement")
+    projected_retirement_savings: float = Field(..., description="Projected savings at current rate")
+    savings_gap: float = Field(..., description="Gap between target and projected")
+    recommended_monthly_savings: float = Field(..., description="Recommended monthly savings")
+    account_recommendations: list[RetirementAccountRecommendation] = Field(
+        default_factory=list,
+        description="Recommended retirement accounts"
+    )
+    social_security_strategy: Optional[str] = Field(None, description="Social Security claiming strategy")
+    withdrawal_strategy: Optional[str] = Field(None, description="Recommended withdrawal strategy")
+    milestones: list[RetirementMilestone] = Field(
+        default_factory=list,
+        description="Key milestones in retirement journey"
+    )
+    tax_strategies: list[str] = Field(
+        default_factory=list,
+        description="Tax optimization strategies"
+    )
+    risk_factors: list[str] = Field(
+        default_factory=list,
+        description="Risks to retirement plan"
+    )
+    recommended_professionals: list[ProfessionalRecommendation] = Field(
+        default_factory=list,
+        description="Professionals to consult"
+    )
+    citations: list[Citation] = Field(default_factory=list)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+class CollegeCostProjection(BaseModel):
+    """Projected cost of college."""
+    school_type: str = Field(..., description="Type of school")
+    current_annual_cost: float = Field(..., description="Current annual cost")
+    projected_annual_cost: float = Field(..., description="Projected cost when child starts")
+    total_4_year_cost: float = Field(..., description="Total projected 4-year cost")
+    inflation_rate_used: float = Field(..., description="Inflation rate used in projection")
+
+
+class CollegeSavingsStrategy(BaseModel):
+    """Strategy for college savings."""
+    account_type: str = Field(..., description="Type of savings account")
+    recommended_monthly_contribution: float = Field(..., description="Recommended monthly contribution")
+    state_tax_benefit: Optional[str] = Field(None, description="State tax deduction benefit")
+    investment_approach: str = Field(..., description="Recommended investment approach")
+    pros: list[str] = Field(default_factory=list, description="Advantages")
+    cons: list[str] = Field(default_factory=list, description="Disadvantages")
+
+
+class FinancialAidEstimate(BaseModel):
+    """Estimated financial aid."""
+    estimated_efc: Optional[float] = Field(None, description="Estimated Family Contribution")
+    estimated_need: Optional[float] = Field(None, description="Estimated financial need")
+    likely_aid_types: list[str] = Field(default_factory=list, description="Types of aid likely to receive")
+    optimization_strategies: list[str] = Field(default_factory=list, description="Strategies to maximize aid")
+
+
+class CollegePlanningResponse(BaseModel):
+    """College/education planning advisory response."""
+    summary: str = Field(..., description="Summary of college plan")
+    years_until_college: int = Field(..., description="Years until child starts college")
+    cost_projection: CollegeCostProjection = Field(..., description="Projected costs")
+    current_savings_trajectory: str = Field(
+        ...,
+        description="Trajectory: on_track, needs_adjustment, significant_gap"
+    )
+    projected_savings_at_start: float = Field(..., description="Projected savings when college starts")
+    funding_gap: float = Field(..., description="Gap between savings and cost")
+    savings_strategies: list[CollegeSavingsStrategy] = Field(
+        default_factory=list,
+        description="Recommended savings strategies"
+    )
+    financial_aid_estimate: Optional[FinancialAidEstimate] = Field(
+        None,
+        description="Financial aid estimates if applicable"
+    )
+    alternative_options: list[str] = Field(
+        default_factory=list,
+        description="Alternative education funding options"
+    )
+    tax_strategies: list[str] = Field(
+        default_factory=list,
+        description="Tax benefits and strategies"
+    )
+    timeline_actions: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Actions by timeline"
+    )
+    recommended_professionals: list[ProfessionalRecommendation] = Field(
+        default_factory=list,
+        description="Professionals to consult"
+    )
+    citations: list[Citation] = Field(default_factory=list)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+class TierProgressionMilestone(BaseModel):
+    """A milestone in tier progression."""
+    year_range: str = Field(..., description="Year range (e.g., '1-2', '3-5')")
+    tier: WealthTier = Field(..., description="Tier at this stage")
+    expected_assets: float = Field(..., description="Expected assets at end")
+    monthly_savings_target: float = Field(..., description="Monthly savings target")
+    actions: list[str] = Field(default_factory=list, description="Key actions for this period")
+    career_guidance: Optional[str] = Field(None, description="Career-related guidance")
+
+
+class AccelerationStrategy(BaseModel):
+    """Strategy to accelerate wealth building."""
+    strategy_name: str = Field(..., description="Name of strategy")
+    description: str = Field(..., description="Description of strategy")
+    tactics: list[str] = Field(default_factory=list, description="Specific tactics")
+    impact: str = Field(..., description="Expected impact")
+    difficulty: str = Field(default="medium", description="Difficulty: low, medium, high")
+    time_to_implement: str = Field(..., description="Time to implement")
+
+
+class GoalPlanningResponse(BaseModel):
+    """Goal-based tier progression planning response."""
+    summary: str = Field(..., description="Summary of goal plan")
+    current_tier: WealthTier = Field(..., description="Current wealth tier")
+    target_tier: WealthTier = Field(..., description="Target wealth tier")
+    feasibility: str = Field(
+        ...,
+        description="Feasibility: highly_achievable, achievable, stretch, aggressive"
+    )
+    recommended_timeline_years: int = Field(..., description="Recommended years to achieve goal")
+    required_savings_rate: float = Field(..., description="Required savings rate (0-1)")
+    current_savings_rate: float = Field(..., description="Current savings rate")
+    savings_rate_gap: float = Field(..., description="Gap in savings rate")
+    target_assets: float = Field(..., description="Target asset amount")
+    projected_assets_at_timeline: float = Field(..., description="Projected assets at timeline end")
+    yearly_roadmap: list[TierProgressionMilestone] = Field(
+        default_factory=list,
+        description="Year-by-year roadmap"
+    )
+    acceleration_strategies: list[AccelerationStrategy] = Field(
+        default_factory=list,
+        description="Strategies to accelerate progress"
+    )
+    key_milestones: list[str] = Field(
+        default_factory=list,
+        description="Key milestones to celebrate"
+    )
+    risk_factors: list[str] = Field(
+        default_factory=list,
+        description="Potential risks to plan"
+    )
+    advisors_by_stage: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Recommended advisors at each stage"
+    )
+    recommended_professionals: list[ProfessionalRecommendation] = Field(
+        default_factory=list,
+        description="Professionals to consult now"
+    )
+    motivation_message: str = Field(
+        ...,
+        description="Motivational message for the client"
+    )
+    citations: list[Citation] = Field(default_factory=list)
+    timestamp: datetime = Field(default_factory=datetime.utcnow)

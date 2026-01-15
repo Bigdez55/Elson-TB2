@@ -1,0 +1,414 @@
+{
+  "domain": "college_education_planning",
+  "description": "Comprehensive education funding strategies covering 529 plans, financial aid optimization, and alternative education paths",
+  "categories": {
+    "529_plans": {
+      "description": "Tax-advantaged education savings accounts",
+      "types": {
+        "529_savings_plan": {
+          "description": "Investment account for education expenses",
+          "tax_benefits": [
+            "Tax-deferred growth",
+            "Tax-free withdrawals for qualified expenses",
+            "State tax deduction in many states (check your state)",
+            "Gift tax advantages ($18K annual exclusion, 5-year superfunding)"
+          ],
+          "contribution_limits": {
+            "lifetime_max": "Varies by state ($235,000-$550,000+)",
+            "annual_gift_tax_exclusion": 18000,
+            "superfunding": {
+              "description": "5-year gift tax averaging",
+              "max_amount": 90000,
+              "note": "No additional gifts to beneficiary for 5 years"
+            }
+          },
+          "qualified_expenses": [
+            "Tuition and fees",
+            "Room and board (for half-time students)",
+            "Books and supplies",
+            "Computers and internet access",
+            "K-12 tuition (up to $10,000/year)",
+            "Apprenticeship programs",
+            "Student loan repayment (up to $10,000 lifetime)"
+          ],
+          "investment_options": [
+            "Age-based portfolios (auto-rebalance as child ages)",
+            "Static portfolios (fixed allocation)",
+            "Individual fund options"
+          ],
+          "key_considerations": [
+            "Compare in-state vs. out-of-state plans",
+            "Low fees matter (Vanguard, Fidelity, Schwab direct-sold)",
+            "Can change beneficiary to family member",
+            "SECURE 2.0: Unused funds can roll to Roth IRA (2024+)"
+          ]
+        },
+        "529_prepaid_tuition": {
+          "description": "Lock in current tuition rates at participating schools",
+          "pros": [
+            "Hedge against tuition inflation",
+            "Guaranteed value",
+            "Lower risk than investment plans"
+          ],
+          "cons": [
+            "Limited to participating schools",
+            "May not cover full cost if child attends different school",
+            "Less flexibility"
+          ],
+          "example_programs": [
+            "Private College 529 Plan (270+ private colleges)",
+            "State prepaid programs (Texas, Florida, etc.)"
+          ]
+        }
+      },
+      "secure_2_act_changes": {
+        "roth_ira_rollover": {
+          "effective_date": "2024",
+          "requirements": [
+            "529 must be open for 15+ years",
+            "Beneficiary must be the 529 beneficiary",
+            "Contributions in last 5 years not eligible",
+            "Subject to Roth IRA annual contribution limits",
+            "Lifetime max rollover: $35,000"
+          ],
+          "strategy": "Open 529 at birth even with small amount to start 15-year clock"
+        }
+      }
+    },
+    "coverdell_esa": {
+      "description": "Education Savings Account (formerly Education IRA)",
+      "contribution_limits": {
+        "annual_max": 2000,
+        "income_limits": {
+          "single_phase_out": "95000-110000",
+          "married_phase_out": "190000-220000"
+        }
+      },
+      "advantages_over_529": [
+        "More investment flexibility (individual stocks, etc.)",
+        "Can be used for K-12 expenses without limits",
+        "Elementary and secondary school expenses covered"
+      ],
+      "disadvantages": [
+        "Low contribution limit",
+        "Income restrictions",
+        "Must be used by age 30"
+      ],
+      "best_use": "Supplement to 529 for K-12 private school families"
+    },
+    "utma_ugma_accounts": {
+      "description": "Custodial accounts for minors",
+      "utma": "Uniform Transfers to Minors Act",
+      "ugma": "Uniform Gifts to Minors Act",
+      "tax_treatment_2024": {
+        "first_1300": "Tax-free",
+        "next_1300": "Child's tax rate",
+        "over_2600": "Parent's marginal rate (kiddie tax)"
+      },
+      "financial_aid_impact": "Counted as student asset (20% assessed vs. 5.64% parent)",
+      "considerations": [
+        "Irrevocable gift to child",
+        "Child gains control at 18 or 21 (state dependent)",
+        "No restrictions on use",
+        "Can be used for non-education expenses"
+      ],
+      "strategies": [
+        "Use for expenses that don't qualify for 529",
+        "Fund with appreciated stock for tax efficiency",
+        "Consider before high school for financial aid timing"
+      ]
+    },
+    "financial_aid_optimization": {
+      "fafsa": {
+        "description": "Free Application for Federal Student Aid",
+        "timeline": {
+          "opens": "October 1 for following school year",
+          "priority": "Submit early for best aid packages",
+          "deadline": "Varies by school and state"
+        },
+        "efc_calculation": {
+          "description": "Expected Family Contribution (now SAI - Student Aid Index)",
+          "parent_assets_rate": "5.64% of assets above protection allowance",
+          "student_assets_rate": "20% of assets",
+          "income_factors": "Prior-prior year tax return"
+        },
+        "assets_counted": [
+          "Bank accounts",
+          "Brokerage accounts",
+          "529 plans (parent-owned)",
+          "Real estate (investment)",
+          "Business assets (if 100+ employees)"
+        ],
+        "assets_not_counted": [
+          "Primary residence equity",
+          "Retirement accounts (401k, IRA, etc.)",
+          "Life insurance cash value",
+          "Annuities",
+          "Small business assets (under 100 employees)"
+        ]
+      },
+      "css_profile": {
+        "description": "Additional financial aid form for ~400 private schools",
+        "differences_from_fafsa": [
+          "Counts home equity",
+          "Counts non-custodial parent income",
+          "More detailed asset questions",
+          "Each school can customize questions"
+        ],
+        "schools_using": "Many selective private institutions"
+      },
+      "aid_optimization_strategies": {
+        "income_strategies": [
+          "Maximize retirement contributions in base years",
+          "Defer bonuses if possible",
+          "Avoid large capital gains realizations",
+          "Consider Roth conversions before base years"
+        ],
+        "asset_strategies": [
+          "Spend down student assets before filing",
+          "Move savings to parent 529 (not grandparent)",
+          "Pay down mortgage with excess cash",
+          "Make major purchases before base year"
+        ],
+        "timing_strategies": [
+          "Understand prior-prior year timing",
+          "Plan major income events around base years",
+          "Consider gap year impact on aid"
+        ],
+        "grandparent_529_strategy": {
+          "old_rules": "Distribution counted as student income (50% impact)",
+          "fafsa_simplification_2024": "No longer reported as income",
+          "new_strategy": "Grandparent 529s now favorable"
+        }
+      }
+    },
+    "education_costs_projection": {
+      "current_costs_2024": {
+        "public_in_state": {
+          "tuition_fees": 11260,
+          "room_board": 12770,
+          "total": 24030
+        },
+        "public_out_of_state": {
+          "tuition_fees": 29150,
+          "room_board": 12770,
+          "total": 41920
+        },
+        "private_nonprofit": {
+          "tuition_fees": 43350,
+          "room_board": 14650,
+          "total": 58000
+        },
+        "elite_private": {
+          "total": "75000-90000"
+        }
+      },
+      "inflation_rate": {
+        "historical_average": "5-6% annually",
+        "recent_trend": "Slowing to 2-4%",
+        "projection_assumption": "4% for planning"
+      },
+      "projected_costs_18_years": {
+        "public_in_state": 48000,
+        "public_out_of_state": 84000,
+        "private_nonprofit": 116000,
+        "note": "Per year, not total"
+      }
+    },
+    "funding_strategies_by_timeline": {
+      "birth_to_5": {
+        "strategy": "Aggressive growth",
+        "recommended_accounts": ["529 plan", "Roth IRA (if earned income)"],
+        "allocation": "80-100% stocks",
+        "monthly_savings_target": {
+          "public_college_goal": 300,
+          "private_college_goal": 600
+        },
+        "superfunding_opportunity": "Front-load 5 years of gifts ($90,000)"
+      },
+      "elementary_school": {
+        "strategy": "Growth with some moderation",
+        "allocation": "70-80% stocks",
+        "catch_up_if_behind": "Increase monthly contributions",
+        "review_annually": "Adjust based on target school costs"
+      },
+      "middle_school": {
+        "strategy": "Balanced growth",
+        "allocation": "60-70% stocks",
+        "actions": [
+          "Research target schools and costs",
+          "Explore merit scholarship opportunities",
+          "Consider dual enrollment/AP for college credit"
+        ]
+      },
+      "high_school": {
+        "strategy": "Conservative, capital preservation",
+        "allocation": "40-50% stocks",
+        "freshman_sophomore": [
+          "Finalize college savings plan",
+          "Start scholarship search",
+          "Plan for standardized tests"
+        ],
+        "junior_senior": [
+          "Run FAFSA estimator",
+          "Apply for scholarships aggressively",
+          "Submit FAFSA October 1",
+          "Compare aid packages"
+        ]
+      }
+    },
+    "alternative_education_paths": {
+      "community_college_transfer": {
+        "description": "2 years community college, then transfer",
+        "savings": "50-70% of first two years",
+        "considerations": [
+          "Transfer agreements with 4-year schools",
+          "Course equivalency",
+          "May lose access to freshman scholarships"
+        ]
+      },
+      "trade_schools_apprenticeships": {
+        "description": "Vocational training for skilled trades",
+        "duration": "6 months to 2 years",
+        "cost": "$5,000-$15,000 average",
+        "roi": "Often higher than 4-year degrees",
+        "in_demand_fields": [
+          "Electrical",
+          "Plumbing",
+          "HVAC",
+          "Welding",
+          "Healthcare (medical assistant, dental hygienist)"
+        ],
+        "529_coverage": "Qualified programs eligible"
+      },
+      "employer_tuition_assistance": {
+        "description": "Employer-paid education benefits",
+        "tax_free_limit": 5250,
+        "strategy": "Work while attending school, employer pays"
+      },
+      "military_education_benefits": {
+        "gi_bill": {
+          "description": "Post-9/11 GI Bill",
+          "coverage": "Full tuition at public schools, housing allowance",
+          "service_requirement": "36 months active duty for 100%"
+        },
+        "rotc": {
+          "description": "Reserve Officers' Training Corps",
+          "scholarship": "Full tuition + monthly stipend",
+          "commitment": "Military service after graduation"
+        }
+      },
+      "income_share_agreements": {
+        "description": "Pay percentage of income after graduation",
+        "typical_terms": "10-15% of income for 5-10 years",
+        "cap": "Usually 1.5-2.5x original funding",
+        "considerations": "Read terms carefully, compare to loans"
+      }
+    },
+    "scholarship_strategies": {
+      "types": {
+        "merit_based": "Academic, athletic, artistic achievement",
+        "need_based": "Financial need demonstrated",
+        "demographic": "Based on background, identity, community",
+        "field_of_study": "Major-specific scholarships"
+      },
+      "search_strategy": [
+        "Start junior year of high school",
+        "Apply to 50+ scholarships",
+        "Focus on local/niche scholarships (less competition)",
+        "Reuse essays across applications",
+        "Set weekly application goals"
+      ],
+      "resources": [
+        "Fastweb.com",
+        "Scholarships.com",
+        "College Board scholarship search",
+        "Local community foundations",
+        "Employer/parent employer programs"
+      ],
+      "tax_treatment": "Scholarships for tuition/fees are tax-free; room/board may be taxable"
+    },
+    "student_loans": {
+      "federal_loans": {
+        "direct_subsidized": {
+          "description": "Need-based, government pays interest while in school",
+          "limits_undergraduate": {
+            "freshman": 3500,
+            "sophomore": 4500,
+            "junior_senior": 5500
+          }
+        },
+        "direct_unsubsidized": {
+          "description": "Not need-based, interest accrues immediately",
+          "limits": "Additional $2,000-$7,000 depending on year and dependency"
+        },
+        "parent_plus": {
+          "description": "Parents borrow for dependent students",
+          "limit": "Up to cost of attendance minus other aid",
+          "rate": "Higher than student loans"
+        }
+      },
+      "repayment_options": {
+        "standard": "10 years, fixed payments",
+        "graduated": "Lower initially, increases over time",
+        "income_driven": [
+          "SAVE (Saving on a Valuable Education) - newest plan",
+          "IBR (Income-Based Repayment)",
+          "PAYE (Pay As You Earn)",
+          "ICR (Income-Contingent Repayment)"
+        ],
+        "pslf": {
+          "description": "Public Service Loan Forgiveness",
+          "requirements": "120 qualifying payments while working for qualifying employer",
+          "forgiveness": "Remaining balance forgiven tax-free"
+        }
+      },
+      "private_loans": {
+        "when_to_consider": "Only after exhausting federal options",
+        "shop_around": "Rates vary significantly",
+        "cosigner": "Often required, affects cosigner credit"
+      }
+    }
+  },
+  "professionals_involved": [
+    {
+      "role": "CFP",
+      "education_focus": "Overall education funding strategy, 529 selection, integration with retirement planning"
+    },
+    {
+      "role": "CPA",
+      "education_focus": "Tax optimization, education credits (AOTC, LLC), 529 tax benefits"
+    },
+    {
+      "role": "Financial Aid Advisor",
+      "education_focus": "FAFSA/CSS Profile optimization, appeal strategies, aid package comparison"
+    },
+    {
+      "role": "College Counselor",
+      "education_focus": "School selection, application strategy, scholarship identification"
+    }
+  ],
+  "education_tax_credits": {
+    "american_opportunity_credit": {
+      "max_credit": 2500,
+      "income_limits_2024": {
+        "single_phase_out": "80000-90000",
+        "married_phase_out": "160000-180000"
+      },
+      "refundable": "40% (up to $1,000)",
+      "years_available": "First 4 years of higher education",
+      "requirements": "Half-time enrollment, pursuing degree"
+    },
+    "lifetime_learning_credit": {
+      "max_credit": 2000,
+      "income_limits_2024": {
+        "single_phase_out": "80000-90000",
+        "married_phase_out": "160000-180000"
+      },
+      "refundable": false,
+      "years_available": "Unlimited",
+      "advantages": "Graduate school, non-degree courses eligible"
+    },
+    "coordination_with_529": "Cannot double-dip: expenses used for credits can't be paid with 529 tax-free"
+  }
+}

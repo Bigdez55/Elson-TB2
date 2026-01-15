@@ -37,6 +37,9 @@ class AdvisoryMode(str, Enum):
     CREDIT_FINANCING = "credit_financing"
     COMPLIANCE_OPERATIONS = "compliance_operations"
     FINANCIAL_LITERACY = "financial_literacy"
+    RETIREMENT_PLANNING = "retirement_planning"
+    COLLEGE_PLANNING = "college_planning"
+    GOAL_PLANNING = "goal_planning"
 
 
 class WealthTier(str, Enum):
@@ -120,7 +123,10 @@ class WealthManagementRAG:
             "credit_financing": "credit_financing.json",
             "treasury_banking": "treasury_banking.json",
             "compliance_operations": "compliance_operations.json",
-            "financial_literacy": "financial_literacy_basics.json"
+            "financial_literacy": "financial_literacy_basics.json",
+            "retirement_planning": "retirement_planning.json",
+            "college_planning": "college_planning.json",
+            "goal_tier_progression": "goal_tier_progression.json"
         }
 
         # Advisory mode to relevant categories mapping
@@ -128,13 +134,16 @@ class WealthManagementRAG:
             AdvisoryMode.GENERAL: list(self.category_files.keys()),
             AdvisoryMode.ESTATE_PLANNING: ["estate_planning", "trust_administration", "generational_wealth"],
             AdvisoryMode.INVESTMENT_ADVISORY: ["financial_advisors", "governance", "certifications"],
-            AdvisoryMode.TAX_OPTIMIZATION: ["estate_planning", "succession_planning", "compliance_operations"],
+            AdvisoryMode.TAX_OPTIMIZATION: ["estate_planning", "succession_planning", "compliance_operations", "retirement_planning"],
             AdvisoryMode.SUCCESSION_PLANNING: ["succession_planning", "professional_roles", "family_office"],
             AdvisoryMode.FAMILY_GOVERNANCE: ["governance", "family_office", "generational_wealth"],
             AdvisoryMode.TRUST_ADMINISTRATION: ["trust_administration", "estate_planning", "professional_roles"],
             AdvisoryMode.CREDIT_FINANCING: ["credit_financing", "treasury_banking"],
             AdvisoryMode.COMPLIANCE_OPERATIONS: ["compliance_operations", "governance"],
-            AdvisoryMode.FINANCIAL_LITERACY: ["financial_literacy"]
+            AdvisoryMode.FINANCIAL_LITERACY: ["financial_literacy"],
+            AdvisoryMode.RETIREMENT_PLANNING: ["retirement_planning", "financial_advisors", "certifications", "estate_planning"],
+            AdvisoryMode.COLLEGE_PLANNING: ["college_planning", "financial_literacy", "financial_advisors"],
+            AdvisoryMode.GOAL_PLANNING: ["goal_tier_progression", "financial_advisors", "certifications", "generational_wealth"]
         }
 
     @property
@@ -597,6 +606,85 @@ class WealthManagementRAG:
             query,
             ["financial_literacy"],
             n_results=5
+        )
+
+    async def get_retirement_planning_content(
+        self,
+        age: int,
+        income: float,
+        topics: list[str] = None
+    ) -> list[dict]:
+        """
+        Get retirement planning knowledge content.
+
+        Args:
+            age: Current age of the client
+            income: Current annual income
+            topics: Specific topics (401k, ira, social_security, etc.)
+
+        Returns:
+            Relevant retirement planning content
+        """
+        query_parts = [f"retirement planning for {age} year old"]
+        if income > 150000:
+            query_parts.append("high income strategies")
+        if topics:
+            query_parts.extend(topics)
+        query = " ".join(query_parts)
+
+        return await self.search_by_category(
+            query,
+            ["retirement_planning", "financial_advisors", "certifications"],
+            n_results=8
+        )
+
+    async def get_college_planning_content(
+        self,
+        child_age: int,
+        school_type: str = "public_in_state"
+    ) -> list[dict]:
+        """
+        Get college/education planning knowledge content.
+
+        Args:
+            child_age: Current age of the child
+            school_type: Target school type
+
+        Returns:
+            Relevant college planning content
+        """
+        years_until = 18 - child_age if child_age < 18 else 0
+        query = f"college planning {years_until} years {school_type} 529 financial aid"
+
+        return await self.search_by_category(
+            query,
+            ["college_planning", "financial_literacy"],
+            n_results=8
+        )
+
+    async def get_goal_progression_content(
+        self,
+        current_tier: str,
+        target_tier: str,
+        income: float
+    ) -> list[dict]:
+        """
+        Get goal-based tier progression knowledge content.
+
+        Args:
+            current_tier: Current wealth tier
+            target_tier: Target wealth tier
+            income: Current annual income
+
+        Returns:
+            Relevant goal progression content
+        """
+        query = f"wealth progression from {current_tier} to {target_tier} income {income} roadmap strategy"
+
+        return await self.search_by_category(
+            query,
+            ["goal_tier_progression", "generational_wealth", "financial_advisors"],
+            n_results=10
         )
 
 

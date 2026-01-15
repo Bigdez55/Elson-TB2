@@ -1,0 +1,474 @@
+{
+  "domain": "retirement_planning",
+  "description": "Comprehensive retirement planning knowledge covering all retirement vehicles, strategies, and optimization techniques",
+  "categories": {
+    "employer_sponsored_plans": {
+      "401k": {
+        "description": "Employer-sponsored defined contribution plan",
+        "contribution_limits_2024": {
+          "employee_limit": 23000,
+          "catch_up_50_plus": 7500,
+          "total_limit_including_employer": 69000
+        },
+        "key_features": [
+          "Pre-tax or Roth contributions",
+          "Employer matching (free money)",
+          "Automatic payroll deduction",
+          "Loan provisions available",
+          "Required Minimum Distributions at 73"
+        ],
+        "optimization_strategies": [
+          "Always capture full employer match first",
+          "Consider Roth 401k if expecting higher future tax bracket",
+          "Maximize catch-up contributions after 50",
+          "Review investment options annually",
+          "Consider in-plan Roth conversion for after-tax contributions"
+        ],
+        "mega_backdoor_roth": {
+          "description": "Strategy using after-tax 401k contributions converted to Roth",
+          "requirements": [
+            "Plan allows after-tax contributions",
+            "Plan allows in-service distributions or in-plan Roth conversions"
+          ],
+          "max_additional_contribution": 46000
+        }
+      },
+      "403b": {
+        "description": "Retirement plan for public schools and tax-exempt organizations",
+        "contribution_limits_2024": {
+          "same_as_401k": true,
+          "special_15_year_rule": "Additional $3,000/year if 15+ years service"
+        },
+        "key_considerations": [
+          "Often have higher fees than 401k",
+          "May have limited investment options",
+          "Some allow both 403b and 457b contributions"
+        ]
+      },
+      "457b": {
+        "description": "Deferred compensation plan for government and non-profit employees",
+        "contribution_limits_2024": {
+          "employee_limit": 23000,
+          "catch_up_50_plus": 7500,
+          "special_3_year_catch_up": "Double limit in final 3 years before retirement"
+        },
+        "unique_features": [
+          "No 10% early withdrawal penalty",
+          "Can contribute to both 457b AND 401k/403b",
+          "Governmental 457b can rollover to IRA"
+        ]
+      },
+      "pension_defined_benefit": {
+        "description": "Employer-funded plan providing guaranteed retirement income",
+        "benefit_calculation": "Years of service × Final average salary × Benefit multiplier",
+        "considerations": [
+          "Vesting schedule (typically 5 years)",
+          "Lump sum vs. annuity decision",
+          "Survivor benefits for spouse",
+          "COLA adjustments",
+          "Pension maximization strategy with life insurance"
+        ]
+      }
+    },
+    "individual_retirement_accounts": {
+      "traditional_ira": {
+        "description": "Tax-deferred individual retirement account",
+        "contribution_limits_2024": {
+          "annual_limit": 7000,
+          "catch_up_50_plus": 1000
+        },
+        "income_limits_for_deduction": {
+          "single_with_employer_plan": {
+            "full_deduction": 77000,
+            "partial_deduction": "77000-87000",
+            "no_deduction": 87000
+          },
+          "married_with_employer_plan": {
+            "full_deduction": 123000,
+            "partial_deduction": "123000-143000",
+            "no_deduction": 143000
+          }
+        },
+        "key_features": [
+          "Tax-deductible contributions (income limits apply)",
+          "Tax-deferred growth",
+          "RMDs starting at 73",
+          "10% early withdrawal penalty before 59.5"
+        ]
+      },
+      "roth_ira": {
+        "description": "After-tax retirement account with tax-free growth and withdrawals",
+        "contribution_limits_2024": {
+          "annual_limit": 7000,
+          "catch_up_50_plus": 1000
+        },
+        "income_limits_2024": {
+          "single": {
+            "full_contribution": 146000,
+            "partial_contribution": "146000-161000",
+            "no_contribution": 161000
+          },
+          "married_filing_jointly": {
+            "full_contribution": 230000,
+            "partial_contribution": "230000-240000",
+            "no_contribution": 240000
+          }
+        },
+        "key_features": [
+          "Tax-free qualified withdrawals",
+          "No RMDs for original owner",
+          "Contributions (not earnings) withdrawable anytime",
+          "5-year rule for earnings"
+        ],
+        "backdoor_roth_strategy": {
+          "description": "Contribute to traditional IRA then convert to Roth",
+          "steps": [
+            "Contribute to non-deductible traditional IRA",
+            "Convert to Roth IRA (pay tax on gains only)",
+            "Avoid pro-rata rule by rolling existing traditional IRA to 401k"
+          ],
+          "pro_rata_rule": "If you have pre-tax IRA funds, conversion is proportionally taxed"
+        }
+      },
+      "sep_ira": {
+        "description": "Simplified Employee Pension for self-employed and small business",
+        "contribution_limits_2024": {
+          "max_contribution": 69000,
+          "calculation": "25% of net self-employment income (up to $345,000)"
+        },
+        "key_features": [
+          "Only employer contributions (no employee)",
+          "Must contribute same percentage for all eligible employees",
+          "Easy setup and administration",
+          "Flexible annual contributions"
+        ]
+      },
+      "simple_ira": {
+        "description": "Savings Incentive Match Plan for Employees",
+        "contribution_limits_2024": {
+          "employee_limit": 16000,
+          "catch_up_50_plus": 3500,
+          "employer_match": "Dollar-for-dollar up to 3% or 2% non-elective"
+        },
+        "eligibility": "Businesses with 100 or fewer employees",
+        "2_year_rule": "25% penalty for withdrawals in first 2 years"
+      },
+      "solo_401k": {
+        "description": "Individual 401k for self-employed with no employees",
+        "contribution_limits_2024": {
+          "employee_deferral": 23000,
+          "employer_contribution": "25% of compensation",
+          "total_max": 69000,
+          "catch_up_50_plus": 7500
+        },
+        "advantages_over_sep": [
+          "Higher contribution potential at lower income",
+          "Roth option available",
+          "Loan provisions",
+          "Can make employee AND employer contributions"
+        ]
+      }
+    },
+    "social_security": {
+      "eligibility": {
+        "credits_needed": 40,
+        "credits_per_year_max": 4,
+        "calculation_basis": "Highest 35 years of indexed earnings"
+      },
+      "claiming_ages": {
+        "earliest": 62,
+        "full_retirement_age": {
+          "born_1960_or_later": 67,
+          "reduction_at_62": "30% permanent reduction"
+        },
+        "delayed_credits": {
+          "max_age": 70,
+          "increase_per_year": "8% delayed retirement credits"
+        }
+      },
+      "optimization_strategies": [
+        {
+          "strategy": "File and Suspend",
+          "description": "No longer available after 2016"
+        },
+        {
+          "strategy": "Restricted Application",
+          "description": "Claim spousal while own benefit grows (limited availability)"
+        },
+        {
+          "strategy": "Delay to 70",
+          "description": "Maximize monthly benefit with 8%/year increase",
+          "best_for": "Good health, longer life expectancy, higher earner"
+        },
+        {
+          "strategy": "Claim Early",
+          "description": "Take reduced benefit at 62",
+          "best_for": "Health concerns, need income, shorter life expectancy"
+        },
+        {
+          "strategy": "Spousal Coordination",
+          "description": "Lower earner claims early, higher earner delays",
+          "benefit": "Maximizes survivor benefits"
+        }
+      ],
+      "taxation": {
+        "thresholds_single": {
+          "0_percent_taxed": "Combined income under $25,000",
+          "50_percent_taxed": "Combined income $25,000-$34,000",
+          "85_percent_taxed": "Combined income over $34,000"
+        },
+        "thresholds_married": {
+          "0_percent_taxed": "Combined income under $32,000",
+          "50_percent_taxed": "Combined income $32,000-$44,000",
+          "85_percent_taxed": "Combined income over $44,000"
+        }
+      }
+    },
+    "retirement_income_strategies": {
+      "4_percent_rule": {
+        "description": "Withdraw 4% of portfolio first year, adjust for inflation",
+        "origin": "Trinity Study (1998)",
+        "assumptions": "30-year retirement, 50/50 stock/bond allocation",
+        "criticisms": [
+          "Based on historical returns that may not repeat",
+          "Doesn't account for sequence of returns risk",
+          "May be too conservative for longer retirements"
+        ]
+      },
+      "bucket_strategy": {
+        "description": "Segment portfolio into time-based buckets",
+        "buckets": [
+          {
+            "bucket": 1,
+            "timeframe": "0-3 years",
+            "allocation": "Cash and short-term bonds",
+            "purpose": "Immediate spending needs"
+          },
+          {
+            "bucket": 2,
+            "timeframe": "3-10 years",
+            "allocation": "Bonds and conservative investments",
+            "purpose": "Medium-term stability"
+          },
+          {
+            "bucket": 3,
+            "timeframe": "10+ years",
+            "allocation": "Stocks and growth investments",
+            "purpose": "Long-term growth to combat inflation"
+          }
+        ]
+      },
+      "income_floor_strategy": {
+        "description": "Guarantee essential expenses with guaranteed income",
+        "components": [
+          "Social Security",
+          "Pension income",
+          "SPIA (Single Premium Immediate Annuity)",
+          "Bond ladder"
+        ],
+        "discretionary_spending": "Covered by investment portfolio"
+      },
+      "dynamic_withdrawal": {
+        "description": "Adjust withdrawals based on market performance",
+        "guardrails_approach": {
+          "increase_spending": "When portfolio grows significantly",
+          "decrease_spending": "When portfolio declines",
+          "bands": "Typically 20% above/below target"
+        }
+      }
+    },
+    "retirement_healthcare": {
+      "medicare": {
+        "eligibility_age": 65,
+        "parts": {
+          "part_a": {
+            "coverage": "Hospital insurance",
+            "cost": "Premium-free for most (40+ quarters)"
+          },
+          "part_b": {
+            "coverage": "Medical insurance",
+            "premium_2024": "Base $174.70/month, income-adjusted"
+          },
+          "part_c": {
+            "coverage": "Medicare Advantage (private alternative)",
+            "features": "Often includes Part D, may have additional benefits"
+          },
+          "part_d": {
+            "coverage": "Prescription drug coverage",
+            "features": "Income-adjusted premiums"
+          }
+        },
+        "irmaa": {
+          "description": "Income-Related Monthly Adjustment Amount",
+          "applies_to": "Parts B and D for higher earners",
+          "look_back": "2 years prior tax return"
+        },
+        "medigap": {
+          "description": "Supplemental insurance for gaps in Original Medicare",
+          "plans": "Standardized plans A-N",
+          "best_time_to_buy": "6-month open enrollment at 65"
+        }
+      },
+      "health_savings_account": {
+        "description": "Triple tax-advantaged account for medical expenses",
+        "contribution_limits_2024": {
+          "individual": 4150,
+          "family": 8300,
+          "catch_up_55_plus": 1000
+        },
+        "retirement_strategy": [
+          "Max contributions during working years",
+          "Pay medical expenses out-of-pocket, save receipts",
+          "Let HSA grow tax-free",
+          "Reimburse decades of expenses tax-free in retirement",
+          "After 65, can withdraw for any purpose (taxed like traditional IRA)"
+        ]
+      },
+      "long_term_care": {
+        "statistics": {
+          "need_care_after_65": "70%",
+          "average_need_duration": "3 years"
+        },
+        "options": [
+          "Traditional LTC insurance",
+          "Hybrid life/LTC policies",
+          "Self-insure with dedicated assets",
+          "Medicaid planning (asset protection)"
+        ],
+        "costs_2024": {
+          "nursing_home_private": "$108,405/year national average",
+          "assisted_living": "$64,200/year",
+          "home_health_aide": "$75,504/year (44 hrs/week)"
+        }
+      }
+    },
+    "retirement_tax_optimization": {
+      "roth_conversion_ladder": {
+        "description": "Convert traditional to Roth over multiple years",
+        "strategy": [
+          "Convert amount that fills lower tax brackets",
+          "Ideal during low-income years (early retirement, sabbatical)",
+          "5-year rule applies to each conversion",
+          "Consider state taxes and Medicare IRMAA impact"
+        ]
+      },
+      "tax_bracket_management": {
+        "description": "Strategic withdrawals to minimize lifetime taxes",
+        "tactics": [
+          "Fill 0% capital gains bracket with Roth conversions",
+          "Harvest capital gains in low-income years",
+          "Bunch deductions in alternating years",
+          "QCDs (Qualified Charitable Distributions) after 70.5"
+        ]
+      },
+      "sequence_of_withdrawals": {
+        "traditional_order": [
+          "Taxable accounts first (use up cost basis)",
+          "Tax-deferred accounts second",
+          "Roth accounts last (maximize tax-free growth)"
+        ],
+        "optimized_approach": "Mix sources to fill tax brackets efficiently"
+      }
+    }
+  },
+  "retirement_planning_by_age": {
+    "20s": {
+      "priorities": [
+        "Start contributing to 401k (at least to employer match)",
+        "Open Roth IRA",
+        "Build emergency fund",
+        "Avoid lifestyle inflation"
+      ],
+      "target_savings_rate": "15-20% of income"
+    },
+    "30s": {
+      "priorities": [
+        "Maximize 401k contributions",
+        "Backdoor Roth if over income limits",
+        "Increase savings rate with raises",
+        "Review asset allocation"
+      ],
+      "milestone": "1x salary saved by 30"
+    },
+    "40s": {
+      "priorities": [
+        "Catch up if behind",
+        "Evaluate pension options if available",
+        "Plan for children's education vs. retirement",
+        "Review Social Security statement"
+      ],
+      "milestone": "3x salary saved by 40"
+    },
+    "50s": {
+      "priorities": [
+        "Maximize catch-up contributions",
+        "Model retirement scenarios",
+        "Consider LTC insurance",
+        "Plan healthcare bridge to Medicare"
+      ],
+      "milestone": "6x salary saved by 50"
+    },
+    "60s": {
+      "priorities": [
+        "Finalize Social Security strategy",
+        "Plan Medicare enrollment",
+        "Create retirement income plan",
+        "Consider part-time work transition"
+      ],
+      "milestone": "8-10x salary saved by 60"
+    }
+  },
+  "fire_movement": {
+    "description": "Financial Independence, Retire Early",
+    "variants": {
+      "lean_fire": {
+        "description": "Minimal expenses, frugal lifestyle",
+        "target": "$40,000/year or less",
+        "portfolio_needed": "$1,000,000 (4% rule)"
+      },
+      "regular_fire": {
+        "description": "Comfortable middle-class retirement",
+        "target": "$40,000-$100,000/year",
+        "portfolio_needed": "$1,000,000-$2,500,000"
+      },
+      "fat_fire": {
+        "description": "Luxurious early retirement",
+        "target": "$100,000+/year",
+        "portfolio_needed": "$2,500,000+"
+      },
+      "barista_fire": {
+        "description": "Part-time work for benefits and social connection",
+        "target": "Cover gap with part-time income"
+      },
+      "coast_fire": {
+        "description": "Enough saved that compound growth will fund retirement",
+        "strategy": "Work for current expenses only, don't need to save more"
+      }
+    },
+    "key_strategies": [
+      "Extreme savings rate (50-70%)",
+      "Low-cost index fund investing",
+      "Geographic arbitrage",
+      "Roth conversion ladder after early retirement",
+      "72(t) SEPP for penalty-free early withdrawals"
+    ]
+  },
+  "professionals_involved": [
+    {
+      "role": "CFP",
+      "retirement_focus": "Comprehensive retirement income planning, Social Security optimization, withdrawal strategies"
+    },
+    {
+      "role": "CPA",
+      "retirement_focus": "Tax-efficient withdrawal sequencing, Roth conversion analysis, RMD calculations"
+    },
+    {
+      "role": "Enrolled Agent",
+      "retirement_focus": "IRS representation, retirement account corrections, tax controversy"
+    },
+    {
+      "role": "RICP (Retirement Income Certified Professional)",
+      "retirement_focus": "Specialized in creating sustainable retirement income"
+    }
+  ]
+}

@@ -1,0 +1,445 @@
+{
+  "domain": "goal_based_tier_progression",
+  "description": "Strategic roadmaps for clients to progress through service tiers toward their wealth goals",
+  "philosophy": "Every client deserves a clear path to their financial aspirations. We don't just advise - we build actionable plans to get there.",
+  "service_tiers_detailed": {
+    "foundation": {
+      "aum_range": [0, 10000],
+      "description": "Building the foundation of financial literacy and savings habits",
+      "typical_clients": [
+        "Recent graduates",
+        "Career starters",
+        "Anyone beginning their wealth journey"
+      ],
+      "key_milestones": [
+        "Emergency fund (3-6 months expenses)",
+        "Debt payoff plan in place",
+        "First investment account opened",
+        "Budget tracking automated"
+      ],
+      "advisors_available": ["CFP"],
+      "average_time_to_next_tier": {
+        "aggressive": "6-12 months",
+        "moderate": "1-2 years",
+        "conservative": "2-3 years"
+      }
+    },
+    "builder": {
+      "aum_range": [10000, 75000],
+      "description": "Building wealth through consistent saving and tax-advantaged investing",
+      "typical_clients": [
+        "Mid-career professionals",
+        "Dual-income households",
+        "Small business owners starting out"
+      ],
+      "key_milestones": [
+        "Maxing employer 401k match",
+        "Roth IRA contributions started",
+        "First $50K invested",
+        "Insurance coverage adequate",
+        "Estate basics (will, beneficiaries)"
+      ],
+      "advisors_available": ["CFP", "CPA"],
+      "average_time_to_next_tier": {
+        "aggressive": "2-4 years",
+        "moderate": "4-7 years",
+        "conservative": "7-10 years"
+      }
+    },
+    "growth": {
+      "aum_range": [75000, 500000],
+      "description": "Accelerating wealth through advanced strategies and portfolio optimization",
+      "typical_clients": [
+        "Senior professionals",
+        "Successful entrepreneurs",
+        "Dual high-income households"
+      ],
+      "key_milestones": [
+        "Maxing all retirement accounts",
+        "Taxable brokerage account growing",
+        "Tax-loss harvesting implemented",
+        "First real estate investment considered",
+        "Estate plan with trusts"
+      ],
+      "advisors_available": ["CFP", "CFA", "CPA"],
+      "average_time_to_next_tier": {
+        "aggressive": "3-5 years",
+        "moderate": "5-10 years",
+        "conservative": "10-15 years"
+      }
+    },
+    "affluent": {
+      "aum_range": [500000, 5000000],
+      "description": "Complex wealth management with multi-entity planning",
+      "typical_clients": [
+        "Executives",
+        "Business owners",
+        "Professionals with equity compensation",
+        "Inheritors"
+      ],
+      "key_milestones": [
+        "Trust structures established",
+        "Tax optimization across entities",
+        "Business succession planning started",
+        "Philanthropic planning initiated",
+        "Alternative investments considered"
+      ],
+      "advisors_available": ["CFP", "CFA", "CPA", "Estate Attorney", "Tax Attorney"],
+      "average_time_to_next_tier": {
+        "aggressive": "5-10 years",
+        "moderate": "10-15 years",
+        "conservative": "15-25 years"
+      }
+    },
+    "hnw_uhnw": {
+      "aum_range": [5000000, null],
+      "description": "Family office level wealth with multi-generational planning",
+      "typical_clients": [
+        "Business sale recipients",
+        "Multi-generational wealth",
+        "Successful investors",
+        "High-earning professionals over career"
+      ],
+      "key_milestones": [
+        "Family office structure (single or multi-family)",
+        "Investment committee established",
+        "Family governance documents",
+        "Philanthropic foundation or DAF",
+        "Multi-generational estate plan",
+        "Alternative investments (PE, VC, hedge funds)"
+      ],
+      "advisors_available": ["CPWA", "CIO", "CFO", "Estate Attorney", "Tax Attorney", "Family Governance Officer"],
+      "family_office_threshold": 10000000
+    }
+  },
+  "goal_progression_calculator": {
+    "description": "Calculate realistic timeline and required savings to reach target tier",
+    "inputs_required": [
+      "current_assets",
+      "annual_income",
+      "annual_savings_rate",
+      "target_tier",
+      "expected_return_rate",
+      "time_horizon"
+    ],
+    "formula": {
+      "future_value": "PV * (1 + r)^n + PMT * [((1 + r)^n - 1) / r]",
+      "variables": {
+        "PV": "Present value (current assets)",
+        "r": "Expected annual return",
+        "n": "Number of years",
+        "PMT": "Annual contribution"
+      }
+    },
+    "savings_rate_targets": {
+      "minimum": 0.10,
+      "recommended": 0.20,
+      "aggressive": 0.30,
+      "fire_level": 0.50
+    }
+  },
+  "sample_progression_plans": {
+    "100k_income_to_family_office": {
+      "starting_point": {
+        "annual_income": 100000,
+        "current_tier": "foundation",
+        "current_assets": 5000,
+        "age": 30
+      },
+      "target": {
+        "tier": "hnw_uhnw",
+        "target_assets": 5000000,
+        "family_office_assets": 10000000
+      },
+      "assumptions": {
+        "annual_raise": 0.03,
+        "savings_rate": 0.25,
+        "investment_return": 0.08,
+        "years_to_target": 25
+      },
+      "yearly_roadmap": [
+        {
+          "years": "1-2",
+          "tier": "foundation",
+          "actions": [
+            "Build 6-month emergency fund ($25,000)",
+            "Pay off high-interest debt",
+            "Contribute to 401k up to employer match",
+            "Open Roth IRA, contribute max ($7,000)",
+            "Automate savings of 25% of income"
+          ],
+          "expected_assets_end": 50000,
+          "monthly_savings": 2083
+        },
+        {
+          "years": "3-5",
+          "tier": "builder",
+          "actions": [
+            "Max 401k contributions ($23,000)",
+            "Continue maxing Roth IRA",
+            "Open taxable brokerage account",
+            "Start tax-loss harvesting",
+            "Review and optimize insurance"
+          ],
+          "expected_assets_end": 175000,
+          "monthly_savings": 2500
+        },
+        {
+          "years": "6-10",
+          "tier": "growth",
+          "actions": [
+            "Maintain max retirement contributions",
+            "Backdoor Roth if income exceeds limits",
+            "Consider real estate investment",
+            "Evaluate side business/consulting",
+            "Create basic estate plan"
+          ],
+          "expected_assets_end": 500000,
+          "monthly_savings": 3000,
+          "career_moves": "Seek promotions, consider job changes for 15-20% salary bumps"
+        },
+        {
+          "years": "11-18",
+          "tier": "affluent",
+          "actions": [
+            "Implement advanced tax strategies",
+            "Consider business ownership or equity",
+            "Diversify into alternative investments",
+            "Establish irrevocable trusts",
+            "Begin charitable giving strategy"
+          ],
+          "expected_assets_end": 2500000,
+          "monthly_savings": 4000,
+          "wealth_acceleration": "Business equity, real estate appreciation, market growth"
+        },
+        {
+          "years": "19-25",
+          "tier": "hnw_uhnw",
+          "actions": [
+            "Formalize family office structure",
+            "Create investment committee",
+            "Implement family governance",
+            "Multi-generational estate plan",
+            "Philanthropic foundation or DAF"
+          ],
+          "expected_assets_end": 5000000,
+          "path_to_10m": "Continue compounding, business growth, inheritance possible"
+        }
+      ],
+      "key_acceleration_strategies": [
+        {
+          "strategy": "Income Growth",
+          "description": "Proactively manage career for maximum income growth",
+          "tactics": [
+            "Change jobs every 2-4 years for salary bumps",
+            "Develop high-value skills",
+            "Negotiate aggressively",
+            "Consider management track or specialist track"
+          ],
+          "impact": "Can double effective savings rate over 10 years"
+        },
+        {
+          "strategy": "Business Ownership",
+          "description": "Build equity through business rather than just salary",
+          "options": [
+            "Start side business that can scale",
+            "Join startup with equity",
+            "Buy existing business",
+            "Real estate investing"
+          ],
+          "impact": "Primary wealth acceleration vehicle for most millionaires"
+        },
+        {
+          "strategy": "Tax Optimization",
+          "description": "Keep more of what you earn through legal tax strategies",
+          "tactics": [
+            "Max all tax-advantaged accounts",
+            "Tax-loss harvesting",
+            "Roth conversions in low-income years",
+            "Business expense optimization",
+            "Charitable strategies (DAF bunching)"
+          ],
+          "impact": "Can increase effective savings by 15-25%"
+        },
+        {
+          "strategy": "Lifestyle Arbitrage",
+          "description": "Control expenses to maximize savings rate",
+          "tactics": [
+            "Avoid lifestyle inflation with raises",
+            "House hack or optimize housing costs",
+            "Geographic arbitrage (lower cost of living)",
+            "Automate savings before spending"
+          ],
+          "impact": "Each 10% savings rate increase = years off timeline"
+        }
+      ]
+    },
+    "150k_dual_income_to_affluent": {
+      "starting_point": {
+        "annual_household_income": 150000,
+        "current_tier": "builder",
+        "current_assets": 75000,
+        "ages": [35, 33]
+      },
+      "target": {
+        "tier": "affluent",
+        "target_assets": 1000000
+      },
+      "timeline": "8-12 years",
+      "roadmap_summary": {
+        "key_actions": [
+          "Both spouses max 401k ($46,000/year combined)",
+          "Both max Roth IRAs ($14,000/year combined)",
+          "Save additional $20,000+ in taxable accounts",
+          "One spouse pursues advancement/side income",
+          "Maintain 30%+ household savings rate"
+        ],
+        "annual_savings": 80000,
+        "expected_growth": "8% annually",
+        "first_million_timeline": "~8 years with market growth"
+      }
+    },
+    "small_business_owner_to_hnw": {
+      "starting_point": {
+        "annual_business_income": 200000,
+        "current_tier": "growth",
+        "current_assets": 300000,
+        "business_value": 500000,
+        "age": 45
+      },
+      "target": {
+        "tier": "hnw_uhnw",
+        "target_assets": 5000000
+      },
+      "strategies": {
+        "business_growth": {
+          "description": "Grow business value for eventual sale",
+          "tactics": [
+            "Systematize operations for scalability",
+            "Build management team",
+            "Diversify customer base",
+            "Improve margins",
+            "Document processes for sale preparation"
+          ],
+          "target_business_value": 3000000
+        },
+        "personal_wealth_building": {
+          "description": "Build wealth outside the business",
+          "tactics": [
+            "SEP IRA or Solo 401k (max contributions)",
+            "Defined benefit plan if high income",
+            "Real estate investments",
+            "Keep 2 years business expenses in reserve"
+          ]
+        },
+        "exit_planning": {
+          "description": "Plan for business sale or succession",
+          "timeline": "Start planning 3-5 years before exit",
+          "options": [
+            "Strategic sale to competitor",
+            "Private equity",
+            "Management buyout",
+            "Family succession",
+            "ESOP"
+          ]
+        }
+      },
+      "projected_outcome": {
+        "business_sale_proceeds": 3000000,
+        "personal_investments": 2000000,
+        "total_at_exit": 5000000,
+        "timeline": "10-15 years"
+      }
+    }
+  },
+  "goal_planning_api_structure": {
+    "endpoint": "/wealth/goals/create-plan",
+    "request_schema": {
+      "current_situation": {
+        "age": "integer",
+        "annual_income": "number",
+        "current_assets": "number",
+        "monthly_savings": "number",
+        "debt": "number",
+        "current_tier": "string"
+      },
+      "goals": {
+        "target_tier": "string",
+        "target_assets": "number (optional)",
+        "target_timeline": "integer (years, optional)",
+        "specific_goals": [
+          "retirement_age",
+          "children_education",
+          "home_purchase",
+          "business_ownership",
+          "family_office"
+        ]
+      },
+      "constraints": {
+        "max_risk_tolerance": "conservative|moderate|aggressive",
+        "career_flexibility": "low|medium|high",
+        "geographic_flexibility": "boolean"
+      }
+    },
+    "response_schema": {
+      "plan_summary": {
+        "feasibility": "highly_achievable|achievable|stretch|aggressive",
+        "recommended_timeline": "integer (years)",
+        "required_savings_rate": "decimal",
+        "key_milestones": "array"
+      },
+      "yearly_roadmap": "array of yearly plans",
+      "acceleration_strategies": "array of strategies with impact scores",
+      "risk_factors": "array of potential obstacles",
+      "advisor_recommendations": "array of professionals to engage"
+    }
+  },
+  "milestone_celebration": {
+    "description": "Celebrate progress to maintain motivation",
+    "tier_transitions": [
+      {
+        "transition": "foundation_to_builder",
+        "celebration": "First $10K milestone - foundation built!",
+        "badge": "Foundation Builder"
+      },
+      {
+        "transition": "builder_to_growth",
+        "celebration": "Growth mode activated - $75K milestone!",
+        "badge": "Growth Achiever"
+      },
+      {
+        "transition": "growth_to_affluent",
+        "celebration": "Half-million milestone - affluent status!",
+        "badge": "Affluent Achiever"
+      },
+      {
+        "transition": "affluent_to_hnw",
+        "celebration": "Welcome to HNW - $5M milestone!",
+        "badge": "Wealth Master"
+      },
+      {
+        "transition": "hnw_to_family_office",
+        "celebration": "Family Office threshold reached - $10M!",
+        "badge": "Dynasty Builder"
+      }
+    ],
+    "sub_milestones": [
+      "First $1K saved",
+      "Emergency fund complete",
+      "Debt-free",
+      "First $100K",
+      "Maxing retirement accounts",
+      "First $500K",
+      "First million",
+      "Coast FI achieved",
+      "Financial independence"
+    ]
+  },
+  "professionals_by_goal": {
+    "reach_builder_tier": ["CFP"],
+    "reach_growth_tier": ["CFP", "CPA"],
+    "reach_affluent_tier": ["CFP", "CFA", "CPA", "Estate Attorney"],
+    "reach_hnw_tier": ["CPWA", "CFP", "CFA", "CPA", "Estate Attorney", "Tax Attorney"],
+    "establish_family_office": ["CPWA", "Family Office Consultant", "CIO", "CFO", "Estate Attorney", "Tax Attorney", "Family Governance Officer"]
+  }
+}
