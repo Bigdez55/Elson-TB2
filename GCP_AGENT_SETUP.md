@@ -11,22 +11,18 @@ This document tracks everything needed to restore the GCP environment after ephe
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_REPO/Elson-TB2.git
-cd Elson-TB2
+git clone https://github.com/Bigdez55/Elson-TB2.git
+cd Elson-TB2/backend
 
 # Create Python virtual environment
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 
 # Install backend dependencies
-cd backend
 pip install -r requirements.txt
 
-# Install sentence-transformers for RAG
+# Install ML/training dependencies
+pip install transformers peft bitsandbytes accelerate
 pip install sentence-transformers chromadb
-
-# Return to root
-cd ..
 ```
 
 ---
