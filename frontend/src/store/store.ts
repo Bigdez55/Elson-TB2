@@ -10,6 +10,7 @@ import websocketReducer from './slices/websocketSlice';
 import portfolioReducer from './slices/portfolioSlice';
 import toastReducer from './slices/toastSlice';
 import marketDataApi from '../services/marketDataApi';
+import wealthAdvisoryApi from '../services/wealthAdvisoryApi';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
 import { errorMiddleware } from '../middleware/errorMiddleware';
@@ -27,6 +28,7 @@ export const store = configureStore({
     portfolio: portfolioReducer,
     toast: toastReducer,
     [marketDataApi.reducerPath]: marketDataApi.reducer,
+    [wealthAdvisoryApi.reducerPath]: wealthAdvisoryApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -34,7 +36,7 @@ export const store = configureStore({
         ignoredActions: ['market/updateMarketData', 'trading/updatePredictions'],
         ignoredPaths: ['market.realTimeData', 'trading.predictions'],
       },
-    }).concat(marketDataApi.middleware, errorMiddleware),
+    }).concat(marketDataApi.middleware, wealthAdvisoryApi.middleware, errorMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
