@@ -106,29 +106,50 @@ Need to generate 2000+ Q&A pairs covering:
 
 ```bash
 # Check existing model artifacts
-gsutil ls gs://YOUR_BUCKET/elson-financial-ai/
+gsutil ls gs://elson-financial-ai/
 
 # Expected structure:
-# gs://YOUR_BUCKET/elson-financial-ai/
+# gs://elson-financial-ai/
 #   ├── dvora_base_model/
 #   ├── training_data/
 #   └── fine_tuned_model/
 ```
 
-### 4.3 Fine-tuning Command
+### 4.3 GCP Quota Status (as of 2026-01-15)
+
+**Available Resources:**
+| Resource | Region | Quota |
+|----------|--------|-------|
+| Cloud Build CPUs | us-west1 | 12 |
+| GPUs (on-demand) | all regions | 2-3 |
+
+**Note:** Committed T4/A100 GPU requests were denied. Use on-demand GPUs in us-west1 for fine-tuning.
+
+### 4.4 Fine-tuning Command
 
 ```bash
 # Authenticate
 gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
+gcloud config set project Elson
 
-# Run fine-tuning (adjust parameters as needed)
+# Run fine-tuning using available GPU quota (us-west1)
 python scripts/finetune_dvora.py \
-  --base_model gs://YOUR_BUCKET/elson-financial-ai/dvora_base_model \
-  --training_data gs://YOUR_BUCKET/elson-financial-ai/training_data \
-  --output_dir gs://YOUR_BUCKET/elson-financial-ai/fine_tuned_model \
+  --base_model gs://elson-financial-ai/dvora_base_model \
+  --training_data gs://elson-financial-ai/training_data \
+  --output_dir gs://elson-financial-ai/fine_tuned_model \
+  --region us-west1 \
   --epochs 3 \
   --batch_size 8
+```
+
+**Alternative: Use Vertex AI Training (recommended)**
+```bash
+gcloud ai custom-jobs create \
+  --region=us-west1 \
+  --display-name=elson-dvora-finetune \
+  --worker-pool-spec=machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_T4,accelerator-count=1 \
+  --python-package-uris=gs://elson-financial-ai/training_package.tar.gz \
+  --module-name=trainer.task
 ```
 
 ---
