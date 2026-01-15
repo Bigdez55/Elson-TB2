@@ -51,6 +51,38 @@ from .advanced_adapters import (
     check_dora_support
 )
 
+# Phase 3: Wealth Management Integration (5-Layer Architecture)
+from .wealth_model_loader import (
+    WealthModelLoader,
+    ModelConfig,
+    ModelSource,
+    create_wealth_model_loader,
+    load_wealth_model,
+    get_wealth_model_info
+)
+
+from .wealth_llm_service import (
+    # Enums
+    ServiceTier,
+    AdvisoryMode,
+    DecisionAuthority,
+    ComplianceCategory,
+    # Data classes
+    UserProfile,
+    ComplianceResult,
+    QueryContext,
+    AdvisoryResponse,
+    # 5-Layer Components
+    QueryRouter,
+    RAGLayer,
+    ComplianceEngine,
+    ValidationLayer,
+    # Main Service
+    WealthLLMService,
+    create_wealth_service,
+    quick_wealth_query
+)
+
 __all__ = [
     'QuantumFeatureEncoder',
     'QuantumKernelClassifier',
@@ -84,5 +116,27 @@ __all__ = [
     'create_qdora_analyzer',
     'create_dvora_analyzer',
     'get_adapter_comparison',
-    'check_dora_support'
+    'check_dora_support',
+    # Phase 3: Wealth Management (5-Layer Architecture)
+    'WealthModelLoader',
+    'ModelConfig',
+    'ModelSource',
+    'create_wealth_model_loader',
+    'load_wealth_model',
+    'get_wealth_model_info',
+    'ServiceTier',
+    'AdvisoryMode',
+    'DecisionAuthority',
+    'ComplianceCategory',
+    'UserProfile',
+    'ComplianceResult',
+    'QueryContext',
+    'AdvisoryResponse',
+    'QueryRouter',
+    'RAGLayer',
+    'ComplianceEngine',
+    'ValidationLayer',
+    'WealthLLMService',
+    'create_wealth_service',
+    'quick_wealth_query'
 ]
