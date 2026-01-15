@@ -29,6 +29,15 @@ from .nlp_models import (
     analyze_market_sentiment
 )
 
+# Phase 2: Sentiment Benchmark (FinGPT vs DistilBERT comparison)
+from .sentiment_benchmark import (
+    SentimentBenchmark,
+    BenchmarkResult,
+    BenchmarkDataset,
+    FinancialSentimentDatasets,
+    run_quick_benchmark
+)
+
 __all__ = [
     'QuantumFeatureEncoder',
     'QuantumKernelClassifier',
@@ -46,5 +55,11 @@ __all__ = [
     # Phase 1: FinGPT
     'FinGPTSentimentAnalyzer',
     'fingpt_sentiment_analysis',
-    'analyze_market_sentiment'
+    'analyze_market_sentiment',
+    # Phase 2: Benchmark
+    'SentimentBenchmark',
+    'BenchmarkResult',
+    'BenchmarkDataset',
+    'FinancialSentimentDatasets',
+    'run_quick_benchmark'
 ]
