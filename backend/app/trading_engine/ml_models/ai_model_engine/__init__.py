@@ -38,6 +38,19 @@ from .sentiment_benchmark import (
     run_quick_benchmark
 )
 
+# Phase 2: Advanced PEFT Adapters (DoRA, QDoRA, DVoRA)
+from .advanced_adapters import (
+    AdapterType,
+    AdapterConfig,
+    AdvancedFinancialAnalyzer,
+    create_adapter_config,
+    create_quantization_config,
+    create_qdora_analyzer,
+    create_dvora_analyzer,
+    get_adapter_comparison,
+    check_dora_support
+)
+
 __all__ = [
     'QuantumFeatureEncoder',
     'QuantumKernelClassifier',
@@ -61,5 +74,15 @@ __all__ = [
     'BenchmarkResult',
     'BenchmarkDataset',
     'FinancialSentimentDatasets',
-    'run_quick_benchmark'
+    'run_quick_benchmark',
+    # Phase 2: Advanced Adapters (DoRA, QDoRA, DVoRA)
+    'AdapterType',
+    'AdapterConfig',
+    'AdvancedFinancialAnalyzer',
+    'create_adapter_config',
+    'create_quantization_config',
+    'create_qdora_analyzer',
+    'create_dvora_analyzer',
+    'get_adapter_comparison',
+    'check_dora_support'
 ]
