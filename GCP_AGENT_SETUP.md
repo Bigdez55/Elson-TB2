@@ -118,14 +118,47 @@ gsutil ls gs://elson-financial-ai/
 ### 4.3 GCP Quota Status (as of 2026-01-15)
 
 **Available Resources:**
+
 | Resource | Region | Quota |
 |----------|--------|-------|
 | Cloud Build CPUs | us-west1 | 12 |
 | GPUs (on-demand) | all regions | 2-3 |
 
-**Note:** Committed T4/A100 GPU requests were denied. Use on-demand GPUs in us-west1 for fine-tuning.
+**Note:** Committed T4/A100 GPU requests were denied. Use L4 GPUs instead.
 
-### 4.4 Fine-tuning Command
+### 4.4 L4 GPU VM Options (Recommended)
+
+| Script | Config | Cost/hr |
+|--------|--------|---------|
+| `create-l4-gpu-vm.sh` | 2x L4 (48GB VRAM) | ~$2.40 |
+| `create-l4-gpu-vm-spot.sh` | 2x L4 Spot | ~$0.80 |
+| `create-l4-single-gpu-vm.sh` | 1x L4 (24GB VRAM) | ~$0.70 |
+
+**L4 vs A100 Comparison:**
+
+| Spec | L4 (24GB) | A100 (40GB) |
+|------|-----------|-------------|
+| VRAM | 24GB | 40GB |
+| Architecture | Ada Lovelace | Ampere |
+| FP16 TFLOPS | ~242 | ~312 |
+| Cost (2x) | ~$2.40/hr | ~$7.35/hr |
+
+### 4.5 Create VM via Console UI (if gcloud crashes)
+
+If Cloud Shell gcloud has issues (`TypeError: string indices must be integers`), create VM manually:
+
+1. Go to: https://console.cloud.google.com/compute/instancesAdd?project=elson-33a95
+
+2. Configure:
+   - **Name:** `elson-dvora-training-l4`
+   - **Region:** us-central1 → Zone: us-central1-a
+   - **Machine type:** g2-standard-24 (2x L4 GPUs)
+   - **Boot disk:** Change → Deep Learning on Linux → PyTorch 2.7
+   - **Boot disk size:** 200GB SSD
+
+3. Click "Create"
+
+### 4.6 Fine-tuning Command
 
 ```bash
 # Authenticate
