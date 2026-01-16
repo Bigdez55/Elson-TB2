@@ -107,6 +107,21 @@ class ConfigurationError(TradingPlatformError):
     pass
 
 
+class ServiceError(TradingPlatformError):
+    """Exception raised when a service operation fails."""
+
+    def __init__(
+        self,
+        message: str,
+        service: Optional[str] = None,
+        operation: Optional[str] = None,
+        details: Optional[dict] = None
+    ):
+        super().__init__(message, details)
+        self.service = service
+        self.operation = operation
+
+
 F = TypeVar('F', bound=Callable[..., Any])
 
 
@@ -168,5 +183,6 @@ __all__ = [
     "ValidationError",
     "RateLimitError",
     "ConfigurationError",
+    "ServiceError",
     "handle_errors",
 ]

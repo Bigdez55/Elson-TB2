@@ -1,8 +1,5 @@
 """ML Models module for Elson Trading Engine."""
 
-# Core ML models (always available)
-from .neural_network import *
-
 # Volatility regime detection
 from .volatility_regime import VolatilityDetector, VolatilityRegime
 
@@ -12,13 +9,21 @@ try:
 except ImportError:
     pass  # ai module requires backend app dependencies
 
+# Neural network service - use from app.services.neural_network
 try:
-    from .ai_portfolio_manager import *
+    from app.services.neural_network import NeuralNetworkService
+except ImportError:
+    pass  # neural_network requires backend app dependencies
+
+# AI Portfolio Manager - use from app.services.ai_portfolio_manager
+try:
+    from app.services.ai_portfolio_manager import AIPortfolioManager
 except ImportError:
     pass  # ai_portfolio_manager requires backend app dependencies
 
+# Anomaly Detector - use from app.services.anomaly_detector
 try:
-    from .anomaly_detector import *
+    from app.services.anomaly_detector import AnomalyDetector
 except ImportError:
     pass  # anomaly_detector requires backend app dependencies
 
