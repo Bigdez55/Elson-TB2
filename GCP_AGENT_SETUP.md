@@ -290,6 +290,17 @@ print(f'Projected: \${calcs[\"projected_savings\"]:,.0f}')
 
 ## 10. GCP Agent Instructions (DVoRA/QDoRA Training)
 
+### CRITICAL: Correct Base Model
+
+**DO NOT** use Mistral-7B, Phi-2, or any external models.
+**USE** the merged Elson model: `elson-finance-trading-14b-final`
+
+The Elson model was created via 3-stage merge:
+
+1. **Stage 1 (SLERP):** DeepSeek-R1-Distill-Qwen-14B + Qwen2.5-Math-14B-Instruct
+2. **Stage 2 (TIES):** + FinGPT + FinLLaMA (financial domain)
+3. **Stage 3 (DARE):** Pruning → `elson-finance-trading-14b-final`
+
 ### Step 1: Pull Latest Code
 
 ```bash
@@ -297,7 +308,16 @@ cd ~/Elson-TB2
 git pull origin main
 ```
 
-### Step 2: Generate Training Data (2000+ Q&A Pairs)
+### Step 2: Download Base Model from GCS
+
+```bash
+# Download the correct merged Elson model
+gsutil -m cp -r gs://elson-33a95-elson-models/elson-finance-trading-14b-final/ ./base_model/
+```
+
+**Expected:** ~28GB download (14B parameter model)
+
+### Step 3: Generate Training Data (2000+ Q&A Pairs)
 
 ```bash
 cd ~/Elson-TB2/backend
@@ -312,13 +332,13 @@ python scripts/generate_training_data.py
 - `training_data/test.jsonl` (~200 samples, 10%)
 - 11 categories covered (retirement, college, estate, trust, succession, roles, literacy, goals, compliance, generational, credit)
 
-### Step 3: Upload Training Data to GCS
+### Step 4: Upload Training Data to GCS
 
 ```bash
 gsutil -m cp -r training_data/* gs://elson-financial-ai/training_data/
 ```
 
-### Step 4: Run DVoRA/QDoRA Fine-tuning
+### Step 5: Run DVoRA/QDoRA Fine-tuning
 
 ```bash
 # Activate DVoRA environment (if using separate venv)
@@ -327,7 +347,7 @@ source ~/dvora_env/bin/activate
 # Run QDoRA training (4-bit quantized, recommended for L4 GPU)
 python train_wealth_dvora.py \
   --mode qdora \
-  --base_model mistralai/Mistral-7B-v0.1 \
+  --base_model ./base_model/elson-finance-trading-14b-final \
   --training_data ./training_data/train.jsonl \
   --validation_data ./training_data/validation.jsonl \
   --output_dir ./wealth-qdora \
@@ -339,16 +359,17 @@ python train_wealth_dvora.py \
 # Alternative: Full precision DVoRA (requires more VRAM)
 python train_wealth_dvora.py \
   --mode dvora \
+  --base_model ./base_model/elson-finance-trading-14b-final \
   --output_dir ./wealth-dvora
 ```
 
-### Step 5: Upload Fine-tuned Model to GCS
+### Step 6: Upload Fine-tuned Model to GCS
 
 ```bash
 gsutil -m cp -r ./wealth-qdora gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/
 ```
 
-### Step 6: Verify Model
+### Step 7: Verify Model
 
 ```bash
 # Test inference with fine-tuned model
