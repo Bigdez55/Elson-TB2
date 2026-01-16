@@ -1,6 +1,7 @@
-"""Schwab broker implementation.
+"""Schwab broker implementation using the ApiBaseBroker.
 
-This module implements the Schwab broker API integration.
+This module implements the Schwab broker API integration using the new ApiBaseBroker
+base class for improved code reuse and consistency across broker implementations.
 """
 
 import json
@@ -9,23 +10,21 @@ import time
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple, Union
-from urllib.parse import urlencode
 
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 from app.core.config import settings
+from app.core.exception_handlers import BrokerError, handle_errors
 from app.core.metrics import metrics
 from app.core.secrets import get_secret
 from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
-from app.services.broker.base import BaseBroker, BrokerError
+from app.services.broker.api_broker_base import ApiBaseBroker
 from app.services.broker.config import schwab as schwab_config
 
 logger = logging.getLogger(__name__)
 
 
-class SchwabBroker(BaseBroker):
+class SchwabBroker(ApiBaseBroker):
     """Broker implementation for Charles Schwab API."""
 
     def __init__(
@@ -49,16 +48,8 @@ class SchwabBroker(BaseBroker):
             timeout: Request timeout in seconds
             max_retries: Maximum number of retry attempts
         """
-        self.db = db
-        self.api_key = api_key or get_secret("SCHWAB_API_KEY")
-        # Support both api_secret and secret parameter names for compatibility
-        self.api_secret = api_secret or secret or get_secret("SCHWAB_SECRET")
+        # Store sandbox parameter
         self.sandbox = sandbox
-
-        # Initialize metrics counters
-        self.request_count = 0
-        self.error_count = 0
-        self.api_latency = 0
 
         # Get configuration based on environment
         self.config = (
@@ -73,40 +64,49 @@ class SchwabBroker(BaseBroker):
         if max_retries is not None:
             self.config["retry_config"]["max_retries"] = max_retries
 
-        # Set base URL
-        self.base_url = self.config["api_base_url"]
+        # Initialize credentials
+        self.api_key = api_key or get_secret("SCHWAB_API_KEY")
+        # Support both api_secret and secret parameter names for compatibility
+        self.api_secret = api_secret or secret or get_secret("SCHWAB_SECRET")
 
-        # Set up session with retries
-        self.session = self._create_session()
-
-        # Set up authentication and token management
+        # Initialize token management
         self.token_expiry = 0
         self.access_token = None
+
+        # Initialize base class with the configured API URL and other parameters
+        super().__init__(
+            db=db,
+            api_base_url=self.config["api_base_url"],
+            timeout=self.config["timeout"],
+            retry_config=self.config["retry_config"],
+            metrics_prefix="broker.schwab",
+        )
 
         # First-time authentication
         self._refresh_auth_token()
 
         logger.info(f"Initialized Schwab broker (sandbox={sandbox})")
-        metrics.increment("broker.schwab.initialized", tags={"sandbox": str(sandbox)})
 
-    def _create_session(self) -> requests.Session:
-        """Create a requests session with retry logic."""
-        session = requests.Session()
+    def _configure_auth(self) -> None:
+        """Configure authentication for API requests.
 
-        # Configure retry strategy from config
-        retry_config = self.config["retry_config"]
-        retry_strategy = Retry(
-            total=retry_config["max_retries"],
-            backoff_factor=retry_config["backoff_factor"],
-            status_forcelist=retry_config["status_forcelist"],
-            allowed_methods=retry_config["allowed_methods"],
+        This method is called by ApiBaseBroker to set up authentication.
+        """
+        # Check if token needs to be refreshed
+        if time.time() >= self.token_expiry:
+            self._refresh_auth_token()
+
+        # Set up session headers with token
+        self.api.configure_session_headers(
+            {
+                "Authorization": f"Bearer {self.access_token}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
         )
 
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-
-        return session
+        # Set authentication flag
+        self.authenticated = True
 
     def _refresh_auth_token(self) -> None:
         """Refresh the OAuth access token."""
@@ -126,18 +126,18 @@ class SchwabBroker(BaseBroker):
 
             start_time = time.time()
 
-            response = self.session.post(
+            response = self.api.session.post(
                 token_url, data=payload, timeout=self.config["timeout"]
             )
 
             request_time = time.time() - start_time
-            # Use record_metric instead of timing
-            metrics.record_metric("broker.schwab.auth.latency", request_time * 1000)
+            # Record auth latency metric
+            metrics.timing("broker.schwab.auth.latency", request_time * 1000)
 
             if not response.ok:
                 error_message = f"Failed to refresh authentication token: {response.status_code} {response.text}"
                 logger.error(error_message)
-                metrics.record_metric("broker.schwab.auth.error", 1)
+                metrics.increment("broker.schwab.auth.error")
                 raise BrokerError(message=error_message, error_code="AUTH_FAILURE")
 
             # Parse response and extract token information
@@ -148,36 +148,21 @@ class SchwabBroker(BaseBroker):
             # Set token expiry with a safety margin (refresh 5 minutes before expiry)
             self.token_expiry = time.time() + expires_in - 300
 
-            # Update session headers with new token
-            self.session.headers.update(
-                {
-                    "Authorization": f"Bearer {self.access_token}",
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                }
-            )
-
             logger.info("Successfully refreshed authentication token")
-            metrics.record_metric("broker.schwab.auth.success", 1)
+            metrics.increment("broker.schwab.auth.success")
 
         except requests.RequestException as e:
             error_message = f"Authentication token refresh request failed: {str(e)}"
             logger.error(error_message)
-            metrics.record_metric("broker.schwab.auth.error", 1)
+            metrics.increment("broker.schwab.auth.error")
             raise BrokerError(message=error_message, error_code="AUTH_REQUEST_FAILED")
         except Exception as e:
             error_message = (
                 f"Unexpected error during authentication token refresh: {str(e)}"
             )
             logger.error(error_message, exc_info=True)
-            metrics.record_metric("broker.schwab.auth.error", 1)
+            metrics.increment("broker.schwab.auth.error")
             raise BrokerError(message=error_message, error_code="AUTH_UNEXPECTED_ERROR")
-
-    def _check_token_expiry(self) -> None:
-        """Check if the token needs to be refreshed and refresh if needed."""
-        if time.time() >= self.token_expiry:
-            logger.info("Authentication token expired or near expiry, refreshing")
-            self._refresh_auth_token()
 
     def _handle_error_response(self, response: requests.Response) -> None:
         """Handle error responses from the API with detailed logging and metrics."""
@@ -238,156 +223,85 @@ class SchwabBroker(BaseBroker):
                 message=f"Schwab API Error: {error_message}", error_code=error_code
             )
 
-    def _api_request(
-        self,
-        method: str,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        timeout: Optional[int] = None,
-    ) -> Dict[str, Any]:
-        """Make a request to the Schwab API with error handling, retries, and metrics.
+    # Order type mapping
+    def _map_order_type(self, order_type: OrderType, to_api: bool = True) -> str:
+        """Map between platform order types and Schwab order types."""
+        if to_api:
+            return schwab_config.ORDER_TYPE_MAP.get(order_type.value.lower(), "market")
+        else:
+            # Reverse mapping
+            reverse_map = {v: k for k, v in schwab_config.ORDER_TYPE_MAP.items()}
+            return reverse_map.get(order_type, OrderType.MARKET.value.lower())
 
-        Args:
-            method: HTTP method (GET, POST, PUT, DELETE)
-            endpoint: API endpoint path
-            params: Query parameters
-            data: Request body data
-            headers: Additional headers
-            timeout: Request timeout override
+    # Order side mapping
+    def _map_order_side(self, order_side: OrderSide, to_api: bool = True) -> str:
+        """Map between platform order sides and Schwab order sides."""
+        if to_api:
+            return schwab_config.ORDER_SIDE_MAP.get(order_side.value.lower(), "buy")
+        else:
+            # Reverse mapping
+            reverse_map = {v: k for k, v in schwab_config.ORDER_SIDE_MAP.items()}
+            return reverse_map.get(order_side, OrderSide.BUY.value.lower())
 
-        Returns:
-            API response as dictionary
+    # Order status mapping
+    def _map_broker_status(self, broker_status: str) -> str:
+        """Map broker-specific status to application status."""
+        return schwab_config.STATUS_MAP.get(broker_status.upper(), TradeStatus.UNKNOWN)
 
-        Raises:
-            BrokerError: If the API request fails
-        """
-        # Check token expiry and refresh if needed
-        self._check_token_expiry()
+    def _prepare_order_data(self, trade: Trade) -> Dict[str, Any]:
+        """Translate trade model to Schwab API format."""
+        # Get mappings for order type and side
+        order_type = self._map_order_type(trade.order_type)
+        order_side = self._map_order_side(trade.side)
 
-        url = f"{self.base_url}{endpoint}"
-        request_timeout = timeout or self.config["timeout"]
-        request_headers = headers or {}
+        # Prepare order data
+        order_data = {
+            "symbol": trade.symbol,
+            "side": order_side,
+            "type": order_type,
+            "time_in_force": schwab_config.DEFAULT_TIME_IN_FORCE,
+            "account_id": trade.account_id,
+        }
 
-        # Add request ID for tracking
-        request_id = f"req_{int(time.time() * 1000)}_{self.request_count}"
-        request_headers["X-Request-ID"] = request_id
-
-        # Increment request counter for metrics
-        self.request_count += 1
-
-        # Start timing request
-        start_time = time.time()
-
-        try:
-            # Log request details
-            if self.sandbox or settings.LOG_LEVEL == "DEBUG":
-                logger.debug(f"API Request [{request_id}]: {method} {url}")
-                if params:
-                    logger.debug(f"Request params: {params}")
-                if data:
-                    logger.debug(f"Request data: {json.dumps(data, indent=2)}")
-
-            # Make the request
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                json=data,
-                headers=request_headers,
-                timeout=request_timeout,
-            )
-
-            # Calculate request duration for metrics
-            request_duration = time.time() - start_time
-            self.api_latency += request_duration
-
-            # Record metrics
-            metrics.timing(
-                "broker.schwab.request_latency",
-                request_duration * 1000,
-                tags={"method": method, "endpoint": endpoint},
-            )
-
-            # Log response status
-            if self.sandbox or settings.LOG_LEVEL == "DEBUG":
-                logger.debug(f"Response status [{request_id}]: {response.status_code}")
-
-            # Handle non-successful responses
-            if not response.ok:
-                self.error_count += 1
-                self._handle_error_response(response)
-
-            # Parse and return successful response
-            response_data = response.json()
-
-            # Log detailed response for debugging
-            if self.sandbox and settings.LOG_LEVEL == "DEBUG":
-                logger.debug(
-                    f"Response data [{request_id}]: {json.dumps(response_data, indent=2)}"
+        # Handle fractional shares (investment amount) vs. quantity
+        if trade.is_fractional and trade.investment_amount:
+            # Check if broker supports fractional shares
+            if not schwab_config.SUPPORTS_FRACTIONAL:
+                raise BrokerError(
+                    message="Fractional shares not supported by Schwab broker",
+                    error_code="FRACTIONAL_NOT_SUPPORTED",
                 )
+            order_data["dollar_amount"] = str(trade.investment_amount)
+        else:
+            order_data["quantity"] = str(trade.quantity)
 
-            metrics.increment(
-                "broker.schwab.request.success",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            return response_data
+        # Add limit price for limit orders
+        if (
+            trade.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]
+            and trade.limit_price
+        ):
+            order_data["limit_price"] = str(trade.limit_price)
 
-        except requests.exceptions.Timeout:
-            self.error_count += 1
-            error_message = (
-                f"API request timed out after {request_timeout}s: {method} {url}"
-            )
-            logger.error(error_message)
-            metrics.increment(
-                "broker.schwab.request.timeout",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            raise BrokerError(message=error_message, error_code="REQUEST_TIMEOUT")
+        # Add stop price for stop orders
+        if (
+            trade.order_type in [OrderType.STOP, OrderType.STOP_LIMIT]
+            and trade.stop_price
+        ):
+            order_data["stop_price"] = str(trade.stop_price)
 
-        except requests.exceptions.ConnectionError as e:
-            self.error_count += 1
-            error_message = f"API connection error: {str(e)}"
-            logger.error(error_message)
-            metrics.increment(
-                "broker.schwab.request.connection_error",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            raise BrokerError(message=error_message, error_code="CONNECTION_ERROR")
+        # Add extended hours flag if specified
+        if trade.extended_hours:
+            # Check if broker supports extended hours trading
+            if not schwab_config.SUPPORTS_EXTENDED_HOURS:
+                raise BrokerError(
+                    message="Extended hours trading not supported by Schwab broker",
+                    error_code="EXTENDED_HOURS_NOT_SUPPORTED",
+                )
+            order_data["extended_hours"] = True
 
-        except requests.RequestException as e:
-            self.error_count += 1
-            error_message = f"API request failed: {str(e)}"
-            logger.error(error_message)
-            metrics.increment(
-                "broker.schwab.request.error",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            raise BrokerError(message=error_message, error_code="REQUEST_ERROR")
+        return order_data
 
-        except json.JSONDecodeError as e:
-            self.error_count += 1
-            error_message = f"Failed to parse API response: {str(e)}"
-            logger.error(error_message)
-            logger.debug(f"Raw response: {response.text[:500]}")
-            metrics.increment(
-                "broker.schwab.request.json_error",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            raise BrokerError(message=error_message, error_code="RESPONSE_PARSE_ERROR")
-
-        except Exception as e:
-            self.error_count += 1
-            error_message = f"Unexpected error during API request: {str(e)}"
-            logger.error(error_message, exc_info=True)
-            metrics.increment(
-                "broker.schwab.request.unexpected_error",
-                tags={"method": method, "endpoint": endpoint},
-            )
-            raise BrokerError(message=error_message, error_code="UNEXPECTED_ERROR")
-
-    # Implementation of BaseBroker interface methods
+    # BaseBroker interface implementation
 
     def execute_trade(self, trade: Trade) -> Dict[str, Any]:
         """Execute a trade and return execution details."""
@@ -925,69 +839,3 @@ class SchwabBroker(BaseBroker):
             )
             metrics.increment("broker.schwab.trailing_stop.failed")
             raise
-
-    # Helper methods
-
-    def _prepare_order_data(self, trade: Trade) -> Dict[str, Any]:
-        """Translate trade model to Schwab API format."""
-        # Get mappings from config
-        order_type_map = schwab_config.ORDER_TYPE_MAP
-        order_side_map = schwab_config.ORDER_SIDE_MAP
-
-        # Map order type to Schwab API format
-        order_type = order_type_map.get(trade.order_type.value.lower(), "market")
-
-        # Map order side to Schwab API format
-        order_side = order_side_map.get(trade.side.value.lower(), "buy")
-
-        # Prepare order data
-        order_data = {
-            "symbol": trade.symbol,
-            "side": order_side,
-            "type": order_type,
-            "time_in_force": schwab_config.DEFAULT_TIME_IN_FORCE,
-            "account_id": trade.account_id,
-        }
-
-        # Handle fractional shares (investment amount) vs. quantity
-        if trade.is_fractional and trade.investment_amount:
-            # Check if broker supports fractional shares
-            if not schwab_config.SUPPORTS_FRACTIONAL:
-                raise BrokerError(
-                    message="Fractional shares not supported by Schwab broker",
-                    error_code="FRACTIONAL_NOT_SUPPORTED",
-                )
-            order_data["dollar_amount"] = str(trade.investment_amount)
-        else:
-            order_data["quantity"] = str(trade.quantity)
-
-        # Add limit price for limit orders
-        if (
-            trade.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]
-            and trade.limit_price
-        ):
-            order_data["limit_price"] = str(trade.limit_price)
-
-        # Add stop price for stop orders
-        if (
-            trade.order_type in [OrderType.STOP, OrderType.STOP_LIMIT]
-            and trade.stop_price
-        ):
-            order_data["stop_price"] = str(trade.stop_price)
-
-        # Add extended hours flag if specified
-        if trade.extended_hours:
-            # Check if broker supports extended hours trading
-            if not schwab_config.SUPPORTS_EXTENDED_HOURS:
-                raise BrokerError(
-                    message="Extended hours trading not supported by Schwab broker",
-                    error_code="EXTENDED_HOURS_NOT_SUPPORTED",
-                )
-            order_data["extended_hours"] = True
-
-        return order_data
-
-    def _map_broker_status(self, broker_status: str) -> str:
-        """Map broker-specific status to application status."""
-        # Use status map from config
-        return schwab_config.STATUS_MAP.get(broker_status.upper(), TradeStatus.UNKNOWN)

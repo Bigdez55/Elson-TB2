@@ -1,6 +1,6 @@
 """Alpaca broker implementation.
 
-This module implements the Alpaca broker API integration.
+This module implements the Alpaca broker API integration using the ApiBaseBroker.
 """
 
 import logging
@@ -8,15 +8,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Union
 
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-
 from app.core.config import settings
-from app.core.exception_handlers import BrokerError, convert_exception, handle_errors
+from app.core.exception_handlers import BrokerError, handle_errors
 from app.core.secrets import get_secret
 from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
-from app.services.broker.base import BaseBroker
+from app.services.broker.api_broker_base import ApiBaseBroker
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +26,7 @@ ASSETS_ENDPOINT = "/assets"
 BARS_ENDPOINT = "/bars"
 
 
-class AlpacaBroker(BaseBroker):
+class AlpacaBroker(ApiBaseBroker):
     """Broker implementation for Alpaca API."""
 
     def __init__(
@@ -48,48 +44,29 @@ class AlpacaBroker(BaseBroker):
             api_secret: Alpaca API secret (will use env var if not provided)
             use_paper: Whether to use paper trading API (defaults to settings.ALPACA_PAPER_TRADING)
         """
-        from app.core.config import settings
-
-        self.db = db
-        self.api_key = api_key or get_secret("ALPACA_API_KEY_ID")
-        self.api_secret = api_secret or get_secret("ALPACA_API_SECRET")
+        # Determine environment
         self.use_paper = (
             use_paper if use_paper is not None else settings.ALPACA_PAPER_TRADING
         )
 
-        # Use paper or live URL based on settings
-        self.base_url = PAPER_API_BASE_URL if use_paper else LIVE_API_BASE_URL
+        # Determine base URL
+        base_url = PAPER_API_BASE_URL if self.use_paper else LIVE_API_BASE_URL
 
-        # Set up session with retries
-        self.session = self._create_session()
-
-        # Set up authentication
-        self._configure_auth()
-
-        logger.info(f"Initialized Alpaca broker (paper={use_paper})")
-
-    def _create_session(self) -> requests.Session:
-        """Create a requests session with retry logic."""
-        session = requests.Session()
-
-        # Configure retry strategy
-        retry_strategy = Retry(
-            total=3,
-            backoff_factor=0.5,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "POST", "PUT", "DELETE"],
+        # Initialize base class
+        super().__init__(
+            db=db, api_base_url=base_url, timeout=30, metrics_prefix="broker.alpaca"
         )
 
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
+        # Store API credentials
+        self.api_key = api_key or get_secret("ALPACA_API_KEY_ID")
+        self.api_secret = api_secret or get_secret("ALPACA_API_SECRET")
 
-        return session
+        logger.info(f"Initialized Alpaca broker (paper={self.use_paper})")
 
     def _configure_auth(self) -> None:
         """Configure authentication for API requests."""
         # Alpaca uses API key authentication headers
-        self.session.headers.update(
+        self.api.configure_session_headers(
             {
                 "APCA-API-KEY-ID": self.api_key,
                 "APCA-API-SECRET-KEY": self.api_secret,
@@ -98,7 +75,7 @@ class AlpacaBroker(BaseBroker):
             }
         )
 
-    def _handle_error_response(self, response: requests.Response) -> None:
+    def _handle_error_response(self, response):
         """Handle error responses from the API."""
         try:
             error_data = response.json()
@@ -114,50 +91,100 @@ class AlpacaBroker(BaseBroker):
             broker_response=error_data if "error_data" in locals() else None,
         )
 
-    def _api_request(
-        self,
-        method: str,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
-        """Make a request to the Alpaca API with error handling and retries."""
-        url = f"{self.base_url}{endpoint}"
+    # Order type mapping
+    def _map_order_type(self, order_type: OrderType, to_api: bool = True) -> str:
+        """Map between platform order types and Alpaca order types."""
+        if to_api:
+            order_type_map = {
+                OrderType.MARKET: "market",
+                OrderType.LIMIT: "limit",
+                OrderType.STOP: "stop",
+                OrderType.STOP_LIMIT: "stop_limit",
+            }
+            return order_type_map.get(order_type, "market")
+        else:
+            order_type_map = {
+                "market": OrderType.MARKET,
+                "limit": OrderType.LIMIT,
+                "stop": OrderType.STOP,
+                "stop_limit": OrderType.STOP_LIMIT,
+            }
+            return order_type_map.get(order_type, OrderType.MARKET)
 
-        try:
-            response = self.session.request(
-                method=method,
-                url=url,
-                params=params,
-                json=data,
-                headers=headers,
-                timeout=30,
-            )
+    # Order side mapping
+    def _map_order_side(self, order_side: OrderSide, to_api: bool = True) -> str:
+        """Map between platform order sides and Alpaca order sides."""
+        if to_api:
+            order_side_map = {OrderSide.BUY: "buy", OrderSide.SELL: "sell"}
+            return order_side_map.get(order_side, "buy")
+        else:
+            order_side_map = {"buy": OrderSide.BUY, "sell": OrderSide.SELL}
+            return order_side_map.get(order_side, OrderSide.BUY)
 
-            # Log request details for debugging
-            if self.use_paper:
-                logger.debug(f"API Request: {method} {url}")
-                logger.debug(f"Request data: {data}")
-                logger.debug(f"Response status: {response.status_code}")
+    # Order status mapping
+    def _map_broker_status(self, broker_status: str) -> str:
+        """Map broker-specific status to application status."""
+        status_map = {
+            "filled": TradeStatus.FILLED,
+            "partially_filled": TradeStatus.PARTIALLY_FILLED,
+            "new": TradeStatus.PENDING,
+            "accepted": TradeStatus.PENDING,
+            "pending_new": TradeStatus.PENDING,
+            "accepted_for_bidding": TradeStatus.PENDING,
+            "stopped": TradeStatus.CANCELED,
+            "rejected": TradeStatus.REJECTED,
+            "suspended": TradeStatus.PENDING,
+            "canceled": TradeStatus.CANCELED,
+            "pending_cancel": TradeStatus.PENDING_CANCEL,
+            "pending_replace": TradeStatus.PENDING,
+            "replaced": TradeStatus.PENDING,
+            "done_for_day": TradeStatus.FILLED,
+            "expired": TradeStatus.EXPIRED,
+        }
 
-            # Handle error responses
-            if not response.ok:
-                self._handle_error_response(response)
+        return status_map.get(broker_status.lower(), TradeStatus.UNKNOWN)
 
-            # For DELETE requests that return empty responses
-            if method == "DELETE" and response.status_code == 204:
-                return {"success": True}
+    def _prepare_order_data(self, trade: Trade) -> Dict[str, Any]:
+        """Translate trade model to Alpaca API format."""
+        # Map order type to Alpaca API format
+        order_type = self._map_order_type(trade.order_type)
 
-            # Parse response
-            return response.json()
+        # Map order side to Alpaca API format
+        order_side = self._map_order_side(trade.side)
 
-        except requests.RequestException as e:
-            logger.error(f"API request failed: {str(e)}")
-            raise BrokerError(message=f"API request failed: {str(e)}")
-        except ValueError as e:
-            logger.error(f"Failed to parse API response: {str(e)}")
-            raise BrokerError(message=f"Failed to parse API response: {str(e)}")
+        # Prepare order data
+        order_data = {
+            "symbol": trade.symbol,
+            "side": order_side,
+            "type": order_type,
+            "time_in_force": "day",  # Default to day orders
+        }
+
+        # Handle fractional shares (investment amount) vs. quantity
+        if trade.is_fractional and trade.investment_amount:
+            # Alpaca supports both fractional qty and notional value
+            if float(trade.quantity) > 0:
+                order_data["qty"] = str(trade.quantity)
+            else:
+                order_data["notional"] = str(trade.investment_amount)
+        else:
+            order_data["qty"] = str(trade.quantity)
+
+        # Add limit price for limit orders
+        if (
+            trade.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]
+            and trade.limit_price
+        ):
+            order_data["limit_price"] = str(trade.limit_price)
+
+        # Add stop price for stop orders
+        if (
+            trade.order_type in [OrderType.STOP, OrderType.STOP_LIMIT]
+            and trade.stop_price
+        ):
+            order_data["stop_price"] = str(trade.stop_price)
+
+        return order_data
 
     # BaseBroker interface implementation
 
@@ -430,74 +457,3 @@ class AlpacaBroker(BaseBroker):
             "submitted_at": response.get("created_at"),
             "broker_response": response,
         }
-
-    # Helper methods
-
-    def _prepare_order_data(self, trade: Trade) -> Dict[str, Any]:
-        """Translate trade model to Alpaca API format."""
-        # Map order type to Alpaca API format
-        order_type_map = {
-            OrderType.MARKET: "market",
-            OrderType.LIMIT: "limit",
-            OrderType.STOP: "stop",
-            OrderType.STOP_LIMIT: "stop_limit",
-        }
-
-        # Map order side to Alpaca API format
-        order_side_map = {OrderSide.BUY: "buy", OrderSide.SELL: "sell"}
-
-        # Prepare order data
-        order_data = {
-            "symbol": trade.symbol,
-            "side": order_side_map.get(trade.side),
-            "type": order_type_map.get(trade.order_type),
-            "time_in_force": "day",  # Default to day orders
-        }
-
-        # Handle fractional shares (investment amount) vs. quantity
-        if trade.is_fractional and trade.investment_amount:
-            # Alpaca supports both fractional qty and notional value
-            if float(trade.quantity) > 0:
-                order_data["qty"] = str(trade.quantity)
-            else:
-                order_data["notional"] = str(trade.investment_amount)
-        else:
-            order_data["qty"] = str(trade.quantity)
-
-        # Add limit price for limit orders
-        if (
-            trade.order_type in [OrderType.LIMIT, OrderType.STOP_LIMIT]
-            and trade.limit_price
-        ):
-            order_data["limit_price"] = str(trade.limit_price)
-
-        # Add stop price for stop orders
-        if (
-            trade.order_type in [OrderType.STOP, OrderType.STOP_LIMIT]
-            and trade.stop_price
-        ):
-            order_data["stop_price"] = str(trade.stop_price)
-
-        return order_data
-
-    def _map_broker_status(self, broker_status: str) -> str:
-        """Map broker-specific status to application status."""
-        status_map = {
-            "filled": TradeStatus.FILLED,
-            "partially_filled": TradeStatus.PARTIALLY_FILLED,
-            "new": TradeStatus.PENDING,
-            "accepted": TradeStatus.PENDING,
-            "pending_new": TradeStatus.PENDING,
-            "accepted_for_bidding": TradeStatus.PENDING,
-            "stopped": TradeStatus.CANCELED,
-            "rejected": TradeStatus.REJECTED,
-            "suspended": TradeStatus.PENDING,
-            "canceled": TradeStatus.CANCELED,
-            "pending_cancel": TradeStatus.PENDING_CANCEL,
-            "pending_replace": TradeStatus.PENDING,
-            "replaced": TradeStatus.PENDING,
-            "done_for_day": TradeStatus.FILLED,
-            "expired": TradeStatus.EXPIRED,
-        }
-
-        return status_map.get(broker_status.lower(), TradeStatus.UNKNOWN)
