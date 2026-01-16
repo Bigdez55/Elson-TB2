@@ -1,7 +1,7 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-15
-**Status:** 95% Complete
+**Last Updated:** 2026-01-16
+**Status:** 97% Complete - QDoRA Training In Progress
 
 This document tracks everything needed to restore the GCP environment after ephemeral session ends.
 
@@ -297,9 +297,44 @@ print(f'Projected: \${calcs[\"projected_savings\"]:,.0f}')
 
 The Elson model was created via 3-stage merge:
 
-1. **Stage 1 (SLERP):** DeepSeek-R1-Distill-Qwen-14B + Qwen2.5-Math-14B-Instruct
-2. **Stage 2 (TIES):** + FinGPT + FinLLaMA (financial domain)
-3. **Stage 3 (DARE):** Pruning → `elson-finance-trading-14b-final`
+```
+Stage 1: SLERP Merge (Reasoning + Math)
+├── Input: DeepSeek-R1-Distill-Qwen-14B (48 layers)
+├── Input: Qwen2.5-Math-14B-Instruct (48 layers)
+└── Output: ./checkpoints/elson-reason-math-14b
+
+Stage 2: TIES Merge (Financial Domain)
+├── Input: elson-reason-math-14b (60% weight)
+├── Input: FinGPT/fingpt-mt_llama2-13b_lora (25% weight)
+├── Input: FinGPT/FinLLaMA (15% weight)
+└── Output: ./checkpoints/elson-finance-trading-14b
+
+Stage 3: DARE Pruning (Refinement)
+├── Input: elson-finance-trading-14b
+├── Pruning: 20% small weight deltas dropped
+└── Output: elson-finance-trading-14b-final ← PRODUCTION BASE
+
+Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
+├── Input: elson-finance-trading-14b-final
+├── Training Data: 2000+ Q&A pairs from wealth management knowledge base
+└── Output: elson-finance-trading-wealth-14b-q4
+```
+
+### GCS Model Locations
+
+| Model | GCS Path | Status |
+|-------|----------|--------|
+| Stage 3 Final | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready |
+| Wealth Fine-tuned | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | 🔄 Training |
+
+### Current Training Status (2026-01-16)
+
+| VM | IP | GPU | Status |
+|----|-----|-----|--------|
+| VM1 | 104.196.0.132 | L4 (24GB) | 🔄 Training |
+| VM2 | 35.233.173.228 | L4 (24GB) | 🔄 Training |
+
+**Training Logs:** `~/training_elson14b_v2.log`
 
 ### Step 1: Pull Latest Code
 
@@ -338,35 +373,48 @@ python scripts/generate_training_data.py
 gsutil -m cp -r training_data/* gs://elson-financial-ai/training_data/
 ```
 
-### Step 5: Run DVoRA/QDoRA Fine-tuning
+### Step 5: Run QDoRA Fine-tuning (Memory Optimized for L4 GPU)
+
+**IMPORTANT:** The 14B model requires memory optimization for L4 (24GB VRAM).
+
+Use `train_elson_qdora_v2.py` with these optimizations:
+- Batch size: 1 with gradient accumulation: 16
+- Max GPU memory: 20GB (allows headroom)
+- CPU offloading: 30GB
+- 8-bit paged AdamW optimizer
+- Gradient checkpointing enabled
 
 ```bash
-# Activate DVoRA environment (if using separate venv)
+# Activate DVoRA environment
 source ~/dvora_env/bin/activate
 
-# Run QDoRA training (4-bit quantized, recommended for L4 GPU)
-python train_wealth_dvora.py \
-  --mode qdora \
-  --base_model ./base_model/elson-finance-trading-14b-final \
-  --training_data ./training_data/train.jsonl \
-  --validation_data ./training_data/validation.jsonl \
-  --output_dir ./wealth-qdora \
-  --epochs 3 \
-  --batch_size 4 \
-  --gradient_accumulation 4 \
-  --learning_rate 2e-4
+# Run memory-optimized QDoRA training
+python train_elson_qdora_v2.py \
+  --model ~/base_model \
+  --output ~/wealth-qdora-elson14b \
+  --training-data ~/training_data.json \
+  --epochs 3
 
-# Alternative: Full precision DVoRA (requires more VRAM)
-python train_wealth_dvora.py \
-  --mode dvora \
-  --base_model ./base_model/elson-finance-trading-14b-final \
-  --output_dir ./wealth-dvora
+# Monitor training
+tail -f ~/training_elson14b_v2.log
+```
+
+**Memory Optimization Settings (in script):**
+```python
+# GPU memory cap with CPU offload
+max_memory = {0: "20GiB", "cpu": "30GiB"}
+
+# Training arguments
+per_device_train_batch_size=1
+gradient_accumulation_steps=16
+gradient_checkpointing=True
+optim="paged_adamw_8bit"
 ```
 
 ### Step 6: Upload Fine-tuned Model to GCS
 
 ```bash
-gsutil -m cp -r ./wealth-qdora gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/
+gsutil -m cp -r ~/wealth-qdora-elson14b gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/
 ```
 
 ### Step 7: Verify Model
@@ -375,11 +423,26 @@ gsutil -m cp -r ./wealth-qdora gs://elson-33a95-elson-models/elson-finance-tradi
 # Test inference with fine-tuned model
 python -c "
 from transformers import AutoModelForCausalLM, AutoTokenizer
-model = AutoModelForCausalLM.from_pretrained('./wealth-qdora')
-tokenizer = AutoTokenizer.from_pretrained('./wealth-qdora')
+model = AutoModelForCausalLM.from_pretrained('./wealth-qdora-elson14b')
+tokenizer = AutoTokenizer.from_pretrained('./wealth-qdora-elson14b')
 print('Model loaded successfully!')
 "
 ```
+
+### Troubleshooting
+
+**OOM (Out of Memory) Error:**
+- Reduce max_memory to `{0: "18GiB", "cpu": "40GiB"}`
+- Increase gradient_accumulation_steps to 32
+- Reduce max_length to 512 tokens
+
+**Slow Training:**
+- Check GPU utilization: `nvidia-smi -l 1`
+- Ensure model is on GPU: `watch -n 1 nvidia-smi`
+
+**Model Loading Issues:**
+- Verify base_model path contains all shards: `ls -la ~/base_model/`
+- Check config.json exists: `cat ~/base_model/config.json`
 
 ---
 
