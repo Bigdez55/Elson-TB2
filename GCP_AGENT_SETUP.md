@@ -288,10 +288,82 @@ print(f'Projected: \${calcs[\"projected_savings\"]:,.0f}')
 
 ---
 
-## 10. Next Session TODO
+## 10. GCP Agent Instructions (DVoRA/QDoRA Training)
 
-1. **Generate training data** - 2000+ Q&A pairs for DVoRA fine-tuning
-2. **Upload training data to GCS** - `gs://YOUR_BUCKET/elson-financial-ai/training_data/`
-3. **Run fine-tuning** - Use Vertex AI or local GPU
-4. **Deploy to Cloud Run** - Container with FastAPI backend
-5. **Final QA testing** - All tiers, all endpoints
+### Step 1: Pull Latest Code
+
+```bash
+cd ~/Elson-TB2
+git pull origin main
+```
+
+### Step 2: Generate Training Data (2000+ Q&A Pairs)
+
+```bash
+cd ~/Elson-TB2/backend
+source ../venv/bin/activate  # or wherever your venv is
+python scripts/generate_training_data.py
+```
+
+**Expected Output:**
+
+- `training_data/train.jsonl` (~1600 samples, 80%)
+- `training_data/validation.jsonl` (~200 samples, 10%)
+- `training_data/test.jsonl` (~200 samples, 10%)
+- 11 categories covered (retirement, college, estate, trust, succession, roles, literacy, goals, compliance, generational, credit)
+
+### Step 3: Upload Training Data to GCS
+
+```bash
+gsutil -m cp -r training_data/* gs://elson-financial-ai/training_data/
+```
+
+### Step 4: Run DVoRA/QDoRA Fine-tuning
+
+```bash
+# Activate DVoRA environment (if using separate venv)
+source ~/dvora_env/bin/activate
+
+# Run QDoRA training (4-bit quantized, recommended for L4 GPU)
+python train_wealth_dvora.py \
+  --mode qdora \
+  --base_model mistralai/Mistral-7B-v0.1 \
+  --training_data ./training_data/train.jsonl \
+  --validation_data ./training_data/validation.jsonl \
+  --output_dir ./wealth-qdora \
+  --epochs 3 \
+  --batch_size 4 \
+  --gradient_accumulation 4 \
+  --learning_rate 2e-4
+
+# Alternative: Full precision DVoRA (requires more VRAM)
+python train_wealth_dvora.py \
+  --mode dvora \
+  --output_dir ./wealth-dvora
+```
+
+### Step 5: Upload Fine-tuned Model to GCS
+
+```bash
+gsutil -m cp -r ./wealth-qdora gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/
+```
+
+### Step 6: Verify Model
+
+```bash
+# Test inference with fine-tuned model
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model = AutoModelForCausalLM.from_pretrained('./wealth-qdora')
+tokenizer = AutoTokenizer.from_pretrained('./wealth-qdora')
+print('Model loaded successfully!')
+"
+```
+
+---
+
+## 11. Deployment TODO (After Training)
+
+1. **Deploy to Cloud Run** - Container with FastAPI backend
+2. **Final QA testing** - All tiers, all endpoints
+3. **Set up Vertex AI endpoint** - For model serving
