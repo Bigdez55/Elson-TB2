@@ -366,6 +366,21 @@ Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
 - Data: 408 Q&A pairs (improved training data now available - 643 pairs)
 - Output: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/`
 
+**DoRA Inference Test Results (2026-01-17):**
+
+| Question | Response Quality |
+|----------|------------------|
+| 401k allocation | Foundation tier guidance with action steps |
+| College savings | Specific 529 plan advice with calculations |
+| Tax minimization | Growth tier guidance with key considerations |
+| Mortgage vs invest | Builder tier guidance with analysis framework |
+| Estate planning | HNW/UHNW tier guidance with professional referrals |
+
+Observations:
+- Responses are structured with tier-appropriate guidance
+- Includes specific action steps and recommendations
+- Follows trained format with "Key considerations" and "Next Steps"
+
 **Improved Training Data (v3):**
 - Total: 643 Q&A pairs (vs 408 original)
 - 18 categories with balanced distribution
