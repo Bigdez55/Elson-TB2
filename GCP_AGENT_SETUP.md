@@ -1,7 +1,7 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-16
-**Status:** 97% Complete - QDoRA Training In Progress
+**Last Updated:** 2026-01-17
+**Status:** 98% Complete - LoRA Training Complete, Models in GCS
 
 This document tracks everything needed to restore the GCP environment after ephemeral session ends.
 
@@ -325,16 +325,30 @@ Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
 | Model | GCS Path | Status |
 |-------|----------|--------|
 | Stage 3 Final | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready |
-| Wealth Fine-tuned | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | 🔄 Training |
+| Wealth LoRA VM1 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ✅ Complete |
+| Wealth LoRA VM2 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ✅ Complete |
 
-### Current Training Status (2026-01-16)
+### Training Results (2026-01-17)
 
-| VM | IP | GPU | Status |
-|----|-----|-----|--------|
-| VM1 | 104.196.0.132 | L4 (24GB) | 🔄 Training |
-| VM2 | 35.233.173.228 | L4 (24GB) | 🔄 Training |
+| VM | IP | GPU | Final Loss | Runtime | Status |
+|----|-----|-----|-----------|---------|--------|
+| VM1 | 104.196.0.132 | L4 (24GB) | 0.0526 | 23.5 min | ✅ Complete |
+| VM2 | 35.233.173.228 | L4 (24GB) | 0.0532 | 25.1 min | ✅ Complete |
 
-**Training Logs:** `~/training_elson14b_v2.log`
+**Training Config:**
+- Method: 4-bit LoRA (r=16, α=32) - switched from DoRA due to L4 memory constraints
+- Data: 377 Q&A pairs × 3 epochs
+- Trainable: 25M / 14.8B params (0.17%)
+- Output: ~96MB adapter per VM
+
+**To use the trained model:**
+```python
+from peft import PeftModel
+from transformers import AutoModelForCausalLM
+
+base = AutoModelForCausalLM.from_pretrained("path/to/elson-finance-trading-14b-final")
+model = PeftModel.from_pretrained(base, "path/to/wealth-lora-elson14b-vm1/")
+```
 
 ### Step 1: Pull Latest Code
 
