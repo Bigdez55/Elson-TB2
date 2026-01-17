@@ -1,1 +1,11 @@
-*.json
+# Ignore intermediate training data files
+train_*.json
+val_*.json
+test_*.json
+training_data_complete.json
+training_data_v2_complete.json
+training_data_v3_complete.json
+
+# Keep final versions
+!training_data_final.json
+!evaluation_benchmark.json
