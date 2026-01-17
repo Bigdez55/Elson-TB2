@@ -1,7 +1,7 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
 **Last Updated:** 2026-01-17
-**Status:** 98% Complete - LoRA Training Complete, Models in GCS
+**Status:** 100% Complete - DoRA Training Complete on H100, Models in GCS
 
 This document tracks everything needed to restore the GCP environment after ephemeral session ends.
 
@@ -275,7 +275,19 @@ print(f'Projected: \${calcs[\"projected_savings\"]:,.0f}')
 
 ---
 
-## 9. Files Modified in This Session
+## 9. Files Modified/Created
+
+### Session 2026-01-17 (Training Data Improvements)
+
+| File | Changes |
+|------|---------|
+| `backend/scripts/generate_training_data_v2.py` | NEW - Enhanced generator with multi-turn, negative examples |
+| `backend/scripts/generate_training_data_v3.py` | NEW - Comprehensive generator with 17 categories |
+| `backend/scripts/expand_training_data.py` | NEW - Combines and balances all data |
+| `backend/training_data/training_data_final.json` | NEW - 643 balanced Q&A pairs |
+| `backend/training_data/evaluation_benchmark.json` | NEW - 100 test cases for model evaluation |
+
+### Previous Session (API + Knowledge Base)
 
 | File | Changes |
 |------|---------|
@@ -327,19 +339,41 @@ Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
 | Stage 3 Final | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready |
 | Wealth LoRA VM1 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ✅ Complete |
 | Wealth LoRA VM2 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ✅ Complete |
+| **Wealth DoRA H100** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | ✅ Complete |
 
 ### Training Results (2026-01-17)
+
+**Phase 1: LoRA Training on L4 GPUs**
 
 | VM | IP | GPU | Final Loss | Runtime | Status |
 |----|-----|-----|-----------|---------|--------|
 | VM1 | 104.196.0.132 | L4 (24GB) | 0.0526 | 23.5 min | ✅ Complete |
 | VM2 | 35.233.173.228 | L4 (24GB) | 0.0532 | 25.1 min | ✅ Complete |
 
-**Training Config:**
 - Method: 4-bit LoRA (r=16, α=32) - switched from DoRA due to L4 memory constraints
 - Data: 377 Q&A pairs × 3 epochs
 - Trainable: 25M / 14.8B params (0.17%)
 - Output: ~96MB adapter per VM
+
+**Phase 2: DoRA Training on H100 GPU** ← LATEST
+
+| VM | IP | GPU | Method | Status |
+|----|-----|-----|--------|--------|
+| elson-h100-spot | 34.134.247.175 | H100 (80GB) | Full DoRA | ✅ Complete |
+
+- Method: Full DoRA (Weight Decomposed Low-Rank Adaptation)
+- GPU: NVIDIA H100 80GB HBM3 (Spot/Preemptible)
+- Data: 408 Q&A pairs (improved training data now available - 643 pairs)
+- Output: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/`
+
+**Improved Training Data (v3):**
+- Total: 643 Q&A pairs (vs 408 original)
+- 18 categories with balanced distribution
+- Multi-turn conversations (6 examples)
+- Negative examples - what NOT to recommend (7 examples)
+- Edge cases (5 examples)
+- Compliance disclaimers on all responses
+- Evaluation benchmark: 100 test cases
 
 **To use the trained model:**
 ```python
@@ -460,8 +494,86 @@ print('Model loaded successfully!')
 
 ---
 
-## 11. Deployment TODO (After Training)
+## 11. VM Management Commands
 
-1. **Deploy to Cloud Run** - Container with FastAPI backend
-2. **Final QA testing** - All tiers, all endpoints
-3. **Set up Vertex AI endpoint** - For model serving
+### Start/Stop VMs (You only pay when running)
+
+```bash
+# H100 Spot VM (DoRA training)
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+
+# L4 VMs (LoRA training) - Currently stopped
+gcloud compute instances start elson-dvora-training-vm1 --zone=us-central1-a
+gcloud compute instances stop elson-dvora-training-vm1 --zone=us-central1-a
+
+# Check all VM status
+gcloud compute instances list --filter="name~elson"
+```
+
+### SSH into VMs
+
+```bash
+# H100 VM
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
+
+# L4 VM
+gcloud compute ssh elson-dvora-training-vm1 --zone=us-central1-a
+```
+
+### Cost Notes
+
+- **H100 Spot:** ~$2.50/hr (vs ~$8/hr on-demand) - can be preempted
+- **L4 On-demand:** ~$0.70/hr per GPU
+- **Storage (GCS):** ~$0.02/GB/month
+
+---
+
+## 12. Deployment TODO (After Training)
+
+1. **Run inference tests** - Compare LoRA vs DoRA model quality
+2. **Deploy to Cloud Run** - Container with FastAPI backend
+3. **Final QA testing** - All tiers, all endpoints
+4. **Set up Vertex AI endpoint** - For model serving
+
+---
+
+## 13. Next Steps for Tomorrow
+
+### Immediate Tasks
+
+1. **Run inference comparison** - Test DoRA model vs LoRA model quality
+   ```bash
+   gcloud compute instances start elson-h100-spot --zone=us-central1-a
+   # Run test script to compare responses
+   ```
+
+2. **Retrain DoRA with improved data** - Use 643 pairs instead of 408
+   ```bash
+   cd ~/Elson-TB2 && git pull origin main
+   # Training data is in backend/training_data/training_data_final.json
+   ```
+
+3. **Run evaluation benchmark** - Test against 100 evaluation cases
+   - Benchmark file: `backend/training_data/evaluation_benchmark.json`
+   - Score each response on accuracy, completeness, compliance, helpfulness
+
+### Model Comparison Checklist
+
+| Metric | LoRA (L4) | DoRA (H100) | Notes |
+|--------|-----------|-------------|-------|
+| Training Loss | 0.0526 | TBD | Lower is better |
+| Inference Speed | TBD | TBD | Tokens/sec |
+| Response Quality | TBD | TBD | Manual evaluation |
+| Benchmark Score | TBD | TBD | /100 test cases |
+
+### Training Data Improvements Applied
+
+- [x] Generated 643 balanced Q&A pairs (was 408)
+- [x] Added multi-turn conversations (6 examples)
+- [x] Added negative examples (7 examples)
+- [x] Added edge cases (5 examples)
+- [x] Added compliance disclaimers
+- [x] Created 100-question evaluation benchmark
+- [ ] Retrain DoRA with improved data
+- [ ] Compare model quality
