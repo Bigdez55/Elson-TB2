@@ -1,0 +1,107 @@
+{
+  "input_file": "/Users/desmondearly/Library/CloudStorage/OneDrive-Personal/Trading Bot/Elson TB2/Elson/Elson-TB2/backend/training_data/final_training_data.json",
+  "timestamp": "2026-01-18T21:42:26.120751",
+  "total_records": 23493,
+  "checks": {
+    "json_structure": {
+      "valid": true,
+      "errors": []
+    },
+    "field_lengths": {
+      "valid": true,
+      "errors": [],
+      "stats": {
+        "avg_instruction_length": 87.7,
+        "avg_output_length": 343.2,
+        "empty_instructions": 0,
+        "empty_outputs": 0,
+        "too_short_instructions": 0,
+        "too_short_outputs": 123
+      }
+    },
+    "domain_distribution": {
+      "valid": false,
+      "errors": [
+        "Domain 'general_finance' exceeds 25% (61.2%)"
+      ],
+      "stats": {
+        "num_domains": 197,
+        "expected_domains": 62,
+        "max_domain_percentage": 61.24,
+        "top_domains": {
+          "general_finance": 61.24,
+          "retirement_planning": 5.34,
+          "estate_planning": 3.17,
+          "federal_income_tax": 1.66,
+          "goal_planning": 1.61,
+          "compliance": 1.6,
+          "tax": 1.44,
+          "professional_roles": 1.35,
+          "quantitative_finance": 1.35,
+          "risk_management": 1.14
+        }
+      }
+    },
+    "duplicates": {
+      "valid": true,
+      "errors": [],
+      "stats": {
+        "total_pairs": 23493,
+        "unique_pairs": 23493,
+        "duplicate_pairs": 0,
+        "unique_ratio": 1.0
+      }
+    },
+    "unsafe_content": {
+      "valid": true,
+      "warnings": [
+        "Item 2: Flagged for 'Guaranteed return claims'",
+        "Item 36: Flagged for 'Guaranteed return claims'",
+        "Item 193: Flagged for 'Guaranteed return claims'",
+        "Item 202: Flagged for 'Guaranteed return claims'",
+        "Item 263: Flagged for 'Guaranteed return claims'",
+        "Item 275: Flagged for 'Guaranteed return claims'",
+        "Item 292: Flagged for 'Guaranteed return claims'",
+        "Item 369: Flagged for 'Guaranteed return claims'",
+        "Item 415: Flagged for 'Guaranteed return claims'",
+        "Item 461: Flagged for 'Guaranteed return claims'",
+        "Item 519: Flagged for 'Guaranteed return claims'",
+        "Item 531: Flagged for 'Guaranteed return claims'",
+        "Item 753: Flagged for 'Risk-free claims'",
+        "Item 754: Flagged for 'Risk-free claims'",
+        "Item 756: Flagged for 'Risk-free claims'",
+        "Item 837: Flagged for 'Risk-free claims'",
+        "Item 838: Flagged for 'Risk-free claims'",
+        "Item 1368: Flagged for 'Risk-free claims'",
+        "Item 1512: Flagged for 'Risk-free claims'",
+        "Item 2432: Flagged for 'Risk-free claims'"
+      ],
+      "stats": {
+        "flagged_count": 92
+      }
+    }
+  },
+  "valid": true,
+  "errors": [],
+  "warnings": [
+    "Domain 'general_finance' exceeds 25% (61.2%)",
+    "Item 2: Flagged for 'Guaranteed return claims'",
+    "Item 36: Flagged for 'Guaranteed return claims'",
+    "Item 193: Flagged for 'Guaranteed return claims'",
+    "Item 202: Flagged for 'Guaranteed return claims'",
+    "Item 263: Flagged for 'Guaranteed return claims'",
+    "Item 275: Flagged for 'Guaranteed return claims'",
+    "Item 292: Flagged for 'Guaranteed return claims'",
+    "Item 369: Flagged for 'Guaranteed return claims'",
+    "Item 415: Flagged for 'Guaranteed return claims'",
+    "Item 461: Flagged for 'Guaranteed return claims'"
+  ],
+  "summary": {
+    "total_records": 23493,
+    "valid": true,
+    "error_count": 0,
+    "warning_count": 11,
+    "checks_passed": 4,
+    "checks_total": 5
+  }
+}

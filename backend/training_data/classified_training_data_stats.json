@@ -1,0 +1,329 @@
+{
+  "timestamp": "2026-01-18T21:42:25.014276",
+  "total_pairs": 23493,
+  "domains_used": 62,
+  "domain_distribution": {
+    "financial_planning": 15100,
+    "retirement_planning": 1499,
+    "estate_planning": 403,
+    "securities_regulation": 388,
+    "federal_income_tax": 381,
+    "portfolio_construction": 369,
+    "fintech": 319,
+    "hft": 278,
+    "aml_kyc": 264,
+    "college_planning": 245,
+    "quantitative_finance": 236,
+    "equities": 188,
+    "trade_execution": 185,
+    "erisa_benefits": 183,
+    "cryptocurrency": 181,
+    "risk_management": 170,
+    "mergers_acquisitions": 162,
+    "derivatives": 160,
+    "trust_administration": 159,
+    "algorithmic_trading": 152,
+    "commercial_banking": 148,
+    "family_office": 138,
+    "market_microstructure": 135,
+    "treasury_management": 124,
+    "life_insurance": 123,
+    "fixed_income": 106,
+    "actuarial": 101,
+    "business_valuation": 100,
+    "charitable_planning": 89,
+    "alternatives": 79,
+    "venture_capital": 74,
+    "private_equity": 71,
+    "estate_gift_tax": 69,
+    "performance_attribution": 69,
+    "prime_brokerage": 68,
+    "insurance_regulation": 65,
+    "restructuring": 58,
+    "custodial": 55,
+    "forex": 55,
+    "credit_risk": 51,
+    "casualty_insurance": 48,
+    "probate": 45,
+    "gst_planning": 43,
+    "mortgage_finance": 43,
+    "factor_investing": 43,
+    "banking_regulation": 42,
+    "property_insurance": 39,
+    "data_privacy": 39,
+    "fund_administration": 38,
+    "asset_allocation": 38,
+    "health_insurance": 38,
+    "consumer_lending": 34,
+    "capital_markets": 31,
+    "state_local_tax": 29,
+    "hedge_funds": 29,
+    "reinsurance": 28,
+    "corporate_tax": 23,
+    "ltc_insurance": 21,
+    "commodities": 18,
+    "international_tax": 11,
+    "tax_controversy": 7,
+    "annuities": 6
+  },
+  "category_distribution": {
+    "planning": 16982,
+    "quantitative": 986,
+    "regulatory": 981,
+    "securities": 961,
+    "estate_wealth": 739,
+    "portfolio": 689,
+    "tax_law": 520,
+    "operations": 480,
+    "insurance": 404,
+    "banking": 400,
+    "corporate": 351
+  },
+  "reclassified_count": 20369,
+  "low_confidence_count": 17076,
+  "avg_confidence": 0.1941607712935768,
+  "reclassified_samples": [
+    {
+      "index": 1,
+      "from": "compliance",
+      "to": "securities_regulation",
+      "confidence": 0.136
+    },
+    {
+      "index": 2,
+      "from": "professional_roles",
+      "to": "financial_planning",
+      "confidence": 0.269
+    },
+    {
+      "index": 3,
+      "from": "trust_administration",
+      "to": "gst_planning",
+      "confidence": 0.675
+    },
+    {
+      "index": 5,
+      "from": "goal_planning",
+      "to": "retirement_planning",
+      "confidence": 0.409
+    },
+    {
+      "index": 6,
+      "from": "estate_planning",
+      "to": "estate_gift_tax",
+      "confidence": 0.138
+    },
+    {
+      "index": 13,
+      "from": "estate_planning",
+      "to": "estate_gift_tax",
+      "confidence": 0.688
+    },
+    {
+      "index": 15,
+      "from": "investment",
+      "to": "equities",
+      "confidence": 0.188
+    },
+    {
+      "index": 16,
+      "from": "credit_financing",
+      "to": "financial_planning",
+      "confidence": 0.1
+    },
+    {
+      "index": 17,
+      "from": "professional_roles",
+      "to": "financial_planning",
+      "confidence": 0.281
+    },
+    {
+      "index": 18,
+      "from": "certifications",
+      "to": "financial_planning",
+      "confidence": 0.45
+    },
+    {
+      "index": 21,
+      "from": "credit_financing",
+      "to": "fintech",
+      "confidence": 0.167
+    },
+    {
+      "index": 23,
+      "from": "tax_planning",
+      "to": "financial_planning",
+      "confidence": 0.1
+    },
+    {
+      "index": 25,
+      "from": "goal_planning",
+      "to": "financial_planning",
+      "confidence": 0.273
+    },
+    {
+      "index": 26,
+      "from": "goal_planning",
+      "to": "financial_planning",
+      "confidence": 0.169
+    },
+    {
+      "index": 27,
+      "from": "professional_roles",
+      "to": "financial_planning",
+      "confidence": 0.208
+    },
+    {
+      "index": 28,
+      "from": "goal_planning",
+      "to": "financial_planning",
+      "confidence": 0.275
+    },
+    {
+      "index": 29,
+      "from": "compliance",
+      "to": "securities_regulation",
+      "confidence": 0.545
+    },
+    {
+      "index": 36,
+      "from": "professional_roles",
+      "to": "financial_planning",
+      "confidence": 0.192
+    },
+    {
+      "index": 37,
+      "from": "generational_wealth",
+      "to": "estate_planning",
+      "confidence": 0.1
+    },
+    {
+      "index": 38,
+      "from": "persona",
+      "to": "college_planning",
+      "confidence": 0.444
+    }
+  ],
+  "low_confidence_samples": [
+    {
+      "index": 1,
+      "instruction": "What is Regulation D?",
+      "confidence": 0.136,
+      "domain": "securities_regulation"
+    },
+    {
+      "index": 4,
+      "instruction": "What are trustee removal provisions?",
+      "confidence": 0.15,
+      "domain": "trust_administration"
+    },
+    {
+      "index": 6,
+      "instruction": "What is a GRAT?",
+      "confidence": 0.138,
+      "domain": "estate_gift_tax"
+    },
+    {
+      "index": 15,
+      "instruction": "What are REITs?",
+      "confidence": 0.188,
+      "domain": "equities"
+    },
+    {
+      "index": 16,
+      "instruction": "What is DSCR for loans?",
+      "confidence": 0.1,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 21,
+      "instruction": "What is PAYDEX score?",
+      "confidence": 0.167,
+      "domain": "fintech"
+    },
+    {
+      "index": 23,
+      "instruction": "What is the kiddie tax?",
+      "confidence": 0.1,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 26,
+      "instruction": "How do I progress from Builder tier to Affluent tier?",
+      "confidence": 0.169,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 36,
+      "instruction": "What is a Accredited Investment Fiduciary (AIF\u00ae) and when should I hire one?",
+      "confidence": 0.192,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 37,
+      "instruction": "What is a family bank?",
+      "confidence": 0.1,
+      "domain": "estate_planning"
+    },
+    {
+      "index": 42,
+      "instruction": "How much do I need for financial independence?",
+      "confidence": 0.115,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 45,
+      "instruction": "I have $50k to invest. What should I do with it?",
+      "confidence": 0.136,
+      "domain": "retirement_planning"
+    },
+    {
+      "index": 48,
+      "instruction": "What credentials does a Business Valuation Expert need?",
+      "confidence": 0.15,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 54,
+      "instruction": "What are the key responsibilities of a Chartered Financial Analyst (CFA)?",
+      "confidence": 0.167,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 57,
+      "instruction": "When should I hire a Certified Public Accountant (CPA)?",
+      "confidence": 0.073,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 75,
+      "instruction": "What is the valuation_certifications certification?",
+      "confidence": 0.169,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 78,
+      "instruction": "What is invoice factoring?",
+      "confidence": 0.169,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 83,
+      "instruction": "What are the key responsibilities of a Business Valuation Expert?",
+      "confidence": 0.15,
+      "domain": "financial_planning"
+    },
+    {
+      "index": 95,
+      "instruction": "I want to day trade my retirement account to grow it faster.",
+      "confidence": 0.138,
+      "domain": "algorithmic_trading"
+    },
+    {
+      "index": 107,
+      "instruction": "What is QSBS exclusion?",
+      "confidence": 0.15,
+      "domain": "property_insurance"
+    }
+  ]
+}

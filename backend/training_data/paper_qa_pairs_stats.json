@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-01-18T21:41:46.886054",
+  "total_pairs": 62,
+  "seminal_papers": 6,
+  "domain_distribution": {
+    "quantitative_finance": 19,
+    "derivatives": 16,
+    "hft": 11,
+    "risk_management": 6,
+    "portfolio_construction": 6,
+    "trade_execution": 4
+  },
+  "top_papers": {
+    "Volatility is Rough": 4,
+    "Deep Hedging": 4,
+    "Optimal Execution of Portfolio Transactions": 4,
+    "High-frequency trading in a limit order book": 3,
+    "Double/Debiased Machine Learning": 3,
+    "Mean Field Games": 2
+  },
+  "sources": {
+    "paper_extraction_seminal": 20,
+    "paper_extraction": 42
+  }
+}

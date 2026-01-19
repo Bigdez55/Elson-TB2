@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-01-18T21:41:46.038744",
+  "input_directory": "/Users/desmondearly/Library/CloudStorage/OneDrive-Personal/Trading Bot/Elson TB2/Elson/Elson-TB2/Elson FAN",
+  "files_processed": 26,
+  "total_pairs": 1612,
+  "pairs_per_file": {
+    "Data Training File.md": 262,
+    "Elson_Financial_extracted.txt": 211,
+    "TRAINING_PLANv2.md": 203,
+    "Elson wealth management integration.txt": 188,
+    "Comprehensive Trading Knowledge Compilation.md": 97,
+    "Building AGI_ASI Investment System.md": 85,
+    "TRAINING_PLAN.md": 70,
+    "ELSON_FINANCIAL_AI_CHECKLIST.md": 66,
+    "8_financial_projections.md": 60,
+    "COMPLETE ENTERPRISE EXPANSION INDEX.txt": 58,
+    "quick-reference-guide.md": 44,
+    "BLACKROCK & VANGUARD RIVALRY EXPANSION.txt": 42,
+    "implementation-guide.md": 40,
+    "FINANCIAL PROJECTIONS & INVESTOR PRESENTATION.txt": 34,
+    "design-patterns.md": 28,
+    "elson-architecture.md": 24,
+    "BLACKROCK & VANGUARD RIVALRY MASTER PLAN.txt": 24,
+    "ENTERPRISE API ARCHITECTURE & MICROSERVICES SPECIFICATION.txt": 22,
+    "LLM FINE-TUNING & RAG IMPLEMENTATION ROADMAP.txt": 18,
+    "quick-start-guide.md": 10
+  },
+  "domain_distribution": {
+    "estate_planning": 477,
+    "federal_income_tax": 340,
+    "health_insurance": 203,
+    "risk_management": 175,
+    "equities": 131,
+    "securities_regulation": 102,
+    "quantitative_finance": 80,
+    "family_office": 66,
+    "derivatives": 38
+  },
+  "extraction_types": {
+    "definition": 682,
+    "section": 644,
+    "table": 278,
+    "procedure": 8
+  }
+}
