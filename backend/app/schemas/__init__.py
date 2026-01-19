@@ -80,6 +80,33 @@ from .output_schemas import (
     FundamentalAnalysisReport,
 )
 
+# Insurance Workflow Schemas
+from .insurance_schemas import (
+    # Enums
+    InsuranceTypeEnum,
+    InsurancePurposeEnum,
+    RiskClassEnum,
+    SuitabilityStatusEnum,
+    # Schema 1: Policy Comparison
+    PolicyFeature,
+    PremiumComparison,
+    PolicyComparison,
+    # Schema 2: Suitability Assessment
+    ClientInsuranceProfile,
+    SuitabilityFactor,
+    SuitabilityAssessment,
+    # Schema 3: Needs Analysis
+    CoverageGap,
+    IncomeReplacementCalculation,
+    NeedsAnalysis,
+    # Schema 4: Premium Illustration
+    IllustrationYear,
+    PremiumIllustrationSummary,
+    # Schema 5: Claims Scenario
+    ClaimStep,
+    ClaimsScenarioChecklist,
+)
+
 # Wealth Advisory Schemas
 from .wealth_advisory import (
     # Enums
@@ -169,6 +196,24 @@ __all__ = [
     "ValuationAssessment",
     "FinancialHealthIndicator",
     "FundamentalAnalysisReport",
+    # Insurance Workflow Schemas
+    "InsuranceTypeEnum",
+    "InsurancePurposeEnum",
+    "RiskClassEnum",
+    "SuitabilityStatusEnum",
+    "PolicyFeature",
+    "PremiumComparison",
+    "PolicyComparison",
+    "ClientInsuranceProfile",
+    "SuitabilityFactor",
+    "SuitabilityAssessment",
+    "CoverageGap",
+    "IncomeReplacementCalculation",
+    "NeedsAnalysis",
+    "IllustrationYear",
+    "PremiumIllustrationSummary",
+    "ClaimStep",
+    "ClaimsScenarioChecklist",
     # Wealth Advisory
     "AdvisoryMode",
     "WealthTier",
