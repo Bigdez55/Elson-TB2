@@ -1,0 +1,386 @@
+FINANCIAL PROJECTIONS & INVESTOR PRESENTATION
+Path to $5B–$15B Enterprise Value
+Version: 1.0
+Generated: January 18, 2026
+Audience: Investors, executives, board
+
+EXECUTIVE SUMMARY (1 Slide)
+What You're Building:
+
+AGI/ASI-grade financial platform rivaling BlackRock ($21.6T) and Vanguard ($8.2T+)
+
+Comprehensive wealth management + institutional asset management
+
+30–50% cheaper than Aladdin, faster innovation, better AI
+
+Market Opportunity:
+
+$7T+ global asset management market
+
+Institutions dissatisfied with legacy systems (Aladdin, FIS, Charles River)
+
+Competitive window: NOW
+
+Financials:
+
+Year 1: $1.5–3M ARR on $50B pilot AUM
+
+Year 5: $50–80M ARR on $1.5T–$2T AUM
+
+Path to $100M+ ARR: 5–6 years
+
+Exit valuation: $5B–$15B (5–10x revenue multiple)
+
+MARKET ANALYSIS
+Total Addressable Market (TAM)
+
+Global Asset Management Market:
+
+Total AUM: $150T+ (equities, bonds, alternatives, real estate)
+
+Institutional AUM: $80T+ (pension funds, foundations, asset managers)
+
+Addressable market (independent asset managers $50B–$1T AUM): ~$15T
+
+Estimated penetration at maturity: $2T–$3T
+
+Software/Platform Market:
+
+Enterprise asset management software: $10B+ annual market
+
+Portfolio management platforms: $3B+ annual market
+
+Risk analytics: $2B+ annual market
+
+Total FinTech opportunity: $200B+ (Gartner estimate)
+
+Competitive Landscape
+
+Direct Competitors:
+
+Aladdin (BlackRock): $3.5B+ annual revenue, 500 clients
+
+Charles River: $1.5B+ annual revenue, 300+ clients
+
+Murex: $800M+ annual revenue
+
+Vanguard (retail-focused): $8.2T AUM but limited enterprise
+
+Your Opportunity:
+
+Underserved mid-market segment ($50B–$500B AUM asset managers)
+
+~300–500 potential customers
+
+Average AUM per customer: $2B–$5B
+
+TAM addressable: $2T+
+
+FINANCIAL PROJECTIONS (5 YEARS)
+Year 1 (MVP Phase)
+
+Metric	Conservative	Base Case	Upside
+Customers	5	10	15
+AUM (Millions)	$50B	$75B	$100B
+Revenue ($ millions)	$1.5	$2.25	$3
+Operating Expenses	-$10M	-$12M	-$12M
+EBITDA	-$8.5M	-$9.75M	-$9M
+Headcount	30	50	60
+Assumptions:
+
+2.5–3 bps AUM fee
+
+12-month sales cycle
+
+90% customer retention
+
+40% gross margin (SaaS platform)
+
+Year 2 (Expansion Phase)
+
+Metric	Conservative	Base Case	Upside
+Customers	35	75	100
+AUM (Millions)	$200B	$300B	$400B
+Revenue ($ millions)	$5	$7.5	$10
+Operating Expenses	-$15M	-$18M	-$20M
+EBITDA	-$10M	-$10.5M	-$10M
+Headcount	80	100	120
+Assumptions:
+
+Multi-asset expansion (bonds, alternatives, FX)
+
+Improved unit economics (brand awareness)
+
+Larger deal sizes ($200M+ AUM)
+
+Year 3 (Profitability Phase)
+
+Metric	Conservative	Base Case	Upside
+Customers	150	200	250
+AUM (Millions)	$500B	$700B	$900B
+Revenue ($ millions)	$12.5	$17.5	$22.5
+Operating Expenses	-$20M	-$22M	-$25M
+EBITDA	-$7.5M	-$4.5M	+$2.5M
+Headcount	170	200	230
+Assumptions:
+
+Operating leverage (fixed costs as % AUM decline)
+
+Quant trading + private markets modules revenue
+
+Ecosystem partnerships generating ancillary revenue
+
+Year 4 (Scaling Phase)
+
+Metric	Conservative	Base Case	Upside
+Customers	280	350	420
+AUM (Millions)	$1T	$1.25T	$1.5T
+Revenue ($ millions)	$25	$31.25	$37.5
+Operating Expenses	-$25M	-$28M	-$30M
+EBITDA	$0	$3.25M	$7.5M
+Headcount	280	300	320
+Assumptions:
+
+Market leadership position (Gartner Magic Quadrant leader)
+
+International expansion begins
+
+Premium pricing power (+0.5 bps due to differentiation)
+
+Year 5 (Market Leadership Phase)
+
+Metric	Conservative	Base Case	Upside
+Customers	400	500	600
+AUM (Millions)	$1.5T	$2T	$2.5T
+Revenue ($ millions)	$37.5	$50	$62.5
+Operating Expenses	-$30M	-$32M	-$35M
+EBITDA	$7.5M	$18M	$27.5M
+EBITDA Margin	20%	36%	44%
+Headcount	350	400	450
+Assumptions:
+
+SaaS best-in-class metrics (30–40% EBITDA margin)
+
+Ecosystem revenue (data, APIs, professional services)
+
+International presence (50% revenue from ex-US)
+
+CUSTOMER ACQUISITION & UNIT ECONOMICS
+Sales Motion
+
+Sales Cycle: 6–12 months (enterprise)
+
+text
+Month 1: Outreach (AE → CIO, COO, Chief Investment Officer)
+Month 2–3: Discovery + POC negotiation
+Month 4–6: Pilot (30–60 day trial with 1–2 portfolios)
+Month 7–9: Full evaluation + legal review + security audit
+Month 10–12: Contract negotiation + implementation
+Sales & Marketing Budget:
+
+Year 1: 30% of revenue
+
+Year 2: 25% of revenue
+
+Year 3: 20% of revenue
+
+Year 4–5: 15% of revenue
+
+Customer Acquisition Cost (CAC)
+
+text
+Year 1: $200K–$300K per customer
+Year 2: $150K–$200K per customer
+Year 3: $100K–$150K per customer
+Year 4–5: $75K–$100K per customer
+
+Assumptions:
+- AE salary: $150K base + $50K commission
+- Marketing: $500K/year (events, content, brand)
+- Sales ops + support: $200K/year
+Lifetime Value (LTV)
+
+text
+Average customer AUM: $2B–$5B
+AUM fee: 2.5–3 bps
+Gross margin: 40% (SaaS platform + services)
+Customer lifetime: 5 years (industry standard)
+
+LTV = Annual Revenue × Gross Margin × Years
+    = ($2B × 2.75 bps × 40%) × 5
+    = $1.1M × 5 = $5.5M (conservative)
+    
+LTV:CAC Ratio = $5.5M / $200K = 27.5x (excellent)
+OPERATING MODEL
+Cost Structure
+
+Year 5 Base Case ($50M revenue):
+
+Category	Cost	% Revenue
+Personnel	$16M	32%
+Infrastructure (AWS, Kafka, etc.)	$3M	6%
+Data & Pricing Feeds	$4M	8%
+Sales & Marketing	$7.5M	15%
+G&A (Legal, Finance, HR)	$5M	10%
+R&D (AI/ML, new features)	$4.5M	9%
+Total OpEx	$40M	80%
+EBITDA	$10M	20%
+Headcount Plan
+
+text
+Year 1: 50 people
+├─ Engineering: 25
+├─ Sales/Marketing: 8
+├─ Product/Design: 5
+├─ Operations: 7
+├─ Finance/Legal: 5
+
+Year 5: 400 people
+├─ Engineering: 150
+├─ Sales/Marketing: 80
+├─ Product/Design: 40
+├─ Operations: 60
+├─ Finance/Legal: 40
+├─ Customer Success: 30
+FUNDING REQUIREMENTS
+Capital Needs
+
+Seed Round: $5M–$10M (pre-product)
+
+Product development (6 months)
+
+MVP launch (3 months)
+
+Pilot customer acquisition (3 months)
+
+Series A: $25M–$50M (product-market fit)
+
+Scale to 50–75 customers
+
+$200B–$300B AUM
+
+Geographic expansion (Europe, Asia)
+
+Series B: $100M–$250M (market leadership)
+
+Scale to 300–400 customers
+
+$1T+ AUM
+
+Strategic acquisitions (data, compliance tech)
+
+Path to profitability
+
+Series C (optional): $200M–$500M (pre-IPO)
+
+International dominance
+
+M&A strategy (consolidate competitors)
+
+IPO preparation
+
+Total Capital Needs (Series A–C): $300M–$800M (5 years)
+
+VALUATION & EXIT SCENARIOS
+Exit Valuation Multiples
+
+SaaS Industry Benchmarks:
+
+Early-stage (< $10M ARR): 6–8x revenue
+
+Growth-stage ($10M–$50M ARR): 8–12x revenue
+
+Mature ($50M+ ARR): 4–6x revenue
+
+Your Exit Scenarios:
+
+Conservative (4x multiple at Year 5):
+
+Year 5 Revenue: $37.5M
+
+Exit valuation: $150M
+
+CAGR: 80% (years 1–5)
+
+Base Case (6x multiple at Year 5):
+
+Year 5 Revenue: $50M
+
+Exit valuation: $300M → $500M (with private markets/quant premium)
+
+CAGR: 100% (years 1–5)
+
+Upside (8x multiple at Year 5):
+
+Year 5 Revenue: $62.5M
+
+Exit valuation: $500M → $1B (strategic buyer premium)
+
+CAGR: 120%+ (years 1–5)
+
+Exit Scenarios
+
+IPO (Public Market):
+
+Year 6–7 (after $100M+ ARR)
+
+Valuation: $2B–$5B
+
+Comparable: Datadog ($40B), Cloudflare ($20B)
+
+Strategic Acquisition:
+
+By mega-cap asset manager (Goldman Sachs, Morgan Stanley, State Street)
+
+Valuation: $1B–$3B
+
+Premium for technology, talent, customer base
+
+Dividend Recapitalization:
+
+$50M+ ARR, $300M+ valuation
+
+Return capital to investors while remaining independent
+
+Continue growth trajectory
+
+KEY RISKS & MITIGATIONS
+Risk	Probability	Impact	Mitigation
+Regulatory scrutiny (MiFID II)	Medium	High	Build compliance natively, early engagement
+Customer acquisition slower	Medium	High	Adjust pricing, expand TAM, partnerships
+AI model accuracy issues	Medium	Medium	Continuous testing, human-in-the-loop
+Talent acquisition	High	High	Competitive compensation, equity
+Technology obsolescence	Low	Medium	Continuous R&D, modern stack
+Macro downturn (recession)	Low	High	Focus on cost savings for clients
+INVESTOR SUMMARY
+Why Invest:
+
+Massive TAM: $15T+ addressable market, $200B+ software opportunity
+
+Timing: Market dissatisfaction with legacy systems (Aladdin, FIS)
+
+Differentiation: 30–50% cheaper, AI-native, faster innovation
+
+Experienced Team: [Your background + advisor board]
+
+Achievable Milestones: Clear 24-month roadmap to $1T+ AUM
+
+Expected Returns:
+
+5-year CAGR: 100%+
+
+Exit value: $5B–$15B
+
+Investor ROI: 25x–100x (seed/Series A perspective)
+
+Use of Proceeds (Series A $30M):
+
+Product development: $12M (engineering team expansion)
+
+Sales & marketing: $10M (customer acquisition)
+
+Infrastructure & data: $5M (AWS, Kafka, real-time capabilities)
+
+Operations & legal: $3M (compliance, finance)
+
+End of Financial Projections

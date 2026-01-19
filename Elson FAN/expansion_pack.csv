@@ -1,0 +1,75 @@
+domain,subdomain,category,resource_type,title,organization,url,jurisdiction,notes
+Tax,Federal,Primary law and regulations,Law,US Code Title 26,US government,https://www.govinfo.gov/app/collection/uscode,,"Authoritative publication portal, use to pull Title 26"
+Tax,Federal,Primary law and regulations,Law,eCFR Title 26,US government,https://www.ecfr.gov/current/title-26,,Treasury tax regulations
+Tax,Federal,Primary law and regulations,Law,Federal Register,US government,https://www.federalregister.gov/,,Proposed and final rules
+Tax,Federal,Primary law and regulations,Law,Internal Revenue Manual,US government,https://www.irs.gov/irm,,IRS procedures and enforcement
+Tax,Federal,Primary law and regulations,Law,IRS Forms and Publications,US government,https://www.irs.gov/forms-pubs,,Download current forms and pubs
+Tax,Federal,Primary law and regulations,Law,IRS Publication 17,US government,https://www.irs.gov/forms-pubs/about-publication-17,,Individual income tax guide
+Tax,Federal,Primary law and regulations,Law,IRS Publication 550,US government,https://www.irs.gov/forms-pubs/about-publication-550,,Investment income and expenses
+Tax,Federal,Primary law and regulations,Law,IRS Publication 590 A,US government,https://www.irs.gov/forms-pubs/about-publication-590-a,,IRA contributions
+Tax,Federal,Primary law and regulations,Law,IRS Publication 590 B,US government,https://www.irs.gov/forms-pubs/about-publication-590-b,,IRA distributions
+Tax,Federal,Primary law and regulations,Law,IRS Publication 463,US government,https://www.irs.gov/forms-pubs/about-publication-463,,"Travel, gift, and car expenses"
+Tax,Federal,Primary law and regulations,Law,IRS Publication 535,US government,https://www.irs.gov/forms-pubs/about-publication-535,,Business expenses
+Tax,Federal,Primary law and regulations,Law,IRS Publication 334,US government,https://www.irs.gov/forms-pubs/about-publication-334,,Small business tax guide
+Tax,Federal,Primary law and regulations,Law,IRS Estate and gift taxes,US government,https://www.irs.gov/businesses/small-businesses-self-employed/estate-and-gift-taxes,,Estate and gift tax overview
+Tax,Federal,Primary law and regulations,Law,IRS Retirement plans,US government,https://www.irs.gov/retirement-plans,,"Plan types, guidance, corrections"
+Tax,State,Directories,Directory,IRS State government websites directory,US government,https://www.irs.gov/government-entities/federal-state-local-governments/state-government-websites,,All state portals including revenue and legislature links
+Tax,State,Directories,Directory,FTA directory of state tax agencies,US government,https://taxadmin.org/state-tax-agencies/,,Every state tax agency
+Tax,State,Directories,Directory,Multistate Tax Commission,US government,https://www.mtc.gov/,,Model statutes and multistate compliance
+Tax,State,Directories,Directory,Streamlined Sales Tax Governing Board,US government,https://www.streamlinedsalestax.org/,,Sales tax simplification and rules
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,SEC rules and regulations,US government and SROs,https://www.sec.gov/rules,,Rulemaking and releases
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,SEC EDGAR,US government and SROs,https://www.sec.gov/edgar,,Company filings dataset
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,FINRA Rules,US government and SROs,https://www.finra.org/rules-guidance/rulebooks/finra-rules,,FINRA rulebook
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,FINRA FIRST rulebook search tool,US government and SROs,https://www.finra.org/rules-guidance/rulebooks/finra-rulebook-search-tool-first,,Taxonomy tagged rule search
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,MSRB rules,US government and SROs,https://www.msrb.org/Rules-and-Interpretations/MSRB-Rules,,Municipal securities rules
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,CFTC regulations,US government and SROs,https://www.cftc.gov/LawRegulation/index.htm,,Derivatives regulator rules
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,NFA compliance rules,US government and SROs,https://www.nfa.futures.org/rulebook/,,Futures industry self regulatory body
+Markets,Securities regulation,Regulators and rulebooks,Regulation portal,SIPC,US government and SROs,https://www.sipc.org/,,Broker dealer customer protection
+Markets,Data,Datasets,Dataset,FRED economic data,US government,https://fred.stlouisfed.org/,,Macro time series
+Markets,Data,Datasets,Dataset,US Treasury yield curve data,US government,https://home.treasury.gov/resource-center/data-chart-center/interest-rates,,Daily yields
+Markets,Data,Datasets,Dataset,BLS,US government,https://www.bls.gov/,,Labor and inflation data
+Markets,Data,Datasets,Dataset,BEA,US government,https://www.bea.gov/,,National accounts data
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,Federal Reserve supervision and regulation,US government,https://www.federalreserve.gov/supervisionreg.htm,,Bank supervision
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,OCC Comptroller handbook,US government,https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/index-comptrollers-handbook.html,,National bank exam handbook
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,FDIC regulations and guidance,US government,https://www.fdic.gov/regulations/,,FDIC rules and guidance
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,NCUA regulations,US government,https://www.ncua.gov/regulation-supervision,,Credit union regulation
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,CFPB compliance resources,US government,https://www.consumerfinance.gov/compliance/,,Consumer finance compliance
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,CFPB examination manual,US government,https://www.consumerfinance.gov/compliance/supervision-examinations/examination-manual/,,Exam procedures
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,FFIEC BSA AML manual,US government,https://bsaaml.ffiec.gov/manual,,AML exam manual
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,FFIEC IT Examination Handbook,US government,https://www.ffiec.gov/it-booklets/,,IT risk and controls
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,FinCEN,US government,https://www.fincen.gov/,,"AML, beneficial ownership, filings"
+Banking,Prudential supervision,Regulators and handbooks,Regulation portal,OFAC sanctions,US government,https://ofac.treasury.gov/,,Sanctions lists and guidance
+Banking,State,Directories,Directory,CSBS directory of state banking agencies,Regulator association,https://www.csbs.org/state-bank-agency,,All state bank regulators
+Insurance,Regulation,Directories and model laws,Directory,State insurance departments directory,NAIC,https://content.naic.org/state-insurance-departments,,All state DOI
+Insurance,Regulation,Directories and model laws,Directory,NAIC model laws,NAIC,https://content.naic.org/model-laws,,Model acts and regulations
+Insurance,Actuarial,Standards,Standard,ASOPs,Actuarial Standards Board,https://www.actuarialstandardsboard.org/standards/,,Actuarial standards of practice
+Insurance,Health,Federal programs,Program portal,CMS,US government,https://www.cms.gov/,,Medicare and Medicaid
+Credit,Consumer credit,Primary rules and guidance,Regulation portal,CFPB consumer laws and regulations,US government,https://www.consumerfinance.gov/rules-policy/,,Regulations and interpretations
+Credit,Consumer credit,Primary rules and guidance,Regulation portal,FTC consumer protection,US government,https://www.ftc.gov/,,Credit and consumer enforcement
+Retirement,ERISA,Primary law and guidance,Regulation portal,DOL EBSA,US government,https://www.dol.gov/agencies/ebsa,,ERISA and retirement plans
+Accounting,US GAAP,Standards,Standard,Accounting Standards Codification,FASB,https://asc.fasb.org/,,US GAAP codification
+Accounting,International,Standards,Standard,IFRS Standards,IFRS Foundation,https://www.ifrs.org/issued-standards/list-of-standards/,,IFRS standards list
+Accounting,Audit,Standards,Standard,Auditing standards,PCAOB,https://pcaobus.org/standards,,Public company audit standards
+Accounting,Government,Standards,Standard,GASB standards,GASB,https://www.gasb.org/,,State and local government accounting
+Security,Cybersecurity,Frameworks and controls,Standard,AI RMF 1.0 PDF,NIST,https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf,,AI risk management framework
+Security,Cybersecurity,Frameworks and controls,Standard,AI RMF overview,NIST,https://www.nist.gov/itl/ai-risk-management-framework,,Landing and resources
+Security,Cybersecurity,Frameworks and controls,Standard,NIST CSF 2.0 PDF,NIST,https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf,,Cybersecurity framework
+Security,Cybersecurity,Frameworks and controls,Standard,NIST SP 800 53 Rev 5 PDF,NIST,https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf,,Security and privacy controls
+Security,Information security,Standards,Standard,ISO IEC 27001 overview,ISO,https://www.iso.org/standard/27001,,ISMS standard overview
+Banking,Capital and risk,Standards,Standard,Basel III overview,BIS,https://www.bis.org/bcbs/basel3.htm,,Capital and liquidity standards
+Banking,Capital and risk,Standards,Standard,Basel Framework,BIS,https://www.bis.org/basel_framework/,,Full Basel standards set
+Education,Credentials,Providers,Provider,CFA Institute,Industry,https://www.cfainstitute.org/,,CFA program and curriculum
+Education,Credentials,Providers,Provider,CFP Board,Industry,https://www.cfp.net/,,CFP certification
+Education,Credentials,Providers,Provider,IRS enrolled agent,Industry,https://www.irs.gov/tax-professionals/enrolled-agents,,EA credential overview
+Education,Credentials,Providers,Provider,FINRA SIE exam,Industry,https://www.finra.org/registration-exams-ce/qualification-exams/securities-industry-essentials-exam,,SIE exam info
+Education,Credentials,Providers,Provider,NAIC producer licensing,Industry,https://content.naic.org/producers,,Insurance licensing information hub
+Books,Markets,Core textbooks,Book,Investments,Textbooks,,,"Bodie, Kane, Marcus"
+Books,Markets,Core textbooks,Book,"Options, Futures, and Other Derivatives",Textbooks,,,Hull
+Books,Markets,Core textbooks,Book,Security Analysis,Textbooks,,,Graham and Dodd
+Books,Markets,Core textbooks,Book,The Intelligent Investor,Textbooks,,,Graham
+Books,Markets,Core textbooks,Book,Trading and Exchanges,Textbooks,,,Larry Harris
+Books,Markets,Core textbooks,Book,A Random Walk Down Wall Street,Textbooks,,,Malkiel
+Books,Markets,Core textbooks,Book,Corporate Finance,Textbooks,,,"Brealey, Myers, Allen"
+Books,Markets,Core textbooks,Book,Valuation,Textbooks,,,McKinsey
+Books,Markets,Core textbooks,Book,Principles of Risk Management and Insurance,Textbooks,,,Rejda and McNamara
+Books,Markets,Core textbooks,Book,Federal Income Taxation,Textbooks,,,Chirelstein and Zelenak
