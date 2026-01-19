@@ -1,8 +1,135 @@
 # Agent Workflow Skill (Universal)
 
-**Version:** 1.0.0
-**Last Updated:** 2026-01-16
+**Version:** 1.1.0
+**Last Updated:** 2026-01-18
 **Purpose:** Mandatory protocol for AI agents to prevent chain-reaction errors
+
+---
+
+## Elson TB2 - Active Agent Configuration
+
+### Current Agents
+
+| Agent | Location | Environment | Primary Role |
+|-------|----------|-------------|--------------|
+| **GitHub Agent** | Local Mac | Claude Code CLI | Code, scripts, docs, git push |
+| **GCP Agent** | `my-vm` (e2-medium, 20GB) | Claude Code on GCP | Training, deployment, git pull |
+
+### Agent Responsibilities
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        ELSON TB2 AGENT WORKFLOW                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   GITHUB AGENT (Local)              GCP AGENT (Cloud)                    │
+│   ━━━━━━━━━━━━━━━━━━━━              ━━━━━━━━━━━━━━━━━                    │
+│   • Write/edit code                 • Pull latest code                   │
+│   • Create scripts                  • Run training jobs                  │
+│   • Update documentation            • Deploy models to GCS               │
+│   • Manage training data            • Deploy vLLM server                 │
+│   • Run local tests                 • Run inference tests                │
+│   • Git commit & push               • Request GPU quotas                 │
+│                                     • Manage VM lifecycle                │
+│          │                                    │                          │
+│          │         git push                   │                          │
+│          ▼                                    │                          │
+│   ┌──────────────┐                           │                          │
+│   │    GitHub    │◄──────────────────────────┘                          │
+│   │  Repository  │         git pull                                      │
+│   └──────────────┘                                                       │
+│          │                                                               │
+│          │ Triggers CI/CD                                                │
+│          ▼                                                               │
+│   ┌──────────────┐      ┌──────────────┐      ┌──────────────┐          │
+│   │  Cloud Run   │◄─────│   Cloud SQL  │      │  GCS Bucket  │          │
+│   │  (Frontend/  │      │ (PostgreSQL) │      │  (Models)    │          │
+│   │   Backend)   │      └──────────────┘      └──────────────┘          │
+│   └──────────────┘                                   ▲                   │
+│                                                      │                   │
+│                                              Model Upload                │
+│                                                      │                   │
+│                                            ┌─────────┴────────┐         │
+│                                            │   Training VMs   │         │
+│                                            │ H100/L4 (Spot)   │         │
+│                                            └──────────────────┘         │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Files for Agent Coordination
+
+| File | Purpose | Owner |
+|------|---------|-------|
+| `GCP_AGENT_SETUP.md` | GCP environment setup, training instructions | GCP Agent reads |
+| `MODEL_DEPLOYMENT_STATUS.md` | Deployment status tracking | Both agents |
+| `ACTION_PLAN.md` | Current tasks and priorities | GitHub Agent writes |
+| `AGENT_WORKFLOW.md` | This file - coordination protocol | Both agents |
+
+### GCP Agent Session Start Protocol
+
+```bash
+# EVERY GCP Agent session must start with:
+cd ~/Elson-TB2 && git pull origin main
+cat GCP_AGENT_SETUP.md | head -100  # Check current status
+cat ACTION_PLAN.md | grep -A 20 "Immediate Action"  # See priorities
+```
+
+### GitHub Agent Handoff Template
+
+When pushing changes that require GCP Agent action:
+
+```markdown
+## HANDOFF TO GCP AGENT
+
+**Commit:** [hash]
+**Date:** YYYY-MM-DD
+
+### What Changed
+- [File 1]: [description]
+- [File 2]: [description]
+
+### GCP Agent Actions Required
+1. `cd ~/Elson-TB2 && git pull origin main`
+2. [Specific command to run]
+3. [Expected output/verification]
+
+### Blocking Issues (if any)
+- [ ] L4 GPU quota needed
+- [ ] Training data location: `backend/training_data/consolidated_training_data.json`
+```
+
+### Current Handoff Status (2026-01-18)
+
+**From:** GitHub Agent
+**To:** GCP Agent
+**Commit:** `9f798d5`
+
+**What Was Done:**
+- Created 6 new scripts (deployment, benchmark, data processing)
+- Consolidated 950 Q&A training pairs
+- Categorized 830+ URLs to 18 domains
+- Updated README and created ACTION_PLAN.md
+
+**GCP Agent Actions Required:**
+```bash
+# 1. Pull latest
+cd ~/Elson-TB2 && git pull origin main
+
+# 2. Check L4 GPU quota status
+# If not requested: https://console.cloud.google.com/iam-admin/quotas?project=elson-33a95
+
+# 3. Deploy vLLM (once quota approved)
+./scripts/deploy-vllm-dora.sh l4 dora
+# OR for cost savings:
+./scripts/deploy-vllm-dora.sh spot qdora
+
+# 4. Run benchmark (once vLLM is up)
+python scripts/run_evaluation_benchmark.py --api-url http://EXTERNAL_IP:8000
+
+# 5. Optional: Retrain with expanded data (950 pairs vs 408)
+# Training data: backend/training_data/consolidated_training_data.json
+```
 
 ---
 
@@ -355,4 +482,5 @@ grep -c "CHECKLIST" AGENT_WORKFLOW.md  # Should be > 0
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2026-01-18 | Added Elson TB2 specific agent configuration, workflow diagram, handoff status |
 | 1.0.0 | 2026-01-16 | Initial release - extracted from Elson Financial AI project |
