@@ -167,11 +167,16 @@ with open(os.environ.get('TRAINING_DATA', 'backend/training_data/consolidated_tr
     training_data = json.load(f)
 print(f"Loaded {len(training_data)} training pairs")
 
-# Format for training
+# Format for training (Alpaca format: instruction/input/output)
 def format_example(example):
-    return {
-        "text": f"### Question:\n{example['question']}\n\n### Answer:\n{example['answer']}"
-    }
+    instruction = example.get('instruction', example.get('question', ''))
+    input_text = example.get('input', '')
+    output = example.get('output', example.get('answer', ''))
+
+    if input_text:
+        return {"text": f"### Instruction:\n{instruction}\n\n### Input:\n{input_text}\n\n### Response:\n{output}"}
+    else:
+        return {"text": f"### Instruction:\n{instruction}\n\n### Response:\n{output}"}
 
 dataset = Dataset.from_list([format_example(ex) for ex in training_data])
 print(f"Dataset prepared: {len(dataset)} examples")
