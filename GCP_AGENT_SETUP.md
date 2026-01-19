@@ -1,9 +1,71 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-19
 **Status:** 100% Complete - DoRA Training Complete on H100, Models in GCS
 
 This document tracks everything needed to restore the GCP environment after ephemeral session ends.
+
+---
+
+## 0. Model Specification (READ FIRST)
+
+### Elson-Finance-Trading-14B (Base Model)
+
+| Attribute | Value |
+|-----------|-------|
+| **Parameters** | 14 billion |
+| **Size** | 27.52 GB (6 SafeTensors shards) |
+| **Base Models** | DeepSeek-R1-Distill-Qwen-14B + Qwen2.5-14B-Instruct |
+| **Merge Method** | SLERP + DARE-TIES pruning |
+| **GCS Location** | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` |
+
+### Production Adapters
+
+| Adapter | GCS Path | Purpose | Status |
+|---------|----------|---------|--------|
+| **DoRA** | `wealth-dora-elson14b-h100` | Full quality training (loss: 0.14) | ✅ PRODUCTION |
+| **QDoRA** | `elson-finance-trading-wealth-14b-q4` | Quantized for efficient inference | ✅ PRODUCTION |
+| ~~LoRA~~ | `wealth-lora-elson14b-vm1/vm2` | Deprecated - do not use | ⚠️ ARCHIVED |
+
+### Deployment Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    INFERENCE PIPELINE                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   Base Model (27.52GB)  +  DoRA Adapter (~96MB)             │
+│            │                       │                         │
+│            └───────────┬───────────┘                         │
+│                        ▼                                     │
+│              ┌──────────────────┐                            │
+│              │   vLLM Server    │  ← High-performance LLM    │
+│              │   (on L4 GPU)    │     inference engine       │
+│              └────────┬─────────┘                            │
+│                       ▼                                      │
+│              REST API endpoint                               │
+│              http://IP:8000/v1/completions                   │
+│                       ▼                                      │
+│              ┌──────────────────┐                            │
+│              │  FastAPI Backend │                            │
+│              └────────┬─────────┘                            │
+│                       ▼                                      │
+│              ┌──────────────────┐                            │
+│              │    Frontend      │                            │
+│              └──────────────────┘                            │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Quick Deploy Command
+
+```bash
+# Deploy DoRA model on L4 GPU
+./scripts/deploy-vllm-dora.sh l4 dora
+
+# Or for cost savings (Spot instance)
+./scripts/deploy-vllm-dora.sh spot qdora
+```
 
 ---
 
@@ -397,8 +459,14 @@ Observations:
 from peft import PeftModel
 from transformers import AutoModelForCausalLM
 
+# Load base model
 base = AutoModelForCausalLM.from_pretrained("path/to/elson-finance-trading-14b-final")
-model = PeftModel.from_pretrained(base, "path/to/wealth-lora-elson14b-vm1/")
+
+# Load DoRA adapter (PRODUCTION)
+model = PeftModel.from_pretrained(base, "path/to/wealth-dora-elson14b-h100/")
+
+# DO NOT use LoRA adapters - they are deprecated
+# model = PeftModel.from_pretrained(base, "path/to/wealth-lora-elson14b-vm1/")  # DEPRECATED
 ```
 
 ### Step 1: Pull Latest Code
