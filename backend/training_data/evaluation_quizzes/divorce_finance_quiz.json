@@ -1,0 +1,89 @@
+{
+  "weight": 0.02,
+  "questions": [
+    {
+      "question_id": "c013c9394e42",
+      "domain": "divorce_finance",
+      "subdomain": "basics",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a QDRO and when is it required?",
+      "expected_elements": [
+        "Qualified Domestic Relations Order",
+        "retirement accounts",
+        "tax-free transfer"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "automatic"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0fdd5ce9040a",
+      "domain": "divorce_finance",
+      "subdomain": "taxation",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "How is alimony treated for tax purposes post-2018?",
+      "expected_elements": [
+        "not deductible",
+        "not income",
+        "TCJA change"
+      ],
+      "prohibited_elements": [
+        "deductible",
+        "pre-2018 rules"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "69514134d7af",
+      "domain": "divorce_finance",
+      "subdomain": "property",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "How should retirement account division consider after-tax values?",
+      "expected_elements": [
+        "pretax vs Roth",
+        "tax basis",
+        "equalization"
+      ],
+      "prohibited_elements": [
+        "simple split",
+        "always equal"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

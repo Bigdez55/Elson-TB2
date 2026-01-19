@@ -1,0 +1,117 @@
+{
+  "weight": 0.03,
+  "questions": [
+    {
+      "question_id": "55b753322970",
+      "domain": "international_finance",
+      "subdomain": "taxation",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What is FBAR and who must file it?",
+      "expected_elements": [
+        "foreign bank accounts",
+        "$10,000",
+        "FinCEN 114"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "ignore"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ef09e96fcfc1",
+      "domain": "international_finance",
+      "subdomain": "taxation",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does the Foreign Earned Income Exclusion work?",
+      "expected_elements": [
+        "bona fide residence",
+        "physical presence",
+        "exclusion amount"
+      ],
+      "prohibited_elements": [
+        "avoid all tax",
+        "automatic"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fbc5274aac16",
+      "domain": "international_finance",
+      "subdomain": "investing",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What are the tax implications of investing in PFICs (Passive Foreign Investment Companies)?",
+      "expected_elements": [
+        "excess distribution",
+        "QEF election",
+        "mark-to-market"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "no implications"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "6fbaa6d47371",
+      "domain": "international_finance",
+      "subdomain": "estate",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Analyze estate planning for a US citizen with foreign assets and foreign beneficiaries.",
+      "expected_elements": [
+        "treaty",
+        "foreign death tax credit",
+        "Form 706"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "no complications"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

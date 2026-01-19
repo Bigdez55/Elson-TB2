@@ -1,0 +1,213 @@
+{
+  "generated_at": "2026-01-19T17:55:07.851757",
+  "domains": {
+    "federal_income_tax": {
+      "weight": 0.1,
+      "question_count": 14,
+      "by_difficulty": {
+        "easy": 4,
+        "medium": 5,
+        "hard": 3,
+        "extremely_complex": 2
+      }
+    },
+    "retirement_planning": {
+      "weight": 0.1,
+      "question_count": 12,
+      "by_difficulty": {
+        "easy": 3,
+        "medium": 4,
+        "hard": 3,
+        "extremely_complex": 2
+      }
+    },
+    "derivatives": {
+      "weight": 0.08,
+      "question_count": 10,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 3,
+        "extremely_complex": 2
+      }
+    },
+    "aml_kyc": {
+      "weight": 0.06,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "securities_regulation": {
+      "weight": 0.06,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "estate_gift_tax": {
+      "weight": 0.06,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "insurance": {
+      "weight": 0.08,
+      "question_count": 9,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 2
+      }
+    },
+    "tool_use": {
+      "weight": 0.08,
+      "question_count": 7,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "compliance_adversarial": {
+      "weight": 0.06,
+      "question_count": 6,
+      "by_difficulty": {
+        "hard": 3,
+        "extremely_complex": 3
+      }
+    },
+    "budgeting": {
+      "weight": 0.08,
+      "question_count": 9,
+      "by_difficulty": {
+        "easy": 4,
+        "medium": 3,
+        "hard": 2
+      }
+    },
+    "credit_management": {
+      "weight": 0.06,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 2
+      }
+    },
+    "investment_basics": {
+      "weight": 0.08,
+      "question_count": 11,
+      "by_difficulty": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "real_estate": {
+      "weight": 0.06,
+      "question_count": 9,
+      "by_difficulty": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "social_security": {
+      "weight": 0.05,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "business_finance": {
+      "weight": 0.05,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 3,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "healthcare_finance": {
+      "weight": 0.04,
+      "question_count": 6,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    },
+    "behavioral_finance": {
+      "weight": 0.03,
+      "question_count": 4,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 2,
+        "hard": 1
+      }
+    },
+    "international_finance": {
+      "weight": 0.03,
+      "question_count": 4,
+      "by_difficulty": {
+        "medium": 2,
+        "hard": 1,
+        "extremely_complex": 1
+      }
+    },
+    "charitable_giving": {
+      "weight": 0.03,
+      "question_count": 5,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 2,
+        "hard": 2
+      }
+    },
+    "divorce_finance": {
+      "weight": 0.02,
+      "question_count": 3,
+      "by_difficulty": {
+        "medium": 2,
+        "hard": 1
+      }
+    },
+    "college_planning": {
+      "weight": 0.04,
+      "question_count": 5,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 2,
+        "hard": 2
+      }
+    },
+    "elder_care": {
+      "weight": 0.02,
+      "question_count": 3,
+      "by_difficulty": {
+        "medium": 2,
+        "hard": 1
+      }
+    }
+  },
+  "total_questions": 165
+}

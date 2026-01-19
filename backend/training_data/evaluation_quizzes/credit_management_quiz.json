@@ -1,0 +1,235 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "e3a31e1783c9",
+      "domain": "credit_management",
+      "subdomain": "credit_score",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are the five factors that determine a FICO credit score?",
+      "expected_elements": [
+        "payment history",
+        "amounts owed",
+        "length of history",
+        "credit mix",
+        "new credit"
+      ],
+      "prohibited_elements": [
+        "exact weights guaranteed",
+        "only factors"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a3b06e7778d0",
+      "domain": "credit_management",
+      "subdomain": "credit_score",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is credit utilization and what ratio is considered good?",
+      "expected_elements": [
+        "balance to limit",
+        "30%",
+        "revolving credit"
+      ],
+      "prohibited_elements": [
+        "exact threshold",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "00d4a99c3d1a",
+      "domain": "credit_management",
+      "subdomain": "credit_reports",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are the three major credit bureaus?",
+      "expected_elements": [
+        "Equifax",
+        "Experian",
+        "TransUnion"
+      ],
+      "prohibited_elements": [
+        "all identical",
+        "only ones"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "54befbb25557",
+      "domain": "credit_management",
+      "subdomain": "credit_building",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "How can someone with no credit history start building credit?",
+      "expected_elements": [
+        "secured card",
+        "authorized user",
+        "credit builder loan"
+      ],
+      "prohibited_elements": [
+        "instant",
+        "guaranteed approval"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5c7516600381",
+      "domain": "credit_management",
+      "subdomain": "credit_repair",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the process for disputing errors on a credit report?",
+      "expected_elements": [
+        "written dispute",
+        "investigation",
+        "30 days",
+        "documentation"
+      ],
+      "prohibited_elements": [
+        "guaranteed removal",
+        "instant fix"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "05b67de5726e",
+      "domain": "credit_management",
+      "subdomain": "credit_cards",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare balance transfer cards to debt consolidation loans.",
+      "expected_elements": [
+        "intro APR",
+        "fees",
+        "fixed payment",
+        "credit impact"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed savings"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "888737a32dd4",
+      "domain": "credit_management",
+      "subdomain": "fraud",
+      "difficulty": "hard",
+      "question_type": "procedural",
+      "question": "What steps should someone take if they're a victim of identity theft?",
+      "expected_elements": [
+        "freeze",
+        "fraud alert",
+        "FTC report",
+        "dispute"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "quick fix"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "12637f35cc6b",
+      "domain": "credit_management",
+      "subdomain": "advanced",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Analyze the impact of closing old credit cards on credit score and credit history.",
+      "expected_elements": [
+        "utilization",
+        "average age",
+        "credit mix",
+        "timing"
+      ],
+      "prohibited_elements": [
+        "never close",
+        "always close"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

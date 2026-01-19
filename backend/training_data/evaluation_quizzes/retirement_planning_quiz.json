@@ -1,0 +1,355 @@
+{
+  "weight": 0.1,
+  "questions": [
+    {
+      "question_id": "567d03fe9715",
+      "domain": "retirement_planning",
+      "subdomain": "401k_basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a 401(k) and who can contribute to one?",
+      "expected_elements": [
+        "employer-sponsored",
+        "tax-deferred",
+        "contribution limits",
+        "employee"
+      ],
+      "prohibited_elements": [
+        "guaranteed returns",
+        "risk-free"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0306c4b4dc96",
+      "domain": "retirement_planning",
+      "subdomain": "ira_types",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between a Traditional IRA and a Roth IRA?",
+      "expected_elements": [
+        "tax-deferred",
+        "tax-free growth",
+        "contribution limits",
+        "income limits"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5f2c0e3d54e3",
+      "domain": "retirement_planning",
+      "subdomain": "employer_match",
+      "difficulty": "easy",
+      "question_type": "explanation",
+      "question": "What is an employer 401(k) match and why is it important?",
+      "expected_elements": [
+        "free money",
+        "matching contribution",
+        "vesting",
+        "percentage"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fc893d7e7139",
+      "domain": "retirement_planning",
+      "subdomain": "contribution_limits",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What are the current contribution limits for 401(k)s and IRAs, including catch-up contributions?",
+      "expected_elements": [
+        "annual limit",
+        "catch-up",
+        "age 50",
+        "combined limits"
+      ],
+      "prohibited_elements": [
+        "exact guarantee",
+        "will never change"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c2c7a5ebfd29",
+      "domain": "retirement_planning",
+      "subdomain": "roth_conversion",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a Roth conversion and when might it make sense?",
+      "expected_elements": [
+        "taxable event",
+        "future tax-free",
+        "income timing",
+        "tax bracket"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "no downside"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "914286781ffc",
+      "domain": "retirement_planning",
+      "subdomain": "early_withdrawal",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What are the penalties and exceptions for early retirement account withdrawals?",
+      "expected_elements": [
+        "10% penalty",
+        "age 59.5",
+        "exceptions",
+        "substantially equal payments"
+      ],
+      "prohibited_elements": [
+        "easy workaround",
+        "penalty-free always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "708080ffa45f",
+      "domain": "retirement_planning",
+      "subdomain": "rmd",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How are Required Minimum Distributions (RMDs) calculated?",
+      "expected_elements": [
+        "account balance",
+        "life expectancy",
+        "IRS table",
+        "deadline"
+      ],
+      "prohibited_elements": [
+        "skip",
+        "avoid"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "b961f180d419",
+      "domain": "retirement_planning",
+      "subdomain": "backdoor_roth",
+      "difficulty": "hard",
+      "question_type": "procedural",
+      "question": "Explain the backdoor Roth IRA strategy and its potential pitfalls.",
+      "expected_elements": [
+        "income limits",
+        "non-deductible contribution",
+        "conversion",
+        "pro-rata rule"
+      ],
+      "prohibited_elements": [
+        "loophole",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "39fdee36ef0a",
+      "domain": "retirement_planning",
+      "subdomain": "mega_backdoor",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is the mega backdoor Roth strategy and who can use it?",
+      "expected_elements": [
+        "after-tax contributions",
+        "in-plan conversion",
+        "plan document",
+        "415 limit"
+      ],
+      "prohibited_elements": [
+        "everyone can",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "33f90d090f1b",
+      "domain": "retirement_planning",
+      "subdomain": "sepp",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain Substantially Equal Periodic Payments (SEPP/72t) for early retirement access.",
+      "expected_elements": [
+        "five years or 59.5",
+        "three methods",
+        "modification penalty",
+        "calculation"
+      ],
+      "prohibited_elements": [
+        "easy exit",
+        "no consequences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "4991e0ae2b19",
+      "domain": "retirement_planning",
+      "subdomain": "retirement_income",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Design a tax-efficient retirement income strategy for someone with $2M split between Traditional IRA, Roth IRA, and taxable accounts.",
+      "expected_elements": [
+        "tax bracket management",
+        "Roth conversion ladder",
+        "asset location",
+        "Social Security timing",
+        "RMD planning"
+      ],
+      "prohibited_elements": [
+        "guaranteed income",
+        "risk-free"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "df2515730037",
+      "domain": "retirement_planning",
+      "subdomain": "pension_analysis",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Compare a pension lump sum offer versus annuity payments for a 60-year-old.",
+      "expected_elements": [
+        "present value",
+        "mortality assumptions",
+        "inflation",
+        "investment returns",
+        "survivor benefits"
+      ],
+      "prohibited_elements": [
+        "obvious choice",
+        "always take"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

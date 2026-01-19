@@ -1,0 +1,318 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "dfad60266d0d",
+      "domain": "investment_basics",
+      "subdomain": "asset_classes",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are the main asset classes for investing?",
+      "expected_elements": [
+        "stocks",
+        "bonds",
+        "cash",
+        "real estate",
+        "commodities"
+      ],
+      "prohibited_elements": [
+        "best",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c0cfe6df6814",
+      "domain": "investment_basics",
+      "subdomain": "asset_classes",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between stocks and bonds?",
+      "expected_elements": [
+        "ownership",
+        "debt",
+        "risk",
+        "return potential"
+      ],
+      "prohibited_elements": [
+        "always",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "bffa09ed7b30",
+      "domain": "investment_basics",
+      "subdomain": "diversification",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is diversification and why is it important?",
+      "expected_elements": [
+        "spread risk",
+        "different investments",
+        "not all eggs"
+      ],
+      "prohibited_elements": [
+        "eliminates risk",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "46eb0fcc47cb",
+      "domain": "investment_basics",
+      "subdomain": "funds",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between mutual funds and ETFs?",
+      "expected_elements": [
+        "trading",
+        "expense ratios",
+        "minimum investment",
+        "tax efficiency"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "324bcad89bd7",
+      "domain": "investment_basics",
+      "subdomain": "risk",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the relationship between risk and return in investing?",
+      "expected_elements": [
+        "higher risk higher potential return",
+        "no guarantee",
+        "time horizon"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "16e804d8a1a8",
+      "domain": "investment_basics",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is dollar cost averaging and when is it useful?",
+      "expected_elements": [
+        "regular intervals",
+        "average price",
+        "reduces timing risk"
+      ],
+      "prohibited_elements": [
+        "guaranteed profit",
+        "always works"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3c509c3c0131",
+      "domain": "investment_basics",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare value investing to growth investing approaches.",
+      "expected_elements": [
+        "undervalued",
+        "high growth",
+        "P/E ratios",
+        "different goals"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed returns"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e9e689ac325f",
+      "domain": "investment_basics",
+      "subdomain": "indices",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What is the S&P 500 and why is it used as a benchmark?",
+      "expected_elements": [
+        "500 companies",
+        "market cap weighted",
+        "broad market"
+      ],
+      "prohibited_elements": [
+        "only index",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "15500bef7fa9",
+      "domain": "investment_basics",
+      "subdomain": "analysis",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain the efficient market hypothesis and its implications for investors.",
+      "expected_elements": [
+        "information reflected",
+        "weak/semi-strong/strong",
+        "passive investing"
+      ],
+      "prohibited_elements": [
+        "proven",
+        "always true"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ad9548efeee9",
+      "domain": "investment_basics",
+      "subdomain": "behavioral",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "How does loss aversion affect investment decisions?",
+      "expected_elements": [
+        "losses feel worse",
+        "selling winners",
+        "holding losers"
+      ],
+      "prohibited_elements": [
+        "easy to overcome",
+        "doesn't affect"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1e5be1980d64",
+      "domain": "investment_basics",
+      "subdomain": "advanced",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Calculate the Sharpe ratio for a portfolio with 10% return, 2% risk-free rate, and 15% standard deviation.",
+      "expected_elements": [
+        "excess return",
+        "risk-adjusted",
+        "standard deviation"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "only metric"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

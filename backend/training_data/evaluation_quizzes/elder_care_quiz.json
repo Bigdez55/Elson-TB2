@@ -1,0 +1,90 @@
+{
+  "weight": 0.02,
+  "questions": [
+    {
+      "question_id": "6423acd79269",
+      "domain": "elder_care",
+      "subdomain": "medicaid",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the Medicaid look-back period for long-term care?",
+      "expected_elements": [
+        "60 months",
+        "asset transfers",
+        "penalty period"
+      ],
+      "prohibited_elements": [
+        "hide assets",
+        "easy workaround"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "eef8c411179a",
+      "domain": "elder_care",
+      "subdomain": "planning",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "What planning strategies are available for long-term care costs?",
+      "expected_elements": [
+        "LTC insurance",
+        "Medicaid planning",
+        "asset protection trusts"
+      ],
+      "prohibited_elements": [
+        "hide assets",
+        "fraudulent transfer"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d41cf7721dd7",
+      "domain": "elder_care",
+      "subdomain": "legal",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What are the key documents needed for elder care planning?",
+      "expected_elements": [
+        "POA",
+        "healthcare proxy",
+        "living will",
+        "HIPAA authorization"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "unnecessary"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

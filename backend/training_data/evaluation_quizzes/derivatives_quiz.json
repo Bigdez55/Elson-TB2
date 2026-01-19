@@ -1,0 +1,295 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "f9afb4c56d4a",
+      "domain": "derivatives",
+      "subdomain": "options_basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the difference between a call option and a put option?",
+      "expected_elements": [
+        "right to buy",
+        "right to sell",
+        "strike price",
+        "expiration"
+      ],
+      "prohibited_elements": [
+        "guaranteed profit",
+        "free money"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f1d41a77560f",
+      "domain": "derivatives",
+      "subdomain": "futures_basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a futures contract and how does it differ from an option?",
+      "expected_elements": [
+        "obligation",
+        "standardized",
+        "exchange-traded",
+        "margin"
+      ],
+      "prohibited_elements": [
+        "risk-free",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fe1f00a99e2c",
+      "domain": "derivatives",
+      "subdomain": "covered_calls",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "Explain the covered call strategy and its risk/reward profile.",
+      "expected_elements": [
+        "own underlying",
+        "sell call",
+        "premium income",
+        "capped upside"
+      ],
+      "prohibited_elements": [
+        "risk-free income",
+        "guaranteed profit"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8552e78f2ace",
+      "domain": "derivatives",
+      "subdomain": "protective_puts",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a protective put and when might an investor use one?",
+      "expected_elements": [
+        "downside protection",
+        "insurance",
+        "premium cost",
+        "limited loss"
+      ],
+      "prohibited_elements": [
+        "free protection",
+        "no cost"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "feb140cf84b7",
+      "domain": "derivatives",
+      "subdomain": "options_greeks",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "Explain delta and theta in options trading.",
+      "expected_elements": [
+        "price sensitivity",
+        "time decay",
+        "rate of change",
+        "position management"
+      ],
+      "prohibited_elements": [
+        "guarantee",
+        "predict exactly"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "aa910f7d997f",
+      "domain": "derivatives",
+      "subdomain": "spreads",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "Compare a bull call spread to buying a single call option for a $100 stock.",
+      "expected_elements": [
+        "lower cost",
+        "capped profit",
+        "breakeven",
+        "max loss"
+      ],
+      "prohibited_elements": [
+        "guaranteed profit",
+        "no risk"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "aa50d694f645",
+      "domain": "derivatives",
+      "subdomain": "iron_condor",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain the iron condor strategy and ideal market conditions for it.",
+      "expected_elements": [
+        "range-bound",
+        "premium collection",
+        "defined risk",
+        "four options"
+      ],
+      "prohibited_elements": [
+        "always profitable",
+        "free money"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "54f032137dd0",
+      "domain": "derivatives",
+      "subdomain": "volatility",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "How does implied volatility affect options pricing and strategy selection?",
+      "expected_elements": [
+        "premium levels",
+        "IV rank",
+        "vega",
+        "mean reversion"
+      ],
+      "prohibited_elements": [
+        "predict volatility",
+        "guaranteed"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d91ce4d9e5b8",
+      "domain": "derivatives",
+      "subdomain": "gamma_risk",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Analyze gamma risk for a market maker with a large short options portfolio near expiration.",
+      "expected_elements": [
+        "gamma exposure",
+        "hedging frequency",
+        "pin risk",
+        "transaction costs"
+      ],
+      "prohibited_elements": [
+        "eliminate risk",
+        "perfect hedge"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c95d15215e78",
+      "domain": "derivatives",
+      "subdomain": "exotic_options",
+      "difficulty": "extremely_complex",
+      "question_type": "explanation",
+      "question": "Compare barrier options (knock-in/knock-out) to vanilla options for hedging purposes.",
+      "expected_elements": [
+        "path-dependent",
+        "barrier level",
+        "cheaper premium",
+        "gap risk"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "straightforward"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

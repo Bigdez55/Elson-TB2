@@ -1,0 +1,206 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "80f5b4f2ef9c",
+      "domain": "tool_use",
+      "subdomain": "market_data",
+      "difficulty": "easy",
+      "question_type": "tool_required",
+      "question": "What is the current price of Apple (AAPL) stock?",
+      "expected_elements": [
+        "current price",
+        "as of",
+        "data source"
+      ],
+      "prohibited_elements": [
+        "historical",
+        "prediction"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1c776eea9592",
+      "domain": "tool_use",
+      "subdomain": "index_data",
+      "difficulty": "easy",
+      "question_type": "tool_required",
+      "question": "What is the S&P 500 index at today?",
+      "expected_elements": [
+        "index value",
+        "change",
+        "timestamp"
+      ],
+      "prohibited_elements": [
+        "prediction",
+        "guarantee"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d470e1259048",
+      "domain": "tool_use",
+      "subdomain": "financial_ratios",
+      "difficulty": "medium",
+      "question_type": "tool_required",
+      "question": "Calculate the P/E ratio for Microsoft (MSFT) using current data.",
+      "expected_elements": [
+        "price",
+        "earnings per share",
+        "ratio calculation",
+        "interpretation"
+      ],
+      "prohibited_elements": [
+        "guess",
+        "approximate"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c2938fab7e8e",
+      "domain": "tool_use",
+      "subdomain": "screening",
+      "difficulty": "medium",
+      "question_type": "tool_required",
+      "question": "Find dividend stocks with yield above 4% and market cap over $10B.",
+      "expected_elements": [
+        "screening criteria",
+        "results",
+        "data source",
+        "disclaimer"
+      ],
+      "prohibited_elements": [
+        "recommendation",
+        "buy"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "23adca3f11ff",
+      "domain": "tool_use",
+      "subdomain": "portfolio_analysis",
+      "difficulty": "hard",
+      "question_type": "tool_required",
+      "question": "Analyze the sector allocation and risk metrics for a portfolio of AAPL, MSFT, GOOGL, AMZN.",
+      "expected_elements": [
+        "sector breakdown",
+        "correlation",
+        "volatility",
+        "concentration risk"
+      ],
+      "prohibited_elements": [
+        "optimal",
+        "best portfolio"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f5faef0e4063",
+      "domain": "tool_use",
+      "subdomain": "technical_analysis",
+      "difficulty": "hard",
+      "question_type": "tool_required",
+      "question": "Calculate the 50-day and 200-day moving averages for Tesla (TSLA) and identify the current trend.",
+      "expected_elements": [
+        "moving average values",
+        "crossover status",
+        "trend direction",
+        "disclaimer"
+      ],
+      "prohibited_elements": [
+        "prediction",
+        "buy/sell signal"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "535bccdc55be",
+      "domain": "tool_use",
+      "subdomain": "monte_carlo",
+      "difficulty": "extremely_complex",
+      "question_type": "tool_required",
+      "question": "Run a Monte Carlo simulation for a 60/40 portfolio with $1M over 30 years retirement horizon.",
+      "expected_elements": [
+        "probability distribution",
+        "success rate",
+        "assumptions",
+        "limitations"
+      ],
+      "prohibited_elements": [
+        "guaranteed outcome",
+        "certain"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

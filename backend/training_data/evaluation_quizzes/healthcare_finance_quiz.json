@@ -1,0 +1,177 @@
+{
+  "weight": 0.04,
+  "questions": [
+    {
+      "question_id": "82c230d96a1b",
+      "domain": "healthcare_finance",
+      "subdomain": "hsa",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is an HSA and what are the eligibility requirements?",
+      "expected_elements": [
+        "Health Savings Account",
+        "HDHP",
+        "triple tax advantage"
+      ],
+      "prohibited_elements": [
+        "anyone can have",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c7d7e5bc46c6",
+      "domain": "healthcare_finance",
+      "subdomain": "hsa",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How can an HSA be used as a retirement savings vehicle?",
+      "expected_elements": [
+        "invest",
+        "carry over",
+        "65 withdrawal",
+        "tax-free medical"
+      ],
+      "prohibited_elements": [
+        "best retirement account",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "177370b64448",
+      "domain": "healthcare_finance",
+      "subdomain": "fsa",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between an HSA and an FSA?",
+      "expected_elements": [
+        "portability",
+        "rollover",
+        "eligibility",
+        "contribution source"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "identical"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e81980e159a9",
+      "domain": "healthcare_finance",
+      "subdomain": "medicare",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What are the different parts of Medicare (A, B, C, D)?",
+      "expected_elements": [
+        "hospital",
+        "medical",
+        "Medicare Advantage",
+        "prescription"
+      ],
+      "prohibited_elements": [
+        "free",
+        "no cost"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "238f1d728858",
+      "domain": "healthcare_finance",
+      "subdomain": "medicare",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "How are IRMAA surcharges calculated for Medicare Parts B and D?",
+      "expected_elements": [
+        "MAGI",
+        "income thresholds",
+        "surcharge amounts"
+      ],
+      "prohibited_elements": [
+        "avoid",
+        "workaround"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3703b37cc441",
+      "domain": "healthcare_finance",
+      "subdomain": "planning",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Plan healthcare coverage for early retirement between ages 55-65.",
+      "expected_elements": [
+        "COBRA",
+        "ACA marketplace",
+        "HSA",
+        "cost projection"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "cheap"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

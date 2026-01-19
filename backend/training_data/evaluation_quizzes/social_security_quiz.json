@@ -1,0 +1,231 @@
+{
+  "weight": 0.05,
+  "questions": [
+    {
+      "question_id": "2309be2f299c",
+      "domain": "social_security",
+      "subdomain": "eligibility",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "How many work credits are needed to qualify for Social Security retirement benefits?",
+      "expected_elements": [
+        "40 credits",
+        "10 years",
+        "work credits"
+      ],
+      "prohibited_elements": [
+        "exact benefit",
+        "guaranteed amount"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "9810b5194148",
+      "domain": "social_security",
+      "subdomain": "claiming",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the earliest age to claim Social Security retirement benefits?",
+      "expected_elements": [
+        "62",
+        "reduced benefits",
+        "permanent reduction"
+      ],
+      "prohibited_elements": [
+        "best age",
+        "always claim"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "db4802abcade",
+      "domain": "social_security",
+      "subdomain": "calculation",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How is the Social Security retirement benefit calculated?",
+      "expected_elements": [
+        "AIME",
+        "PIA",
+        "35 years",
+        "bend points"
+      ],
+      "prohibited_elements": [
+        "exact amount",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d16870d3996b",
+      "domain": "social_security",
+      "subdomain": "strategy",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare claiming Social Security at 62 versus 67 versus 70.",
+      "expected_elements": [
+        "reduction",
+        "delay credits",
+        "breakeven",
+        "longevity"
+      ],
+      "prohibited_elements": [
+        "always best",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ce35f7135212",
+      "domain": "social_security",
+      "subdomain": "spousal",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How do spousal Social Security benefits work?",
+      "expected_elements": [
+        "50% of spouse",
+        "own record",
+        "coordination"
+      ],
+      "prohibited_elements": [
+        "automatic",
+        "always 50%"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "224746e5a9ce",
+      "domain": "social_security",
+      "subdomain": "taxation",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "How is Social Security taxed at different income levels?",
+      "expected_elements": [
+        "provisional income",
+        "50%/85%",
+        "thresholds"
+      ],
+      "prohibited_elements": [
+        "never taxed",
+        "always taxed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5fd397a8fa4e",
+      "domain": "social_security",
+      "subdomain": "strategy",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Design a Social Security claiming strategy for a married couple ages 62 and 65.",
+      "expected_elements": [
+        "survivor benefits",
+        "coordination",
+        "income needs"
+      ],
+      "prohibited_elements": [
+        "simple answer",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "796f0d12ea0e",
+      "domain": "social_security",
+      "subdomain": "advanced",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Calculate the breakeven age for delaying Social Security from 62 to 70.",
+      "expected_elements": [
+        "cumulative benefits",
+        "inflation",
+        "investment return"
+      ],
+      "prohibited_elements": [
+        "guaranteed optimal",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

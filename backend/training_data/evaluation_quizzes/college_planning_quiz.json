@@ -1,0 +1,147 @@
+{
+  "weight": 0.04,
+  "questions": [
+    {
+      "question_id": "1b58de52cad9",
+      "domain": "college_planning",
+      "subdomain": "529_plans",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a 529 plan and what are its tax benefits?",
+      "expected_elements": [
+        "tax-free growth",
+        "qualified expenses",
+        "state deduction"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "always best"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "bda4e0577424",
+      "domain": "college_planning",
+      "subdomain": "529_plans",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What happens to unused 529 funds?",
+      "expected_elements": [
+        "beneficiary change",
+        "penalty",
+        "Roth rollover"
+      ],
+      "prohibited_elements": [
+        "lost",
+        "no options"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5b51af9a65bc",
+      "domain": "college_planning",
+      "subdomain": "financial_aid",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does FAFSA calculate Expected Family Contribution?",
+      "expected_elements": [
+        "income",
+        "assets",
+        "family size",
+        "parent vs student"
+      ],
+      "prohibited_elements": [
+        "guaranteed aid",
+        "simple formula"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5e9714754cae",
+      "domain": "college_planning",
+      "subdomain": "strategies",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Design a college savings strategy for a high-income family with 10 years until college.",
+      "expected_elements": [
+        "529",
+        "financial aid impact",
+        "asset location"
+      ],
+      "prohibited_elements": [
+        "simple answer",
+        "one strategy"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "7e3e2882e82d",
+      "domain": "college_planning",
+      "subdomain": "advanced",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare 529 plans to UTMA/UGMA accounts for college savings.",
+      "expected_elements": [
+        "control",
+        "tax treatment",
+        "financial aid",
+        "flexibility"
+      ],
+      "prohibited_elements": [
+        "always 529",
+        "always UTMA"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

@@ -1,0 +1,260 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "2cefad591e31",
+      "domain": "budgeting",
+      "subdomain": "basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is zero-based budgeting?",
+      "expected_elements": [
+        "every dollar assigned",
+        "income minus expenses equals zero",
+        "intentional"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "only way"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e9325ef782d2",
+      "domain": "budgeting",
+      "subdomain": "basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the envelope budgeting method?",
+      "expected_elements": [
+        "cash",
+        "categories",
+        "physical or digital envelopes"
+      ],
+      "prohibited_elements": [
+        "best method",
+        "only method"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3e87b61c86ac",
+      "domain": "budgeting",
+      "subdomain": "basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are fixed expenses versus variable expenses?",
+      "expected_elements": [
+        "consistent amount",
+        "fluctuate",
+        "examples"
+      ],
+      "prohibited_elements": [
+        "always",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5dd5137e4b75",
+      "domain": "budgeting",
+      "subdomain": "tracking",
+      "difficulty": "easy",
+      "question_type": "explanation",
+      "question": "Why is tracking expenses important for budgeting?",
+      "expected_elements": [
+        "awareness",
+        "patterns",
+        "adjustments",
+        "accountability"
+      ],
+      "prohibited_elements": [
+        "guaranteed success",
+        "only way"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e118a1c61e5d",
+      "domain": "budgeting",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare the pay yourself first strategy to traditional budgeting.",
+      "expected_elements": [
+        "savings priority",
+        "automation",
+        "behavior change"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f7f707e4ce19",
+      "domain": "budgeting",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "scenario",
+      "question": "How should someone budget with irregular income?",
+      "expected_elements": [
+        "baseline expenses",
+        "buffer",
+        "prioritize",
+        "variable income"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "easy"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f3ff7928316b",
+      "domain": "budgeting",
+      "subdomain": "psychology",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does lifestyle creep affect financial goals?",
+      "expected_elements": [
+        "income increase",
+        "spending increase",
+        "savings rate"
+      ],
+      "prohibited_elements": [
+        "always avoid",
+        "never spend more"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "69d54b14429c",
+      "domain": "budgeting",
+      "subdomain": "advanced",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "Calculate the opportunity cost of a $500/month car payment over 30 years at 7% return.",
+      "expected_elements": [
+        "future value",
+        "compound interest",
+        "opportunity cost"
+      ],
+      "prohibited_elements": [
+        "exact prediction",
+        "guaranteed return"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "6e4ac95527d6",
+      "domain": "budgeting",
+      "subdomain": "advanced",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Design a budget for a household with $150,000 income, $3,000 mortgage, and two children.",
+      "expected_elements": [
+        "tax considerations",
+        "childcare",
+        "savings",
+        "emergency fund"
+      ],
+      "prohibited_elements": [
+        "one size fits all",
+        "exact percentages required"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

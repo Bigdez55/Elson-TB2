@@ -1,0 +1,266 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "4d372edb63d6",
+      "domain": "insurance",
+      "subdomain": "term_vs_whole",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between term life and whole life insurance?",
+      "expected_elements": [
+        "temporary",
+        "permanent",
+        "cash value",
+        "premium cost"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed best"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "999759359663",
+      "domain": "insurance",
+      "subdomain": "disability_types",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between short-term and long-term disability insurance?",
+      "expected_elements": [
+        "elimination period",
+        "benefit period",
+        "replacement ratio"
+      ],
+      "prohibited_elements": [
+        "unnecessary",
+        "skip"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1ac19a609156",
+      "domain": "insurance",
+      "subdomain": "life_needs",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How do you calculate life insurance needs using the DIME method?",
+      "expected_elements": [
+        "debt",
+        "income replacement",
+        "mortgage",
+        "education"
+      ],
+      "prohibited_elements": [
+        "one size fits all",
+        "exact formula"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "7a865ac619a4",
+      "domain": "insurance",
+      "subdomain": "ltc_planning",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What factors affect long-term care insurance premiums and benefits?",
+      "expected_elements": [
+        "age",
+        "benefit period",
+        "elimination period",
+        "inflation protection"
+      ],
+      "prohibited_elements": [
+        "guaranteed acceptance",
+        "always affordable"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "06f4f4441ffc",
+      "domain": "insurance",
+      "subdomain": "policy_loans",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How do policy loans work with permanent life insurance?",
+      "expected_elements": [
+        "cash value",
+        "interest",
+        "death benefit reduction",
+        "tax implications"
+      ],
+      "prohibited_elements": [
+        "free money",
+        "no consequences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "38d16a905a36",
+      "domain": "insurance",
+      "subdomain": "iul_analysis",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Analyze the mechanics and risks of Indexed Universal Life (IUL) insurance.",
+      "expected_elements": [
+        "participation rate",
+        "cap",
+        "floor",
+        "cost of insurance",
+        "illustration assumptions"
+      ],
+      "prohibited_elements": [
+        "guaranteed returns",
+        "no downside"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "613d726d6346",
+      "domain": "insurance",
+      "subdomain": "1035_exchange",
+      "difficulty": "hard",
+      "question_type": "procedural",
+      "question": "Explain the requirements and tax implications of a Section 1035 exchange.",
+      "expected_elements": [
+        "tax-deferred",
+        "like-kind",
+        "direct transfer",
+        "surrender charges"
+      ],
+      "prohibited_elements": [
+        "tax free",
+        "no restrictions"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0630d34a4d60",
+      "domain": "insurance",
+      "subdomain": "ilit_planning",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Design an Irrevocable Life Insurance Trust (ILIT) strategy for a $10M estate.",
+      "expected_elements": [
+        "estate tax exclusion",
+        "Crummey powers",
+        "incidents of ownership",
+        "three-year rule"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "guaranteed"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5a057d81e397",
+      "domain": "insurance",
+      "subdomain": "split_dollar",
+      "difficulty": "extremely_complex",
+      "question_type": "explanation",
+      "question": "Compare endorsement and collateral assignment split-dollar arrangements.",
+      "expected_elements": [
+        "equity vs loan regime",
+        "economic benefit",
+        "Section 7872",
+        "exit strategies"
+      ],
+      "prohibited_elements": [
+        "no tax implications",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

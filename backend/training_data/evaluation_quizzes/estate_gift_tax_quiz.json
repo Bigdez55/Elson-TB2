@@ -1,0 +1,236 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "0a0ab12e94b4",
+      "domain": "estate_gift_tax",
+      "subdomain": "gift_annual",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the annual gift tax exclusion?",
+      "expected_elements": [
+        "per donee",
+        "per year",
+        "no tax",
+        "reporting threshold"
+      ],
+      "prohibited_elements": [
+        "exact amount guaranteed",
+        "never changes"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "2f4d4947870a",
+      "domain": "estate_gift_tax",
+      "subdomain": "estate_exemption",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the federal estate tax exemption?",
+      "expected_elements": [
+        "lifetime exemption",
+        "unified credit",
+        "portability"
+      ],
+      "prohibited_elements": [
+        "permanent",
+        "guaranteed forever"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "46151ada7345",
+      "domain": "estate_gift_tax",
+      "subdomain": "portability",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "Explain estate tax portability and the DSUE election.",
+      "expected_elements": [
+        "deceased spouse unused exemption",
+        "timely election",
+        "Form 706",
+        "surviving spouse"
+      ],
+      "prohibited_elements": [
+        "automatic",
+        "no action required"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "998023e4ef99",
+      "domain": "estate_gift_tax",
+      "subdomain": "step_up",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How does the step-up in basis work for inherited assets?",
+      "expected_elements": [
+        "fair market value",
+        "date of death",
+        "capital gains",
+        "holding period"
+      ],
+      "prohibited_elements": [
+        "avoid all tax",
+        "loophole"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1384fcc61520",
+      "domain": "estate_gift_tax",
+      "subdomain": "gift_splitting",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is gift splitting and when is it beneficial?",
+      "expected_elements": [
+        "married couples",
+        "double exclusion",
+        "Form 709",
+        "consent"
+      ],
+      "prohibited_elements": [
+        "automatic",
+        "no filing"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "9f96c613e884",
+      "domain": "estate_gift_tax",
+      "subdomain": "grat",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain how a Grantor Retained Annuity Trust (GRAT) works for estate planning.",
+      "expected_elements": [
+        "annuity payments",
+        "Section 7520 rate",
+        "remainder interest",
+        "mortality risk"
+      ],
+      "prohibited_elements": [
+        "guaranteed success",
+        "no risk"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1fb75c1ec933",
+      "domain": "estate_gift_tax",
+      "subdomain": "idit",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is an Intentionally Defective Irrevocable Trust (IDIT) and its tax benefits?",
+      "expected_elements": [
+        "income tax",
+        "estate tax",
+        "sale to trust",
+        "grantor trust"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "no complexity"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f872e7d26dc9",
+      "domain": "estate_gift_tax",
+      "subdomain": "gst_planning",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Design a multi-generational wealth transfer strategy using dynasty trusts and GST exemption.",
+      "expected_elements": [
+        "generation-skipping tax",
+        "trust situs",
+        "rule against perpetuities",
+        "GST exemption allocation"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "simple"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

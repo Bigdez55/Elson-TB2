@@ -1,0 +1,237 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "c494e9280824",
+      "domain": "aml_kyc",
+      "subdomain": "kyc_basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is KYC and why do financial institutions require it?",
+      "expected_elements": [
+        "Know Your Customer",
+        "identity verification",
+        "regulation",
+        "risk management"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "avoid"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "37069f8538ad",
+      "domain": "aml_kyc",
+      "subdomain": "aml_purpose",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the purpose of Anti-Money Laundering (AML) regulations?",
+      "expected_elements": [
+        "prevent",
+        "detect",
+        "report",
+        "illicit funds"
+      ],
+      "prohibited_elements": [
+        "workaround",
+        "avoid"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0dee69622a8d",
+      "domain": "aml_kyc",
+      "subdomain": "sar_filing",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "When must a Suspicious Activity Report (SAR) be filed?",
+      "expected_elements": [
+        "$5,000 threshold",
+        "30 days",
+        "no tip-off",
+        "FinCEN"
+      ],
+      "prohibited_elements": [
+        "avoid filing",
+        "tip off customer"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "6f9f66490706",
+      "domain": "aml_kyc",
+      "subdomain": "ctr",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What triggers a Currency Transaction Report (CTR)?",
+      "expected_elements": [
+        "$10,000",
+        "cash",
+        "single business day",
+        "aggregation"
+      ],
+      "prohibited_elements": [
+        "avoid",
+        "structure"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "82f6a95d10f3",
+      "domain": "aml_kyc",
+      "subdomain": "cdd",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is Customer Due Diligence (CDD) and Enhanced Due Diligence (EDD)?",
+      "expected_elements": [
+        "risk assessment",
+        "beneficial ownership",
+        "ongoing monitoring",
+        "high-risk customers"
+      ],
+      "prohibited_elements": [
+        "skip",
+        "ignore"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "da9efe6291cc",
+      "domain": "aml_kyc",
+      "subdomain": "red_flags",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Identify AML red flags in this scenario: A customer makes multiple deposits just under $10,000 over several days.",
+      "expected_elements": [
+        "structuring",
+        "smurfing",
+        "SAR",
+        "pattern analysis"
+      ],
+      "prohibited_elements": [
+        "legitimate reason",
+        "ignore"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5ff94c905bc0",
+      "domain": "aml_kyc",
+      "subdomain": "pep",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What additional due diligence is required for Politically Exposed Persons (PEPs)?",
+      "expected_elements": [
+        "enhanced due diligence",
+        "source of wealth",
+        "ongoing monitoring",
+        "senior approval"
+      ],
+      "prohibited_elements": [
+        "treat same",
+        "no difference"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "bf1082460d88",
+      "domain": "aml_kyc",
+      "subdomain": "trade_based",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Analyze potential trade-based money laundering indicators in import/export transactions.",
+      "expected_elements": [
+        "over/under invoicing",
+        "phantom shipments",
+        "multiple invoicing",
+        "misrepresentation"
+      ],
+      "prohibited_elements": [
+        "easy to detect",
+        "simple"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

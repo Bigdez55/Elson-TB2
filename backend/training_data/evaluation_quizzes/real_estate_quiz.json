@@ -1,0 +1,267 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "e84aad4dd41d",
+      "domain": "real_estate",
+      "subdomain": "buying",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a down payment and how much is typically required?",
+      "expected_elements": [
+        "upfront payment",
+        "20% conventional",
+        "PMI",
+        "varies by loan type"
+      ],
+      "prohibited_elements": [
+        "always 20%",
+        "exact requirement"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "71aea55e785f",
+      "domain": "real_estate",
+      "subdomain": "buying",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What costs are included in closing costs?",
+      "expected_elements": [
+        "origination fees",
+        "title insurance",
+        "appraisal",
+        "escrow"
+      ],
+      "prohibited_elements": [
+        "exact amount",
+        "always same"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1077fc5a4e56",
+      "domain": "real_estate",
+      "subdomain": "mortgages",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between fixed-rate and adjustable-rate mortgages?",
+      "expected_elements": [
+        "rate changes",
+        "initial rate",
+        "risk",
+        "payment stability"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "35b9f2ce89aa",
+      "domain": "real_estate",
+      "subdomain": "mortgages",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How is the debt-to-income ratio calculated for mortgage qualification?",
+      "expected_elements": [
+        "monthly debt",
+        "gross income",
+        "front-end",
+        "back-end"
+      ],
+      "prohibited_elements": [
+        "exact threshold",
+        "guaranteed approval"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "b71fca94bcfb",
+      "domain": "real_estate",
+      "subdomain": "investing",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a 1031 exchange and how does it work?",
+      "expected_elements": [
+        "tax-deferred",
+        "like-kind",
+        "timelines",
+        "qualified intermediary"
+      ],
+      "prohibited_elements": [
+        "tax free",
+        "no requirements"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1109efc8f2e0",
+      "domain": "real_estate",
+      "subdomain": "investing",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How do you calculate cap rate for an investment property?",
+      "expected_elements": [
+        "NOI",
+        "purchase price",
+        "percentage",
+        "comparison tool"
+      ],
+      "prohibited_elements": [
+        "only metric",
+        "guaranteed return"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "7082837db581",
+      "domain": "real_estate",
+      "subdomain": "investing",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Compare the returns of a rental property to a REIT investment with $100,000.",
+      "expected_elements": [
+        "cash flow",
+        "appreciation",
+        "liquidity",
+        "management",
+        "leverage"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c61d46572a9d",
+      "domain": "real_estate",
+      "subdomain": "tax",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain depreciation for rental property and depreciation recapture.",
+      "expected_elements": [
+        "27.5 years",
+        "taxable income reduction",
+        "recapture on sale",
+        "25% rate"
+      ],
+      "prohibited_elements": [
+        "free deduction",
+        "no consequences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1913ccc5bfe1",
+      "domain": "real_estate",
+      "subdomain": "advanced",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Analyze a Delaware Statutory Trust (DST) for a 1031 exchange with $500,000.",
+      "expected_elements": [
+        "passive investment",
+        "identified property",
+        "risks",
+        "fees"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "weight": 0.05,
+  "questions": [
+    {
+      "question_id": "6c016fce090d",
+      "domain": "business_finance",
+      "subdomain": "entity_types",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between an LLC and an S-Corp?",
+      "expected_elements": [
+        "liability protection",
+        "taxation",
+        "self-employment tax"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "simple choice"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d80aed5ebc1d",
+      "domain": "business_finance",
+      "subdomain": "entity_types",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a sole proprietorship and what are its tax implications?",
+      "expected_elements": [
+        "not separate entity",
+        "Schedule C",
+        "self-employment tax"
+      ],
+      "prohibited_elements": [
+        "no liability",
+        "always avoid"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5d59021e3a23",
+      "domain": "business_finance",
+      "subdomain": "taxation",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does S-Corp election affect self-employment tax?",
+      "expected_elements": [
+        "reasonable salary",
+        "distributions",
+        "payroll tax savings"
+      ],
+      "prohibited_elements": [
+        "avoid all tax",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fb2d01deee72",
+      "domain": "business_finance",
+      "subdomain": "retirement",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare SEP-IRA, SIMPLE IRA, and Solo 401(k) for self-employed individuals.",
+      "expected_elements": [
+        "contribution limits",
+        "employees",
+        "complexity"
+      ],
+      "prohibited_elements": [
+        "always best",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5d21f5db07e2",
+      "domain": "business_finance",
+      "subdomain": "deductions",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What home office deduction methods are available for self-employed individuals?",
+      "expected_elements": [
+        "simplified method",
+        "regular method",
+        "exclusive use"
+      ],
+      "prohibited_elements": [
+        "automatic",
+        "no restrictions"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0861f4d9ebd1",
+      "domain": "business_finance",
+      "subdomain": "strategy",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "When should a business owner consider converting from LLC to S-Corp?",
+      "expected_elements": [
+        "profit threshold",
+        "reasonable salary",
+        "complexity cost"
+      ],
+      "prohibited_elements": [
+        "always convert",
+        "guaranteed savings"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "daff1c403841",
+      "domain": "business_finance",
+      "subdomain": "exit",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What are the tax implications of selling a business structured as a C-Corp?",
+      "expected_elements": [
+        "double taxation",
+        "asset vs stock sale",
+        "QSBS"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "no tax"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f4609e2e2fc0",
+      "domain": "business_finance",
+      "subdomain": "advanced",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Analyze the tax efficiency of a Cash Balance Plan combined with 401(k) for a high-income professional.",
+      "expected_elements": [
+        "defined benefit",
+        "contribution limits",
+        "actuarial"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

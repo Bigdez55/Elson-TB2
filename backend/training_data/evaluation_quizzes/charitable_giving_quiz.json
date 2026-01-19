@@ -1,0 +1,147 @@
+{
+  "weight": 0.03,
+  "questions": [
+    {
+      "question_id": "00d23958bf1f",
+      "domain": "charitable_giving",
+      "subdomain": "basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What documentation is required for charitable deductions?",
+      "expected_elements": [
+        "written acknowledgment",
+        "$250 threshold",
+        "contemporaneous"
+      ],
+      "prohibited_elements": [
+        "no documentation",
+        "any amount"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "84a82c7d673f",
+      "domain": "charitable_giving",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does donating appreciated stock benefit donors?",
+      "expected_elements": [
+        "avoid capital gains",
+        "FMV deduction",
+        "holding period"
+      ],
+      "prohibited_elements": [
+        "always best",
+        "no limitations"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "79c53610262f",
+      "domain": "charitable_giving",
+      "subdomain": "daf",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a Donor Advised Fund and how does it work?",
+      "expected_elements": [
+        "immediate deduction",
+        "recommend grants",
+        "investment growth"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "no fees"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "9d4d437e8b80",
+      "domain": "charitable_giving",
+      "subdomain": "advanced",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare a Charitable Remainder Trust to a Charitable Lead Trust.",
+      "expected_elements": [
+        "income stream",
+        "remainder",
+        "estate tax",
+        "income tax"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "always better"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "6c3fc1ee4e98",
+      "domain": "charitable_giving",
+      "subdomain": "qcd",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "How do Qualified Charitable Distributions (QCDs) work and when are they beneficial?",
+      "expected_elements": [
+        "age 70.5",
+        "direct transfer",
+        "RMD",
+        "AGI"
+      ],
+      "prohibited_elements": [
+        "anyone can use",
+        "automatic"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

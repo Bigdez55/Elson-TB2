@@ -1,0 +1,117 @@
+{
+  "weight": 0.03,
+  "questions": [
+    {
+      "question_id": "2734275939e0",
+      "domain": "behavioral_finance",
+      "subdomain": "biases",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is confirmation bias in investing?",
+      "expected_elements": [
+        "seeking confirming information",
+        "ignoring contrary evidence"
+      ],
+      "prohibited_elements": [
+        "easy to avoid",
+        "doesn't affect professionals"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d313e01867da",
+      "domain": "behavioral_finance",
+      "subdomain": "biases",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does anchoring bias affect investment decisions?",
+      "expected_elements": [
+        "reference point",
+        "purchase price",
+        "slow to adjust"
+      ],
+      "prohibited_elements": [
+        "easy fix",
+        "doesn't exist"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c85c10eeadea",
+      "domain": "behavioral_finance",
+      "subdomain": "biases",
+      "difficulty": "medium",
+      "question_type": "scenario",
+      "question": "Identify the herd mentality bias in the 2021 meme stock phenomenon.",
+      "expected_elements": [
+        "following crowd",
+        "FOMO",
+        "social proof",
+        "risk"
+      ],
+      "prohibited_elements": [
+        "always wrong",
+        "always right"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "db652db2fd4c",
+      "domain": "behavioral_finance",
+      "subdomain": "strategies",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "How can systematic investment rules help overcome behavioral biases?",
+      "expected_elements": [
+        "automation",
+        "predetermined rules",
+        "emotion removal"
+      ],
+      "prohibited_elements": [
+        "eliminate all bias",
+        "guaranteed success"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

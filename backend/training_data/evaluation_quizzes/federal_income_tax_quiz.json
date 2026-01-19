@@ -1,0 +1,413 @@
+{
+  "weight": 0.1,
+  "questions": [
+    {
+      "question_id": "4ede6b3a007e",
+      "domain": "federal_income_tax",
+      "subdomain": "filing_status",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are the five federal income tax filing statuses?",
+      "expected_elements": [
+        "Single",
+        "Married Filing Jointly",
+        "Married Filing Separately",
+        "Head of Household",
+        "Qualifying Surviving Spouse"
+      ],
+      "prohibited_elements": [
+        "guaranteed refund",
+        "always best"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a98b016ed66c",
+      "domain": "federal_income_tax",
+      "subdomain": "standard_deduction",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the standard deduction and who can claim it?",
+      "expected_elements": [
+        "flat amount",
+        "reduces taxable income",
+        "alternative to itemizing"
+      ],
+      "prohibited_elements": [
+        "everyone should",
+        "always better"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8247204447fe",
+      "domain": "federal_income_tax",
+      "subdomain": "w4_basics",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the purpose of Form W-4?",
+      "expected_elements": [
+        "withholding",
+        "employer",
+        "allowances",
+        "tax"
+      ],
+      "prohibited_elements": [
+        "avoid taxes",
+        "skip"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ee0ce17f81bc",
+      "domain": "federal_income_tax",
+      "subdomain": "1099_income",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What types of income are reported on 1099 forms?",
+      "expected_elements": [
+        "interest",
+        "dividends",
+        "freelance",
+        "contract"
+      ],
+      "prohibited_elements": [
+        "hide",
+        "avoid reporting"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "08d537dfb42c",
+      "domain": "federal_income_tax",
+      "subdomain": "tax_brackets",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "Explain how marginal tax brackets work with an example of someone earning $100,000.",
+      "expected_elements": [
+        "progressive",
+        "marginal rate",
+        "brackets",
+        "effective rate"
+      ],
+      "prohibited_elements": [
+        "flat tax",
+        "one rate"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a6ed616b3229",
+      "domain": "federal_income_tax",
+      "subdomain": "capital_gains",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the difference between short-term and long-term capital gains tax treatment?",
+      "expected_elements": [
+        "one year",
+        "holding period",
+        "ordinary income",
+        "preferential rate"
+      ],
+      "prohibited_elements": [
+        "tax free",
+        "no tax"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8e30f1caee33",
+      "domain": "federal_income_tax",
+      "subdomain": "deductions",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "When should someone itemize deductions versus taking the standard deduction?",
+      "expected_elements": [
+        "compare totals",
+        "mortgage interest",
+        "SALT",
+        "charitable"
+      ],
+      "prohibited_elements": [
+        "always itemize",
+        "never itemize"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0279e6c0e07b",
+      "domain": "federal_income_tax",
+      "subdomain": "amt",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the Alternative Minimum Tax (AMT) and who might be affected?",
+      "expected_elements": [
+        "parallel tax system",
+        "preferences",
+        "exemption",
+        "high income"
+      ],
+      "prohibited_elements": [
+        "avoid",
+        "workaround"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "2da7ba4e080b",
+      "domain": "federal_income_tax",
+      "subdomain": "estimated_taxes",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "When are quarterly estimated tax payments required and how are they calculated?",
+      "expected_elements": [
+        "self-employed",
+        "quarterly",
+        "Form 1040-ES",
+        "safe harbor"
+      ],
+      "prohibited_elements": [
+        "skip payments",
+        "ignore"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8d48c7d24434",
+      "domain": "federal_income_tax",
+      "subdomain": "nii_tax",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "How does the Net Investment Income Tax (NIIT) work for a married couple with $300,000 AGI?",
+      "expected_elements": [
+        "3.8%",
+        "$250,000 threshold",
+        "investment income",
+        "MAGI"
+      ],
+      "prohibited_elements": [
+        "avoid",
+        "workaround"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c94e45e338c7",
+      "domain": "federal_income_tax",
+      "subdomain": "qbi_deduction",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "Explain the Qualified Business Income (QBI) deduction and its limitations.",
+      "expected_elements": [
+        "Section 199A",
+        "20%",
+        "income thresholds",
+        "SSTB",
+        "W-2 wage limit"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "everyone qualifies"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f7727faee2ed",
+      "domain": "federal_income_tax",
+      "subdomain": "wash_sales",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is the wash sale rule and how does it affect tax-loss harvesting?",
+      "expected_elements": [
+        "30 days",
+        "substantially identical",
+        "disallowed loss",
+        "cost basis adjustment"
+      ],
+      "prohibited_elements": [
+        "easy workaround",
+        "ignore rule"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c131fdc7c73a",
+      "domain": "federal_income_tax",
+      "subdomain": "passive_activity",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "A real estate professional wants to use rental losses to offset W-2 income. Explain the requirements and limitations.",
+      "expected_elements": [
+        "material participation",
+        "750 hours",
+        "grouping election",
+        "passive activity rules",
+        "at-risk rules"
+      ],
+      "prohibited_elements": [
+        "easy",
+        "automatic"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8a0c24b37469",
+      "domain": "federal_income_tax",
+      "subdomain": "installment_sales",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Explain installment sale treatment for a $2M property sale with $500,000 basis.",
+      "expected_elements": [
+        "gross profit ratio",
+        "interest on deferred tax",
+        "Section 453",
+        "recapture"
+      ],
+      "prohibited_elements": [
+        "avoid all tax",
+        "loophole"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}
