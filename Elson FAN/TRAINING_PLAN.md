@@ -1,7 +1,7 @@
 # Elson TB2 Training Plan
 
 **Last Updated:** 2026-01-18
-**Status:** Training In Progress on H100
+**Status:** Training Complete - Ready for Deployment
 
 ---
 
@@ -11,9 +11,24 @@
 |-----------|--------|---------|
 | Training Data | **950 Q&A pairs** | Consolidated from 4 sources |
 | URL Categorization | **89% complete** | 830+ URLs categorized across 18 domains |
-| DoRA Training | **In Progress** | H100 GPU, 43% complete |
-| LoRA | **Deprecated** | Do not use |
-| vLLM Deployment | Pending | Awaiting training completion |
+| DoRA Training | **Complete** | Final loss: 0.4063, 25 min runtime |
+| Model Upload | **Complete** | 4.2 GB uploaded to GCS |
+| H100 VM | **Stopped** | Cost savings |
+| vLLM Deployment | **Ready** | Next step |
+
+---
+
+## Training Results (2026-01-18)
+
+| Metric | Value |
+|--------|-------|
+| **Final Loss** | 0.4063 (down from 1.653) |
+| **Runtime** | 24 min 59 sec |
+| **Training Pairs** | 950 |
+| **Method** | QDoRA (4-bit base + DoRA) |
+| **Epochs** | 5 |
+| **Model Size** | 4.2 GB |
+| **GCS Location** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` |
 
 ---
 
@@ -115,7 +130,7 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 | Model | GCS Path | Status | Use Case |
 |-------|----------|--------|----------|
 | **Base Model (14B)** | `elson-finance-trading-14b-final/` | Ready | Foundation |
-| **DoRA** | `wealth-dora-elson14b-h100-v2/` | Training | Full quality |
+| **DoRA v2** | `wealth-dora-elson14b-h100-v2/` | **Ready** | Full quality (4.2 GB) |
 | **QDoRA** | `elson-finance-trading-wealth-14b-q4-v2/` | Pending | Efficient inference |
 
 ### Deprecated (Do Not Use)
@@ -235,8 +250,8 @@ python scripts/run_evaluation_benchmark.py --dry-run
 ```
 gs://elson-33a95-elson-models/
 ├── elson-finance-trading-14b-final/     # 27.52GB base model
-├── wealth-dora-elson14b-h100-v2/        # DoRA adapter (pending)
-├── elson-finance-trading-wealth-14b-q4-v2/  # QDoRA (pending)
+├── wealth-dora-elson14b-h100-v2/        # DoRA v2 adapter (4.2 GB) ✅ READY
+├── elson-finance-trading-wealth-14b-q4-v2/  # QDoRA v2 (pending)
 ├── wealth-dora-elson14b-h100/           # Previous DoRA v1
 └── elson-finance-trading-wealth-14b-q4/ # Previous QDoRA v1
 ```

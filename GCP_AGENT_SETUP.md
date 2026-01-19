@@ -1,7 +1,7 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
 **Last Updated:** 2026-01-18
-**Status:** 🟢 TRAINING IN PROGRESS - H100 DoRA Training Active
+**Status:** ✅ TRAINING COMPLETE - DoRA v2 Ready for Deployment
 
 ---
 
@@ -20,21 +20,22 @@ This prevents duplicate VMs and wasted resources.
 
 ---
 
-## 🟢 CURRENT TRAINING STATUS
+## ✅ TRAINING COMPLETE (2026-01-18)
 
 | Metric | Value |
 |--------|-------|
-| **VM** | `elson-h100-spot` |
-| **IP** | `136.113.9.49` |
-| **GPU Memory** | 62,609 MiB / 80GB (78%) |
-| **GPU Utilization** | 100% |
-| **Progress** | 30/70 steps (43%) |
-| **Speed** | ~21 sec/step |
-| **ETA** | ~21 min remaining |
+| **Final Loss** | 0.4063 (down from 1.653) |
+| **Runtime** | 24 min 59 sec |
+| **Training Pairs** | 950 |
+| **Method** | QDoRA (4-bit base + DoRA) |
+| **Epochs** | 5 |
+| **Model Size** | 4.2 GB |
+| **GCS Location** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` |
+| **H100 VM** | STOPPED (cost savings) |
 
-**Monitor Training:**
+**Next Step - Deploy to vLLM:**
 ```bash
-ssh -i ~/.ssh/google_compute_engine bigdez55@136.113.9.49 "nvidia-smi && tail -5 /workspace/training.log"
+./scripts/deploy-vllm-dora.sh l4 dora
 ```
 
 ---
@@ -520,26 +521,31 @@ Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
 | Model | GCS Path | Status | Use |
 |-------|----------|--------|-----|
 | Base Model (14B) | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready | Foundation |
-| **Wealth DoRA H100** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | ✅ **PRODUCTION** | Primary |
-| QDoRA (quantized) | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | ✅ Ready | Efficient inference |
-| ~~Wealth LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ⚠️ Deprecated | Archive only |
-| ~~Wealth LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ⚠️ Deprecated | Archive only |
+| **Wealth DoRA v2** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` | ✅ **PRODUCTION** | Primary (4.2 GB) |
+| Wealth DoRA v1 | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | Archive | Previous version |
+| QDoRA v1 (quantized) | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | Archive | Previous version |
+| ~~Wealth LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ⚠️ Deprecated | Do not use |
+| ~~Wealth LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ⚠️ Deprecated | Do not use |
 
 > **IMPORTANT:** LoRA models are deprecated. Always use **DoRA** or **QDoRA** for deployments.
 
-### Training Results (2026-01-17)
+### Training Results (2026-01-18) - DoRA v2
 
-**PRODUCTION: DoRA Training on H100 GPU**
+**PRODUCTION: DoRA v2 Training on H100 GPU**
 
-| VM | IP | GPU | Method | Loss | Status |
-|----|-----|-----|--------|------|--------|
-| elson-h100-spot | 34.134.247.175 | H100 (80GB) | Full DoRA | **0.14** | ✅ **PRODUCTION** |
+| VM | GPU | Method | Loss | Data | Status |
+|----|-----|--------|------|------|--------|
+| elson-h100-spot | H100 (80GB) | QDoRA (4-bit + DoRA) | **0.4063** | 950 pairs | ✅ **PRODUCTION** |
 
-- Method: Full DoRA (Weight Decomposed Low-Rank Adaptation)
+- Method: QDoRA (4-bit base + DoRA adapter)
 - GPU: NVIDIA H100 80GB HBM3 (Spot/Preemptible)
-- Data: 408 Q&A pairs (950 pairs now available for retraining)
-- Runtime: ~6 minutes
-- Output: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/`
+- Data: 950 Q&A pairs (up from 408)
+- Runtime: ~25 minutes
+- Output: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` (4.2 GB)
+
+**Previous DoRA v1 (Archive):**
+- Data: 408 pairs, Loss: 0.14, Runtime: 6 min
+- Location: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/`
 
 **DEPRECATED: LoRA Training on L4 GPUs (Archive Only)**
 
