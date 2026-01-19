@@ -22,6 +22,7 @@ from app.api.api_v1.endpoints import (
     wealth_advisory,
     tools_openbb,
     tools_financetoolkit,
+    tools_yfinance,
 )
 
 api_router = APIRouter()
@@ -87,7 +88,9 @@ api_router.include_router(
     wealth_advisory.router, prefix="/wealth", tags=["wealth-advisory"]
 )
 
-# Tool Integrations (OpenBB, FinanceToolkit)
+# Tool Integrations (yfinance, OpenBB, FinanceToolkit)
 # These endpoints enable tool-first architecture for grounded responses
+# yfinance is the primary free data source - may scale to premium providers later
+api_router.include_router(tools_yfinance.router, tags=["tools-yfinance"])
 api_router.include_router(tools_openbb.router, tags=["tools-openbb"])
 api_router.include_router(tools_financetoolkit.router, tags=["tools-financetoolkit"])
