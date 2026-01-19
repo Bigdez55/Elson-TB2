@@ -40,7 +40,54 @@ By Source:
   Building AGI_ASI Investment System: 101
 ```
 
-### 2. Deployment Infrastructure
+### 2. H100 Training Pipeline (PRIMARY)
+
+> **The H100 is our primary training infrastructure for both DoRA and QDoRA.**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                 H100 SESSION (~$2.50/hr)                │
+├─────────────────────────────────────────────────────────┤
+│  1. Train DoRA (950 pairs, r=128, α=256)                │
+│     └─→ wealth-dora-elson14b-h100-v2                    │
+│                                                         │
+│  2. Quantize to QDoRA (4-bit AWQ)                       │
+│     └─→ elson-finance-trading-wealth-14b-q4-v2          │
+│                                                         │
+│  3. Upload both to GCS                                  │
+│                                                         │
+│  Total time: ~15-20 min | Cost: ~$1-2                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+| Script | Purpose | GPU |
+|--------|---------|-----|
+| `scripts/train-and-quantize-h100.sh` | Complete DoRA + QDoRA pipeline | H100 80GB |
+
+**Training Command (run on H100):**
+```bash
+# SSH into H100
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
+
+# Run full pipeline
+cd ~/Elson-TB2 && git pull origin main
+./scripts/train-and-quantize-h100.sh
+
+# Stop VM when done
+gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+```
+
+**Training Hyperparameters (optimized for H100):**
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| DoRA Rank (r) | 128 | Increased from 64 |
+| Alpha | 256 | 2x rank |
+| Batch Size | 16 | H100 can handle larger |
+| Epochs | 5 | Better convergence |
+| Precision | bfloat16 | H100 native |
+
+### 3. Deployment Infrastructure
 
 > **IMPORTANT:** Only DoRA/QDoRA adapters are production-ready. LoRA is deprecated.
 
@@ -50,21 +97,18 @@ By Source:
 | `scripts/deploy-model.sh` | Original deployment script | l4, 2xt4, quantized |
 | `scripts/gcp_cleanup.sh` | Cloud Shell disk cleanup | --dry-run supported |
 
-**Deployment Commands (DoRA/QDoRA only):**
+**Deployment Commands (after H100 training):**
 ```bash
-# L4 with DoRA adapter - PRODUCTION (recommended)
-./scripts/deploy-vllm-dora.sh l4 dora
+# Deploy QDoRA on L4 (recommended for production)
+./scripts/deploy-vllm-dora.sh l4 qdora
 
-# Spot VM with QDoRA - PRODUCTION (cost-effective)
+# Or Spot VM for cost savings
 ./scripts/deploy-vllm-dora.sh spot qdora
-
-# 2x T4 with base model (fallback)
-./scripts/deploy-vllm-dora.sh 2xt4 none
 ```
 
 > **Note:** LoRA adapters (lora-v1, lora-v2) are deprecated and will show an error if used.
 
-### 3. Evaluation Framework
+### 4. Evaluation Framework
 
 | Script | Purpose | Output |
 |--------|---------|--------|

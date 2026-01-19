@@ -93,12 +93,66 @@ This document tracks everything needed to restore the GCP environment after ephe
 ### Quick Deploy Command
 
 ```bash
-# Deploy DoRA model on L4 GPU
-./scripts/deploy-vllm-dora.sh l4 dora
+# Deploy QDoRA model on L4 GPU (recommended)
+./scripts/deploy-vllm-dora.sh l4 qdora
 
 # Or for cost savings (Spot instance)
 ./scripts/deploy-vllm-dora.sh spot qdora
 ```
+
+---
+
+## H100 Training Pipeline (PRIMARY)
+
+> **The H100 handles both DoRA training AND QDoRA quantization in a single session.**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                 H100 SESSION (~$2.50/hr)                │
+├─────────────────────────────────────────────────────────┤
+│  1. Train DoRA (950 pairs, r=128, α=256)                │
+│     └─→ wealth-dora-elson14b-h100-v2                    │
+│                                                         │
+│  2. Quantize to QDoRA (4-bit AWQ)                       │
+│     └─→ elson-finance-trading-wealth-14b-q4-v2          │
+│                                                         │
+│  3. Upload both to GCS                                  │
+│                                                         │
+│  Total time: ~15-20 min | Cost: ~$1-2                   │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│              L4 DEPLOYMENT (~$0.70/hr)                  │
+│  Deploy QDoRA for production inference                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+### H100 Training Command
+
+```bash
+# 1. Start H100 VM
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
+
+# 2. Pull latest and run training pipeline
+cd ~/Elson-TB2 && git pull origin main
+./scripts/train-and-quantize-h100.sh
+
+# 3. Stop VM when done (IMPORTANT - saves money!)
+gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+```
+
+### Training Hyperparameters
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| DoRA Rank (r) | 128 | Increased from 64 |
+| Alpha | 256 | 2x rank |
+| Batch Size | 16 | H100 can handle larger |
+| Epochs | 5 | Better convergence |
+| Precision | bfloat16 | H100 native |
+| Training Data | 950 pairs | Consolidated dataset |
 
 ---
 
