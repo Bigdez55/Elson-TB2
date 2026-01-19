@@ -1,6 +1,6 @@
 # Agent Workflow Skill (Universal)
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Last Updated:** 2026-01-18
 **Purpose:** Mandatory protocol for AI agents to prevent chain-reaction errors
 
@@ -10,10 +10,38 @@
 
 ### Current Agents
 
-| Agent | Location | Environment | Primary Role |
+| Agent | Location | Environment | Sole Purpose |
 |-------|----------|-------------|--------------|
 | **GitHub Agent** | Local Mac | Claude Code CLI | Code, scripts, docs, git push |
-| **GCP Agent** | `my-vm` (e2-medium, 20GB) | Claude Code on GCP | Training, deployment, git pull |
+| **GCP Agent** | `my-vm` (e2-medium, 20GB) | Claude Code on GCP | **Train model & manage GCP** |
+
+---
+
+### GCP Agent - Sole Purpose
+
+> **The GCP Agent exists ONLY to train/enhance the model and manage GCP resources.**
+
+**GCP Agent DOES:**
+- Train and fine-tune Elson-Finance-Trading-14B model (DoRA/QDoRA)
+- Manage GPU VMs (start, stop, SSH, monitor)
+- Upload/download models to/from GCS
+- Request GPU quotas
+- Run inference tests and benchmarks
+- Monitor training jobs and costs
+- Pull latest code from GitHub (`git pull` only)
+
+**GCP Agent does NOT:**
+- Write or edit code
+- Create new scripts
+- Update documentation (except training status)
+- Push to GitHub
+- Work on frontend/backend development
+- Manage CI/CD pipelines
+
+**Model:** `Elson-Finance-Trading-14B` (27.52GB, 14B parameters)
+**Location:** `gs://elson-33a95-elson-models/`
+
+---
 
 ### GCP VM & GPU Inventory
 
@@ -64,19 +92,20 @@ gcloud compute ssh my-vm --zone=us-central1-a
 │                                                                          │
 │   GITHUB AGENT (Local)              GCP AGENT (Cloud)                    │
 │   ━━━━━━━━━━━━━━━━━━━━              ━━━━━━━━━━━━━━━━━                    │
-│   • Write/edit code                 • Pull latest code                   │
-│   • Create scripts                  • Run training jobs                  │
-│   • Update documentation            • Deploy models to GCS               │
-│   • Manage training data            • Deploy vLLM server                 │
-│   • Run local tests                 • Run inference tests                │
-│   • Git commit & push               • Request GPU quotas                 │
-│                                     • Manage VM lifecycle                │
-│          │                                    │                          │
-│          │         git push                   │                          │
-│          ▼                                    │                          │
-│   ┌──────────────┐                           │                          │
-│   │    GitHub    │◄──────────────────────────┘                          │
-│   │  Repository  │         git pull                                      │
+│   • Write/edit ALL code             │                                    │
+│   • Create ALL scripts              │  SOLE PURPOSE:                     │
+│   • Update ALL documentation        │  ┌─────────────────────────────┐  │
+│   • Manage training data files      │  │ 1. TRAIN THE MODEL          │  │
+│   • Run local tests                 │  │    - DoRA/QDoRA fine-tuning │  │
+│   • Git commit & push               │  │    - Run training jobs      │  │
+│   • Design architecture             │  │    - Evaluate model quality │  │
+│                                     │  │                             │  │
+│          │                          │  │ 2. MANAGE GCP               │  │
+│          │         git push         │  │    - Start/stop GPU VMs     │  │
+│          ▼                          │  │    - Upload models to GCS   │  │
+│   ┌──────────────┐                  │  │    - Request GPU quotas     │  │
+│   │    GitHub    │◄─────────────────┘  │    - Monitor costs          │  │
+│   │  Repository  │      git pull only  └─────────────────────────────┘  │
 │   └──────────────┘                                                       │
 │          │                                                               │
 │          │ Triggers CI/CD                                                │
@@ -522,5 +551,6 @@ grep -c "CHECKLIST" AGENT_WORKFLOW.md  # Should be > 0
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-01-18 | Clarified GCP Agent sole purpose: train model & manage GCP only |
 | 1.1.0 | 2026-01-18 | Added Elson TB2 specific agent configuration, workflow diagram, handoff status |
 | 1.0.0 | 2026-01-16 | Initial release - extracted from Elson Financial AI project |

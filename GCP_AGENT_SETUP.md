@@ -1,7 +1,40 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-18
 **Status:** 100% Complete - DoRA Training Complete on H100, Models in GCS
+
+---
+
+## GCP AGENT - SOLE PURPOSE
+
+> **This agent exists ONLY to train/enhance the model and manage GCP resources.**
+
+### What GCP Agent DOES:
+| Task | Examples |
+|------|----------|
+| **Train the Model** | DoRA/QDoRA fine-tuning, run training jobs, evaluate quality |
+| **Manage GPU VMs** | Start/stop H100/L4 VMs, SSH into VMs, monitor GPU usage |
+| **Manage GCS** | Upload/download models, check bucket contents |
+| **Request Quotas** | GPU quota requests, resource allocation |
+| **Run Inference** | Test model responses, run benchmarks |
+| **Monitor Costs** | Track VM costs, optimize resource usage |
+
+### What GCP Agent does NOT do:
+- Write or edit code (GitHub Agent only)
+- Create new scripts (GitHub Agent only)
+- Update documentation (GitHub Agent only)
+- Push to GitHub (GitHub Agent only)
+- Frontend/backend development (GitHub Agent only)
+
+### Model Information
+| Attribute | Value |
+|-----------|-------|
+| **Name** | Elson-Finance-Trading-14B |
+| **Size** | 27.52 GB (14B parameters) |
+| **Location** | `gs://elson-33a95-elson-models/` |
+| **Production Adapter** | DoRA (`wealth-dora-elson14b-h100`) |
+
+---
 
 This document tracks everything needed to restore the GCP environment after ephemeral session ends.
 
