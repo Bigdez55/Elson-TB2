@@ -20,6 +20,8 @@ from app.api.api_v1.endpoints import (
     security,
     trading,
     wealth_advisory,
+    tools_openbb,
+    tools_financetoolkit,
 )
 
 api_router = APIRouter()
@@ -84,3 +86,8 @@ api_router.include_router(
 api_router.include_router(
     wealth_advisory.router, prefix="/wealth", tags=["wealth-advisory"]
 )
+
+# Tool Integrations (OpenBB, FinanceToolkit)
+# These endpoints enable tool-first architecture for grounded responses
+api_router.include_router(tools_openbb.router, tags=["tools-openbb"])
+api_router.include_router(tools_financetoolkit.router, tags=["tools-financetoolkit"])
