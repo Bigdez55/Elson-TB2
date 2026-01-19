@@ -107,6 +107,37 @@ from .insurance_schemas import (
     ClaimsScenarioChecklist,
 )
 
+# Accounting Workflow Schemas
+from .accounting_schemas import (
+    # Enums (note: AccountTypeEnum is redefined for accounting)
+    AccountTypeEnum as AcctAccountTypeEnum,
+    TransactionStatusEnum,
+    BudgetCategoryEnum,
+    FrequencyEnum,
+    # Schema 1: Ledger Import
+    Transaction,
+    CategorySuggestion,
+    LedgerImport,
+    # Schema 2: Monthly Close
+    CloseCheckItem,
+    AccountBalance,
+    MonthlyCloseChecklist,
+    # Schema 3: Cash Flow Forecast
+    CashFlowItem,
+    CashFlowPeriod,
+    CashFlowForecast,
+    # Schema 4: Budget Plan
+    BudgetLineItem,
+    BudgetSummary,
+    BudgetPlan,
+    # Schema 5: Business KPIs
+    KPIMetric,
+    BusinessKPIs,
+    # GnuCash Import
+    GnuCashAccount,
+    GnuCashImportResult,
+)
+
 # Wealth Advisory Schemas
 from .wealth_advisory import (
     # Enums
@@ -214,6 +245,27 @@ __all__ = [
     "PremiumIllustrationSummary",
     "ClaimStep",
     "ClaimsScenarioChecklist",
+    # Accounting Workflow Schemas
+    "AcctAccountTypeEnum",
+    "TransactionStatusEnum",
+    "BudgetCategoryEnum",
+    "FrequencyEnum",
+    "Transaction",
+    "CategorySuggestion",
+    "LedgerImport",
+    "CloseCheckItem",
+    "AccountBalance",
+    "MonthlyCloseChecklist",
+    "CashFlowItem",
+    "CashFlowPeriod",
+    "CashFlowForecast",
+    "BudgetLineItem",
+    "BudgetSummary",
+    "BudgetPlan",
+    "KPIMetric",
+    "BusinessKPIs",
+    "GnuCashAccount",
+    "GnuCashImportResult",
     # Wealth Advisory
     "AdvisoryMode",
     "WealthTier",
