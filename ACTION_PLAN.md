@@ -40,42 +40,62 @@ By Source:
   tool_use_training_data.json:    2,500 (6.1%)
 ```
 
-### 2. H100 Training Pipeline (PRIMARY)
+### 2. H100 Training Pipeline (PRIMARY) - CURRICULUM METHOD
 
-> **The H100 is our primary training infrastructure for both DoRA and QDoRA.**
+> **The H100 uses 3-PHASE CURRICULUM TRAINING for optimal model learning.**
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                 H100 SESSION (~$2.50/hr)                │
-├─────────────────────────────────────────────────────────┤
-│  1. Train DoRA (950 pairs, r=128, α=256)                │
-│     └─→ wealth-dora-elson14b-h100-v2                    │
-│                                                         │
-│  2. Quantize to QDoRA (4-bit AWQ)                       │
-│     └─→ elson-finance-trading-wealth-14b-q4-v2          │
-│                                                         │
-│  3. Upload both to GCS                                  │
-│                                                         │
-│  Total time: ~15-20 min | Cost: ~$1-2                   │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    CURRICULUM TRAINING (3-PHASE)                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   PHASE A: Domain Blocks (35% easy, 35% medium, 25% hard, 5% extreme)   │
+│   └─→ Train one domain at a time for competence                         │
+│                                                                          │
+│   PHASE B: Mixed Curriculum (20% easy, 40% medium, 30% hard, 10% ext)   │
+│   └─→ Cross-domain generalization, 15% domain cap                       │
+│                                                                          │
+│   PHASE C: Stress Epoch (10% easy, 25% medium, 35% hard, 30% extreme)   │
+│   └─→ High-risk domains: compliance, securities, derivatives            │
+│                                                                          │
+│   Output: wealth-dora-elson14b-h100-v3 (curriculum trained)             │
+│   Total time: ~45-60 min | Cost: ~$2-3                                  │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 | Script | Purpose | GPU |
 |--------|---------|-----|
-| `scripts/train-and-quantize-h100.sh` | Complete DoRA + QDoRA pipeline | H100 80GB |
+| `scripts/curriculum_sampler.py` | Generate Phase A/B/C manifests | CPU |
+| `scripts/domain_bucket_builder.py` | Organize data by domain/difficulty | CPU |
+| `scripts/train-curriculum-h100.sh` | Run curriculum training pipeline | H100 80GB |
+| `scripts/train-and-quantize-h100.sh` | Legacy flat training | H100 80GB |
 
-**Training Command (run on H100):**
+**Curriculum Training Command (run on H100):**
 ```bash
 # SSH into H100
 gcloud compute instances start elson-h100-spot --zone=us-central1-a
 gcloud compute ssh elson-h100-spot --zone=us-central1-a
 
-# Run full pipeline
+# Pull latest and generate curriculum
 cd ~/Elson-TB2 && git pull origin main
-./scripts/train-and-quantize-h100.sh
+python scripts/curriculum_sampler.py --phase all --target-records 15000
+
+# Run curriculum training pipeline
+./scripts/train-curriculum-h100.sh
 
 # Stop VM when done
 gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+```
+
+**Domain Buckets Structure:**
+```
+backend/training_data/domain_buckets/
+├── accounting/         (easy, medium, hard)
+├── estate_planning/    (easy, medium, hard, extremely_complex)
+├── federal_income_tax/ (easy, medium, hard)
+├── compliance/         (medium, hard)
+├── securities_regulation/ (medium, hard)
+... (80+ domain buckets total)
 ```
 
 **Training Hyperparameters (optimized for H100):**
@@ -86,6 +106,7 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 | Batch Size | 16 | H100 can handle larger |
 | Epochs | 5 | Better convergence |
 | Precision | bfloat16 | H100 native |
+| **Method** | **Curriculum (3-Phase)** | Phase A → B → C |
 
 ### 3. Deployment Infrastructure
 

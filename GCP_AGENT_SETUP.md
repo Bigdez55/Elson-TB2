@@ -141,42 +141,106 @@ This document tracks everything needed to restore the GCP environment after ephe
 
 ## H100 Training Pipeline (PRIMARY)
 
-> **The H100 handles both DoRA training AND QDoRA quantization in a single session.**
+> **The H100 uses CURRICULUM TRAINING with 3-phase tiered approach for optimal learning.**
+
+### Curriculum Training Method (3-Phase)
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    CURRICULUM TRAINING ARCHITECTURE                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   PHASE A: Domain Blocks                                                 │
+│   ━━━━━━━━━━━━━━━━━━━━━━                                                │
+│   • Train one domain at a time until competence                         │
+│   • Tier mix: 35% easy, 35% medium, 25% hard, 5% extreme               │
+│   • Output: Domain-specific competence                                   │
+│                                                                          │
+│   PHASE B: Mixed Curriculum                                              │
+│   ━━━━━━━━━━━━━━━━━━━━━━━━                                              │
+│   • Shuffle domains for cross-domain generalization                      │
+│   • Tier mix: 20% easy, 40% medium, 30% hard, 10% extreme              │
+│   • Domain cap: Max 15% per domain                                       │
+│   • Output: Cross-domain reasoning ability                               │
+│                                                                          │
+│   PHASE C: Stress Epoch                                                  │
+│   ━━━━━━━━━━━━━━━━━━━━━                                                 │
+│   • Heavy on complex scenarios and high-risk domains                     │
+│   • Tier mix: 10% easy, 25% medium, 35% hard, 30% extreme              │
+│   • Focus: compliance, securities_regulation, derivatives, estate       │
+│   • Output: Robust handling of edge cases                                │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Domain Buckets Structure
+
+```
+backend/training_data/domain_buckets/
+├── accounting/
+│   ├── easy.jsonl
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── estate_planning/
+│   ├── easy.jsonl
+│   ├── medium.jsonl
+│   ├── hard.jsonl
+│   └── extremely_complex.jsonl
+├── federal_income_tax/
+│   ├── easy.jsonl
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── retirement_planning/
+│   └── easy.jsonl
+├── securities_regulation/
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── compliance/
+│   ├── medium.jsonl
+│   └── hard.jsonl
+... (80+ domain buckets total)
+```
+
+### H100 Training Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                 H100 SESSION (~$2.50/hr)                │
 ├─────────────────────────────────────────────────────────┤
-│  1. Train DoRA (40,993 pairs, r=128, α=256)             │
-│     └─→ wealth-dora-elson14b-h100-v2                    │
+│  1. Generate curriculum manifests (Phase A, B, C)       │
+│     └─→ python scripts/curriculum_sampler.py --phase all│
 │                                                         │
-│  2. Quantize to QDoRA (4-bit AWQ)                       │
+│  2. Train DoRA with curriculum (40,993+ pairs)          │
+│     └─→ ./scripts/train-curriculum-h100.sh              │
+│                                                         │
+│  3. Quantize to QDoRA (4-bit AWQ)                       │
 │     └─→ elson-finance-trading-wealth-14b-q4-v2          │
 │                                                         │
-│  3. Upload both to GCS                                  │
+│  4. Upload to GCS                                       │
 │                                                         │
-│  Total time: ~30-45 min | Cost: ~$2-3                   │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│              L4 DEPLOYMENT (~$0.70/hr)                  │
-│  Deploy QDoRA for production inference                  │
+│  Total time: ~45-60 min | Cost: ~$2-3                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### H100 Training Command
+### H100 Training Commands
 
 ```bash
 # 1. Start H100 VM
 gcloud compute instances start elson-h100-spot --zone=us-central1-a
 gcloud compute ssh elson-h100-spot --zone=us-central1-a
 
-# 2. Pull latest and run training pipeline
+# 2. Pull latest code
 cd ~/Elson-TB2 && git pull origin main
-./scripts/train-and-quantize-h100.sh
 
-# 3. Stop VM when done (IMPORTANT - saves money!)
+# 3. Generate curriculum training manifests
+python scripts/curriculum_sampler.py --phase all --target-records 15000
+
+# 4. Run curriculum training pipeline
+./scripts/train-curriculum-h100.sh
+# OR for flat training (legacy):
+# ./scripts/train-and-quantize-h100.sh
+
+# 5. Stop VM when done (IMPORTANT - saves money!)
 gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 ```
 
@@ -189,16 +253,27 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 | Batch Size | 16 | H100 can handle larger |
 | Epochs | 5 | Better convergence |
 | Precision | bfloat16 | H100 native |
-| Training Data | 40,993 pairs | From 4 consolidated sources |
+| Training Method | **Curriculum (3-Phase)** | Phase A → B → C |
+| Training Data | 40,993+ pairs | Domain buckets + consolidated |
 
-### Training Data Sources (NEW)
+### Training Data Sources
 
 | Source | Pairs | Coverage |
 |--------|-------|----------|
+| **Domain Buckets** | 15,000+ | 80+ domains with difficulty tiers |
 | final_training_data.json | 23,493 | Core financial Q&A |
 | insurance_training_data.json | 10,000 | Insurance workflows |
 | accounting_training_data.json | 5,000 | Accounting integration |
 | tool_use_training_data.json | 2,500 | Tool calling examples |
+
+### Curriculum Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/curriculum_sampler.py` | Generate Phase A/B/C manifests |
+| `scripts/domain_bucket_builder.py` | Organize data by domain + difficulty |
+| `scripts/train-curriculum-h100.sh` | Run full curriculum training pipeline |
+| `scripts/train-and-quantize-h100.sh` | Legacy flat training (still works) |
 
 ---
 

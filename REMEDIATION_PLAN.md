@@ -274,6 +274,66 @@ Add to `/backend/app/services/compliance_rules.py`:
 
 ---
 
+## Curriculum Training Implementation
+
+### 3-Phase Curriculum Method
+
+> **NEW:** Training now uses a tiered curriculum approach for optimal learning.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    CURRICULUM TRAINING (3-PHASE)                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   PHASE A: Domain Blocks                                                 │
+│   • Train one domain at a time                                          │
+│   • Tier mix: 35% easy, 35% medium, 25% hard, 5% extreme               │
+│   • Goal: Build domain-specific competence                              │
+│                                                                          │
+│   PHASE B: Mixed Curriculum                                              │
+│   • Shuffle domains for cross-domain learning                           │
+│   • Tier mix: 20% easy, 40% medium, 30% hard, 10% extreme              │
+│   • Domain cap: 15% max per domain                                      │
+│   • Goal: Cross-domain generalization                                   │
+│                                                                          │
+│   PHASE C: Stress Epoch                                                  │
+│   • Focus on high-risk and complex scenarios                            │
+│   • Tier mix: 10% easy, 25% medium, 35% hard, 30% extreme              │
+│   • Focus domains: compliance, securities, derivatives, estate          │
+│   • Goal: Robust edge case handling                                     │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Domain Buckets Structure
+
+```
+backend/training_data/domain_buckets/
+├── accounting/         (easy, medium, hard)
+├── banking/           (easy, hard)
+├── compliance/        (medium, hard)
+├── derivatives/       (hard)
+├── estate_planning/   (easy, medium, hard, extremely_complex)
+├── federal_income_tax/ (medium, hard)
+├── general_finance/   (easy, medium, hard, extremely_complex)
+├── insurance/         (medium)
+├── retirement_planning/ (easy)
+├── securities_regulation/ (medium, hard)
+... (80+ domain buckets total)
+```
+
+### Curriculum Training Commands
+
+```bash
+# Generate curriculum manifests
+python scripts/curriculum_sampler.py --phase all --target-records 15000
+
+# Run curriculum training on H100
+./scripts/train-curriculum-h100.sh
+```
+
+---
+
 ## Implementation Timeline
 
 | Phase | Deliverable | Status |
@@ -285,6 +345,7 @@ Add to `/backend/app/services/compliance_rules.py`:
 | **Phase 1d** | yfinance endpoints (free data) | ✅ COMPLETE |
 | **Phase 2** | Insurance pack (10,000 pairs) | ✅ COMPLETE |
 | **Phase 3** | Accounting integration (5,000 pairs) | ✅ COMPLETE |
+| **Phase 3.5** | **Curriculum Training Infrastructure** | ✅ COMPLETE |
 | **Phase 4** | Model merge evaluation | Pending (benchmark > 431) |
 | **Phase 5** | Scale to 70B+ | Phase 4 complete |
 

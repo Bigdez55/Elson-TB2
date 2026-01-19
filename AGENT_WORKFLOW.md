@@ -23,6 +23,8 @@
 
 **GCP Agent DOES:**
 - Train and fine-tune Elson-Finance-Trading-14B model (DoRA/QDoRA)
+- **Run 3-Phase Curriculum Training (Phase A → B → C)**
+- Generate curriculum manifests using `curriculum_sampler.py`
 - Manage GPU VMs (start, stop, SSH, monitor)
 - Upload/download models to/from GCS
 - Request GPU quotas
@@ -40,6 +42,7 @@
 
 **Model:** `Elson-Finance-Trading-14B` (27.52GB, 14B parameters)
 **Location:** `gs://elson-33a95-elson-models/`
+**Training Method:** Curriculum (3-Phase with domain buckets)
 
 ---
 
@@ -168,37 +171,59 @@ When pushing changes that require GCP Agent action:
 - [ ] Training data location: `backend/training_data/consolidated_training_data.json`
 ```
 
-### Current Handoff Status (2026-01-18)
+### Current Handoff Status (2026-01-19)
 
 **From:** GitHub Agent
 **To:** GCP Agent
-**Commit:** `9f798d5`
+**Commit:** `e95e1be`
 
 **What Was Done:**
-- Created 6 new scripts (deployment, benchmark, data processing)
-- Consolidated 950 Q&A training pairs
-- Categorized 830+ URLs to 18 domains
-- Updated README and created ACTION_PLAN.md
+- Implemented 3-Phase Curriculum Training infrastructure
+- Created domain buckets (80+ domains with easy/medium/hard/extremely_complex tiers)
+- Generated 40,993+ Q&A training pairs
+- Added tool integration (OpenBB, FinanceToolkit, yfinance)
+- Created 431-question evaluation benchmark
+- Added curriculum sampler and domain bucket builder scripts
 
 **GCP Agent Actions Required:**
 ```bash
-# 1. Pull latest
+# 1. Pull latest (CRITICAL - curriculum training is new)
 cd ~/Elson-TB2 && git pull origin main
 
-# 2. Check L4 GPU quota status
-# If not requested: https://console.cloud.google.com/iam-admin/quotas?project=elson-33a95
+# 2. Generate curriculum training manifests
+python scripts/curriculum_sampler.py --phase all --target-records 15000
 
-# 3. Deploy vLLM (once quota approved)
+# 3. View generated manifests
+ls -la backend/training_data/curriculum_runs/
+
+# 4. Start H100 and run curriculum training
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
+./scripts/train-curriculum-h100.sh
+
+# 5. Stop VM when done
+gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+
+# 6. Deploy vLLM with new model
 ./scripts/deploy-vllm-dora.sh l4 dora
-# OR for cost savings:
-./scripts/deploy-vllm-dora.sh spot qdora
 
-# 4. Run benchmark (once vLLM is up)
+# 7. Run 431-question evaluation benchmark
 python scripts/run_evaluation_benchmark.py --api-url http://EXTERNAL_IP:8000
-
-# 5. Optional: Retrain with expanded data (950 pairs vs 408)
-# Training data: backend/training_data/consolidated_training_data.json
 ```
+
+**Curriculum Training Structure:**
+```
+Phase A: Domain Blocks (35% easy, 35% medium, 25% hard, 5% extreme)
+Phase B: Mixed Curriculum (20% easy, 40% medium, 30% hard, 10% extreme)
+Phase C: Stress Epoch (10% easy, 25% medium, 35% hard, 30% extreme)
+```
+
+**Key Scripts:**
+| Script | Purpose |
+|--------|---------|
+| `scripts/curriculum_sampler.py` | Generate Phase A/B/C manifests |
+| `scripts/domain_bucket_builder.py` | Organize data by domain/difficulty |
+| `scripts/train-curriculum-h100.sh` | Run full curriculum pipeline |
 
 ---
 

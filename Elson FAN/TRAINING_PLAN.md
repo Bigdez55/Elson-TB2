@@ -72,24 +72,63 @@
 
 ---
 
-## H100 Training Pipeline
+## H100 Training Pipeline - CURRICULUM METHOD
 
-> **The H100 is our primary training infrastructure for DoRA and QDoRA.**
+> **The H100 uses 3-PHASE CURRICULUM TRAINING for optimal model learning.**
+
+### Curriculum Training Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                 H100 SESSION (~$2.50/hr)                │
-├─────────────────────────────────────────────────────────┤
-│  1. Train DoRA (950 pairs, r=128, α=256)                │
-│     └─→ wealth-dora-elson14b-h100-v2                    │
-│                                                         │
-│  2. Quantize to QDoRA (4-bit AWQ)                       │
-│     └─→ elson-finance-trading-wealth-14b-q4-v2          │
-│                                                         │
-│  3. Upload both to GCS                                  │
-│                                                         │
-│  Total time: ~15-20 min | Cost: ~$1-2                   │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    CURRICULUM TRAINING (3-PHASE)                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   PHASE A: Domain Blocks                                                 │
+│   ━━━━━━━━━━━━━━━━━━━━━━                                                │
+│   • Train one domain at a time until competence                         │
+│   • Tier mix: 35% easy, 35% medium, 25% hard, 5% extreme               │
+│   • Output: Domain-specific competence                                   │
+│                                                                          │
+│   PHASE B: Mixed Curriculum                                              │
+│   ━━━━━━━━━━━━━━━━━━━━━━━━                                              │
+│   • Shuffle domains for cross-domain generalization                      │
+│   • Tier mix: 20% easy, 40% medium, 30% hard, 10% extreme              │
+│   • Domain cap: Max 15% per domain                                       │
+│   • Output: Cross-domain reasoning ability                               │
+│                                                                          │
+│   PHASE C: Stress Epoch                                                  │
+│   ━━━━━━━━━━━━━━━━━━━━━                                                 │
+│   • Heavy on complex scenarios and high-risk domains                     │
+│   • Tier mix: 10% easy, 25% medium, 35% hard, 30% extreme              │
+│   • Focus: compliance, securities_regulation, derivatives, estate       │
+│   • Output: Robust handling of edge cases                                │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Domain Buckets Structure
+
+```
+backend/training_data/domain_buckets/
+├── accounting/
+│   ├── easy.jsonl
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── estate_planning/
+│   ├── easy.jsonl
+│   ├── medium.jsonl
+│   ├── hard.jsonl
+│   └── extremely_complex.jsonl
+├── federal_income_tax/
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── compliance/
+│   ├── medium.jsonl
+│   └── hard.jsonl
+├── securities_regulation/
+│   ├── medium.jsonl
+│   └── hard.jsonl
+... (80+ domain buckets total)
 ```
 
 ### Training Hyperparameters
@@ -104,6 +143,16 @@
 | Max Length | 2048 | Context length |
 | Learning Rate | 2e-4 | Standard |
 | Precision | bfloat16 | H100 native |
+| **Training Method** | **Curriculum (3-Phase)** | Phase A → B → C |
+
+### Curriculum Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/curriculum_sampler.py` | Generate Phase A/B/C training manifests |
+| `scripts/domain_bucket_builder.py` | Organize data by domain and difficulty |
+| `scripts/train-curriculum-h100.sh` | Run full curriculum training pipeline |
+| `scripts/train-and-quantize-h100.sh` | Legacy flat training (still works) |
 
 ### Training Commands
 
@@ -114,12 +163,32 @@ gcloud compute instances start elson-h100-spot --zone=us-central1-a
 # SSH into H100
 gcloud compute ssh elson-h100-spot --zone=us-central1-a
 
-# Run full pipeline
+# Pull latest code
 cd ~/Elson-TB2 && git pull origin main
-./scripts/train-and-quantize-h100.sh
+
+# Generate curriculum manifests (Phase A, B, C)
+python scripts/curriculum_sampler.py --phase all --target-records 15000
+
+# Run curriculum training pipeline
+./scripts/train-curriculum-h100.sh
+
+# OR for legacy flat training:
+# ./scripts/train-and-quantize-h100.sh
 
 # Stop VM when done (saves money!)
 gcloud compute instances stop elson-h100-spot --zone=us-central1-a
+```
+
+### Curriculum Run Outputs
+
+```
+backend/training_data/curriculum_runs/
+├── manifest_phaseA_YYYYMMDD_HHMMSS.jsonl   # Phase A manifest
+├── manifest_phaseB_YYYYMMDD_HHMMSS.jsonl   # Phase B manifest
+├── manifest_phaseC_YYYYMMDD_HHMMSS.jsonl   # Phase C manifest
+├── merged_phaseA_YYYYMMDD_HHMMSS.jsonl     # Phase A training data
+├── merged_phaseB_YYYYMMDD_HHMMSS.jsonl     # Phase B training data
+└── merged_phaseC_YYYYMMDD_HHMMSS.jsonl     # Phase C training data
 ```
 
 ---
@@ -213,18 +282,37 @@ python scripts/build_evaluation_benchmark.py
 
 ## Scripts Reference
 
+### Curriculum Training Scripts (NEW)
+
 | Script | Purpose |
 |--------|---------|
-| `scripts/train-and-quantize-h100.sh` | H100 DoRA + QDoRA pipeline |
+| `scripts/curriculum_sampler.py` | Generate Phase A/B/C training manifests |
+| `scripts/domain_bucket_builder.py` | Organize data by domain and difficulty tier |
+| `scripts/train-curriculum-h100.sh` | Run full curriculum training on H100 |
+
+### Training & Deployment Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/train-and-quantize-h100.sh` | H100 DoRA + QDoRA pipeline (legacy flat) |
 | `scripts/deploy-vllm-dora.sh` | vLLM deployment with adapters |
 | `scripts/run_model_evaluation.py` | Model comparison benchmark runner |
 | `scripts/domain_quiz_generator.py` | Generate domain-specific quizzes |
 | `scripts/build_evaluation_benchmark.py` | Build 431-question benchmark |
-| `scripts/curriculum_sampler.py` | Curriculum training infrastructure |
+
+### Training Data Generation Scripts
+
+| Script | Purpose |
+|--------|---------|
 | `scripts/generate_tool_use_training_data.py` | Generate 2,500 tool-use examples |
 | `scripts/generate_insurance_training_data.py` | Generate 10,000 insurance examples |
 | `scripts/generate_accounting_training_data.py` | Generate 5,000 accounting examples |
 | `scripts/consolidate_training_data.py` | Training data consolidation |
+| `scripts/augment_training_data.py` | Paraphrasing, difficulty scaling |
+| `scripts/generate_synthetic_qa.py` | Synthetic Q&A generation |
+| `scripts/domain_classifier.py` | Classify Q&A into 62 domains |
+| `scripts/merge_all_training_data.py` | Merge all training sources |
+| `scripts/validate_training_data.py` | Quality validation pipeline |
 
 ---
 
