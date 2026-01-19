@@ -1,7 +1,8 @@
 #!/bin/bash
-# Elson TB2 - vLLM Deployment with DoRA/LoRA Adapter Support
+# Elson TB2 - vLLM Deployment with DoRA Adapter Support
 #
-# Deploys the Elson Financial AI model with trained adapters
+# Deploys the Elson Financial AI model with DoRA/QDoRA adapters
+# NOTE: LoRA adapters are deprecated. Use DoRA or QDoRA only.
 #
 # Usage:
 #   ./scripts/deploy-vllm-dora.sh [mode] [adapter]
@@ -13,9 +14,8 @@
 #   spot        - L4 GPU on Spot VM (65% cheaper)
 #
 # Adapters:
-#   dora        - DoRA adapter (H100 trained, loss: 0.14)
-#   lora-v1     - LoRA adapter v1 (L4 trained)
-#   lora-v2     - LoRA adapter v2 (L4 trained)
+#   dora        - DoRA adapter (H100 trained, loss: 0.14) - PRODUCTION
+#   qdora       - QDoRA quantized model - PRODUCTION (cost-efficient)
 #   none        - Base model only
 
 set -e
@@ -23,10 +23,10 @@ set -e
 PROJECT_ID="elson-33a95"
 BASE_MODEL_BUCKET="gs://elson-33a95-elson-models/elson-finance-trading-14b-final/final"
 DORA_ADAPTER="gs://elson-33a95-elson-models/wealth-dora-elson14b-h100"
-LORA_V1_ADAPTER="gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1"
-LORA_V2_ADAPTER="gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2"
 QDORA_MODEL="gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4"
 VM_NAME="elson-vllm-server"
+
+# NOTE: LoRA adapters deprecated - not included
 
 # Colors
 RED='\033[0;31m'
@@ -50,15 +50,13 @@ print_usage() {
     echo "  quantized   T4 GPU with AWQ 4-bit quantization"
     echo "  spot        L4 GPU on Spot VM (65% cheaper)"
     echo ""
-    echo "Adapters:"
-    echo "  dora        DoRA adapter (H100 trained, best quality)"
-    echo "  lora-v1     LoRA adapter v1"
-    echo "  lora-v2     LoRA adapter v2"
-    echo "  qdora       QDoRA quantized model (recommended for prod)"
+    echo "Adapters (DoRA/QDoRA only - LoRA deprecated):"
+    echo "  dora        DoRA adapter (H100 trained, best quality) - PRODUCTION"
+    echo "  qdora       QDoRA quantized model - PRODUCTION (cost-efficient)"
     echo "  none        Base model only"
     echo ""
     echo "Examples:"
-    echo "  $0 l4 dora           # L4 with DoRA adapter"
+    echo "  $0 l4 dora           # L4 with DoRA adapter (recommended)"
     echo "  $0 spot qdora        # Spot L4 with QDoRA (cost-effective)"
     echo "  $0 2xt4 none         # 2x T4 with base model"
 }
@@ -121,7 +119,12 @@ case $MODE in
 esac
 
 case $ADAPTER in
-    "dora"|"lora-v1"|"lora-v2"|"qdora"|"none")
+    "dora"|"qdora"|"none")
+        ;;
+    "lora-v1"|"lora-v2")
+        echo -e "${RED}Error: LoRA adapters are DEPRECATED. Use 'dora' or 'qdora' instead.${NC}"
+        print_usage
+        exit 1
         ;;
     *)
         echo -e "${RED}Error: Unknown adapter '$ADAPTER'${NC}"
@@ -192,14 +195,6 @@ case $ADAPTER in
         ADAPTER_BUCKET=$DORA_ADAPTER
         ADAPTER_FLAG="--enable-lora --lora-modules elson-dora=/workspace/adapter"
         ;;
-    "lora-v1")
-        ADAPTER_BUCKET=$LORA_V1_ADAPTER
-        ADAPTER_FLAG="--enable-lora --lora-modules elson-lora=/workspace/adapter"
-        ;;
-    "lora-v2")
-        ADAPTER_BUCKET=$LORA_V2_ADAPTER
-        ADAPTER_FLAG="--enable-lora --lora-modules elson-lora=/workspace/adapter"
-        ;;
     "qdora")
         # QDoRA is a merged quantized model, not an adapter
         BASE_MODEL_BUCKET=$QDORA_MODEL
@@ -208,6 +203,7 @@ case $ADAPTER in
     "none")
         ADAPTER_FLAG=""
         ;;
+    # LoRA adapters deprecated - handled in validation above
 esac
 
 echo -e "\n${YELLOW}Deployment Configuration:${NC}"

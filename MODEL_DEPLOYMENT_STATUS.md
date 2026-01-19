@@ -14,9 +14,16 @@
 - **Merge Methods:** SLERP + DARE-TIES pruning
 
 ### Fine-Tuning - COMPLETE
-- **DoRA (H100):** `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` - Loss: 0.14
-- **LoRA VM1:** `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` - Loss: 0.0526
-- **LoRA VM2:** `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` - Loss: 0.0532
+
+> **IMPORTANT:** Only DoRA/QDoRA are production-ready. LoRA models are deprecated.
+
+| Model | GCS Location | Loss | Status |
+|-------|--------------|------|--------|
+| **DoRA (H100)** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | 0.14 | **PRODUCTION** |
+| **QDoRA (quantized)** | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | - | **PRODUCTION** |
+| ~~LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | 0.0526 | DEPRECATED |
+| ~~LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | 0.0532 | DEPRECATED |
+
 - **Training Data:** 950 Q&A pairs consolidated (was 408)
 
 ### vLLM Deployment - READY TO DEPLOY
@@ -157,12 +164,14 @@ python3 -m vllm.entrypoints.openai.api_server \
 
 ## Next Steps
 
-1. [x] DoRA training complete on H100
-2. [x] LoRA training complete on L4 VMs
+1. [x] DoRA training complete on H100 (**PRODUCTION**)
+2. [x] QDoRA quantized model ready (**PRODUCTION**)
 3. [x] Training data expanded to 950 Q&A pairs
 4. [ ] Deploy vLLM on L4 with DoRA adapter
 5. [ ] Run 100-question evaluation benchmark
 6. [ ] Integrate vLLM API with Cloud Run backend
+
+> **Note:** LoRA models (VM1/VM2) are deprecated and archived. Use DoRA for full quality or QDoRA for cost-efficient inference.
 
 ## Quick Commands
 

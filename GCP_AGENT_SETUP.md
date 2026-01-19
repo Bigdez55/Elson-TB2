@@ -334,37 +334,39 @@ Stage 4: DVoRA/QDoRA Fine-Tuning (Wealth Management) ← CURRENT
 
 ### GCS Model Locations
 
-| Model | GCS Path | Status |
-|-------|----------|--------|
-| Stage 3 Final | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready |
-| Wealth LoRA VM1 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ✅ Complete |
-| Wealth LoRA VM2 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ✅ Complete |
-| **Wealth DoRA H100** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | ✅ Complete |
+| Model | GCS Path | Status | Use |
+|-------|----------|--------|-----|
+| Base Model (14B) | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | ✅ Ready | Foundation |
+| **Wealth DoRA H100** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | ✅ **PRODUCTION** | Primary |
+| QDoRA (quantized) | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | ✅ Ready | Efficient inference |
+| ~~Wealth LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | ⚠️ Deprecated | Archive only |
+| ~~Wealth LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | ⚠️ Deprecated | Archive only |
+
+> **IMPORTANT:** LoRA models are deprecated. Always use **DoRA** or **QDoRA** for deployments.
 
 ### Training Results (2026-01-17)
 
-**Phase 1: LoRA Training on L4 GPUs**
+**PRODUCTION: DoRA Training on H100 GPU**
 
-| VM | IP | GPU | Final Loss | Runtime | Status |
-|----|-----|-----|-----------|---------|--------|
-| VM1 | 104.196.0.132 | L4 (24GB) | 0.0526 | 23.5 min | ✅ Complete |
-| VM2 | 35.233.173.228 | L4 (24GB) | 0.0532 | 25.1 min | ✅ Complete |
-
-- Method: 4-bit LoRA (r=16, α=32) - switched from DoRA due to L4 memory constraints
-- Data: 377 Q&A pairs × 3 epochs
-- Trainable: 25M / 14.8B params (0.17%)
-- Output: ~96MB adapter per VM
-
-**Phase 2: DoRA Training on H100 GPU** ← LATEST
-
-| VM | IP | GPU | Method | Status |
-|----|-----|-----|--------|--------|
-| elson-h100-spot | 34.134.247.175 | H100 (80GB) | Full DoRA | ✅ Complete |
+| VM | IP | GPU | Method | Loss | Status |
+|----|-----|-----|--------|------|--------|
+| elson-h100-spot | 34.134.247.175 | H100 (80GB) | Full DoRA | **0.14** | ✅ **PRODUCTION** |
 
 - Method: Full DoRA (Weight Decomposed Low-Rank Adaptation)
 - GPU: NVIDIA H100 80GB HBM3 (Spot/Preemptible)
-- Data: 408 Q&A pairs (improved training data now available - 643 pairs)
+- Data: 408 Q&A pairs (950 pairs now available for retraining)
+- Runtime: ~6 minutes
 - Output: `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/`
+
+**DEPRECATED: LoRA Training on L4 GPUs (Archive Only)**
+
+| VM | GPU | Final Loss | Status |
+|----|-----|-----------|--------|
+| VM1 | L4 (24GB) | 0.0526 | ⚠️ Deprecated |
+| VM2 | L4 (24GB) | 0.0532 | ⚠️ Deprecated |
+
+- Method: 4-bit LoRA (r=16, α=32) - used when H100 wasn't available
+- **Do not use for production** - DoRA provides better quality
 
 **DoRA Inference Test Results (2026-01-17):**
 

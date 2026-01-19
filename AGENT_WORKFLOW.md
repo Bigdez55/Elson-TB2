@@ -45,12 +45,15 @@ gcloud compute ssh my-vm --zone=us-central1-a
 
 ### Trained Models in GCS
 
-| Model | GCS Location | Status |
-|-------|--------------|--------|
-| Base (14B merged) | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | Ready |
-| LoRA VM1 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | Complete |
-| LoRA VM2 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | Complete |
-| DoRA H100 | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | Complete |
+| Model | GCS Location | Status | Use |
+|-------|--------------|--------|-----|
+| Base (14B merged) | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | Ready | Foundation |
+| **DoRA H100** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | **PRODUCTION** | Primary adapter |
+| QDoRA (quantized) | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | Ready | Cost-efficient inference |
+| ~~LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | Deprecated | Archive only |
+| ~~LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | Deprecated | Archive only |
+
+> **Note:** LoRA models are deprecated. Use **DoRA** (full quality) or **QDoRA** (quantized for efficiency) for all deployments.
 
 ### Agent Responsibilities
 
