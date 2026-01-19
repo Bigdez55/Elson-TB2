@@ -1,6 +1,6 @@
 # Elson Financial AI - Model Deployment Status
 
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-01-19
 
 ## Current Status
 
@@ -13,18 +13,32 @@
   - Qwen2.5-14B-Instruct (general capabilities)
 - **Merge Methods:** SLERP + DARE-TIES pruning
 
-### Fine-Tuning - COMPLETE
+### Fine-Tuning - COMPLETE ✓
 
 > **IMPORTANT:** Only DoRA/QDoRA are production-ready. LoRA models are deprecated.
 
 | Model | GCS Location | Loss | Status |
 |-------|--------------|------|--------|
-| **DoRA (H100)** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | 0.14 | **PRODUCTION** |
-| **QDoRA (quantized)** | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | - | **PRODUCTION** |
+| **DoRA v2 (H100)** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` | 0.4063 | **PRODUCTION** |
+| DoRA v1 (H100) | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | 0.14 | Archived |
+| QDoRA v1 (quantized) | `gs://elson-33a95-elson-models/elson-finance-trading-wealth-14b-q4/` | - | Archived |
 | ~~LoRA VM1~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | 0.0526 | DEPRECATED |
 | ~~LoRA VM2~~ | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | 0.0532 | DEPRECATED |
 
-- **Training Data:** 950 Q&A pairs consolidated (was 408)
+**DoRA v2 Training Details (2026-01-19):**
+- Method: QDoRA (4-bit quantized base + DoRA adapter)
+- Rank: 64, Alpha: 128
+- Epochs: 5, Batch Size: 64 (effective)
+- Training Data: 950 Q&A pairs (Alpaca format)
+- GPU: H100 80GB
+
+### Inference Testing - VERIFIED ✓
+
+**Tested on:** L4 GPU (24GB VRAM)
+- GPU Memory Used: 13.02 GB (4-bit quantized)
+- Model loads successfully with PEFT adapter
+- All test prompts generated coherent finance/trading responses
+- Response quality: Accurate, practical, includes disclaimers
 
 ### vLLM Deployment - READY TO DEPLOY
 - **Status:** L4 GPUs available, ready to deploy
@@ -167,9 +181,11 @@ python3 -m vllm.entrypoints.openai.api_server \
 1. [x] DoRA training complete on H100 (**PRODUCTION**)
 2. [x] QDoRA quantized model ready (**PRODUCTION**)
 3. [x] Training data expanded to 950 Q&A pairs
-4. [ ] Deploy vLLM on L4 with DoRA adapter
-5. [ ] Run 100-question evaluation benchmark
-6. [ ] Integrate vLLM API with Cloud Run backend
+4. [x] DoRA v2 retrained with expanded data (2026-01-19)
+5. [x] Inference tested on L4 GPU - VERIFIED WORKING
+6. [ ] Deploy vLLM on L4 with DoRA adapter
+7. [ ] Run 100-question evaluation benchmark
+8. [ ] Integrate vLLM API with Cloud Run backend
 
 > **Note:** LoRA models (VM1/VM2) are deprecated and archived. Use DoRA for full quality or QDoRA for cost-efficient inference.
 
