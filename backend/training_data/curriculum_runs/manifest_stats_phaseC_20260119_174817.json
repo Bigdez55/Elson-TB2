@@ -1,0 +1,38 @@
+{
+  "phase": "C",
+  "by_difficulty": {
+    "easy": 200,
+    "medium": 500,
+    "hard": 700,
+    "extremely_complex": 600
+  },
+  "by_domain": {
+    "compliance": 381,
+    "derivatives": 119,
+    "estate_planning": 480,
+    "federal_income_tax": 79,
+    "insurance": 530,
+    "aml_kyc": 52,
+    "certifications": 23,
+    "estate_gift_tax": 29,
+    "estate_planning_credit_financing_crossref": 1,
+    "estate_planning_succession_planning_crossref": 1,
+    "estate_planning_tax_crossref": 1,
+    "estate_planning_tax_planning_crossref": 1,
+    "estate_planning_technology_crossref": 1,
+    "general_finance": 240,
+    "generational_wealth": 2,
+    "negative_example": 1,
+    "professional_roles": 26,
+    "retirement_planning": 3,
+    "tax": 14,
+    "charitable_planning": 5,
+    "college_planning": 5,
+    "financial_literacy": 6
+  },
+  "total": 2000,
+  "multi_domain": 1717,
+  "compliance": 1711,
+  "timestamp": "2026-01-19T17:48:17.891862",
+  "seed": "insurance/extremely_complex.jsonl"
+}
