@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
 """
-Elson TB2 - Training Data Consolidation Script
+Elson TB2 - Training Data Consolidation Script (v2)
 
-Consolidates all training data sources into a unified dataset for fine-tuning:
-- training_data_final.json (643 Q&A pairs)
-- strategic_qa_pairs.json (205+ pairs from strategic docs)
-- expansion_pack_v4.jsonl (140+ resource records)
-- master_training_resources_categorized.csv (929 categorized URLs)
+Consolidates ALL training data sources into a unified dataset for DoRA fine-tuning:
+
+Existing Data:
+- final_training_data.json (23,493 Q&A pairs)
+- classified_training_data.json (classified by domain)
+
+New Tool-First Training Data (Phases 1-3):
+- tool_use_training_data.json (2,500 tool-use examples)
+- insurance_training_data.json (10,000 insurance workflow examples)
+- accounting_training_data.json (5,000 accounting/budgeting examples)
 
 Outputs:
-- consolidated_training_data.json (combined Q&A for fine-tuning)
-- consolidated_training_data.jsonl (for streaming/incremental training)
-- training_statistics.json (data quality metrics)
+- consolidated_all.json (combined Q&A for fine-tuning)
+- consolidated_all.jsonl (for streaming/incremental training)
+- consolidated_all_alpaca.json (Alpaca format for compatibility)
+- consolidated_all_stats.json (data quality metrics)
 
 Usage:
     python scripts/consolidate_training_data.py
@@ -165,6 +171,62 @@ def analyze_quality(records: List[Dict]) -> Dict:
     return stats
 
 
+def categorize_example(record: Dict) -> str:
+    """Categorize example by domain based on content."""
+    # Check explicit category/domain
+    if 'category' in record and record['category']:
+        return record['category']
+    if 'domain' in record and record['domain']:
+        return record['domain']
+
+    # Infer from content
+    instruction = record.get('instruction', '').lower()
+    output = record.get('output', '').lower()
+
+    # Tool-use patterns
+    if 'tool_call' in record or 'get_quote' in output or 'get_ratios' in output:
+        return 'tool_use'
+
+    # Insurance patterns
+    insurance_terms = ['insurance', 'policy', 'premium', 'annuity', 'beneficiary',
+                      'underwriting', 'claims', 'coverage', 'deductible']
+    if any(term in instruction or term in output for term in insurance_terms):
+        return 'insurance'
+
+    # Accounting patterns
+    accounting_terms = ['budget', 'ledger', 'bookkeeping', 'gnucash', 'reconcil',
+                       'accounts payable', 'accounts receivable', 'cash flow']
+    if any(term in instruction or term in output for term in accounting_terms):
+        return 'accounting'
+
+    # Tax patterns
+    tax_terms = ['tax', 'irs', 'deduction', '401k', 'ira', 'capital gains']
+    if any(term in instruction or term in output for term in tax_terms):
+        return 'tax_education'
+
+    # Portfolio/investment patterns
+    portfolio_terms = ['portfolio', 'asset allocation', 'diversif', 'rebalance',
+                      'sharpe ratio', 'beta', 'alpha']
+    if any(term in instruction or term in output for term in portfolio_terms):
+        return 'portfolio_management'
+
+    # Market analysis patterns
+    market_terms = ['stock', 'market', 'trading', 'technical analysis', 'fundamental']
+    if any(term in instruction or term in output for term in market_terms):
+        return 'market_analysis'
+
+    return 'general_finance'
+
+
+def to_alpaca_format(record: Dict) -> Dict:
+    """Convert to Alpaca format for compatibility."""
+    return {
+        "instruction": record.get('instruction', ''),
+        "input": record.get('input', ''),
+        "output": record.get('output', ''),
+    }
+
+
 def main():
     """Main entry point."""
     base_path = Path(__file__).parent.parent
@@ -172,31 +234,39 @@ def main():
     fan_path = base_path / "Elson FAN"
 
     print("=" * 60)
-    print("Elson TB2 - Training Data Consolidation")
+    print("Elson TB2 - Training Data Consolidation v2")
+    print("Tool-First Architecture - Complete Dataset")
     print("=" * 60)
 
     all_records: List[Dict] = []
+    source_counts = defaultdict(int)
 
-    # Load existing training data
-    print("\n1. Loading training_data_final.json...")
-    final_data = load_json(str(training_path / "training_data_final.json"))
+    # =========================================================================
+    # EXISTING TRAINING DATA
+    # =========================================================================
+
+    # Load final training data (largest existing source)
+    print("\n[EXISTING] Loading final_training_data.json...")
+    final_data = load_json(str(training_path / "final_training_data.json"))
     for record in final_data:
-        normalized = normalize_qa(record, 'training_data_final')
+        normalized = normalize_qa(record, 'final_training_data')
         if normalized['output']:
             all_records.append(normalized)
-    print(f"   Loaded: {len(final_data)} records")
+    print(f"   Loaded: {len(final_data):,} records")
+    source_counts['final_training_data'] = len(final_data)
 
     # Load strategic Q&A pairs
-    print("\n2. Loading strategic_qa_pairs.json...")
+    print("\n[EXISTING] Loading strategic_qa_pairs.json...")
     strategic_data = load_json(str(training_path / "strategic_qa_pairs.json"))
     for record in strategic_data:
         normalized = normalize_qa(record, record.get('source', 'strategic_docs'))
         if normalized['output']:
             all_records.append(normalized)
-    print(f"   Loaded: {len(strategic_data)} records")
+    print(f"   Loaded: {len(strategic_data):,} records")
+    source_counts['strategic_qa_pairs'] = len(strategic_data)
 
-    # Load expansion pack
-    print("\n3. Loading expansion_pack_v4.jsonl...")
+    # Load expansion pack (if exists)
+    print("\n[EXISTING] Loading expansion_pack_v4.jsonl...")
     expansion_data = load_jsonl(str(fan_path / "expansion_pack_v4.jsonl"))
     resource_qa_count = 0
     for record in expansion_data:
@@ -204,42 +274,82 @@ def main():
         if qa:
             all_records.append(qa)
             resource_qa_count += 1
-    print(f"   Loaded: {len(expansion_data)} records -> {resource_qa_count} Q&A pairs")
+    print(f"   Loaded: {len(expansion_data):,} records -> {resource_qa_count:,} Q&A pairs")
+    source_counts['expansion_pack'] = resource_qa_count
 
-    # Load categorized resources (create Q&A pairs from high-value resources)
-    print("\n4. Loading master_training_resources_categorized.csv...")
-    categorized_data = load_csv(str(fan_path / "master_training_resources_categorized.csv"))
-    resource_count = 0
-    for record in categorized_data:
-        # Only create Q&A for primary authority resources
-        if record.get('authority_tier', '') == 'primary':
-            qa = create_resource_qa(record)
-            if qa:
-                all_records.append(qa)
-                resource_count += 1
-    print(f"   Loaded: {len(categorized_data)} records -> {resource_count} primary resource Q&A pairs")
+    # =========================================================================
+    # NEW TOOL-FIRST TRAINING DATA (Phases 1-3)
+    # =========================================================================
+
+    # Load tool-use training data (Phase 1c)
+    print("\n[NEW] Loading tool_use_training_data.json (Phase 1c)...")
+    tool_use_data = load_json(str(training_path / "tool_use_training_data.json"))
+    for record in tool_use_data:
+        normalized = normalize_qa(record, 'tool_use_training')
+        normalized['category'] = 'tool_use'
+        if normalized['output']:
+            all_records.append(normalized)
+    print(f"   Loaded: {len(tool_use_data):,} tool-use examples")
+    source_counts['tool_use_training'] = len(tool_use_data)
+
+    # Load insurance training data (Phase 2)
+    print("\n[NEW] Loading insurance_training_data.json (Phase 2)...")
+    insurance_data = load_json(str(training_path / "insurance_training_data.json"))
+    for record in insurance_data:
+        normalized = normalize_qa(record, 'insurance_training')
+        normalized['category'] = 'insurance'
+        if normalized['output']:
+            all_records.append(normalized)
+    print(f"   Loaded: {len(insurance_data):,} insurance examples")
+    source_counts['insurance_training'] = len(insurance_data)
+
+    # Load accounting training data (Phase 3)
+    print("\n[NEW] Loading accounting_training_data.json (Phase 3)...")
+    accounting_data = load_json(str(training_path / "accounting_training_data.json"))
+    for record in accounting_data:
+        normalized = normalize_qa(record, 'accounting_training')
+        normalized['category'] = 'accounting'
+        if normalized['output']:
+            all_records.append(normalized)
+    print(f"   Loaded: {len(accounting_data):,} accounting examples")
+    source_counts['accounting_training'] = len(accounting_data)
+
+    # =========================================================================
+    # PROCESS AND DEDUPLICATE
+    # =========================================================================
 
     # Deduplicate
-    print("\n5. Deduplicating...")
+    print("\n[PROCESSING] Deduplicating...")
     before_dedup = len(all_records)
     all_records = deduplicate(all_records)
-    print(f"   Before: {before_dedup} -> After: {len(all_records)} (removed {before_dedup - len(all_records)} duplicates)")
+    print(f"   Before: {before_dedup:,} -> After: {len(all_records):,} (removed {before_dedup - len(all_records):,} duplicates)")
 
     # Filter out empty/invalid records
-    print("\n6. Filtering invalid records...")
+    print("\n[PROCESSING] Filtering invalid records...")
     valid_records = [r for r in all_records if r.get('instruction') and r.get('output')]
-    print(f"   Valid records: {len(valid_records)}")
+    print(f"   Valid records: {len(valid_records):,}")
+
+    # Categorize examples
+    print("\n[PROCESSING] Categorizing examples...")
+    for record in valid_records:
+        if not record.get('category') or record['category'] == 'general':
+            record['category'] = categorize_example(record)
 
     # Analyze quality
-    print("\n7. Analyzing data quality...")
+    print("\n[PROCESSING] Analyzing data quality...")
     stats = analyze_quality(valid_records)
 
-    # Save consolidated data
-    output_json = training_path / "consolidated_training_data.json"
-    output_jsonl = training_path / "consolidated_training_data.jsonl"
-    output_stats = training_path / "training_statistics.json"
+    # =========================================================================
+    # SAVE OUTPUTS
+    # =========================================================================
 
-    print(f"\n8. Saving outputs...")
+    # Save consolidated data (new format)
+    output_json = training_path / "consolidated_all.json"
+    output_jsonl = training_path / "consolidated_all.jsonl"
+    output_alpaca = training_path / "consolidated_all_alpaca.json"
+    output_stats = training_path / "consolidated_all_stats.json"
+
+    print(f"\n[SAVING] Saving outputs...")
 
     # JSON format
     with open(output_json, 'w', encoding='utf-8') as f:
@@ -252,47 +362,64 @@ def main():
             f.write(json.dumps(record, ensure_ascii=False) + '\n')
     print(f"   Saved: {output_jsonl}")
 
-    # Statistics
+    # Alpaca format
+    alpaca_records = [to_alpaca_format(r) for r in valid_records]
+    with open(output_alpaca, 'w', encoding='utf-8') as f:
+        json.dump(alpaca_records, f, indent=2, ensure_ascii=False)
+    print(f"   Saved: {output_alpaca}")
+
+    # Statistics (enhanced)
+    stats['source_counts'] = dict(source_counts)
+    stats['new_training_total'] = (
+        source_counts.get('tool_use_training', 0) +
+        source_counts.get('insurance_training', 0) +
+        source_counts.get('accounting_training', 0)
+    )
     with open(output_stats, 'w', encoding='utf-8') as f:
         json.dump(stats, f, indent=2)
     print(f"   Saved: {output_stats}")
 
-    # Print summary
+    # =========================================================================
+    # SUMMARY
+    # =========================================================================
+
     print("\n" + "=" * 60)
     print("CONSOLIDATION SUMMARY")
     print("=" * 60)
-    print(f"\nTotal Q&A pairs: {stats['total_records']}")
+    print(f"\nTotal Q&A pairs: {stats['total_records']:,}")
     print(f"Avg output length: {stats['avg_output_length']:.0f} chars")
 
     print("\nBy Source:")
-    for source, count in sorted(stats['by_source'].items(), key=lambda x: -x[1]):
-        print(f"  {source}: {count}")
+    for source, count in sorted(source_counts.items(), key=lambda x: -x[1]):
+        pct = 100 * count / stats['total_records'] if stats['total_records'] > 0 else 0
+        print(f"  {source}: {count:,} ({pct:.1f}%)")
 
     print("\nBy Category (top 10):")
     for cat, count in sorted(stats['by_category'].items(), key=lambda x: -x[1])[:10]:
-        print(f"  {cat}: {count}")
+        pct = 100 * count / stats['total_records'] if stats['total_records'] > 0 else 0
+        print(f"  {cat}: {count:,} ({pct:.1f}%)")
 
     print("\nQuality Metrics:")
-    print(f"  Empty outputs: {stats['empty_outputs']}")
-    print(f"  Short outputs (<50 chars): {stats['short_outputs']}")
-    print(f"  Long outputs (>2000 chars): {stats['long_outputs']}")
+    print(f"  Empty outputs: {stats['empty_outputs']:,}")
+    print(f"  Short outputs (<50 chars): {stats['short_outputs']:,}")
+    print(f"  Long outputs (>2000 chars): {stats['long_outputs']:,}")
 
-    # Training data target
-    current = stats['total_records']
-    target = 1200
-    gap = max(0, target - current)
+    # New training data summary
+    new_total = stats.get('new_training_total', 0)
+    print(f"\n" + "=" * 60)
+    print(f"TOOL-FIRST TRAINING DATA (NEW)")
+    print(f"=" * 60)
+    print(f"  Tool-use examples:   {source_counts.get('tool_use_training', 0):,}")
+    print(f"  Insurance examples:  {source_counts.get('insurance_training', 0):,}")
+    print(f"  Accounting examples: {source_counts.get('accounting_training', 0):,}")
+    print(f"  --------------------------------")
+    print(f"  NEW TOTAL:           {new_total:,}")
 
     print(f"\n" + "=" * 60)
-    print(f"TRAINING DATA STATUS")
+    print(f"READY FOR DoRA FINE-TUNING")
     print(f"=" * 60)
-    print(f"  Current: {current} Q&A pairs")
-    print(f"  Target:  {target} Q&A pairs")
-    print(f"  Gap:     {gap} pairs needed")
-
-    if current >= target:
-        print(f"\n  ✓ Training data target ACHIEVED!")
-    else:
-        print(f"\n  ⚠ Need {gap} more Q&A pairs to reach target.")
+    print(f"  Total training examples: {stats['total_records']:,}")
+    print(f"  Output file: {output_jsonl}")
 
     print("\nDone!")
     return 0
