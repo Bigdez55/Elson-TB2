@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-19T17:55:07.851757",
+  "generated_at": "2026-01-19T17:59:03.047887",
   "domains": {
     "federal_income_tax": {
       "weight": 0.1,
@@ -207,7 +207,172 @@
         "medium": 2,
         "hard": 1
       }
+    },
+    "federal_income_tax_extended": {
+      "weight": 0.08,
+      "question_count": 10,
+      "by_difficulty": {
+        "easy": 3,
+        "medium": 5,
+        "hard": 2
+      }
+    },
+    "retirement_extended": {
+      "weight": 0.08,
+      "question_count": 10,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 4,
+        "hard": 3,
+        "extremely_complex": 1
+      }
+    },
+    "estate_planning_extended": {
+      "weight": 0.06,
+      "question_count": 9,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 4,
+        "hard": 2,
+        "extremely_complex": 1
+      }
+    },
+    "investment_advanced": {
+      "weight": 0.06,
+      "question_count": 10,
+      "by_difficulty": {
+        "medium": 4,
+        "hard": 5,
+        "extremely_complex": 1
+      }
+    },
+    "insurance_extended": {
+      "weight": 0.05,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 3,
+        "medium": 2,
+        "hard": 3
+      }
+    },
+    "compliance_extended": {
+      "weight": 0.04,
+      "question_count": 6,
+      "by_difficulty": {
+        "medium": 3,
+        "hard": 3
+      }
+    },
+    "adversarial_extended": {
+      "weight": 0.04,
+      "question_count": 6,
+      "by_difficulty": {
+        "hard": 4,
+        "extremely_complex": 2
+      }
+    },
+    "tool_use_extended": {
+      "weight": 0.05,
+      "question_count": 6,
+      "by_difficulty": {
+        "medium": 3,
+        "hard": 3
+      }
+    },
+    "cryptocurrency": {
+      "weight": 0.03,
+      "question_count": 5,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 3,
+        "hard": 1
+      }
+    },
+    "personal_finance_fundamentals": {
+      "weight": 0.1,
+      "question_count": 13,
+      "by_difficulty": {
+        "easy": 7,
+        "medium": 5,
+        "hard": 1
+      }
+    },
+    "debt_management_extended": {
+      "weight": 0.06,
+      "question_count": 8,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 5,
+        "hard": 2
+      }
+    },
+    "financial_planning_process": {
+      "weight": 0.05,
+      "question_count": 6,
+      "by_difficulty": {
+        "easy": 2,
+        "medium": 4
+      }
+    },
+    "risk_management_extended": {
+      "weight": 0.04,
+      "question_count": 5,
+      "by_difficulty": {
+        "easy": 1,
+        "medium": 2,
+        "hard": 2
+      }
+    },
+    "tax_planning_extended": {
+      "weight": 0.05,
+      "question_count": 5,
+      "by_difficulty": {
+        "medium": 1,
+        "hard": 3,
+        "extremely_complex": 1
+      }
+    },
+    "calculation_scenarios": {
+      "weight": 0.06,
+      "question_count": 6,
+      "by_difficulty": {
+        "medium": 3,
+        "hard": 3
+      }
+    },
+    "complex_scenarios": {
+      "weight": 0.08,
+      "question_count": 8,
+      "by_difficulty": {
+        "medium": 3,
+        "hard": 4,
+        "extremely_complex": 1
+      }
+    },
+    "product_comparisons": {
+      "weight": 0.04,
+      "question_count": 4,
+      "by_difficulty": {
+        "medium": 3,
+        "hard": 1
+      }
+    },
+    "market_concepts": {
+      "weight": 0.04,
+      "question_count": 4,
+      "by_difficulty": {
+        "medium": 2,
+        "hard": 2
+      }
+    },
+    "special_situations": {
+      "weight": 0.03,
+      "question_count": 4,
+      "by_difficulty": {
+        "hard": 3,
+        "medium": 1
+      }
     }
   },
-  "total_questions": 165
+  "total_questions": 298
 }

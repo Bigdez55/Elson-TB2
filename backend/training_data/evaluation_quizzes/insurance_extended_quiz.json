@@ -1,23 +1,22 @@
 {
-  "weight": 0.06,
+  "weight": 0.05,
   "questions": [
     {
-      "question_id": "ba63c7946c8a",
-      "domain": "credit_management",
-      "subdomain": "credit_score",
+      "question_id": "21e435bdc8b6",
+      "domain": "insurance_extended",
+      "subdomain": "auto",
       "difficulty": "easy",
       "question_type": "factual",
-      "question": "What are the five factors that determine a FICO credit score?",
+      "question": "What types of coverage are included in auto insurance?",
       "expected_elements": [
-        "payment history",
-        "amounts owed",
-        "length of history",
-        "credit mix",
-        "new credit"
+        "liability",
+        "collision",
+        "comprehensive",
+        "uninsured"
       ],
       "prohibited_elements": [
-        "exact weights guaranteed",
-        "only factors"
+        "only need liability",
+        "all optional"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -32,20 +31,21 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8269031eed78",
-      "domain": "credit_management",
-      "subdomain": "credit_score",
+      "question_id": "75b9ec8a75c1",
+      "domain": "insurance_extended",
+      "subdomain": "home",
       "difficulty": "easy",
       "question_type": "factual",
-      "question": "What is credit utilization and what ratio is considered good?",
+      "question": "What does homeowners insurance cover?",
       "expected_elements": [
-        "balance to limit",
-        "30%",
-        "revolving credit"
+        "dwelling",
+        "personal property",
+        "liability",
+        "loss of use"
       ],
       "prohibited_elements": [
-        "exact threshold",
-        "always"
+        "covers everything",
+        "flood included"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -60,77 +60,20 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1030b3514a8e",
-      "domain": "credit_management",
-      "subdomain": "credit_reports",
-      "difficulty": "easy",
-      "question_type": "factual",
-      "question": "What are the three major credit bureaus?",
-      "expected_elements": [
-        "Equifax",
-        "Experian",
-        "TransUnion"
-      ],
-      "prohibited_elements": [
-        "all identical",
-        "only ones"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 4,
-        "completeness": 3,
-        "clarity": 2,
-        "appropriate_caveats": 1
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "023822922117",
-      "domain": "credit_management",
-      "subdomain": "credit_building",
-      "difficulty": "medium",
-      "question_type": "procedural",
-      "question": "How can someone with no credit history start building credit?",
-      "expected_elements": [
-        "secured card",
-        "authorized user",
-        "credit builder loan"
-      ],
-      "prohibited_elements": [
-        "instant",
-        "guaranteed approval"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 4,
-        "completeness": 3,
-        "clarity": 2,
-        "compliance_adherence": 1
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "483e1c7c3370",
-      "domain": "credit_management",
-      "subdomain": "credit_repair",
+      "question_id": "effd1850f125",
+      "domain": "insurance_extended",
+      "subdomain": "umbrella",
       "difficulty": "medium",
       "question_type": "explanation",
-      "question": "What is the process for disputing errors on a credit report?",
+      "question": "What is umbrella insurance and who needs it?",
       "expected_elements": [
-        "written dispute",
-        "investigation",
-        "30 days",
-        "documentation"
+        "excess liability",
+        "asset protection",
+        "coverage limit"
       ],
       "prohibited_elements": [
-        "guaranteed removal",
-        "instant fix"
+        "everyone needs",
+        "guaranteed protection"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -145,21 +88,76 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "cf110ae5a036",
-      "domain": "credit_management",
-      "subdomain": "credit_cards",
-      "difficulty": "medium",
-      "question_type": "comparison",
-      "question": "Compare balance transfer cards to debt consolidation loans.",
+      "question_id": "8603cd4a537f",
+      "domain": "insurance_extended",
+      "subdomain": "renters",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "Why is renters insurance important?",
       "expected_elements": [
-        "intro APR",
-        "fees",
-        "fixed payment",
-        "credit impact"
+        "personal property",
+        "liability",
+        "landlord doesn't cover"
       ],
       "prohibited_elements": [
-        "always better",
-        "guaranteed savings"
+        "unnecessary",
+        "landlord covers"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "379970faaf42",
+      "domain": "insurance_extended",
+      "subdomain": "business",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What business insurance does a small business owner need?",
+      "expected_elements": [
+        "general liability",
+        "professional liability",
+        "workers comp"
+      ],
+      "prohibited_elements": [
+        "none needed",
+        "one policy covers all"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c00d2837ab49",
+      "domain": "insurance_extended",
+      "subdomain": "variable_life",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare variable life insurance to variable universal life insurance.",
+      "expected_elements": [
+        "investment options",
+        "premium flexibility",
+        "risk"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "always better"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -174,58 +172,57 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "7c7ee75a4669",
-      "domain": "credit_management",
-      "subdomain": "fraud",
+      "question_id": "f7b713a0b3f8",
+      "domain": "insurance_extended",
+      "subdomain": "annuity_types",
       "difficulty": "hard",
-      "question_type": "procedural",
-      "question": "What steps should someone take if they're a victim of identity theft?",
+      "question_type": "comparison",
+      "question": "Compare fixed, variable, and indexed annuities.",
       "expected_elements": [
-        "freeze",
-        "fraud alert",
-        "FTC report",
-        "dispute"
+        "return type",
+        "risk level",
+        "fees",
+        "guarantees"
       ],
       "prohibited_elements": [
-        "simple",
-        "quick fix"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 4,
-        "completeness": 3,
-        "clarity": 2,
-        "compliance_adherence": 1
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "1d8ad101714e",
-      "domain": "credit_management",
-      "subdomain": "advanced",
-      "difficulty": "hard",
-      "question_type": "scenario",
-      "question": "Analyze the impact of closing old credit cards on credit score and credit history.",
-      "expected_elements": [
-        "utilization",
-        "average age",
-        "credit mix",
-        "timing"
-      ],
-      "prohibited_elements": [
-        "never close",
-        "always close"
+        "always choose",
+        "no risk"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
       "compliance_sensitive": false,
       "rubric": {
         "accuracy": 3,
-        "analysis_depth": 3,
-        "practicality": 2,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "903a37449fd9",
+      "domain": "insurance_extended",
+      "subdomain": "underwriting",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How does life insurance underwriting work?",
+      "expected_elements": [
+        "medical exam",
+        "risk classification",
+        "premium determination"
+      ],
+      "prohibited_elements": [
+        "guaranteed acceptance",
+        "same rate"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
         "appropriate_caveats": 2
       },
       "reference_answer": null,

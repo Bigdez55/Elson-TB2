@@ -2,7 +2,7 @@
   "weight": 0.05,
   "questions": [
     {
-      "question_id": "6c016fce090d",
+      "question_id": "51fa4941b01c",
       "domain": "business_finance",
       "subdomain": "entity_types",
       "difficulty": "easy",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "d80aed5ebc1d",
+      "question_id": "6fa5bdeff7b7",
       "domain": "business_finance",
       "subdomain": "entity_types",
       "difficulty": "easy",
@@ -58,7 +58,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5d59021e3a23",
+      "question_id": "8eca54951d80",
       "domain": "business_finance",
       "subdomain": "taxation",
       "difficulty": "medium",
@@ -86,7 +86,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "fb2d01deee72",
+      "question_id": "ba0820887ad9",
       "domain": "business_finance",
       "subdomain": "retirement",
       "difficulty": "medium",
@@ -114,7 +114,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5d21f5db07e2",
+      "question_id": "5270b65c2589",
       "domain": "business_finance",
       "subdomain": "deductions",
       "difficulty": "medium",
@@ -142,7 +142,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0861f4d9ebd1",
+      "question_id": "3d1473e7430c",
       "domain": "business_finance",
       "subdomain": "strategy",
       "difficulty": "hard",
@@ -170,7 +170,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "daff1c403841",
+      "question_id": "5215cac0e8af",
       "domain": "business_finance",
       "subdomain": "exit",
       "difficulty": "hard",
@@ -198,7 +198,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f4609e2e2fc0",
+      "question_id": "ef509c2ae0c1",
       "domain": "business_finance",
       "subdomain": "advanced",
       "difficulty": "extremely_complex",

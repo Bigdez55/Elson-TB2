@@ -2,7 +2,7 @@
   "weight": 0.1,
   "questions": [
     {
-      "question_id": "567d03fe9715",
+      "question_id": "bcb8b762af3f",
       "domain": "retirement_planning",
       "subdomain": "401k_basics",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0306c4b4dc96",
+      "question_id": "6c421bff89c8",
       "domain": "retirement_planning",
       "subdomain": "ira_types",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5f2c0e3d54e3",
+      "question_id": "c117f3e1ade2",
       "domain": "retirement_planning",
       "subdomain": "employer_match",
       "difficulty": "easy",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "fc893d7e7139",
+      "question_id": "d080dafc716a",
       "domain": "retirement_planning",
       "subdomain": "contribution_limits",
       "difficulty": "medium",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c2c7a5ebfd29",
+      "question_id": "297b0f10d1bb",
       "domain": "retirement_planning",
       "subdomain": "roth_conversion",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "914286781ffc",
+      "question_id": "b346d293c053",
       "domain": "retirement_planning",
       "subdomain": "early_withdrawal",
       "difficulty": "medium",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "708080ffa45f",
+      "question_id": "d48b797847e4",
       "domain": "retirement_planning",
       "subdomain": "rmd",
       "difficulty": "medium",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "b961f180d419",
+      "question_id": "9798f1db8fcf",
       "domain": "retirement_planning",
       "subdomain": "backdoor_roth",
       "difficulty": "hard",
@@ -234,7 +234,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "39fdee36ef0a",
+      "question_id": "4a552be84ae3",
       "domain": "retirement_planning",
       "subdomain": "mega_backdoor",
       "difficulty": "hard",
@@ -263,7 +263,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "33f90d090f1b",
+      "question_id": "5c7fb76ce1f1",
       "domain": "retirement_planning",
       "subdomain": "sepp",
       "difficulty": "hard",
@@ -292,7 +292,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "4991e0ae2b19",
+      "question_id": "bd65bd0f169a",
       "domain": "retirement_planning",
       "subdomain": "retirement_income",
       "difficulty": "extremely_complex",
@@ -322,7 +322,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "df2515730037",
+      "question_id": "73d5498dd0b3",
       "domain": "retirement_planning",
       "subdomain": "pension_analysis",
       "difficulty": "extremely_complex",

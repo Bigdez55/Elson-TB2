@@ -2,7 +2,7 @@
   "weight": 0.06,
   "questions": [
     {
-      "question_id": "0a0ab12e94b4",
+      "question_id": "e507df3f4e07",
       "domain": "estate_gift_tax",
       "subdomain": "gift_annual",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "2f4d4947870a",
+      "question_id": "977dde91303f",
       "domain": "estate_gift_tax",
       "subdomain": "estate_exemption",
       "difficulty": "easy",
@@ -59,7 +59,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "46151ada7345",
+      "question_id": "e7f7f566031b",
       "domain": "estate_gift_tax",
       "subdomain": "portability",
       "difficulty": "medium",
@@ -88,7 +88,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "998023e4ef99",
+      "question_id": "fbe52ddbedf6",
       "domain": "estate_gift_tax",
       "subdomain": "step_up",
       "difficulty": "medium",
@@ -117,7 +117,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1384fcc61520",
+      "question_id": "da453656aadf",
       "domain": "estate_gift_tax",
       "subdomain": "gift_splitting",
       "difficulty": "medium",
@@ -146,7 +146,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "9f96c613e884",
+      "question_id": "9fe48a5cee1e",
       "domain": "estate_gift_tax",
       "subdomain": "grat",
       "difficulty": "hard",
@@ -175,7 +175,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1fb75c1ec933",
+      "question_id": "66e1b11332ed",
       "domain": "estate_gift_tax",
       "subdomain": "idit",
       "difficulty": "hard",
@@ -204,7 +204,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f872e7d26dc9",
+      "question_id": "2fd82405a286",
       "domain": "estate_gift_tax",
       "subdomain": "gst_planning",
       "difficulty": "extremely_complex",

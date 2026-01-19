@@ -1,48 +1,22 @@
 {
-  "weight": 0.03,
+  "weight": 0.04,
   "questions": [
     {
-      "question_id": "4884637c371b",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
-      "difficulty": "easy",
-      "question_type": "factual",
-      "question": "What is confirmation bias in investing?",
-      "expected_elements": [
-        "seeking confirming information",
-        "ignoring contrary evidence"
-      ],
-      "prohibited_elements": [
-        "easy to avoid",
-        "doesn't affect professionals"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 4,
-        "completeness": 3,
-        "clarity": 2,
-        "appropriate_caveats": 1
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "ccb48ab65088",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
+      "question_id": "1037855560ca",
+      "domain": "market_concepts",
+      "subdomain": "cycles",
       "difficulty": "medium",
       "question_type": "explanation",
-      "question": "How does anchoring bias affect investment decisions?",
+      "question": "What are the phases of a business cycle and how do they affect investments?",
       "expected_elements": [
-        "reference point",
-        "purchase price",
-        "slow to adjust"
+        "expansion",
+        "peak",
+        "contraction",
+        "trough"
       ],
       "prohibited_elements": [
-        "easy fix",
-        "doesn't exist"
+        "predict perfectly",
+        "timing"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -57,49 +31,78 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "2ed87b3d2db2",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
+      "question_id": "430247b911c7",
+      "domain": "market_concepts",
+      "subdomain": "inflation",
       "difficulty": "medium",
-      "question_type": "scenario",
-      "question": "Identify the herd mentality bias in the 2021 meme stock phenomenon.",
+      "question_type": "explanation",
+      "question": "How does inflation affect different types of investments?",
       "expected_elements": [
-        "following crowd",
-        "FOMO",
-        "social proof",
-        "risk"
+        "bonds hurt",
+        "TIPS",
+        "real assets",
+        "purchasing power"
       ],
       "prohibited_elements": [
-        "always wrong",
-        "always right"
+        "always bad",
+        "simple protection"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
       "compliance_sensitive": false,
       "rubric": {
         "accuracy": 3,
-        "analysis_depth": 3,
-        "practicality": 2,
+        "completeness": 3,
+        "clarity": 2,
         "appropriate_caveats": 2
       },
       "reference_answer": null,
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6183de780a74",
-      "domain": "behavioral_finance",
-      "subdomain": "strategies",
+      "question_id": "ac99f27dcb7b",
+      "domain": "market_concepts",
+      "subdomain": "interest_rates",
       "difficulty": "hard",
       "question_type": "explanation",
-      "question": "How can systematic investment rules help overcome behavioral biases?",
+      "question": "How do Federal Reserve interest rate changes affect the economy and markets?",
       "expected_elements": [
-        "automation",
-        "predetermined rules",
-        "emotion removal"
+        "borrowing costs",
+        "bond prices",
+        "currency",
+        "lag"
       ],
       "prohibited_elements": [
-        "eliminate all bias",
-        "guaranteed success"
+        "immediate impact",
+        "predict market"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ddd850c2ea89",
+      "domain": "market_concepts",
+      "subdomain": "valuation",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What does it mean when the stock market is 'overvalued' or 'undervalued'?",
+      "expected_elements": [
+        "metrics",
+        "historical comparison",
+        "forward returns"
+      ],
+      "prohibited_elements": [
+        "time market",
+        "predict crash"
       ],
       "requires_tool": false,
       "requires_retrieval": false,

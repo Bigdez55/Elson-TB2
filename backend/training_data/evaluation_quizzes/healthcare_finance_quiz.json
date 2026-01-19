@@ -2,7 +2,7 @@
   "weight": 0.04,
   "questions": [
     {
-      "question_id": "82c230d96a1b",
+      "question_id": "41c7f1a01759",
       "domain": "healthcare_finance",
       "subdomain": "hsa",
       "difficulty": "easy",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c7d7e5bc46c6",
+      "question_id": "2ce2dd5e29ef",
       "domain": "healthcare_finance",
       "subdomain": "hsa",
       "difficulty": "medium",
@@ -59,7 +59,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "177370b64448",
+      "question_id": "7db5918fb5cf",
       "domain": "healthcare_finance",
       "subdomain": "fsa",
       "difficulty": "easy",
@@ -88,7 +88,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e81980e159a9",
+      "question_id": "5c52242420e0",
       "domain": "healthcare_finance",
       "subdomain": "medicare",
       "difficulty": "medium",
@@ -117,7 +117,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "238f1d728858",
+      "question_id": "c45244d71b94",
       "domain": "healthcare_finance",
       "subdomain": "medicare",
       "difficulty": "hard",
@@ -145,7 +145,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "3703b37cc441",
+      "question_id": "db449e41610f",
       "domain": "healthcare_finance",
       "subdomain": "planning",
       "difficulty": "hard",

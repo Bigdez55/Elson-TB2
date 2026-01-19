@@ -2,7 +2,7 @@
   "weight": 0.06,
   "questions": [
     {
-      "question_id": "c494e9280824",
+      "question_id": "42ac5aa24486",
       "domain": "aml_kyc",
       "subdomain": "kyc_basics",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "37069f8538ad",
+      "question_id": "51108ba31bb7",
       "domain": "aml_kyc",
       "subdomain": "aml_purpose",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0dee69622a8d",
+      "question_id": "05f7c7d56aab",
       "domain": "aml_kyc",
       "subdomain": "sar_filing",
       "difficulty": "medium",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6f9f66490706",
+      "question_id": "7bfdf7ac5ece",
       "domain": "aml_kyc",
       "subdomain": "ctr",
       "difficulty": "medium",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "82f6a95d10f3",
+      "question_id": "d1b41cfc9a07",
       "domain": "aml_kyc",
       "subdomain": "cdd",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "da9efe6291cc",
+      "question_id": "083c219726e7",
       "domain": "aml_kyc",
       "subdomain": "red_flags",
       "difficulty": "hard",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5ff94c905bc0",
+      "question_id": "f997f32bbfe2",
       "domain": "aml_kyc",
       "subdomain": "pep",
       "difficulty": "hard",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "bf1082460d88",
+      "question_id": "16e5522d5e80",
       "domain": "aml_kyc",
       "subdomain": "trade_based",
       "difficulty": "extremely_complex",

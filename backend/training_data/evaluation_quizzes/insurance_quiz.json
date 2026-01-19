@@ -2,7 +2,7 @@
   "weight": 0.08,
   "questions": [
     {
-      "question_id": "4d372edb63d6",
+      "question_id": "f339ccb82d25",
       "domain": "insurance",
       "subdomain": "term_vs_whole",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "999759359663",
+      "question_id": "a69708c25822",
       "domain": "insurance",
       "subdomain": "disability_types",
       "difficulty": "easy",
@@ -59,7 +59,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1ac19a609156",
+      "question_id": "52cac3b5946b",
       "domain": "insurance",
       "subdomain": "life_needs",
       "difficulty": "medium",
@@ -88,7 +88,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "7a865ac619a4",
+      "question_id": "9e4bae5fc27c",
       "domain": "insurance",
       "subdomain": "ltc_planning",
       "difficulty": "medium",
@@ -117,7 +117,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "06f4f4441ffc",
+      "question_id": "77c9c102edd0",
       "domain": "insurance",
       "subdomain": "policy_loans",
       "difficulty": "medium",
@@ -146,7 +146,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "38d16a905a36",
+      "question_id": "bab8b7377f96",
       "domain": "insurance",
       "subdomain": "iul_analysis",
       "difficulty": "hard",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "613d726d6346",
+      "question_id": "73d8e76d1d7d",
       "domain": "insurance",
       "subdomain": "1035_exchange",
       "difficulty": "hard",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0630d34a4d60",
+      "question_id": "6885384b4769",
       "domain": "insurance",
       "subdomain": "ilit_planning",
       "difficulty": "extremely_complex",
@@ -234,7 +234,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5a057d81e397",
+      "question_id": "f9bd64597fd6",
       "domain": "insurance",
       "subdomain": "split_dollar",
       "difficulty": "extremely_complex",

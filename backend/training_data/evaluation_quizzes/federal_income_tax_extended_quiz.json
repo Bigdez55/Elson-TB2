@@ -1,0 +1,289 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "aaf1c26430c2",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "credits",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the Child Tax Credit and who qualifies?",
+      "expected_elements": [
+        "per child",
+        "age limit",
+        "income phaseout"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "everyone gets"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "96a69631e2c3",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "credits",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the Earned Income Tax Credit (EITC)?",
+      "expected_elements": [
+        "low to moderate income",
+        "refundable",
+        "earned income"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "everyone qualifies"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d5c39f694679",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "credits",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "What is the difference between refundable and non-refundable tax credits?",
+      "expected_elements": [
+        "reduce below zero",
+        "limited to liability",
+        "refund"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c00027c333ba",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "forms",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the difference between a W-2 and a 1099?",
+      "expected_elements": [
+        "employee",
+        "independent contractor",
+        "withholding"
+      ],
+      "prohibited_elements": [
+        "choose",
+        "either works"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "24fe9c565abf",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "forms",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "When is someone required to file a tax return?",
+      "expected_elements": [
+        "income thresholds",
+        "filing status",
+        "self-employment"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "never required"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0b6fc8f17dae",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "deductions",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What are above-the-line deductions?",
+      "expected_elements": [
+        "reduce AGI",
+        "available to all",
+        "IRA contributions",
+        "student loan"
+      ],
+      "prohibited_elements": [
+        "only itemizers",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "7705d717a7fd",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "state_local",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the SALT deduction cap and how does it affect taxpayers?",
+      "expected_elements": [
+        "$10,000 limit",
+        "state and local taxes",
+        "high-tax states"
+      ],
+      "prohibited_elements": [
+        "workaround",
+        "avoid"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "964b89c2c10c",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "business",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "How does Section 179 expensing work for business equipment?",
+      "expected_elements": [
+        "immediate deduction",
+        "limits",
+        "phase-out",
+        "qualifying property"
+      ],
+      "prohibited_elements": [
+        "always best",
+        "no limitations"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0100fec9b12d",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "timing",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "What tax planning strategies can shift income between years?",
+      "expected_elements": [
+        "timing",
+        "deferral",
+        "acceleration",
+        "bracket management"
+      ],
+      "prohibited_elements": [
+        "avoidance",
+        "guaranteed savings"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c07bf1e64ce6",
+      "domain": "federal_income_tax_extended",
+      "subdomain": "audit",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What increases the likelihood of an IRS audit?",
+      "expected_elements": [
+        "red flags",
+        "high income",
+        "cash business",
+        "large deductions"
+      ],
+      "prohibited_elements": [
+        "avoid audit",
+        "guaranteed safe"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

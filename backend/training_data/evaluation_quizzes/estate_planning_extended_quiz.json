@@ -1,0 +1,259 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "9e5d90b87fe1",
+      "domain": "estate_planning_extended",
+      "subdomain": "wills",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the difference between a will and a trust?",
+      "expected_elements": [
+        "probate",
+        "privacy",
+        "incapacity",
+        "flexibility"
+      ],
+      "prohibited_elements": [
+        "always use trust",
+        "wills unnecessary"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "099b08022215",
+      "domain": "estate_planning_extended",
+      "subdomain": "trusts",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "What is the difference between a revocable and irrevocable trust?",
+      "expected_elements": [
+        "control",
+        "asset protection",
+        "taxes"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "no downside"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3657d8f59515",
+      "domain": "estate_planning_extended",
+      "subdomain": "probate",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is probate and how can assets avoid it?",
+      "expected_elements": [
+        "court process",
+        "beneficiary designations",
+        "joint ownership",
+        "trusts"
+      ],
+      "prohibited_elements": [
+        "always avoid",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d79ade5ae895",
+      "domain": "estate_planning_extended",
+      "subdomain": "beneficiaries",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "Why is it important to keep beneficiary designations updated?",
+      "expected_elements": [
+        "override will",
+        "life changes",
+        "tax implications"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "will controls"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e332c6a5155d",
+      "domain": "estate_planning_extended",
+      "subdomain": "per_stirpes",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What does per stirpes mean for beneficiary designations?",
+      "expected_elements": [
+        "descendants",
+        "deceased beneficiary",
+        "shares"
+      ],
+      "prohibited_elements": [
+        "same as per capita",
+        "identical"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "43f0b606f346",
+      "domain": "estate_planning_extended",
+      "subdomain": "special_needs",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is a Special Needs Trust and why is it important?",
+      "expected_elements": [
+        "government benefits",
+        "supplemental",
+        "disabled beneficiary"
+      ],
+      "prohibited_elements": [
+        "always use",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c439630c816a",
+      "domain": "estate_planning_extended",
+      "subdomain": "powers",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare durable power of attorney to healthcare proxy.",
+      "expected_elements": [
+        "financial decisions",
+        "medical decisions",
+        "incapacity"
+      ],
+      "prohibited_elements": [
+        "same document",
+        "optional"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "b042be64ef7a",
+      "domain": "estate_planning_extended",
+      "subdomain": "family",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "How should estate planning differ for blended families?",
+      "expected_elements": [
+        "QTIP trust",
+        "equal vs equitable",
+        "communication"
+      ],
+      "prohibited_elements": [
+        "simple solution",
+        "one approach"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ad25f4c0c157",
+      "domain": "estate_planning_extended",
+      "subdomain": "business",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Design succession planning for a family business valued at $20M.",
+      "expected_elements": [
+        "valuation discount",
+        "buy-sell agreement",
+        "key person insurance"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "weight": 0.08,
   "questions": [
     {
-      "question_id": "f9afb4c56d4a",
+      "question_id": "a995d8d10d95",
       "domain": "derivatives",
       "subdomain": "options_basics",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f1d41a77560f",
+      "question_id": "c9cbadd4ec9b",
       "domain": "derivatives",
       "subdomain": "futures_basics",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "fe1f00a99e2c",
+      "question_id": "ef1c54a6478b",
       "domain": "derivatives",
       "subdomain": "covered_calls",
       "difficulty": "medium",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8552e78f2ace",
+      "question_id": "bb6e8d85e3ad",
       "domain": "derivatives",
       "subdomain": "protective_puts",
       "difficulty": "medium",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "feb140cf84b7",
+      "question_id": "94962b44f607",
       "domain": "derivatives",
       "subdomain": "options_greeks",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "aa910f7d997f",
+      "question_id": "588a2a87f44c",
       "domain": "derivatives",
       "subdomain": "spreads",
       "difficulty": "hard",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "aa50d694f645",
+      "question_id": "43f4b62197ee",
       "domain": "derivatives",
       "subdomain": "iron_condor",
       "difficulty": "hard",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "54f032137dd0",
+      "question_id": "44a37f2f319c",
       "domain": "derivatives",
       "subdomain": "volatility",
       "difficulty": "hard",
@@ -234,7 +234,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "d91ce4d9e5b8",
+      "question_id": "4d14020964af",
       "domain": "derivatives",
       "subdomain": "gamma_risk",
       "difficulty": "extremely_complex",
@@ -263,7 +263,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c95d15215e78",
+      "question_id": "54c83329d2e6",
       "domain": "derivatives",
       "subdomain": "exotic_options",
       "difficulty": "extremely_complex",

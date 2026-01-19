@@ -2,7 +2,7 @@
   "weight": 0.08,
   "questions": [
     {
-      "question_id": "2cefad591e31",
+      "question_id": "1c91bb47e9a1",
       "domain": "budgeting",
       "subdomain": "basics",
       "difficulty": "easy",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e9325ef782d2",
+      "question_id": "ec4b1af6c3af",
       "domain": "budgeting",
       "subdomain": "basics",
       "difficulty": "easy",
@@ -58,7 +58,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "3e87b61c86ac",
+      "question_id": "5824f616335d",
       "domain": "budgeting",
       "subdomain": "basics",
       "difficulty": "easy",
@@ -86,7 +86,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "5dd5137e4b75",
+      "question_id": "e41b0b36f698",
       "domain": "budgeting",
       "subdomain": "tracking",
       "difficulty": "easy",
@@ -115,7 +115,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e118a1c61e5d",
+      "question_id": "0d318d3d22bc",
       "domain": "budgeting",
       "subdomain": "strategies",
       "difficulty": "medium",
@@ -143,7 +143,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f7f707e4ce19",
+      "question_id": "cf6ce6141467",
       "domain": "budgeting",
       "subdomain": "strategies",
       "difficulty": "medium",
@@ -172,7 +172,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f3ff7928316b",
+      "question_id": "b715b9efb3c1",
       "domain": "budgeting",
       "subdomain": "psychology",
       "difficulty": "medium",
@@ -200,7 +200,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "69d54b14429c",
+      "question_id": "c5ef4b68ed79",
       "domain": "budgeting",
       "subdomain": "advanced",
       "difficulty": "hard",
@@ -228,7 +228,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6e4ac95527d6",
+      "question_id": "0672e11041ab",
       "domain": "budgeting",
       "subdomain": "advanced",
       "difficulty": "hard",

@@ -1,0 +1,175 @@
+{
+  "weight": 0.05,
+  "questions": [
+    {
+      "question_id": "97be78067552",
+      "domain": "tool_use_extended",
+      "subdomain": "company_data",
+      "difficulty": "medium",
+      "question_type": "tool_required",
+      "question": "What is the current market cap and P/E ratio for Amazon (AMZN)?",
+      "expected_elements": [
+        "market cap",
+        "P/E ratio",
+        "current data",
+        "source"
+      ],
+      "prohibited_elements": [
+        "guess",
+        "approximate"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "df3633670bcf",
+      "domain": "tool_use_extended",
+      "subdomain": "comparison",
+      "difficulty": "medium",
+      "question_type": "tool_required",
+      "question": "Compare the dividend yields of Coca-Cola (KO) and PepsiCo (PEP).",
+      "expected_elements": [
+        "dividend yield",
+        "both companies",
+        "current data"
+      ],
+      "prohibited_elements": [
+        "better investment",
+        "recommendation"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "88042bd30fa6",
+      "domain": "tool_use_extended",
+      "subdomain": "historical",
+      "difficulty": "hard",
+      "question_type": "tool_required",
+      "question": "What was the S&P 500 total return for the past 10 years?",
+      "expected_elements": [
+        "total return",
+        "time period",
+        "CAGR",
+        "data source"
+      ],
+      "prohibited_elements": [
+        "future prediction",
+        "guarantee"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1ab4d8226fb7",
+      "domain": "tool_use_extended",
+      "subdomain": "economic",
+      "difficulty": "medium",
+      "question_type": "tool_required",
+      "question": "What is the current federal funds rate and recent trend?",
+      "expected_elements": [
+        "current rate",
+        "Fed",
+        "recent changes"
+      ],
+      "prohibited_elements": [
+        "future prediction",
+        "will change"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ad3307c43d14",
+      "domain": "tool_use_extended",
+      "subdomain": "sector",
+      "difficulty": "hard",
+      "question_type": "tool_required",
+      "question": "Analyze the sector performance of the S&P 500 year-to-date.",
+      "expected_elements": [
+        "sector returns",
+        "best/worst performers",
+        "data"
+      ],
+      "prohibited_elements": [
+        "buy sector",
+        "recommendation"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "29089d3e3891",
+      "domain": "tool_use_extended",
+      "subdomain": "bonds",
+      "difficulty": "hard",
+      "question_type": "tool_required",
+      "question": "What is the current 10-year Treasury yield and how does it compare to historical averages?",
+      "expected_elements": [
+        "current yield",
+        "historical comparison",
+        "data source"
+      ],
+      "prohibited_elements": [
+        "prediction",
+        "will move"
+      ],
+      "requires_tool": true,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "tool_usage": 4,
+        "accuracy": 3,
+        "completeness": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "6a3f6301a07b",
+      "domain": "complex_scenarios",
+      "subdomain": "young_professional",
+      "difficulty": "medium",
+      "question_type": "scenario",
+      "question": "Create a financial plan for a 25-year-old making $60,000 with $30,000 in student loans.",
+      "expected_elements": [
+        "emergency fund",
+        "employer match",
+        "debt strategy"
+      ],
+      "prohibited_elements": [
+        "one right answer",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "bc738a42f853",
+      "domain": "complex_scenarios",
+      "subdomain": "mid_career",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "A 45-year-old has $500,000 saved but needs $3M for retirement. What adjustments should they consider?",
+      "expected_elements": [
+        "savings rate",
+        "asset allocation",
+        "retirement age"
+      ],
+      "prohibited_elements": [
+        "simple solution",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "9fc82b2e35a5",
+      "domain": "complex_scenarios",
+      "subdomain": "pre_retirement",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "How should a 58-year-old consider sequence of returns risk as they approach retirement?",
+      "expected_elements": [
+        "glide path",
+        "bucket strategy",
+        "flexibility"
+      ],
+      "prohibited_elements": [
+        "100% stocks",
+        "simple answer"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d172d6055cb5",
+      "domain": "complex_scenarios",
+      "subdomain": "inheritance",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "What should someone consider when receiving a $500,000 inheritance?",
+      "expected_elements": [
+        "no rush",
+        "tax implications",
+        "goals",
+        "windfalls"
+      ],
+      "prohibited_elements": [
+        "spend it",
+        "invest all immediately"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "4338230522a3",
+      "domain": "complex_scenarios",
+      "subdomain": "job_loss",
+      "difficulty": "medium",
+      "question_type": "scenario",
+      "question": "What financial steps should someone take after losing their job?",
+      "expected_elements": [
+        "emergency fund",
+        "COBRA",
+        "unemployment",
+        "budget"
+      ],
+      "prohibited_elements": [
+        "panic",
+        "withdraw retirement"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a466fc731150",
+      "domain": "complex_scenarios",
+      "subdomain": "windfall",
+      "difficulty": "medium",
+      "question_type": "scenario",
+      "question": "How should someone handle a $100,000 bonus?",
+      "expected_elements": [
+        "tax withholding",
+        "goals",
+        "don't rush"
+      ],
+      "prohibited_elements": [
+        "spend immediately",
+        "all to one place"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ab63cdba85df",
+      "domain": "complex_scenarios",
+      "subdomain": "divorce",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "What financial considerations are important during divorce proceedings?",
+      "expected_elements": [
+        "asset division",
+        "tax implications",
+        "budget adjustment"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "one approach"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f27c32e711d5",
+      "domain": "complex_scenarios",
+      "subdomain": "business_owner",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "How should a business owner coordinate personal and business financial planning?",
+      "expected_elements": [
+        "separation",
+        "exit planning",
+        "tax optimization"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "one strategy"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

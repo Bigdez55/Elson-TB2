@@ -2,7 +2,7 @@
   "weight": 0.06,
   "questions": [
     {
-      "question_id": "e84aad4dd41d",
+      "question_id": "2b4b75c4d7c4",
       "domain": "real_estate",
       "subdomain": "buying",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "71aea55e785f",
+      "question_id": "764b5d017f86",
       "domain": "real_estate",
       "subdomain": "buying",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1077fc5a4e56",
+      "question_id": "6336159dcdb0",
       "domain": "real_estate",
       "subdomain": "mortgages",
       "difficulty": "easy",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "35b9f2ce89aa",
+      "question_id": "fbad0b176cb1",
       "domain": "real_estate",
       "subdomain": "mortgages",
       "difficulty": "medium",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "b71fca94bcfb",
+      "question_id": "19f872e347de",
       "domain": "real_estate",
       "subdomain": "investing",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1109efc8f2e0",
+      "question_id": "c2e65f45f854",
       "domain": "real_estate",
       "subdomain": "investing",
       "difficulty": "medium",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "7082837db581",
+      "question_id": "b47102e43dca",
       "domain": "real_estate",
       "subdomain": "investing",
       "difficulty": "hard",
@@ -206,7 +206,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c61d46572a9d",
+      "question_id": "50576760d4ff",
       "domain": "real_estate",
       "subdomain": "tax",
       "difficulty": "hard",
@@ -235,7 +235,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1913ccc5bfe1",
+      "question_id": "e27dccbc2399",
       "domain": "real_estate",
       "subdomain": "advanced",
       "difficulty": "extremely_complex",

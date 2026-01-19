@@ -2,7 +2,7 @@
   "weight": 0.06,
   "questions": [
     {
-      "question_id": "aae4a9b029b0",
+      "question_id": "e267f600d87a",
       "domain": "securities_regulation",
       "subdomain": "sec_basics",
       "difficulty": "easy",
@@ -31,7 +31,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e25790ce0504",
+      "question_id": "66451526612c",
       "domain": "securities_regulation",
       "subdomain": "broker_dealer",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6ce228c8c088",
+      "question_id": "dd23905e0b99",
       "domain": "securities_regulation",
       "subdomain": "fiduciary_duty",
       "difficulty": "medium",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "00b300392e83",
+      "question_id": "c3cca5443a3c",
       "domain": "securities_regulation",
       "subdomain": "reg_bi",
       "difficulty": "medium",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "a539d31260bb",
+      "question_id": "14e937513452",
       "domain": "securities_regulation",
       "subdomain": "insider_trading",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e1fc832b2923",
+      "question_id": "e61deb8c4569",
       "domain": "securities_regulation",
       "subdomain": "private_placement",
       "difficulty": "hard",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "7b3563425d0c",
+      "question_id": "a3da0dbbf7d5",
       "domain": "securities_regulation",
       "subdomain": "market_manipulation",
       "difficulty": "hard",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "d3603262b34d",
+      "question_id": "65f270e2b932",
       "domain": "securities_regulation",
       "subdomain": "cross_border",
       "difficulty": "extremely_complex",

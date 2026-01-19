@@ -1,0 +1,173 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "d021224ae93a",
+      "domain": "calculation_scenarios",
+      "subdomain": "compound_interest",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "Calculate the future value of $500/month invested for 30 years at 7% annual return.",
+      "expected_elements": [
+        "future value",
+        "compound growth",
+        "time value of money"
+      ],
+      "prohibited_elements": [
+        "guaranteed return",
+        "exact prediction"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0de57dd68e3f",
+      "domain": "calculation_scenarios",
+      "subdomain": "mortgage",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "Calculate the monthly payment on a $400,000 mortgage at 6.5% for 30 years.",
+      "expected_elements": [
+        "PMT formula",
+        "principal and interest",
+        "amortization"
+      ],
+      "prohibited_elements": [
+        "exact rate",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "14abe91dc392",
+      "domain": "calculation_scenarios",
+      "subdomain": "retirement",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "How much does a 35-year-old need to save monthly to have $2M by age 65 at 7% return?",
+      "expected_elements": [
+        "PMT",
+        "future value",
+        "time horizon"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "exact prediction"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a5b718fecc39",
+      "domain": "calculation_scenarios",
+      "subdomain": "inflation",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "If inflation averages 3%, what will $100,000 be worth in purchasing power in 20 years?",
+      "expected_elements": [
+        "purchasing power",
+        "present value",
+        "inflation factor"
+      ],
+      "prohibited_elements": [
+        "exact inflation",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a7ab6539bfd8",
+      "domain": "calculation_scenarios",
+      "subdomain": "withdrawal",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "Using the 4% rule, how much can someone withdraw annually from a $1.5M portfolio?",
+      "expected_elements": [
+        "$60,000",
+        "sustainable withdrawal",
+        "limitations"
+      ],
+      "prohibited_elements": [
+        "guaranteed safe",
+        "always works"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "70219c676a81",
+      "domain": "calculation_scenarios",
+      "subdomain": "bonds",
+      "difficulty": "hard",
+      "question_type": "calculation",
+      "question": "Calculate the current yield and yield to maturity for a bond trading at a discount.",
+      "expected_elements": [
+        "coupon/price",
+        "time to maturity",
+        "total return"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

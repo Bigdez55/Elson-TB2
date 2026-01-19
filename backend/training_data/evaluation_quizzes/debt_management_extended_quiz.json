@@ -1,0 +1,234 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "ac6776432b95",
+      "domain": "debt_management_extended",
+      "subdomain": "strategies",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "Compare the debt avalanche method to the debt snowball method.",
+      "expected_elements": [
+        "highest interest",
+        "smallest balance",
+        "psychological",
+        "mathematical"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "only method"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "325aa7189567",
+      "domain": "debt_management_extended",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "Calculate the interest savings of paying extra on a mortgage.",
+      "expected_elements": [
+        "amortization",
+        "principal",
+        "interest saved",
+        "term reduction"
+      ],
+      "prohibited_elements": [
+        "always prepay",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fad42fe69944",
+      "domain": "debt_management_extended",
+      "subdomain": "mortgages",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the difference between mortgage refinancing and recasting?",
+      "expected_elements": [
+        "new loan",
+        "lump sum",
+        "payment reduction",
+        "closing costs"
+      ],
+      "prohibited_elements": [
+        "always refinance",
+        "no cost"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a1c749d80457",
+      "domain": "debt_management_extended",
+      "subdomain": "student_loans",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare federal student loan repayment plans: standard, graduated, income-driven.",
+      "expected_elements": [
+        "payment amounts",
+        "total cost",
+        "forgiveness"
+      ],
+      "prohibited_elements": [
+        "always choose",
+        "best for everyone"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3160dc26a860",
+      "domain": "debt_management_extended",
+      "subdomain": "student_loans",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is Public Service Loan Forgiveness (PSLF) and who qualifies?",
+      "expected_elements": [
+        "qualifying employer",
+        "120 payments",
+        "Direct Loans"
+      ],
+      "prohibited_elements": [
+        "guaranteed forgiveness",
+        "easy"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f1bca0c9cbb5",
+      "domain": "debt_management_extended",
+      "subdomain": "consolidation",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "When does debt consolidation make sense?",
+      "expected_elements": [
+        "lower rate",
+        "single payment",
+        "total cost"
+      ],
+      "prohibited_elements": [
+        "always good",
+        "no downside"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a4dfd542e4ae",
+      "domain": "debt_management_extended",
+      "subdomain": "bankruptcy",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is the difference between Chapter 7 and Chapter 13 bankruptcy?",
+      "expected_elements": [
+        "liquidation",
+        "repayment plan",
+        "eligibility",
+        "impact"
+      ],
+      "prohibited_elements": [
+        "easy solution",
+        "no consequences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3eb81d499ae8",
+      "domain": "debt_management_extended",
+      "subdomain": "collections",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "What are your rights when dealing with debt collectors?",
+      "expected_elements": [
+        "FDCPA",
+        "validation",
+        "cease contact",
+        "time-barred debt"
+      ],
+      "prohibited_elements": [
+        "ignore them",
+        "don't pay"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

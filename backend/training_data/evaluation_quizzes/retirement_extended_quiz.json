@@ -1,0 +1,288 @@
+{
+  "weight": 0.08,
+  "questions": [
+    {
+      "question_id": "9c9e0eae5852",
+      "domain": "retirement_extended",
+      "subdomain": "403b",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is a 403(b) plan and who can use it?",
+      "expected_elements": [
+        "non-profit",
+        "schools",
+        "tax-sheltered annuity"
+      ],
+      "prohibited_elements": [
+        "everyone",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "aadb2d63ca96",
+      "domain": "retirement_extended",
+      "subdomain": "457",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "How does a 457(b) plan differ from a 401(k)?",
+      "expected_elements": [
+        "government",
+        "no 10% penalty",
+        "separate limits"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "identical"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "4ebdfc2eeafc",
+      "domain": "retirement_extended",
+      "subdomain": "simple_ira",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a SIMPLE IRA and when is it appropriate?",
+      "expected_elements": [
+        "small business",
+        "matching",
+        "employee limit"
+      ],
+      "prohibited_elements": [
+        "best option",
+        "everyone should"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5c66d4a7479e",
+      "domain": "retirement_extended",
+      "subdomain": "pension",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is a defined benefit pension and how does it differ from a defined contribution plan?",
+      "expected_elements": [
+        "guaranteed benefit",
+        "formula",
+        "employer risk"
+      ],
+      "prohibited_elements": [
+        "better",
+        "always choose"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "acc63d52ea11",
+      "domain": "retirement_extended",
+      "subdomain": "vesting",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is vesting in retirement plans?",
+      "expected_elements": [
+        "ownership",
+        "employer contributions",
+        "schedule"
+      ],
+      "prohibited_elements": [
+        "immediate",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "cbf0a40f814b",
+      "domain": "retirement_extended",
+      "subdomain": "rollovers",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "What is the difference between a direct rollover and indirect rollover?",
+      "expected_elements": [
+        "60 days",
+        "withholding",
+        "taxable event"
+      ],
+      "prohibited_elements": [
+        "either works",
+        "no difference"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "bfd4d2033559",
+      "domain": "retirement_extended",
+      "subdomain": "nua",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is Net Unrealized Appreciation (NUA) and when is it beneficial?",
+      "expected_elements": [
+        "employer stock",
+        "capital gains rate",
+        "lump sum"
+      ],
+      "prohibited_elements": [
+        "always use",
+        "guaranteed better"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "eeba67c6f299",
+      "domain": "retirement_extended",
+      "subdomain": "annuities",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare immediate annuities to deferred annuities for retirement income.",
+      "expected_elements": [
+        "income timing",
+        "accumulation",
+        "fees",
+        "mortality"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "249c6df32567",
+      "domain": "retirement_extended",
+      "subdomain": "fiduciary",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is ERISA and how does it protect retirement plan participants?",
+      "expected_elements": [
+        "fiduciary duty",
+        "reporting",
+        "vesting",
+        "funding"
+      ],
+      "prohibited_elements": [
+        "guarantees",
+        "no risk"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "eff00e0f45f1",
+      "domain": "retirement_extended",
+      "subdomain": "coordination",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Design a withdrawal strategy coordinating 401(k), Roth IRA, and taxable accounts in early retirement.",
+      "expected_elements": [
+        "tax bracket",
+        "Roth ladder",
+        "healthcare",
+        "sequence"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

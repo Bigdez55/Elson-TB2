@@ -2,7 +2,7 @@
   "weight": 0.03,
   "questions": [
     {
-      "question_id": "55b753322970",
+      "question_id": "040d1060f20a",
       "domain": "international_finance",
       "subdomain": "taxation",
       "difficulty": "medium",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "ef09e96fcfc1",
+      "question_id": "6b13df7c427e",
       "domain": "international_finance",
       "subdomain": "taxation",
       "difficulty": "medium",
@@ -58,7 +58,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "fbc5274aac16",
+      "question_id": "72f436469b6b",
       "domain": "international_finance",
       "subdomain": "investing",
       "difficulty": "hard",
@@ -86,7 +86,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6fbaa6d47371",
+      "question_id": "33c719db76c7",
       "domain": "international_finance",
       "subdomain": "estate",
       "difficulty": "extremely_complex",

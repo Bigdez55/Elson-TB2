@@ -1,0 +1,175 @@
+{
+  "weight": 0.04,
+  "questions": [
+    {
+      "question_id": "eab019a7cc1f",
+      "domain": "compliance_extended",
+      "subdomain": "finra",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What is FINRA and what role does it play in securities regulation?",
+      "expected_elements": [
+        "self-regulatory",
+        "broker-dealers",
+        "rules",
+        "enforcement"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "advisory only"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3f89a18346d6",
+      "domain": "compliance_extended",
+      "subdomain": "suitability",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is the suitability standard for broker-dealers?",
+      "expected_elements": [
+        "reasonable basis",
+        "customer-specific",
+        "quantitative"
+      ],
+      "prohibited_elements": [
+        "best interest",
+        "fiduciary"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "1a9f331d6f81",
+      "domain": "compliance_extended",
+      "subdomain": "advertising",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What are the rules for investment performance advertising?",
+      "expected_elements": [
+        "GIPS",
+        "past performance",
+        "disclosures",
+        "net returns"
+      ],
+      "prohibited_elements": [
+        "any claims",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "d194f930d77b",
+      "domain": "compliance_extended",
+      "subdomain": "conflicts",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Identify and manage conflicts of interest in financial advisory relationships.",
+      "expected_elements": [
+        "disclosure",
+        "mitigation",
+        "client consent"
+      ],
+      "prohibited_elements": [
+        "ignore",
+        "hide"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3cf5fc56b5d2",
+      "domain": "compliance_extended",
+      "subdomain": "privacy",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What is Regulation P and how does it protect consumer privacy?",
+      "expected_elements": [
+        "privacy notice",
+        "opt-out",
+        "sharing limitations"
+      ],
+      "prohibited_elements": [
+        "optional",
+        "no restrictions"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "4783940c8d96",
+      "domain": "compliance_extended",
+      "subdomain": "cybersecurity",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What cybersecurity requirements apply to financial institutions?",
+      "expected_elements": [
+        "data protection",
+        "incident response",
+        "SEC guidance"
+      ],
+      "prohibited_elements": [
+        "voluntary",
+        "no requirements"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

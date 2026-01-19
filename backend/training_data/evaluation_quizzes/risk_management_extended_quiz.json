@@ -1,21 +1,22 @@
 {
-  "weight": 0.03,
+  "weight": 0.04,
   "questions": [
     {
-      "question_id": "fe7b2400d850",
-      "domain": "charitable_giving",
-      "subdomain": "basics",
+      "question_id": "a84dba39aec2",
+      "domain": "risk_management_extended",
+      "subdomain": "risk_tolerance",
       "difficulty": "easy",
       "question_type": "factual",
-      "question": "What documentation is required for charitable deductions?",
+      "question": "What is risk tolerance and how is it different from risk capacity?",
       "expected_elements": [
-        "written acknowledgment",
-        "$250 threshold",
-        "contemporaneous"
+        "willingness",
+        "ability",
+        "emotional",
+        "financial"
       ],
       "prohibited_elements": [
-        "no documentation",
-        "any amount"
+        "same thing",
+        "simple"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -30,20 +31,20 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "673e8a8710fa",
-      "domain": "charitable_giving",
-      "subdomain": "strategies",
+      "question_id": "d3473b915455",
+      "domain": "risk_management_extended",
+      "subdomain": "insurance",
       "difficulty": "medium",
       "question_type": "explanation",
-      "question": "How does donating appreciated stock benefit donors?",
+      "question": "What types of risk should be insured vs self-insured?",
       "expected_elements": [
-        "avoid capital gains",
-        "FMV deduction",
-        "holding period"
+        "catastrophic",
+        "affordable premium",
+        "frequency vs severity"
       ],
       "prohibited_elements": [
-        "always best",
-        "no limitations"
+        "insure everything",
+        "insure nothing"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -58,20 +59,48 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e2436cffd1fd",
-      "domain": "charitable_giving",
-      "subdomain": "daf",
+      "question_id": "4bd43bc7d0d6",
+      "domain": "risk_management_extended",
+      "subdomain": "emergency",
       "difficulty": "medium",
-      "question_type": "explanation",
-      "question": "What is a Donor Advised Fund and how does it work?",
+      "question_type": "scenario",
+      "question": "How should someone with a variable income approach risk management?",
       "expected_elements": [
-        "immediate deduction",
-        "recommend grants",
-        "investment growth"
+        "larger emergency fund",
+        "disability insurance",
+        "income smoothing"
       ],
       "prohibited_elements": [
-        "guaranteed",
-        "no fees"
+        "same as W-2",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "92318a14f0e7",
+      "domain": "risk_management_extended",
+      "subdomain": "diversification",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is correlation and why does it matter for diversification?",
+      "expected_elements": [
+        "movement together",
+        "-1 to 1",
+        "reduces risk"
+      ],
+      "prohibited_elements": [
+        "eliminates risk",
+        "perfect protection"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -86,50 +115,21 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "ce6fb61370f3",
-      "domain": "charitable_giving",
-      "subdomain": "advanced",
-      "difficulty": "hard",
-      "question_type": "comparison",
-      "question": "Compare a Charitable Remainder Trust to a Charitable Lead Trust.",
-      "expected_elements": [
-        "income stream",
-        "remainder",
-        "estate tax",
-        "income tax"
-      ],
-      "prohibited_elements": [
-        "simple",
-        "always better"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 3,
-        "balance": 3,
-        "completeness": 2,
-        "clarity": 2
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "0d0b9ebaaf83",
-      "domain": "charitable_giving",
-      "subdomain": "qcd",
+      "question_id": "288f3f532e10",
+      "domain": "risk_management_extended",
+      "subdomain": "hedging",
       "difficulty": "hard",
       "question_type": "explanation",
-      "question": "How do Qualified Charitable Distributions (QCDs) work and when are they beneficial?",
+      "question": "What is the difference between diversification and hedging?",
       "expected_elements": [
-        "age 70.5",
-        "direct transfer",
-        "RMD",
-        "AGI"
+        "spreading risk",
+        "offsetting risk",
+        "cost",
+        "goal"
       ],
       "prohibited_elements": [
-        "anyone can use",
-        "automatic"
+        "same thing",
+        "no difference"
       ],
       "requires_tool": false,
       "requires_retrieval": false,

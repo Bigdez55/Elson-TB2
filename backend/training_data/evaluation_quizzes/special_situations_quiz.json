@@ -2,47 +2,50 @@
   "weight": 0.03,
   "questions": [
     {
-      "question_id": "4884637c371b",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
-      "difficulty": "easy",
-      "question_type": "factual",
-      "question": "What is confirmation bias in investing?",
+      "question_id": "266dca2716c1",
+      "domain": "special_situations",
+      "subdomain": "expats",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What financial planning challenges do US expats face?",
       "expected_elements": [
-        "seeking confirming information",
-        "ignoring contrary evidence"
+        "FBAR",
+        "PFIC",
+        "tax filing",
+        "banking challenges"
       ],
       "prohibited_elements": [
-        "easy to avoid",
-        "doesn't affect professionals"
+        "simple",
+        "no issues"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
-      "compliance_sensitive": false,
+      "compliance_sensitive": true,
       "rubric": {
-        "accuracy": 4,
+        "accuracy": 3,
         "completeness": 3,
         "clarity": 2,
-        "appropriate_caveats": 1
+        "appropriate_caveats": 2
       },
       "reference_answer": null,
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "ccb48ab65088",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
+      "question_id": "5128a966e2e5",
+      "domain": "special_situations",
+      "subdomain": "military",
       "difficulty": "medium",
       "question_type": "explanation",
-      "question": "How does anchoring bias affect investment decisions?",
+      "question": "What unique financial benefits are available to military members?",
       "expected_elements": [
-        "reference point",
-        "purchase price",
-        "slow to adjust"
+        "TSP",
+        "Roth TSP",
+        "tax benefits",
+        "SGLI"
       ],
       "prohibited_elements": [
-        "easy fix",
-        "doesn't exist"
+        "same as civilian",
+        "no benefits"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -57,21 +60,20 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "2ed87b3d2db2",
-      "domain": "behavioral_finance",
-      "subdomain": "biases",
-      "difficulty": "medium",
+      "question_id": "ab281bc94f78",
+      "domain": "special_situations",
+      "subdomain": "disability",
+      "difficulty": "hard",
       "question_type": "scenario",
-      "question": "Identify the herd mentality bias in the 2021 meme stock phenomenon.",
+      "question": "What financial planning considerations apply to someone with a disability?",
       "expected_elements": [
-        "following crowd",
-        "FOMO",
-        "social proof",
-        "risk"
+        "SSDI",
+        "ABLE account",
+        "special needs trust"
       ],
       "prohibited_elements": [
-        "always wrong",
-        "always right"
+        "simple",
+        "same as everyone"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -86,20 +88,21 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "6183de780a74",
-      "domain": "behavioral_finance",
-      "subdomain": "strategies",
+      "question_id": "f1fcf56c6bb4",
+      "domain": "special_situations",
+      "subdomain": "self_employed",
       "difficulty": "hard",
       "question_type": "explanation",
-      "question": "How can systematic investment rules help overcome behavioral biases?",
+      "question": "What unique financial challenges do self-employed individuals face?",
       "expected_elements": [
-        "automation",
-        "predetermined rules",
-        "emotion removal"
+        "irregular income",
+        "self-employment tax",
+        "insurance",
+        "retirement"
       ],
       "prohibited_elements": [
-        "eliminate all bias",
-        "guaranteed success"
+        "simple",
+        "same as employee"
       ],
       "requires_tool": false,
       "requires_retrieval": false,

@@ -2,7 +2,7 @@
   "weight": 0.08,
   "questions": [
     {
-      "question_id": "80f5b4f2ef9c",
+      "question_id": "4fce74e83a7c",
       "domain": "tool_use",
       "subdomain": "market_data",
       "difficulty": "easy",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1c776eea9592",
+      "question_id": "0c6e850f018a",
       "domain": "tool_use",
       "subdomain": "index_data",
       "difficulty": "easy",
@@ -58,7 +58,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "d470e1259048",
+      "question_id": "21b6ac160c96",
       "domain": "tool_use",
       "subdomain": "financial_ratios",
       "difficulty": "medium",
@@ -87,7 +87,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c2938fab7e8e",
+      "question_id": "a3d9a35917a4",
       "domain": "tool_use",
       "subdomain": "screening",
       "difficulty": "medium",
@@ -116,7 +116,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "23adca3f11ff",
+      "question_id": "afb37026bfda",
       "domain": "tool_use",
       "subdomain": "portfolio_analysis",
       "difficulty": "hard",
@@ -145,7 +145,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f5faef0e4063",
+      "question_id": "2952c6c219b9",
       "domain": "tool_use",
       "subdomain": "technical_analysis",
       "difficulty": "hard",
@@ -174,7 +174,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "535bccdc55be",
+      "question_id": "5be2c96e3236",
       "domain": "tool_use",
       "subdomain": "monte_carlo",
       "difficulty": "extremely_complex",

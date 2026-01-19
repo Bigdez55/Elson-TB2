@@ -2,7 +2,7 @@
   "weight": 0.08,
   "questions": [
     {
-      "question_id": "dfad60266d0d",
+      "question_id": "e9cae3b1f061",
       "domain": "investment_basics",
       "subdomain": "asset_classes",
       "difficulty": "easy",
@@ -32,7 +32,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c0cfe6df6814",
+      "question_id": "dc0c43153f4d",
       "domain": "investment_basics",
       "subdomain": "asset_classes",
       "difficulty": "easy",
@@ -61,7 +61,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "bffa09ed7b30",
+      "question_id": "fd8945796769",
       "domain": "investment_basics",
       "subdomain": "diversification",
       "difficulty": "easy",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "46eb0fcc47cb",
+      "question_id": "2a2cbab451b8",
       "domain": "investment_basics",
       "subdomain": "funds",
       "difficulty": "easy",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "324bcad89bd7",
+      "question_id": "dd7e58c1dc49",
       "domain": "investment_basics",
       "subdomain": "risk",
       "difficulty": "medium",
@@ -146,7 +146,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "16e804d8a1a8",
+      "question_id": "3a6d6f9728a7",
       "domain": "investment_basics",
       "subdomain": "strategies",
       "difficulty": "medium",
@@ -174,7 +174,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "3c509c3c0131",
+      "question_id": "b8bcf379bb98",
       "domain": "investment_basics",
       "subdomain": "strategies",
       "difficulty": "medium",
@@ -203,7 +203,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e9e689ac325f",
+      "question_id": "73fc955f9cad",
       "domain": "investment_basics",
       "subdomain": "indices",
       "difficulty": "medium",
@@ -231,7 +231,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "15500bef7fa9",
+      "question_id": "740d97c86569",
       "domain": "investment_basics",
       "subdomain": "analysis",
       "difficulty": "hard",
@@ -259,7 +259,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "ad9548efeee9",
+      "question_id": "455ce9eae207",
       "domain": "investment_basics",
       "subdomain": "behavioral",
       "difficulty": "hard",
@@ -287,7 +287,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "1e5be1980d64",
+      "question_id": "f820d7aa0cad",
       "domain": "investment_basics",
       "subdomain": "advanced",
       "difficulty": "extremely_complex",

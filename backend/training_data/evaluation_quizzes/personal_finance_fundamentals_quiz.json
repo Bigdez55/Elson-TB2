@@ -1,0 +1,373 @@
+{
+  "weight": 0.1,
+  "questions": [
+    {
+      "question_id": "70a212be3fbc",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "savings",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the difference between a savings account and a money market account?",
+      "expected_elements": [
+        "interest rates",
+        "check writing",
+        "minimum balance"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "e5900b3272a9",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "savings",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is FDIC insurance and what does it cover?",
+      "expected_elements": [
+        "$250,000",
+        "deposit insurance",
+        "per depositor"
+      ],
+      "prohibited_elements": [
+        "all money safe",
+        "unlimited"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a83222dc58f5",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "savings",
+      "difficulty": "easy",
+      "question_type": "comparison",
+      "question": "Compare CDs to high-yield savings accounts.",
+      "expected_elements": [
+        "term",
+        "early withdrawal penalty",
+        "interest rate"
+      ],
+      "prohibited_elements": [
+        "always CD",
+        "always savings"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c3fa25548392",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "checking",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is overdraft protection and how does it work?",
+      "expected_elements": [
+        "linked account",
+        "fees",
+        "automatic transfer"
+      ],
+      "prohibited_elements": [
+        "free",
+        "no cost"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3c6c926865e0",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "banking",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare online banks to traditional brick-and-mortar banks.",
+      "expected_elements": [
+        "interest rates",
+        "fees",
+        "convenience",
+        "services"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "no differences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a6bf3d21bfa5",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "emergency_fund",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is an emergency fund and how much should you have?",
+      "expected_elements": [
+        "3-6 months",
+        "liquid",
+        "unexpected expenses"
+      ],
+      "prohibited_elements": [
+        "exact amount",
+        "guaranteed safe"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "276ddf5c99ac",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "emergency_fund",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "Where should you keep your emergency fund?",
+      "expected_elements": [
+        "accessible",
+        "liquid",
+        "FDIC insured"
+      ],
+      "prohibited_elements": [
+        "invest in stocks",
+        "CD only"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "cf5cec6edd8d",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "cash_flow",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What is the difference between gross income and net income?",
+      "expected_elements": [
+        "before taxes",
+        "after deductions",
+        "take-home"
+      ],
+      "prohibited_elements": [
+        "same thing",
+        "interchangeable"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "b400a03a7c04",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "cash_flow",
+      "difficulty": "medium",
+      "question_type": "calculation",
+      "question": "How do you calculate your savings rate?",
+      "expected_elements": [
+        "savings divided by income",
+        "percentage",
+        "gross vs net"
+      ],
+      "prohibited_elements": [
+        "exact target",
+        "everyone should"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c3dea9fc8ed2",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "spending",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is discretionary vs non-discretionary spending?",
+      "expected_elements": [
+        "essential",
+        "optional",
+        "needs vs wants"
+      ],
+      "prohibited_elements": [
+        "eliminate all discretionary",
+        "always"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3d49b3925c0d",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "goals",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are SMART financial goals?",
+      "expected_elements": [
+        "Specific",
+        "Measurable",
+        "Achievable",
+        "Relevant",
+        "Time-bound"
+      ],
+      "prohibited_elements": [
+        "guaranteed success",
+        "only method"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "a22063ca51b8",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "goals",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "How should you prioritize multiple financial goals?",
+      "expected_elements": [
+        "emergency fund",
+        "high-interest debt",
+        "retirement",
+        "timeline"
+      ],
+      "prohibited_elements": [
+        "one order for all",
+        "simple answer"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "3272bed0694d",
+      "domain": "personal_finance_fundamentals",
+      "subdomain": "goals",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Create a financial priority plan for a 35-year-old with $20,000 debt and no retirement savings.",
+      "expected_elements": [
+        "debt vs savings",
+        "employer match",
+        "interest rates"
+      ],
+      "prohibited_elements": [
+        "simple answer",
+        "one approach"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

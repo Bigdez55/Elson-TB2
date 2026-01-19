@@ -1,0 +1,290 @@
+{
+  "weight": 0.06,
+  "questions": [
+    {
+      "question_id": "a6fa451c054d",
+      "domain": "investment_advanced",
+      "subdomain": "bonds",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is duration and how does it relate to interest rate risk?",
+      "expected_elements": [
+        "price sensitivity",
+        "years",
+        "inverse relationship"
+      ],
+      "prohibited_elements": [
+        "no risk",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f7e01c024eaf",
+      "domain": "investment_advanced",
+      "subdomain": "bonds",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare Treasury bonds, corporate bonds, and municipal bonds.",
+      "expected_elements": [
+        "credit risk",
+        "tax treatment",
+        "yield"
+      ],
+      "prohibited_elements": [
+        "always best",
+        "no differences"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "214e93afaeb8",
+      "domain": "investment_advanced",
+      "subdomain": "alternatives",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What are alternative investments and why do investors use them?",
+      "expected_elements": [
+        "non-traditional",
+        "diversification",
+        "liquidity"
+      ],
+      "prohibited_elements": [
+        "guaranteed returns",
+        "always include"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "7ffc917d469d",
+      "domain": "investment_advanced",
+      "subdomain": "private_equity",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is private equity and what are its risks and potential rewards?",
+      "expected_elements": [
+        "illiquidity",
+        "long horizon",
+        "high minimums",
+        "J-curve"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "safe"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "886192f1f9b9",
+      "domain": "investment_advanced",
+      "subdomain": "hedge_funds",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What are hedge funds and how do they differ from mutual funds?",
+      "expected_elements": [
+        "accredited investors",
+        "strategies",
+        "fees",
+        "liquidity"
+      ],
+      "prohibited_elements": [
+        "always outperform",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "fb3afe7db62c",
+      "domain": "investment_advanced",
+      "subdomain": "rebalancing",
+      "difficulty": "medium",
+      "question_type": "procedural",
+      "question": "What is portfolio rebalancing and how often should it be done?",
+      "expected_elements": [
+        "target allocation",
+        "drift",
+        "tax implications"
+      ],
+      "prohibited_elements": [
+        "daily",
+        "never needed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "compliance_adherence": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0fcab2e20b2f",
+      "domain": "investment_advanced",
+      "subdomain": "factor",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What are factor-based investing strategies?",
+      "expected_elements": [
+        "value",
+        "momentum",
+        "size",
+        "quality",
+        "low volatility"
+      ],
+      "prohibited_elements": [
+        "guaranteed",
+        "always work"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "29607c4ad7c7",
+      "domain": "investment_advanced",
+      "subdomain": "esg",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is ESG investing and how does it affect returns?",
+      "expected_elements": [
+        "environmental",
+        "social",
+        "governance",
+        "screens"
+      ],
+      "prohibited_elements": [
+        "always better",
+        "no tradeoffs"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "481dce6cfba7",
+      "domain": "investment_advanced",
+      "subdomain": "direct_indexing",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What is direct indexing and when is it beneficial?",
+      "expected_elements": [
+        "individual stocks",
+        "tax-loss harvesting",
+        "customization"
+      ],
+      "prohibited_elements": [
+        "free",
+        "always better"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "cdeba8f590a0",
+      "domain": "investment_advanced",
+      "subdomain": "sequence",
+      "difficulty": "extremely_complex",
+      "question_type": "calculation",
+      "question": "Explain sequence of returns risk and its impact on retirement portfolios.",
+      "expected_elements": [
+        "withdrawal timing",
+        "early losses",
+        "portfolio longevity"
+      ],
+      "prohibited_elements": [
+        "no impact",
+        "guaranteed"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

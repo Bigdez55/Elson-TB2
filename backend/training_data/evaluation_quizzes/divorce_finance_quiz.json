@@ -2,7 +2,7 @@
   "weight": 0.02,
   "questions": [
     {
-      "question_id": "c013c9394e42",
+      "question_id": "bc926a90351d",
       "domain": "divorce_finance",
       "subdomain": "basics",
       "difficulty": "medium",
@@ -30,7 +30,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0fdd5ce9040a",
+      "question_id": "562cf3772e04",
       "domain": "divorce_finance",
       "subdomain": "taxation",
       "difficulty": "medium",
@@ -58,7 +58,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "69514134d7af",
+      "question_id": "5e4fbc3acd7a",
       "domain": "divorce_finance",
       "subdomain": "property",
       "difficulty": "hard",

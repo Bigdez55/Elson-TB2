@@ -997,6 +997,7 @@ def generate_all_quizzes(include_expanded: bool = True) -> Dict[str, List[Dict]]
 
     # Include expanded quizzes if requested
     if include_expanded:
+        # Load v1 expanded templates
         try:
             from expanded_quiz_templates import get_expanded_quizzes
             expanded = get_expanded_quizzes()
@@ -1005,16 +1006,50 @@ def generate_all_quizzes(include_expanded: bool = True) -> Dict[str, List[Dict]]
                 for q_data in config["questions"]:
                     questions.append(create_question_entry(domain, q_data))
                 if domain in quizzes:
-                    # Merge with existing domain
                     quizzes[domain]["questions"].extend(questions)
                 else:
-                    # New domain
                     quizzes[domain] = {
                         "weight": config.get("weight", 0.05),
                         "questions": questions,
                     }
         except ImportError:
-            print("Warning: expanded_quiz_templates not found, using base quizzes only")
+            print("Warning: expanded_quiz_templates not found")
+
+        # Load v2 expanded templates
+        try:
+            from expanded_quiz_templates_v2 import get_expanded_quizzes_v2
+            expanded_v2 = get_expanded_quizzes_v2()
+            for domain, config in expanded_v2.items():
+                questions = []
+                for q_data in config["questions"]:
+                    questions.append(create_question_entry(domain, q_data))
+                if domain in quizzes:
+                    quizzes[domain]["questions"].extend(questions)
+                else:
+                    quizzes[domain] = {
+                        "weight": config.get("weight", 0.05),
+                        "questions": questions,
+                    }
+        except ImportError:
+            print("Warning: expanded_quiz_templates_v2 not found")
+
+        # Load v3 expanded templates
+        try:
+            from expanded_quiz_templates_v3 import get_expanded_quizzes_v3
+            expanded_v3 = get_expanded_quizzes_v3()
+            for domain, config in expanded_v3.items():
+                questions = []
+                for q_data in config["questions"]:
+                    questions.append(create_question_entry(domain, q_data))
+                if domain in quizzes:
+                    quizzes[domain]["questions"].extend(questions)
+                else:
+                    quizzes[domain] = {
+                        "weight": config.get("weight", 0.05),
+                        "questions": questions,
+                    }
+        except ImportError:
+            print("Warning: expanded_quiz_templates_v3 not found")
 
     return quizzes
 

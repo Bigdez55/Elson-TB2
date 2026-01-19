@@ -1,0 +1,146 @@
+{
+  "weight": 0.05,
+  "questions": [
+    {
+      "question_id": "d59c6225dbc1",
+      "domain": "tax_planning_extended",
+      "subdomain": "strategies",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What is tax-loss harvesting and when is it beneficial?",
+      "expected_elements": [
+        "realize losses",
+        "offset gains",
+        "wash sale rule"
+      ],
+      "prohibited_elements": [
+        "always harvest",
+        "free tax savings"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "c4cb4ebb4bab",
+      "domain": "tax_planning_extended",
+      "subdomain": "strategies",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare tax-deferred, tax-exempt, and taxable accounts for different types of investments.",
+      "expected_elements": [
+        "asset location",
+        "growth vs income",
+        "tax efficiency"
+      ],
+      "prohibited_elements": [
+        "one best answer",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "f29af6f90a6a",
+      "domain": "tax_planning_extended",
+      "subdomain": "strategies",
+      "difficulty": "hard",
+      "question_type": "scenario",
+      "question": "Design a tax-efficient charitable giving strategy for someone with appreciated stock.",
+      "expected_elements": [
+        "donate stock directly",
+        "avoid capital gains",
+        "fair market value"
+      ],
+      "prohibited_elements": [
+        "always donate",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "152b3d3b2db4",
+      "domain": "tax_planning_extended",
+      "subdomain": "business",
+      "difficulty": "hard",
+      "question_type": "explanation",
+      "question": "What tax strategies are available for high-income W-2 employees?",
+      "expected_elements": [
+        "maximize retirement",
+        "HSA",
+        "charitable",
+        "limited deductions"
+      ],
+      "prohibited_elements": [
+        "avoid taxes",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5447e7610a45",
+      "domain": "tax_planning_extended",
+      "subdomain": "timing",
+      "difficulty": "extremely_complex",
+      "question_type": "scenario",
+      "question": "Analyze the tax implications of exercising incentive stock options (ISOs).",
+      "expected_elements": [
+        "AMT",
+        "holding period",
+        "disqualifying disposition"
+      ],
+      "prohibited_elements": [
+        "simple",
+        "no tax"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "analysis_depth": 3,
+        "practicality": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

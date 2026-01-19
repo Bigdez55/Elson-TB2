@@ -1,0 +1,178 @@
+{
+  "weight": 0.05,
+  "questions": [
+    {
+      "question_id": "4b476deb8568",
+      "domain": "financial_planning_process",
+      "subdomain": "process",
+      "difficulty": "easy",
+      "question_type": "factual",
+      "question": "What are the six steps of the financial planning process?",
+      "expected_elements": [
+        "establish relationship",
+        "gather data",
+        "analyze",
+        "present recommendations",
+        "implement",
+        "monitor"
+      ],
+      "prohibited_elements": [
+        "one-time",
+        "simple"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5f78d4fe4f73",
+      "domain": "financial_planning_process",
+      "subdomain": "net_worth",
+      "difficulty": "easy",
+      "question_type": "calculation",
+      "question": "How do you calculate net worth?",
+      "expected_elements": [
+        "assets minus liabilities",
+        "snapshot",
+        "balance sheet"
+      ],
+      "prohibited_elements": [
+        "income based",
+        "complex"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "calculation_accuracy": 4,
+        "methodology": 3,
+        "completeness": 2,
+        "clarity": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "5ac5d7211355",
+      "domain": "financial_planning_process",
+      "subdomain": "documents",
+      "difficulty": "medium",
+      "question_type": "factual",
+      "question": "What financial documents should everyone keep organized?",
+      "expected_elements": [
+        "tax returns",
+        "insurance policies",
+        "estate documents",
+        "investment statements"
+      ],
+      "prohibited_elements": [
+        "everything",
+        "nothing"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 1
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "74a041339ea1",
+      "domain": "financial_planning_process",
+      "subdomain": "professionals",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare CFP, CFA, and CPA credentials.",
+      "expected_elements": [
+        "financial planning",
+        "investment analysis",
+        "accounting"
+      ],
+      "prohibited_elements": [
+        "best",
+        "always choose"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "62b9e2be92a3",
+      "domain": "financial_planning_process",
+      "subdomain": "fees",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What are the different ways financial advisors charge for their services?",
+      "expected_elements": [
+        "fee-only",
+        "commission",
+        "AUM",
+        "hourly"
+      ],
+      "prohibited_elements": [
+        "fee-only always best",
+        "commissions always bad"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "ab8bebffad13",
+      "domain": "financial_planning_process",
+      "subdomain": "review",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "How often should you review your financial plan?",
+      "expected_elements": [
+        "annually",
+        "life changes",
+        "market changes"
+      ],
+      "prohibited_elements": [
+        "never change",
+        "daily"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

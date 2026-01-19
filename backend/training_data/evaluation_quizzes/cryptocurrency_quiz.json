@@ -2,20 +2,21 @@
   "weight": 0.03,
   "questions": [
     {
-      "question_id": "fe7b2400d850",
-      "domain": "charitable_giving",
+      "question_id": "a39cbb25d7e7",
+      "domain": "cryptocurrency",
       "subdomain": "basics",
       "difficulty": "easy",
       "question_type": "factual",
-      "question": "What documentation is required for charitable deductions?",
+      "question": "What is cryptocurrency and how does it differ from traditional currency?",
       "expected_elements": [
-        "written acknowledgment",
-        "$250 threshold",
-        "contemporaneous"
+        "digital",
+        "decentralized",
+        "blockchain",
+        "not government-backed"
       ],
       "prohibited_elements": [
-        "no documentation",
-        "any amount"
+        "guaranteed",
+        "better than"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -30,20 +31,50 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "673e8a8710fa",
-      "domain": "charitable_giving",
-      "subdomain": "strategies",
+      "question_id": "b69603d4a5df",
+      "domain": "cryptocurrency",
+      "subdomain": "taxation",
       "difficulty": "medium",
       "question_type": "explanation",
-      "question": "How does donating appreciated stock benefit donors?",
+      "question": "How is cryptocurrency taxed in the US?",
       "expected_elements": [
-        "avoid capital gains",
-        "FMV deduction",
-        "holding period"
+        "property",
+        "capital gains",
+        "reporting",
+        "cost basis"
       ],
       "prohibited_elements": [
-        "always best",
-        "no limitations"
+        "tax free",
+        "not reported"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": true,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "95a49bb6a9c6",
+      "domain": "cryptocurrency",
+      "subdomain": "risk",
+      "difficulty": "medium",
+      "question_type": "explanation",
+      "question": "What are the risks of investing in cryptocurrency?",
+      "expected_elements": [
+        "volatility",
+        "regulatory",
+        "security",
+        "no FDIC"
+      ],
+      "prohibited_elements": [
+        "safe",
+        "guaranteed"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -58,49 +89,50 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "e2436cffd1fd",
-      "domain": "charitable_giving",
-      "subdomain": "daf",
-      "difficulty": "medium",
-      "question_type": "explanation",
-      "question": "What is a Donor Advised Fund and how does it work?",
-      "expected_elements": [
-        "immediate deduction",
-        "recommend grants",
-        "investment growth"
-      ],
-      "prohibited_elements": [
-        "guaranteed",
-        "no fees"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 3,
-        "completeness": 3,
-        "clarity": 2,
-        "appropriate_caveats": 2
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "ce6fb61370f3",
-      "domain": "charitable_giving",
-      "subdomain": "advanced",
+      "question_id": "d0071cbd0b3c",
+      "domain": "cryptocurrency",
+      "subdomain": "regulation",
       "difficulty": "hard",
-      "question_type": "comparison",
-      "question": "Compare a Charitable Remainder Trust to a Charitable Lead Trust.",
+      "question_type": "explanation",
+      "question": "What is the current regulatory landscape for cryptocurrency in the US?",
       "expected_elements": [
-        "income stream",
-        "remainder",
-        "estate tax",
-        "income tax"
+        "SEC",
+        "CFTC",
+        "evolving",
+        "uncertainty"
       ],
       "prohibited_elements": [
-        "simple",
-        "always better"
+        "fully regulated",
+        "no oversight"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "completeness": 3,
+        "clarity": 2,
+        "appropriate_caveats": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "25039763ce06",
+      "domain": "cryptocurrency",
+      "subdomain": "custody",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare self-custody to exchange custody for cryptocurrency.",
+      "expected_elements": [
+        "private keys",
+        "security",
+        "convenience",
+        "insurance"
+      ],
+      "prohibited_elements": [
+        "always self-custody",
+        "always exchange"
       ],
       "requires_tool": false,
       "requires_retrieval": false,
@@ -110,35 +142,6 @@
         "balance": 3,
         "completeness": 2,
         "clarity": 2
-      },
-      "reference_answer": null,
-      "source": "domain_quiz_generator"
-    },
-    {
-      "question_id": "0d0b9ebaaf83",
-      "domain": "charitable_giving",
-      "subdomain": "qcd",
-      "difficulty": "hard",
-      "question_type": "explanation",
-      "question": "How do Qualified Charitable Distributions (QCDs) work and when are they beneficial?",
-      "expected_elements": [
-        "age 70.5",
-        "direct transfer",
-        "RMD",
-        "AGI"
-      ],
-      "prohibited_elements": [
-        "anyone can use",
-        "automatic"
-      ],
-      "requires_tool": false,
-      "requires_retrieval": false,
-      "compliance_sensitive": false,
-      "rubric": {
-        "accuracy": 3,
-        "completeness": 3,
-        "clarity": 2,
-        "appropriate_caveats": 2
       },
       "reference_answer": null,
       "source": "domain_quiz_generator"

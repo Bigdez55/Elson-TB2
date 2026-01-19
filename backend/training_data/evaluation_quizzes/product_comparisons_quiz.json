@@ -1,0 +1,120 @@
+{
+  "weight": 0.04,
+  "questions": [
+    {
+      "question_id": "dffba30a4abc",
+      "domain": "product_comparisons",
+      "subdomain": "retirement",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare Traditional vs Roth for a high-income earner vs a low-income earner.",
+      "expected_elements": [
+        "tax bracket now vs later",
+        "income limits",
+        "flexibility"
+      ],
+      "prohibited_elements": [
+        "always Roth",
+        "always Traditional"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "502b40986d6e",
+      "domain": "product_comparisons",
+      "subdomain": "loans",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare personal loans, home equity loans, and 401(k) loans.",
+      "expected_elements": [
+        "rates",
+        "collateral",
+        "tax implications",
+        "risks"
+      ],
+      "prohibited_elements": [
+        "best option",
+        "always choose"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "8405a5cf476c",
+      "domain": "product_comparisons",
+      "subdomain": "annuities",
+      "difficulty": "hard",
+      "question_type": "comparison",
+      "question": "Compare annuities to bond ladders for retirement income.",
+      "expected_elements": [
+        "guaranteed income",
+        "flexibility",
+        "fees",
+        "longevity"
+      ],
+      "prohibited_elements": [
+        "always annuity",
+        "never annuity"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    },
+    {
+      "question_id": "0635c1adc7d2",
+      "domain": "product_comparisons",
+      "subdomain": "advisors",
+      "difficulty": "medium",
+      "question_type": "comparison",
+      "question": "Compare robo-advisors to human financial advisors.",
+      "expected_elements": [
+        "cost",
+        "personalization",
+        "complexity",
+        "access"
+      ],
+      "prohibited_elements": [
+        "always robo",
+        "never robo"
+      ],
+      "requires_tool": false,
+      "requires_retrieval": false,
+      "compliance_sensitive": false,
+      "rubric": {
+        "accuracy": 3,
+        "balance": 3,
+        "completeness": 2,
+        "clarity": 2
+      },
+      "reference_answer": null,
+      "source": "domain_quiz_generator"
+    }
+  ]
+}

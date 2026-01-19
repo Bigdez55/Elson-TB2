@@ -2,7 +2,7 @@
   "weight": 0.1,
   "questions": [
     {
-      "question_id": "4ede6b3a007e",
+      "question_id": "4a8ae74ccff7",
       "domain": "federal_income_tax",
       "subdomain": "filing_status",
       "difficulty": "easy",
@@ -32,7 +32,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "a98b016ed66c",
+      "question_id": "0c03b7ae6feb",
       "domain": "federal_income_tax",
       "subdomain": "standard_deduction",
       "difficulty": "easy",
@@ -60,7 +60,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8247204447fe",
+      "question_id": "da870604cc4c",
       "domain": "federal_income_tax",
       "subdomain": "w4_basics",
       "difficulty": "easy",
@@ -89,7 +89,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "ee0ce17f81bc",
+      "question_id": "f0ec4f92ac81",
       "domain": "federal_income_tax",
       "subdomain": "1099_income",
       "difficulty": "easy",
@@ -118,7 +118,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "08d537dfb42c",
+      "question_id": "4d30c5bf737a",
       "domain": "federal_income_tax",
       "subdomain": "tax_brackets",
       "difficulty": "medium",
@@ -147,7 +147,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "a6ed616b3229",
+      "question_id": "2f7318ea1069",
       "domain": "federal_income_tax",
       "subdomain": "capital_gains",
       "difficulty": "medium",
@@ -176,7 +176,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8e30f1caee33",
+      "question_id": "2773ec4327c3",
       "domain": "federal_income_tax",
       "subdomain": "deductions",
       "difficulty": "medium",
@@ -205,7 +205,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "0279e6c0e07b",
+      "question_id": "01c0fdfdc78d",
       "domain": "federal_income_tax",
       "subdomain": "amt",
       "difficulty": "medium",
@@ -234,7 +234,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "2da7ba4e080b",
+      "question_id": "9fdd80796d0d",
       "domain": "federal_income_tax",
       "subdomain": "estimated_taxes",
       "difficulty": "medium",
@@ -263,7 +263,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8d48c7d24434",
+      "question_id": "3b9e93f61e00",
       "domain": "federal_income_tax",
       "subdomain": "nii_tax",
       "difficulty": "hard",
@@ -292,7 +292,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c94e45e338c7",
+      "question_id": "200c525a2125",
       "domain": "federal_income_tax",
       "subdomain": "qbi_deduction",
       "difficulty": "hard",
@@ -322,7 +322,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "f7727faee2ed",
+      "question_id": "3da80cd0d25b",
       "domain": "federal_income_tax",
       "subdomain": "wash_sales",
       "difficulty": "hard",
@@ -351,7 +351,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "c131fdc7c73a",
+      "question_id": "3126e3ceaa93",
       "domain": "federal_income_tax",
       "subdomain": "passive_activity",
       "difficulty": "extremely_complex",
@@ -381,7 +381,7 @@
       "source": "domain_quiz_generator"
     },
     {
-      "question_id": "8a0c24b37469",
+      "question_id": "9037dd082800",
       "domain": "federal_income_tax",
       "subdomain": "installment_sales",
       "difficulty": "extremely_complex",
