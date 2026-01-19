@@ -1,7 +1,41 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-19
-**Status:** 100% Complete - DoRA Training Complete on H100, Models in GCS
+**Last Updated:** 2026-01-18
+**Status:** 🟢 TRAINING IN PROGRESS - H100 DoRA Training Active
+
+---
+
+## ⚠️ CRITICAL RULE - CHECK EXISTING VMs FIRST
+
+> **ALWAYS run `gcloud compute instances list` BEFORE creating any new VM.**
+
+```bash
+# Run this FIRST before any VM operations:
+gcloud compute instances list
+
+# Only create a new VM if the one you need doesn't exist
+```
+
+This prevents duplicate VMs and wasted resources.
+
+---
+
+## 🟢 CURRENT TRAINING STATUS
+
+| Metric | Value |
+|--------|-------|
+| **VM** | `elson-h100-spot` |
+| **IP** | `136.113.9.49` |
+| **GPU Memory** | 62,609 MiB / 80GB (78%) |
+| **GPU Utilization** | 100% |
+| **Progress** | 30/70 steps (43%) |
+| **Speed** | ~21 sec/step |
+| **ETA** | ~21 min remaining |
+
+**Monitor Training:**
+```bash
+ssh -i ~/.ssh/google_compute_engine bigdez55@136.113.9.49 "nvidia-smi && tail -5 /workspace/training.log"
+```
 
 ---
 
