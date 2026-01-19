@@ -1,7 +1,7 @@
 # Elson TB2 - Implementation Action Plan
 
-**Generated:** 2026-01-18
-**Status:** Implementation Complete - Ready for Execution
+**Generated:** 2026-01-19
+**Status:** Tool-First Architecture Complete - Ready for Deployment
 
 ---
 
@@ -9,11 +9,11 @@
 
 This action plan implements the comprehensive analysis for Elson TB2, an AGI/ASI-grade financial platform designed to rival BlackRock Aladdin and Vanguard. The implementation includes:
 
-- **Training Data Consolidation:** 950 Q&A pairs (target: 1,200)
-- **URL Categorization:** 830+ URLs categorized (from 11% to 89%)
-- **Strategic Q&A Extraction:** 205 pairs from technical documents
-- **Deployment Scripts:** L4/Spot/2xT4 with DoRA adapter support
-- **Evaluation Framework:** 100-question benchmark with automated scoring
+- **Training Data Consolidation:** 40,993 Q&A pairs (exceeded 25,000 target)
+- **Tool Integration:** OpenBB, FinanceToolkit, yfinance endpoints
+- **Domain Packs:** Insurance (10K), Accounting (5K), Tool-Use (2.5K)
+- **Evaluation Framework:** 431-question benchmark across 27 domains
+- **Deployment Scripts:** L4/Spot with DoRA adapter support
 
 ---
 
@@ -23,21 +23,21 @@ This action plan implements the comprehensive analysis for Elson TB2, an AGI/ASI
 
 | Script | Purpose | Output |
 |--------|---------|--------|
-| `scripts/categorize_training_urls.py` | Categorize 830+ uncategorized URLs | `master_training_resources_categorized.csv` |
-| `scripts/extract_qa_from_docs.py` | Extract Q&A from strategic docs | `strategic_qa_pairs.json`, `strategic_qa_alpaca.json` |
-| `scripts/consolidate_training_data.py` | Merge all training sources | `consolidated_training_data.json/jsonl` |
+| `scripts/generate_tool_use_training_data.py` | Generate tool-use examples | `tool_use_training_data.json` (2,500) |
+| `scripts/generate_insurance_training_data.py` | Generate insurance examples | `insurance_training_data.json` (10,000) |
+| `scripts/generate_accounting_training_data.py` | Generate accounting examples | `accounting_training_data.json` (5,000) |
+| `scripts/consolidate_training_data.py` | Merge all training sources | `final_training_data.json` (23,493) |
 
 **Results:**
 ```
-Total Q&A pairs: 950
-Training Data Target: 1,200
-Gap: 250 pairs needed
+Total Q&A pairs: 40,993
+Training Data Target: 25,000 ✅ EXCEEDED
 
 By Source:
-  training_data_final: 643
-  Comprehensive Trading Knowledge: 104
-  resource_catalog: 102
-  Building AGI_ASI Investment System: 101
+  final_training_data.json:      23,493 (57.3%)
+  insurance_training_data.json:  10,000 (24.4%)
+  accounting_training_data.json:  5,000 (12.2%)
+  tool_use_training_data.json:    2,500 (6.1%)
 ```
 
 ### 2. H100 Training Pipeline (PRIMARY)
@@ -112,15 +112,20 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 
 | Script | Purpose | Output |
 |--------|---------|--------|
-| `scripts/run_evaluation_benchmark.py` | Run 100-question benchmark | `benchmark_results.json` |
+| `scripts/run_model_evaluation.py` | Run model comparison benchmark | `eval_results.json` |
+| `scripts/domain_quiz_generator.py` | Generate domain-specific quizzes | `evaluation_quizzes/*.json` |
+| `scripts/build_evaluation_benchmark.py` | Build full 431-question benchmark | `quiz_summary.json` |
 
 **Usage:**
 ```bash
-# Run benchmark against deployed model
-python scripts/run_evaluation_benchmark.py --api-url http://EXTERNAL_IP:8000
+# Run model comparison benchmark
+python scripts/run_model_evaluation.py --model wealth-dora-elson14b-h100-v2
 
-# Dry run to test setup
-python scripts/run_evaluation_benchmark.py --dry-run
+# Generate domain quizzes
+python scripts/domain_quiz_generator.py
+
+# Build evaluation benchmark
+python scripts/build_evaluation_benchmark.py
 ```
 
 ---
@@ -176,35 +181,28 @@ python scripts/run_evaluation_benchmark.py \
 
 ## Short-Term Action Items (Next 2 Weeks)
 
-### Phase 2A: Expand Training Data
+### Phase 2A: Deploy with Full Training Data ✅ COMPLETE
 
-**Generate 250 more Q&A pairs to reach 1,200 target:**
+Training data expanded to 40,993 pairs:
+- Tool-use training: 2,500 examples ✅
+- Insurance workflows: 10,000 examples ✅
+- Accounting integration: 5,000 examples ✅
+- Base training data: 23,493 examples ✅
 
-1. **Additional strategic docs extraction:**
-   - BLACKROCK & VANGUARD RIVALRY MASTER PLAN.txt
-   - FINANCIAL PROJECTIONS & INVESTOR PRESENTATION.txt
-   - ENTERPRISE API ARCHITECTURE.txt
+### Phase 2B: Retrain with Expanded Data
 
-2. **Manual curation from knowledge base:**
-   - Review 16 JSON files in `backend/app/knowledge_base/wealth_management/data/`
-   - Extract additional Q&A pairs from structured content
-
-3. **Domain expert review:**
-   - Have SMEs create edge case Q&A pairs
-   - Focus on compliance and regulatory scenarios
-
-### Phase 2B: Extended Training
-
-**Retrain DoRA with 1,200+ pairs:**
+**Retrain DoRA with 40,993 pairs:**
 ```bash
 # On H100 GPU
-python backend/scripts/train_elson_dora_h100.py \
-  --data backend/training_data/consolidated_training_data.json \
-  --output wealth-dora-elson14b-v2 \
-  --epochs 3
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
 
-# Upload to GCS
-gsutil -m cp -r wealth-dora-elson14b-v2 gs://elson-33a95-elson-models/
+# Run training with full dataset
+cd ~/Elson-TB2 && git pull origin main
+./scripts/train-and-quantize-h100.sh
+
+# Stop VM when done
+gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 ```
 
 ### Phase 2C: Backend Integration
@@ -214,7 +212,7 @@ gsutil -m cp -r wealth-dora-elson14b-v2 gs://elson-33a95-elson-models/
 1. Update `backend/app/services/advisor.py` with vLLM endpoint
 2. Configure environment variable: `VLLM_API_URL`
 3. Redeploy backend to Cloud Run
-4. Run integration tests
+4. Run integration tests with tool endpoints
 
 ---
 
@@ -266,23 +264,25 @@ gsutil -m cp -r wealth-dora-elson14b-v2 gs://elson-33a95-elson-models/
 
 | File | Description |
 |------|-------------|
-| `scripts/categorize_training_urls.py` | URL categorization with domain/subdomain |
-| `scripts/extract_qa_from_docs.py` | Q&A extraction from strategic documents |
-| `scripts/consolidate_training_data.py` | Training data consolidation and analysis |
-| `scripts/run_evaluation_benchmark.py` | 100-question benchmark runner |
+| `scripts/generate_tool_use_training_data.py` | Generate 2,500 tool-use examples |
+| `scripts/generate_insurance_training_data.py` | Generate 10,000 insurance examples |
+| `scripts/generate_accounting_training_data.py` | Generate 5,000 accounting examples |
+| `scripts/run_model_evaluation.py` | Model comparison benchmark runner |
+| `scripts/domain_quiz_generator.py` | Generate domain-specific quizzes |
+| `scripts/build_evaluation_benchmark.py` | Build 431-question benchmark |
+| `scripts/curriculum_sampler.py` | Curriculum training infrastructure |
 | `scripts/deploy-vllm-dora.sh` | Enhanced deployment with DoRA support |
-| `scripts/gcp_cleanup.sh` | GCP Cloud Shell cleanup utility |
 
 ### New Data Files Generated
 
 | File | Description |
 |------|-------------|
-| `Elson FAN/master_training_resources_categorized.csv` | 929 categorized URLs |
-| `backend/training_data/strategic_qa_pairs.json` | 205 Q&A from strategic docs |
-| `backend/training_data/strategic_qa_alpaca.json` | Alpaca format for fine-tuning |
-| `backend/training_data/consolidated_training_data.json` | 950 consolidated Q&A pairs |
-| `backend/training_data/consolidated_training_data.jsonl` | JSONL format for streaming |
-| `backend/training_data/training_statistics.json` | Data quality metrics |
+| `backend/training_data/final_training_data.json` | 23,493 Q&A pairs |
+| `backend/training_data/insurance_training_data.json` | 10,000 insurance pairs |
+| `backend/training_data/accounting_training_data.json` | 5,000 accounting pairs |
+| `backend/training_data/tool_use_training_data.json` | 2,500 tool-use pairs |
+| `backend/training_data/strategic_qa_sft.json` | SFT format (renamed from alpaca) |
+| `backend/training_data/evaluation_quizzes/` | 27 domain-specific quiz files |
 
 ---
 
@@ -290,18 +290,26 @@ gsutil -m cp -r wealth-dora-elson14b-v2 gs://elson-33a95-elson-models/
 
 ### Training Data
 - [x] URL categorization >85% complete (achieved: 89%)
-- [x] Q&A pairs >800 (achieved: 950)
-- [ ] Q&A pairs >1,200 (need 250 more)
+- [x] Q&A pairs >25,000 (achieved: 40,993) ✅ EXCEEDED
+- [x] Tool-use training data (achieved: 2,500) ✅
+- [x] Insurance workflow pack (achieved: 10,000) ✅
+- [x] Accounting integration (achieved: 5,000) ✅
 - [ ] Evaluation accuracy >80%
 
+### Tool Integration
+- [x] OpenBB endpoints implemented ✅
+- [x] FinanceToolkit endpoints implemented ✅
+- [x] yfinance endpoints implemented ✅
+- [x] 7 structured output schemas defined ✅
+
 ### Deployment
-- [ ] L4 GPU quota approved
 - [ ] vLLM server deployed and healthy
-- [ ] Benchmark run completed
+- [ ] 431-question benchmark run completed
 - [ ] Backend integration tested
+- [ ] Tool-use accuracy validated
 
 ### Production
-- [ ] QDoRA model deployed
+- [ ] QDoRA model deployed with full 40,993 pairs
 - [ ] Monitoring configured
 - [ ] Auto-scaling enabled
 - [ ] Pilot customers onboarded
@@ -310,15 +318,15 @@ gsutil -m cp -r wealth-dora-elson14b-v2 gs://elson-33a95-elson-models/
 
 ## Next Steps (Immediate)
 
-1. **Request L4 GPU quota** from GCP Console
-2. **Run GCP cleanup** if Cloud Shell disk is full
-3. **Deploy vLLM** with DoRA adapter once quota approved
-4. **Run evaluation benchmark** to validate model quality
-5. **Share benchmark results** and iterate on training data
+1. **Deploy vLLM** with DoRA adapter on L4 GPU
+2. **Run 431-question evaluation benchmark** across all domains
+3. **Test tool-use accuracy** with OpenBB/FinanceToolkit endpoints
+4. **Retrain with full 40,993 pairs** if needed
+5. **Production deployment** after benchmark validation
 
 ---
 
 *Generated by Elson TB2 Implementation Pipeline*
-*Action Plan Version: 1.1.0*
+*Action Plan Version: 2.0.0 - Tool-First Architecture*
 
 > **Model Strategy:** Use DoRA (full quality) or QDoRA (cost-efficient) for all deployments. LoRA is deprecated.

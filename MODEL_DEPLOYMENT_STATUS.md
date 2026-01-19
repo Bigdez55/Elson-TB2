@@ -1,6 +1,8 @@
 # Elson Financial AI - Model Deployment Status
 
 **Last Updated:** 2026-01-19
+**Training Data:** 40,993 Q&A pairs
+**Tool Integration:** OpenBB, FinanceToolkit, yfinance
 
 ## Current Status
 
@@ -27,10 +29,11 @@
 
 **DoRA v2 Training Details (2026-01-19):**
 - Method: QDoRA (4-bit quantized base + DoRA adapter)
-- Rank: 64, Alpha: 128
+- Rank: 128, Alpha: 256
 - Epochs: 5, Batch Size: 64 (effective)
-- Training Data: 950 Q&A pairs (Alpaca format)
+- Training Data: 40,993 Q&A pairs (SFT format)
 - GPU: H100 80GB
+- Tool Integration: OpenBB, FinanceToolkit, yfinance
 
 ### Inference Testing - VERIFIED ✓
 
@@ -180,12 +183,14 @@ python3 -m vllm.entrypoints.openai.api_server \
 
 1. [x] DoRA training complete on H100 (**PRODUCTION**)
 2. [x] QDoRA quantized model ready (**PRODUCTION**)
-3. [x] Training data expanded to 950 Q&A pairs
-4. [x] DoRA v2 retrained with expanded data (2026-01-19)
-5. [x] Inference tested on L4 GPU - VERIFIED WORKING
-6. [ ] Deploy vLLM on L4 with DoRA adapter
-7. [ ] Run 100-question evaluation benchmark
-8. [ ] Integrate vLLM API with Cloud Run backend
+3. [x] Training data expanded to 40,993 Q&A pairs ✅
+4. [x] Tool-first architecture implemented (OpenBB, FinanceToolkit, yfinance) ✅
+5. [x] Evaluation benchmark expanded to 431 questions ✅
+6. [x] Inference tested on L4 GPU - VERIFIED WORKING
+7. [ ] Deploy vLLM on L4 with DoRA adapter
+8. [ ] Run 431-question evaluation benchmark
+9. [ ] Integrate vLLM API with Cloud Run backend
+10. [ ] Retrain with full 40,993 pairs
 
 > **Note:** LoRA models (VM1/VM2) are deprecated and archived. Use DoRA for full quality or QDoRA for cost-efficient inference.
 

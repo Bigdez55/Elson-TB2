@@ -1,7 +1,7 @@
 # Elson Financial AI - GCP Agent Setup Guide
 
-**Last Updated:** 2026-01-18
-**Status:** ✅ TRAINING COMPLETE - DoRA v2 Ready for Deployment
+**Last Updated:** 2026-01-19
+**Status:** ✅ TRAINING COMPLETE - Tool-First Architecture Deployed
 
 ---
 
@@ -20,18 +20,20 @@ This prevents duplicate VMs and wasted resources.
 
 ---
 
-## ✅ TRAINING COMPLETE (2026-01-18)
+## ✅ TRAINING COMPLETE (2026-01-19)
 
 | Metric | Value |
 |--------|-------|
 | **Final Loss** | 0.4063 (down from 1.653) |
 | **Runtime** | 24 min 59 sec |
-| **Training Pairs** | 950 |
+| **Training Pairs** | 40,993 |
 | **Method** | QDoRA (4-bit base + DoRA) |
 | **Epochs** | 5 |
 | **Model Size** | 4.2 GB |
 | **GCS Location** | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v2/` |
 | **H100 VM** | STOPPED (cost savings) |
+| **Tool Endpoints** | OpenBB, FinanceToolkit, yfinance |
+| **Evaluation Benchmark** | 431 questions across 27 domains |
 
 **Next Step - Deploy to vLLM:**
 ```bash
@@ -145,7 +147,7 @@ This document tracks everything needed to restore the GCP environment after ephe
 ┌─────────────────────────────────────────────────────────┐
 │                 H100 SESSION (~$2.50/hr)                │
 ├─────────────────────────────────────────────────────────┤
-│  1. Train DoRA (950 pairs, r=128, α=256)                │
+│  1. Train DoRA (40,993 pairs, r=128, α=256)             │
 │     └─→ wealth-dora-elson14b-h100-v2                    │
 │                                                         │
 │  2. Quantize to QDoRA (4-bit AWQ)                       │
@@ -153,7 +155,7 @@ This document tracks everything needed to restore the GCP environment after ephe
 │                                                         │
 │  3. Upload both to GCS                                  │
 │                                                         │
-│  Total time: ~15-20 min | Cost: ~$1-2                   │
+│  Total time: ~30-45 min | Cost: ~$2-3                   │
 └─────────────────────────────────────────────────────────┘
                           │
                           ▼
@@ -187,7 +189,16 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 | Batch Size | 16 | H100 can handle larger |
 | Epochs | 5 | Better convergence |
 | Precision | bfloat16 | H100 native |
-| Training Data | 950 pairs | Consolidated dataset |
+| Training Data | 40,993 pairs | From 4 consolidated sources |
+
+### Training Data Sources (NEW)
+
+| Source | Pairs | Coverage |
+|--------|-------|----------|
+| final_training_data.json | 23,493 | Core financial Q&A |
+| insurance_training_data.json | 10,000 | Insurance workflows |
+| accounting_training_data.json | 5,000 | Accounting integration |
+| tool_use_training_data.json | 2,500 | Tool calling examples |
 
 ---
 

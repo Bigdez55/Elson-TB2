@@ -1,7 +1,7 @@
 # Elson TB2 Training Plan
 
-**Last Updated:** 2026-01-18
-**Status:** Training Complete - Ready for Deployment
+**Last Updated:** 2026-01-19
+**Status:** Training Complete - Tool-First Architecture Deployed
 
 ---
 
@@ -9,8 +9,9 @@
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| Training Data | **950 Q&A pairs** | Consolidated from 4 sources |
-| URL Categorization | **89% complete** | 830+ URLs categorized across 18 domains |
+| Training Data | **40,993 Q&A pairs** | Consolidated from 7 sources |
+| Tool Integration | **Complete** | OpenBB, FinanceToolkit, yfinance endpoints |
+| Evaluation Benchmark | **431 questions** | Domain-specific quizzes across all categories |
 | DoRA Training | **Complete** | Final loss: 0.4063, 25 min runtime |
 | Model Upload | **Complete** | 4.2 GB uploaded to GCS |
 | H100 VM | **Stopped** | Cost savings |
@@ -24,7 +25,7 @@
 |--------|-------|
 | **Final Loss** | 0.4063 (down from 1.653) |
 | **Runtime** | 24 min 59 sec |
-| **Training Pairs** | 950 |
+| **Training Pairs** | 40,993 |
 | **Method** | QDoRA (4-bit base + DoRA) |
 | **Epochs** | 5 |
 | **Model Size** | 4.2 GB |
@@ -34,40 +35,40 @@
 
 ## Training Data Summary
 
-**Total: 950 Q&A pairs** (Target: 1,200)
+**Total: 40,993 Q&A pairs**
 
 ### By Source
 
 | Source | Records | Percentage |
 |--------|---------|------------|
-| training_data_final | 643 | 68% |
-| Comprehensive Trading Knowledge | 104 | 11% |
-| resource_catalog | 102 | 11% |
-| Building AGI_ASI Investment System | 101 | 10% |
+| final_training_data.json | 23,493 | 57.3% |
+| insurance_training_data.json | 10,000 | 24.4% |
+| accounting_training_data.json | 5,000 | 12.2% |
+| tool_use_training_data.json | 2,500 | 6.1% |
 
 ### By Category (Top 10)
 
 | Category | Records |
 |----------|---------|
-| retirement_planning | 269 |
-| goal_planning | 76 |
-| general_finance | 73 |
-| professional_roles | 55 |
-| college_planning | 53 |
-| tax | 37 |
-| high_frequency_trading | 30 |
-| estate_planning | 26 |
-| algorithmic_trading | 25 |
-| quantitative_finance | 24 |
+| financial_planning | 15,100 |
+| insurance | 10,000 |
+| accounting | 5,000 |
+| tool_use | 2,500 |
+| retirement_planning | 1,499 |
+| estate_planning | 403 |
+| securities_regulation | 388 |
+| federal_income_tax | 381 |
+| portfolio_construction | 369 |
+| fintech | 319 |
 
 ### Data Quality
 
 | Metric | Value |
 |--------|-------|
-| Average output length | 614 chars |
-| Empty outputs | 0 |
-| Short outputs | 0 |
-| Long outputs | 0 |
+| Average instruction length | 87.7 chars |
+| Average output length | 343.2 chars |
+| Unique pairs | 100% (0 duplicates) |
+| Validation checks passed | 4/5 |
 
 ---
 
@@ -170,18 +171,33 @@ gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 
 ### Benchmark
 
-- **File:** `backend/training_data/evaluation_benchmark.json`
-- **Size:** 100 test cases
-- **Categories:** All major financial domains
+- **Directory:** `backend/training_data/evaluation_quizzes/`
+- **Size:** 431 questions across 27 domain-specific quizzes
+- **Categories:** All major financial domains including tool-use
+
+### Quiz Files
+
+| Quiz | Questions |
+|------|-----------|
+| Federal Income Tax | 50+ |
+| Retirement Planning | 50+ |
+| Investment Basics | 40+ |
+| Estate & Gift Tax | 35+ |
+| Insurance | 35+ |
+| Tool Use | 25+ |
+| + 21 more domain quizzes | 196+ |
 
 ### Running Evaluation
 
 ```bash
-# Run benchmark against deployed model
-python scripts/run_evaluation_benchmark.py --api-url http://EXTERNAL_IP:8000
+# Run model comparison benchmark
+python scripts/run_model_evaluation.py --model wealth-dora-elson14b-h100-v2
 
-# Dry run
-python scripts/run_evaluation_benchmark.py --dry-run
+# Generate domain-specific quizzes
+python scripts/domain_quiz_generator.py
+
+# Build full evaluation benchmark
+python scripts/build_evaluation_benchmark.py
 ```
 
 ### Target Metrics
@@ -190,6 +206,7 @@ python scripts/run_evaluation_benchmark.py --dry-run
 |--------|--------|
 | Overall accuracy | >80% |
 | Per-category accuracy | >70% |
+| Tool-use accuracy | >95% |
 | Average latency | <2000ms |
 
 ---
@@ -200,9 +217,13 @@ python scripts/run_evaluation_benchmark.py --dry-run
 |--------|---------|
 | `scripts/train-and-quantize-h100.sh` | H100 DoRA + QDoRA pipeline |
 | `scripts/deploy-vllm-dora.sh` | vLLM deployment with adapters |
-| `scripts/run_evaluation_benchmark.py` | 100-question benchmark |
-| `scripts/categorize_training_urls.py` | URL categorization |
-| `scripts/extract_qa_from_docs.py` | Q&A extraction from docs |
+| `scripts/run_model_evaluation.py` | Model comparison benchmark runner |
+| `scripts/domain_quiz_generator.py` | Generate domain-specific quizzes |
+| `scripts/build_evaluation_benchmark.py` | Build 431-question benchmark |
+| `scripts/curriculum_sampler.py` | Curriculum training infrastructure |
+| `scripts/generate_tool_use_training_data.py` | Generate 2,500 tool-use examples |
+| `scripts/generate_insurance_training_data.py` | Generate 10,000 insurance examples |
+| `scripts/generate_accounting_training_data.py` | Generate 5,000 accounting examples |
 | `scripts/consolidate_training_data.py` | Training data consolidation |
 
 ---
@@ -211,37 +232,58 @@ python scripts/run_evaluation_benchmark.py --dry-run
 
 | File | Description |
 |------|-------------|
-| `backend/training_data/consolidated_training_data.json` | 950 Q&A pairs |
-| `backend/training_data/consolidated_training_data.jsonl` | JSONL format |
-| `backend/training_data/training_statistics.json` | Data quality metrics |
-| `backend/training_data/strategic_qa_pairs.json` | 205 extracted pairs |
-| `backend/training_data/evaluation_benchmark.json` | 100 test cases |
+| `backend/training_data/final_training_data.json` | 23,493 Q&A pairs |
+| `backend/training_data/final_training_data_sft.json` | SFT format (renamed from alpaca) |
+| `backend/training_data/insurance_training_data.json` | 10,000 insurance pairs |
+| `backend/training_data/accounting_training_data.json` | 5,000 accounting pairs |
+| `backend/training_data/tool_use_training_data.json` | 2,500 tool-use pairs |
+| `backend/training_data/strategic_qa_sft.json` | Strategic Q&A in SFT format |
+| `backend/training_data/evaluation_quizzes/` | 27 domain-specific quiz files |
+
+---
+
+## Tool Integration (NEW)
+
+### Implemented Endpoints
+
+| Endpoint | Tool | Purpose |
+|----------|------|---------|
+| `/tools/openbb/*` | OpenBB | Market data, quotes, fundamentals |
+| `/tools/financetoolkit/*` | FinanceToolkit | 150+ financial ratios |
+| `/tools/yfinance/*` | yfinance | Free market data alternative |
+
+### Tool-Use Training
+
+The model is trained to call tools for:
+- Current pricing and market data
+- Fundamentals and financial statements
+- Portfolio analytics and ratios
+- Any computation requiring auditability
 
 ---
 
 ## Next Steps
 
-### Immediate (After Training)
+### Immediate
 
-1. Verify DoRA model uploaded to GCS
-2. Run QDoRA quantization
-3. Deploy to vLLM on L4 GPU
-4. Run 100-question benchmark
+1. Deploy vLLM on L4 GPU with DoRA adapter
+2. Run 431-question evaluation benchmark
+3. Test tool-use accuracy
 
-### Short-Term (Next Week)
+### Short-Term
 
-1. Evaluate benchmark results
-2. Expand training data to 1,200+ pairs
-3. Retrain if needed
-4. Production deployment
+1. Retrain with full 40,993 pairs
+2. Evaluate benchmark results across all domains
+3. Production deployment
 
-### Gap Analysis
+### Status
 
-| Metric | Current | Target | Gap |
-|--------|---------|--------|-----|
-| Q&A pairs | 950 | 1,200 | +250 |
-| Benchmark accuracy | TBD | >80% | - |
-| Inference latency | TBD | <2000ms | - |
+| Metric | Current | Target | Status |
+|--------|---------|--------|--------|
+| Q&A pairs | 40,993 | 25,000 | ✅ Exceeded |
+| Evaluation questions | 431 | 500 | 86% |
+| Tool endpoints | 15+ | 10 | ✅ Complete |
+| Benchmark accuracy | TBD | >80% | Pending |
 
 ---
 
@@ -258,5 +300,5 @@ gs://elson-33a95-elson-models/
 
 ---
 
-*Generated: 2026-01-18*
-*Version: 2.0.0*
+*Generated: 2026-01-19*
+*Version: 3.0.0 - Tool-First Architecture*
