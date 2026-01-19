@@ -15,6 +15,43 @@
 | **GitHub Agent** | Local Mac | Claude Code CLI | Code, scripts, docs, git push |
 | **GCP Agent** | `my-vm` (e2-medium, 20GB) | Claude Code on GCP | Training, deployment, git pull |
 
+### GCP VM & GPU Inventory
+
+| VM Name | Zone | Machine Type | GPU | VRAM | Disk | Status | Cost/hr |
+|---------|------|--------------|-----|------|------|--------|---------|
+| `elson-h100-spot` | us-central1-a | a3-highgpu-1g | 1x NVIDIA H100 | 80GB HBM3 | 200GB | TERMINATED | ~$2.50 (Spot) |
+| `elson-dvora-training-l4` | us-east1-b | g2-standard-12 | 1x NVIDIA L4 | 24GB | 200GB | TERMINATED | ~$0.70 |
+| `elson-dvora-training-l4-2` | us-west1-a | g2-standard-8 | 1x NVIDIA L4 | 24GB | 200GB | TERMINATED | ~$0.70 |
+| `my-vm` | us-central1-a | e2-medium | None (CPU) | - | 20GB | RUNNING | ~$0.03 |
+
+### VM Start Commands
+
+```bash
+# H100 (DoRA training - Spot, ~$2.50/hr)
+gcloud compute instances start elson-h100-spot --zone=us-central1-a
+gcloud compute ssh elson-h100-spot --zone=us-central1-a
+
+# L4 #1 (us-east1-b, ~$0.70/hr)
+gcloud compute instances start elson-dvora-training-l4 --zone=us-east1-b
+gcloud compute ssh elson-dvora-training-l4 --zone=us-east1-b
+
+# L4 #2 (us-west1-a, ~$0.70/hr)
+gcloud compute instances start elson-dvora-training-l4-2 --zone=us-west1-a
+gcloud compute ssh elson-dvora-training-l4-2 --zone=us-west1-a
+
+# Claude Code workspace (CPU only, ~$0.03/hr)
+gcloud compute ssh my-vm --zone=us-central1-a
+```
+
+### Trained Models in GCS
+
+| Model | GCS Location | Status |
+|-------|--------------|--------|
+| Base (14B merged) | `gs://elson-33a95-elson-models/elson-finance-trading-14b-final/` | Ready |
+| LoRA VM1 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` | Complete |
+| LoRA VM2 | `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` | Complete |
+| DoRA H100 | `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` | Complete |
+
 ### Agent Responsibilities
 
 ```

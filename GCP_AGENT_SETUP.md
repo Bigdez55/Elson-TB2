@@ -511,16 +511,29 @@ print('Model loaded successfully!')
 
 ## 11. VM Management Commands
 
+### GCP VM & GPU Inventory (Updated 2026-01-18)
+
+| VM Name | Zone | Machine Type | GPU | VRAM | Disk | Status |
+|---------|------|--------------|-----|------|------|--------|
+| `elson-h100-spot` | us-central1-a | a3-highgpu-1g | 1x NVIDIA H100 | 80GB HBM3 | 200GB | TERMINATED |
+| `elson-dvora-training-l4` | us-east1-b | g2-standard-12 | 1x NVIDIA L4 | 24GB | 200GB | TERMINATED |
+| `elson-dvora-training-l4-2` | us-west1-a | g2-standard-8 | 1x NVIDIA L4 | 24GB | 200GB | TERMINATED |
+| `my-vm` | us-central1-a | e2-medium | None (CPU) | - | 20GB | RUNNING |
+
 ### Start/Stop VMs (You only pay when running)
 
 ```bash
-# H100 Spot VM (DoRA training)
+# H100 Spot VM (DoRA training) - us-central1-a
 gcloud compute instances start elson-h100-spot --zone=us-central1-a
 gcloud compute instances stop elson-h100-spot --zone=us-central1-a
 
-# L4 VMs (LoRA training) - Currently stopped
-gcloud compute instances start elson-dvora-training-vm1 --zone=us-central1-a
-gcloud compute instances stop elson-dvora-training-vm1 --zone=us-central1-a
+# L4 VM #1 - us-east1-b
+gcloud compute instances start elson-dvora-training-l4 --zone=us-east1-b
+gcloud compute instances stop elson-dvora-training-l4 --zone=us-east1-b
+
+# L4 VM #2 - us-west1-a
+gcloud compute instances start elson-dvora-training-l4-2 --zone=us-west1-a
+gcloud compute instances stop elson-dvora-training-l4-2 --zone=us-west1-a
 
 # Check all VM status
 gcloud compute instances list --filter="name~elson"
@@ -529,17 +542,24 @@ gcloud compute instances list --filter="name~elson"
 ### SSH into VMs
 
 ```bash
-# H100 VM
+# H100 VM (us-central1-a)
 gcloud compute ssh elson-h100-spot --zone=us-central1-a
 
-# L4 VM
-gcloud compute ssh elson-dvora-training-vm1 --zone=us-central1-a
+# L4 VM #1 (us-east1-b)
+gcloud compute ssh elson-dvora-training-l4 --zone=us-east1-b
+
+# L4 VM #2 (us-west1-a)
+gcloud compute ssh elson-dvora-training-l4-2 --zone=us-west1-a
+
+# Claude Code workspace (us-central1-a)
+gcloud compute ssh my-vm --zone=us-central1-a
 ```
 
 ### Cost Notes
 
 - **H100 Spot:** ~$2.50/hr (vs ~$8/hr on-demand) - can be preempted
 - **L4 On-demand:** ~$0.70/hr per GPU
+- **e2-medium (CPU):** ~$0.03/hr
 - **Storage (GCS):** ~$0.02/GB/month
 
 ---

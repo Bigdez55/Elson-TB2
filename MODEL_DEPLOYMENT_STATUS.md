@@ -1,6 +1,6 @@
 # Elson Financial AI - Model Deployment Status
 
-**Last Updated:** 2026-01-14 18:40 UTC
+**Last Updated:** 2026-01-18
 
 ## Current Status
 
@@ -13,16 +13,23 @@
   - Qwen2.5-14B-Instruct (general capabilities)
 - **Merge Methods:** SLERP + DARE-TIES pruning
 
-### vLLM Deployment - PAUSED
-- **Issue:** T4 GPU (16GB) insufficient for 14B model (~28GB required)
-- **Solution Options:**
-  1. Request L4 GPU quota (24GB) - recommended
-  2. Use 2x T4 GPUs with tensor parallelism (32GB total)
-  3. Quantize model to 4-bit (~8GB)
+### Fine-Tuning - COMPLETE
+- **DoRA (H100):** `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100/` - Loss: 0.14
+- **LoRA VM1:** `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm1/` - Loss: 0.0526
+- **LoRA VM2:** `gs://elson-33a95-elson-models/wealth-lora-elson14b-vm2/` - Loss: 0.0532
+- **Training Data:** 950 Q&A pairs consolidated (was 408)
+
+### vLLM Deployment - READY TO DEPLOY
+- **Status:** L4 GPUs available, ready to deploy
+- **Recommended:** Use existing L4 VMs or deploy new with `./scripts/deploy-vllm-dora.sh`
+- **Options:**
+  1. `elson-dvora-training-l4` (us-east1-b) - L4 24GB
+  2. `elson-dvora-training-l4-2` (us-west1-a) - L4 24GB
+  3. New VM with DoRA adapter support
 
 ### Frontend & Backend - RUNNING
-- **Frontend:** Cloud Run (us-central1)
-- **Backend:** Cloud Run (us-central1)
+- **Frontend:** Cloud Run (us-west1)
+- **Backend:** Cloud Run (us-west1)
 - **Database:** Cloud SQL PostgreSQL
 
 ## Architecture
@@ -120,30 +127,42 @@ python3 -m vllm.entrypoints.openai.api_server \
 
 ## GCP Resources
 
+### VMs (GPU Training/Inference)
+
+| VM Name | Zone | GPU | VRAM | Status | Cost/hr |
+|---------|------|-----|------|--------|---------|
+| `elson-h100-spot` | us-central1-a | 1x H100 | 80GB | TERMINATED | ~$2.50 |
+| `elson-dvora-training-l4` | us-east1-b | 1x L4 | 24GB | TERMINATED | ~$0.70 |
+| `elson-dvora-training-l4-2` | us-west1-a | 1x L4 | 24GB | TERMINATED | ~$0.70 |
+| `my-vm` | us-central1-a | None | - | RUNNING | ~$0.03 |
+
+### Other Resources
+
 | Resource | Name | Status | Location |
 |----------|------|--------|----------|
 | GCS Bucket | elson-33a95-elson-models | Active | us-west1 |
 | Firewall Rule | allow-vllm | Active | global (tcp:8000) |
 | Secret | HF_TOKEN | Active | Secret Manager |
 | Secret | DB_PASSWORD | Active | Secret Manager |
-| VM | elson-vllm-server | **Deleted** | - |
 
 ## Cost Estimates
 
 | Resource | Cost |
 |----------|------|
-| vLLM Server (L4) | ~$1.00/hour |
-| vLLM Server (2x T4) | ~$1.50/hour |
+| H100 Spot (training) | ~$2.50/hour |
+| L4 On-demand (inference) | ~$0.70/hour |
+| e2-medium (Claude Code) | ~$0.03/hour |
 | GCS Storage | ~$0.60/month |
 | Cloud Run | Pay per request |
 
 ## Next Steps
 
-1. [ ] Request L4 GPU quota (recommended)
-2. [ ] Wait for model updates from GitHub agent
-3. [ ] Re-run model merge if base models changed
-4. [ ] Deploy with appropriate GPU
-5. [ ] Integrate vLLM API with backend
+1. [x] DoRA training complete on H100
+2. [x] LoRA training complete on L4 VMs
+3. [x] Training data expanded to 950 Q&A pairs
+4. [ ] Deploy vLLM on L4 with DoRA adapter
+5. [ ] Run 100-question evaluation benchmark
+6. [ ] Integrate vLLM API with Cloud Run backend
 
 ## Quick Commands
 
