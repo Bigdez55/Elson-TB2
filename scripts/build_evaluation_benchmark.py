@@ -522,10 +522,19 @@ def build_benchmark(target_count: int = 1000) -> List[Dict]:
     """Build the evaluation benchmark"""
     questions = []
 
+    # Try to import expanded templates
+    try:
+        from benchmark_templates_expanded import EXPANDED_TEMPLATES
+        all_templates = EXPANDED_TEMPLATES
+        print("  Using expanded templates")
+    except ImportError:
+        all_templates = QUESTION_TEMPLATES
+        print("  Using base templates (expanded not found)")
+
     for domain, config in DOMAINS.items():
         domain_target = int(target_count * config["weight"])
 
-        templates = QUESTION_TEMPLATES.get(domain, [])
+        templates = all_templates.get(domain, QUESTION_TEMPLATES.get(domain, []))
         if not templates:
             continue
 
