@@ -43,6 +43,7 @@ cat GCP_AGENT/README.md
 | [ACTION_PLAN.md](ACTION_PLAN.md) | Current action items | What to do next |
 | [WORKFLOW.md](WORKFLOW.md) | Agent workflow guide | Understanding agent handoffs |
 | [REMEDIATION_PLAN.md](REMEDIATION_PLAN.md) | Issue remediation | Fixing known issues |
+| [TRAINING_LOG.md](TRAINING_LOG.md) | Training benchmark history | Tracking all training sessions |
 
 ---
 
