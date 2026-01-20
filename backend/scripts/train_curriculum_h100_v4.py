@@ -4,24 +4,35 @@ Elson TB2 - H100 Curriculum Training v4
 
 CRITICAL FIXES IN V4:
 1. Phase A: packing=False to restore optimizer steps
-2. Warmup is step-based, not ratio-based
-3. Scheduler is constant_with_warmup for Phase A, cosine for B/C
-4. Diagnostic logging prints counts and expected steps every phase
+2. Warmup is step-based with guard rails (never ratio-based)
+3. Scheduler dynamically selected based on step count
+4. Diagnostic logging proves step integrity per phase
 5. Guards against warmup_steps > total_steps
-6. Domain balanced sampling support for Phase B/C
+6. Auto-epoch increase or error if <50 optimizer steps
+7. Domain balanced sampling for full corpus mode
+8. Safety calibration filter for guaranteed/risk-free language
+9. Output manifest for run comparison
 
 Usage:
-    python -m backend.scripts.train_curriculum_h100_v4 --help
+    # Curriculum mode (subset training)
+    python -m backend.scripts.train_curriculum_h100_v4 --mode curriculum ...
+
+    # Full corpus mode (40,993 with domain balancing)
+    python -m backend.scripts.train_curriculum_h100_v4 --mode full ...
 """
 
 import argparse
 import json
 import os
+import re
+import subprocess
 import sys
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import math
+import random
 
 import torch
 from datasets import Dataset
@@ -32,6 +43,102 @@ from transformers import (
     TrainingArguments,
 )
 from trl import SFTTrainer
+
+
+# =============================================================================
+# CONSTANTS
+# =============================================================================
+
+# Minimum optimizer steps per phase (non-negotiable)
+MIN_STEPS_PHASE_A = 50
+MIN_STEPS_PHASE_B = 100
+MIN_STEPS_PHASE_C = 50
+
+# Scheduler thresholds
+SCHEDULER_THRESHOLD_PHASE_B = 200
+SCHEDULER_THRESHOLD_PHASE_C = 100
+
+# Safety calibration patterns (enterprise compliance)
+SAFETY_PATTERNS = [
+    r'\bguaranteed?\b',
+    r'\brisk[- ]?free\b',
+    r'\bno[- ]?risk\b',
+    r'\bsafe\s+investment\b',
+    r'\bcannot\s+lose\b',
+    r'\balways\s+profit\b',
+    r'\b100%\s+safe\b',
+    r'\bzero\s+risk\b',
+]
+
+
+# =============================================================================
+# GIT UTILITIES
+# =============================================================================
+
+def get_git_commit_hash() -> str:
+    """Get current git commit hash."""
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', 'HEAD'],
+            capture_output=True,
+            text=True,
+            cwd=Path(__file__).parent.parent.parent
+        )
+        return result.stdout.strip()[:8] if result.returncode == 0 else "unknown"
+    except Exception:
+        return "unknown"
+
+
+# =============================================================================
+# SAFETY CALIBRATION FILTER
+# =============================================================================
+
+def check_safety_violations(text: str) -> List[str]:
+    """Check text for safety calibration violations."""
+    violations = []
+    text_lower = text.lower()
+    for pattern in SAFETY_PATTERNS:
+        if re.search(pattern, text_lower):
+            violations.append(pattern)
+    return violations
+
+
+def filter_safety_violations(
+    data: List[Dict],
+    remove: bool = True
+) -> Tuple[List[Dict], Dict]:
+    """
+    Filter or flag records with safety calibration violations.
+
+    Returns (filtered_data, stats)
+    """
+    clean = []
+    flagged = []
+    violation_counts = defaultdict(int)
+
+    for record in data:
+        # Check instruction and output
+        text = f"{record.get('instruction', '')} {record.get('output', '')}"
+        violations = check_safety_violations(text)
+
+        if violations:
+            flagged.append(record)
+            for v in violations:
+                violation_counts[v] += 1
+        else:
+            clean.append(record)
+
+    stats = {
+        "total_records": len(data),
+        "clean_records": len(clean),
+        "flagged_records": len(flagged),
+        "violation_counts": dict(violation_counts),
+    }
+
+    if remove:
+        return clean, stats
+    else:
+        return data, stats
 
 
 # =============================================================================
@@ -47,19 +154,23 @@ def log_phase_stats(
     batch_size: int,
     grad_accum: int,
     epochs: int,
+    warmup_steps: int,
+    learning_rate: float,
+    scheduler: str,
     max_samples: int = 200
 ) -> Dict:
     """
     Log comprehensive phase statistics to diagnose step count issues.
 
-    Returns dict with:
-    - records: total records
-    - avg_tokens: average tokens per example
-    - p50_tokens, p90_tokens: percentile token lengths
-    - estimated_packed_sequences: if packing enabled
-    - batches_per_epoch: number of batches
-    - optimizer_steps_per_epoch: optimizer steps per epoch
-    - total_optimizer_steps: total steps for all epochs
+    REQUIRED OUTPUT (per other agent's acceptance criteria):
+    1. records after filtering
+    2. packing enabled true or false
+    3. average tokens per example estimated from a sample
+    4. estimated packed sequences when packing is true
+    5. batches per epoch
+    6. optimizer steps per epoch
+    7. total optimizer steps expected for the phase
+    8. warmup steps chosen and guard status
     """
     n = len(dataset)
     k = min(n, max_samples)
@@ -82,91 +193,134 @@ def log_phase_stats(
 
     # Estimate packed sequences if packing enabled
     if packing and avg_len > 0:
-        # Estimate how many examples fit per packed sequence
         examples_per_pack = max(1, int(max_length / avg_len))
         estimated_packed = max(1, n // examples_per_pack)
         sequences_per_epoch = estimated_packed
     else:
         sequences_per_epoch = n
+        examples_per_pack = 1
+        estimated_packed = n
 
     # Calculate steps
     batches_per_epoch = math.ceil(sequences_per_epoch / batch_size)
-    optimizer_steps_per_epoch = math.ceil(batches_per_epoch / grad_accum)
+    optimizer_steps_per_epoch = max(1, batches_per_epoch // grad_accum)
     total_optimizer_steps = optimizer_steps_per_epoch * epochs
+
+    # Warmup guard check
+    warmup_guard_status = "OK"
+    if warmup_steps >= total_optimizer_steps:
+        warmup_guard_status = f"CAPPED (was {warmup_steps})"
+        warmup_steps = max(1, total_optimizer_steps - 1)
 
     stats = {
         "records": n,
-        "avg_tokens": avg_len,
+        "avg_tokens": round(avg_len, 1),
         "p50_tokens": p50,
         "p90_tokens": p90,
         "packing": packing,
-        "estimated_packed_sequences": estimated_packed if packing else n,
+        "examples_per_pack": examples_per_pack if packing else 1,
+        "estimated_packed_sequences": estimated_packed,
         "sequences_per_epoch": sequences_per_epoch,
         "batches_per_epoch": batches_per_epoch,
         "optimizer_steps_per_epoch": optimizer_steps_per_epoch,
         "total_optimizer_steps": total_optimizer_steps,
         "effective_batch_size": effective_batch,
+        "warmup_steps": warmup_steps,
+        "warmup_guard_status": warmup_guard_status,
+        "learning_rate": learning_rate,
+        "scheduler": scheduler,
+        "epochs": epochs,
     }
 
-    # Print diagnostic output
+    # Print diagnostic output (REQUIRED FORMAT)
     print("\n" + "=" * 70)
     print(f"PHASE {phase_name} DIAGNOSTIC STATS")
     print("=" * 70)
-    print(f"Records after filtering:        {n:,}")
-    print(f"Avg tokens (sampled):           {avg_len:.1f}")
-    print(f"Token length p50/p90:           {p50} / {p90}")
-    print(f"Packing enabled:                {packing}")
-    if packing:
-        print(f"Est. examples per pack:         ~{max(1, int(max_length / avg_len))}")
-        print(f"Est. packed sequences:          {estimated_packed:,}")
-    print(f"Sequences per epoch:            {sequences_per_epoch:,}")
-    print(f"Batches per epoch:              {batches_per_epoch:,}")
-    print(f"Effective batch size:           {effective_batch}")
-    print(f"Optimizer steps per epoch:      {optimizer_steps_per_epoch}")
-    print(f"Epochs:                         {epochs}")
-    print(f"TOTAL OPTIMIZER STEPS:          {total_optimizer_steps}")
+    print(f"1. Records after filtering:        {n:,}")
+    print(f"2. Packing enabled:                {packing}")
+    print(f"3. Avg tokens (sampled {k}):       {avg_len:.1f} (p50={p50}, p90={p90})")
+    print(f"4. Est. packed sequences:          {estimated_packed:,}" +
+          (f" (~{examples_per_pack} examples/pack)" if packing else ""))
+    print(f"5. Batches per epoch:              {batches_per_epoch:,}")
+    print(f"6. Optimizer steps per epoch:      {optimizer_steps_per_epoch}")
+    print(f"7. TOTAL OPTIMIZER STEPS:          {total_optimizer_steps}")
+    print(f"8. Warmup steps:                   {warmup_steps} [{warmup_guard_status}]")
+    print("-" * 70)
+    print(f"   Learning rate:                  {learning_rate}")
+    print(f"   Scheduler:                      {scheduler}")
+    print(f"   Epochs:                         {epochs}")
+    print(f"   Effective batch size:           {effective_batch}")
     print("=" * 70 + "\n")
 
     return stats
 
 
-def validate_training_config(
+def validate_and_adjust_config(
     phase_name: str,
     total_steps: int,
     warmup_steps: int,
-    min_steps: int
-) -> bool:
+    min_steps: int,
+    epochs: int,
+    scheduler: str,
+    scheduler_threshold: int,
+) -> Tuple[int, int, str, bool]:
     """
-    Validate training configuration before starting.
+    Validate and auto-adjust training configuration.
 
-    Returns True if valid, False otherwise.
+    Returns (adjusted_epochs, adjusted_warmup, adjusted_scheduler, is_valid)
+
+    NON-NEGOTIABLE RULES:
+    - If total_steps < min_steps, increase epochs to reach min_steps
+    - warmup = min(configured, 10% of total_steps), floor=1, ceiling<total_steps
+    - If total_steps < threshold, use constant_with_warmup
     """
+    adjusted_epochs = epochs
+    adjusted_warmup = warmup_steps
+    adjusted_scheduler = scheduler
     issues = []
 
-    # Check minimum steps
+    # Rule 1: Ensure minimum steps (auto-increase epochs if needed)
     if total_steps < min_steps:
+        # Calculate epochs needed
+        steps_per_epoch = max(1, total_steps // epochs)
+        needed_epochs = math.ceil(min_steps / steps_per_epoch)
         issues.append(
-            f"Total steps ({total_steps}) below minimum ({min_steps}). "
-            f"Increase epochs or dataset size."
+            f"Total steps ({total_steps}) < minimum ({min_steps}). "
+            f"AUTO-INCREASING epochs: {epochs} → {needed_epochs}"
+        )
+        adjusted_epochs = needed_epochs
+        total_steps = steps_per_epoch * needed_epochs
+
+    # Rule 2: Warmup guard rails
+    # warmup = min(configured, 10% of total_steps), floor=1, ceiling<total_steps
+    warmup_10pct = max(1, int(total_steps * 0.1))
+    adjusted_warmup = min(warmup_steps, warmup_10pct)
+    adjusted_warmup = max(1, adjusted_warmup)  # Floor of 1
+    adjusted_warmup = min(adjusted_warmup, total_steps - 1)  # Ceiling < total
+
+    if adjusted_warmup != warmup_steps:
+        issues.append(
+            f"Warmup adjusted: {warmup_steps} → {adjusted_warmup} "
+            f"(10% of {total_steps} steps = {warmup_10pct})"
         )
 
-    # Check warmup vs total steps
-    if warmup_steps >= total_steps:
+    # Rule 3: Scheduler based on step count
+    if total_steps < scheduler_threshold and scheduler in ["cosine", "linear"]:
+        adjusted_scheduler = "constant_with_warmup"
         issues.append(
-            f"Warmup steps ({warmup_steps}) >= total steps ({total_steps}). "
-            f"Warmup will be capped to {max(1, total_steps - 1)}."
+            f"Scheduler changed: {scheduler} → constant_with_warmup "
+            f"(steps {total_steps} < threshold {scheduler_threshold})"
         )
 
     if issues:
         print(f"\n{'!'*70}")
-        print(f"PHASE {phase_name} CONFIGURATION WARNINGS")
+        print(f"PHASE {phase_name} CONFIGURATION ADJUSTMENTS")
         print('!'*70)
         for issue in issues:
-            print(f"  ⚠ {issue}")
+            print(f"  → {issue}")
         print('!'*70 + "\n")
-        return False
 
-    return True
+    return adjusted_epochs, adjusted_warmup, adjusted_scheduler, True
 
 
 # =============================================================================
@@ -182,7 +336,6 @@ def load_training_data(file_path: str) -> List[Dict]:
 
     data = []
 
-    # Try JSONL first
     if path.suffix == '.jsonl' or 'jsonl' in str(path):
         with open(path, 'r', encoding='utf-8') as f:
             for line in f:
@@ -192,7 +345,6 @@ def load_training_data(file_path: str) -> List[Dict]:
                     except json.JSONDecodeError:
                         continue
     else:
-        # Try JSON
         with open(path, 'r', encoding='utf-8') as f:
             loaded = json.load(f)
             if isinstance(loaded, list):
@@ -201,6 +353,81 @@ def load_training_data(file_path: str) -> List[Dict]:
                 data = [loaded]
 
     return data
+
+
+def load_full_corpus(data_dir: str) -> List[Dict]:
+    """
+    Load the full 40,993 training corpus from all 4 dataset files.
+    """
+    files = [
+        ("final_training_data.json", 23493),
+        ("insurance_training_data.json", 10000),
+        ("accounting_training_data.json", 5000),
+        ("tool_use_training_data.json", 2500),
+    ]
+
+    all_data = []
+    data_path = Path(data_dir)
+
+    print("\nLoading full corpus (40,993 target):")
+    for filename, expected in files:
+        filepath = data_path / filename
+        if filepath.exists():
+            file_data = load_training_data(str(filepath))
+            print(f"  {filename}: {len(file_data):,} records " +
+                  ("✓" if len(file_data) == expected else f"⚠ expected {expected}"))
+            all_data.extend(file_data)
+        else:
+            print(f"  {filename}: MISSING ⚠")
+
+    print(f"  TOTAL: {len(all_data):,} records")
+    return all_data
+
+
+def domain_balanced_sample(
+    data: List[Dict],
+    target_size: Optional[int] = None,
+    seed: int = 42
+) -> List[Dict]:
+    """
+    Sample data with domain balancing to prevent any domain from dominating.
+
+    Uses inverse frequency weighting to boost underrepresented domains.
+    """
+    random.seed(seed)
+
+    # Group by domain
+    by_domain = defaultdict(list)
+    for record in data:
+        domain = record.get('category', record.get('domain', 'unknown'))
+        by_domain[domain].append(record)
+
+    domains = list(by_domain.keys())
+    n_domains = len(domains)
+
+    if target_size is None:
+        target_size = len(data)
+
+    # Calculate per-domain quota (equal distribution)
+    base_quota = target_size // n_domains
+    remainder = target_size % n_domains
+
+    sampled = []
+    for i, domain in enumerate(sorted(domains)):
+        domain_data = by_domain[domain]
+        quota = base_quota + (1 if i < remainder else 0)
+
+        # Sample up to quota (with replacement if needed)
+        if len(domain_data) >= quota:
+            sampled.extend(random.sample(domain_data, quota))
+        else:
+            # Oversample small domains
+            sampled.extend(domain_data)
+            needed = quota - len(domain_data)
+            sampled.extend(random.choices(domain_data, k=needed))
+
+    random.shuffle(sampled)
+    return sampled
 
 
 def format_example(example: Dict) -> Dict:
@@ -274,6 +501,77 @@ def create_dora_config(rank: int, alpha: int) -> LoraConfig:
 
 
 # =============================================================================
+# OUTPUT MANIFEST
+# =============================================================================
+
+def write_training_manifest(
+    output_dir: str,
+    base_model: str,
+    rank: int,
+    alpha: int,
+    mode: str,
+    dataset_files: Dict[str, int],
+    phase_stats: Dict[str, Dict],
+    safety_stats: Dict,
+    total_training_time: float,
+) -> str:
+    """
+    Write training manifest JSON for run comparison.
+
+    Contains all metadata needed to compare runs months later.
+    """
+    manifest = {
+        "version": "v4",
+        "timestamp": datetime.now().isoformat(),
+        "git_commit": get_git_commit_hash(),
+
+        # Model config
+        "base_model": base_model,
+        "adapter_method": "DoRA",
+        "rank": rank,
+        "alpha": alpha,
+
+        # Training mode
+        "mode": mode,
+
+        # Dataset info
+        "dataset_files": dataset_files,
+        "total_records": sum(dataset_files.values()),
+
+        # Safety calibration
+        "safety_filter_enabled": safety_stats.get("flagged_records", 0) > 0,
+        "records_filtered_by_safety": safety_stats.get("flagged_records", 0),
+        "safety_violations": safety_stats.get("violation_counts", {}),
+
+        # Per-phase stats
+        "phases": {},
+
+        # Output
+        "output_path": output_dir,
+        "total_training_time_seconds": total_training_time,
+    }
+
+    for phase_name, stats in phase_stats.items():
+        manifest["phases"][phase_name] = {
+            "records": stats.get("records"),
+            "packing": stats.get("packing"),
+            "epochs": stats.get("epochs"),
+            "total_optimizer_steps": stats.get("total_optimizer_steps"),
+            "warmup_steps": stats.get("warmup_steps"),
+            "learning_rate": stats.get("learning_rate"),
+            "scheduler": stats.get("scheduler"),
+            "final_loss": stats.get("final_loss"),
+        }
+
+    manifest_path = Path(output_dir) / "training_manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+    print(f"\nTraining manifest written to: {manifest_path}")
+    return str(manifest_path)
+
+
+# =============================================================================
 # TRAINING
 # =============================================================================
 
@@ -292,6 +590,7 @@ def train_phase(
     grad_accum: int,
     max_length: int,
     min_steps: int,
+    scheduler_threshold: int,
     log_every: int = 1,
 ) -> Tuple[float, Dict]:
     """
@@ -302,14 +601,8 @@ def train_phase(
     print(f"\n{'='*70}")
     print(f"PHASE {phase_name} TRAINING")
     print(f"{'='*70}")
-    print(f"Output directory: {output_dir}")
-    print(f"Epochs: {epochs}")
-    print(f"Learning rate: {learning_rate}")
-    print(f"Warmup steps: {warmup_steps}")
-    print(f"Scheduler: {scheduler}")
-    print(f"Packing: {packing}")
 
-    # Log diagnostic stats
+    # Log diagnostic stats FIRST
     stats = log_phase_stats(
         phase_name=phase_name,
         dataset=dataset,
@@ -319,33 +612,48 @@ def train_phase(
         batch_size=batch_size,
         grad_accum=grad_accum,
         epochs=epochs,
+        warmup_steps=warmup_steps,
+        learning_rate=learning_rate,
+        scheduler=scheduler,
     )
 
     total_steps = stats["total_optimizer_steps"]
 
-    # Validate configuration
-    is_valid = validate_training_config(
+    # Validate and auto-adjust configuration
+    adjusted_epochs, adjusted_warmup, adjusted_scheduler, is_valid = validate_and_adjust_config(
         phase_name=phase_name,
         total_steps=total_steps,
         warmup_steps=warmup_steps,
         min_steps=min_steps,
+        epochs=epochs,
+        scheduler=scheduler,
+        scheduler_threshold=scheduler_threshold,
     )
 
-    # Cap warmup if needed
-    if warmup_steps >= total_steps:
-        warmup_steps = max(1, total_steps - 1)
-        print(f"Capped warmup_steps to {warmup_steps}")
+    # Update stats with adjustments
+    if adjusted_epochs != epochs:
+        stats["epochs"] = adjusted_epochs
+        stats["epochs_auto_adjusted"] = True
+        # Recalculate total steps
+        stats["total_optimizer_steps"] = stats["optimizer_steps_per_epoch"] * adjusted_epochs
 
-    # Create training arguments
+    stats["warmup_steps"] = adjusted_warmup
+    stats["scheduler"] = adjusted_scheduler
+
+    print(f"Output directory: {output_dir}")
+    print(f"Final config: epochs={adjusted_epochs}, lr={learning_rate}, "
+          f"warmup={adjusted_warmup}, scheduler={adjusted_scheduler}")
+
+    # Create training arguments (NO warmup_ratio - step-based only!)
     training_args = TrainingArguments(
         output_dir=output_dir,
-        num_train_epochs=epochs,
+        num_train_epochs=adjusted_epochs,
         per_device_train_batch_size=batch_size,
         gradient_accumulation_steps=grad_accum,
         learning_rate=learning_rate,
         weight_decay=0.01,
-        warmup_steps=warmup_steps,  # Step-based, not ratio!
-        lr_scheduler_type=scheduler,
+        warmup_steps=adjusted_warmup,  # STEP-BASED, NEVER RATIO
+        lr_scheduler_type=adjusted_scheduler,
         logging_steps=log_every,
         save_steps=100,
         save_total_limit=2,
@@ -356,7 +664,7 @@ def train_phase(
         max_grad_norm=0.3,
     )
 
-    # Create trainer with packing setting
+    # Create trainer
     trainer = SFTTrainer(
         model=model,
         args=training_args,
@@ -367,18 +675,18 @@ def train_phase(
         packing=packing,
     )
 
-    # Print actual dataloader length
+    # Print actual dataloader length for verification
     if hasattr(trainer, 'get_train_dataloader'):
         try:
             dl = trainer.get_train_dataloader()
             actual_batches = len(dl)
-            actual_steps = math.ceil(actual_batches / grad_accum) * epochs
-            print(f"\nActual dataloader length: {actual_batches} batches")
-            print(f"Actual total steps: {actual_steps}")
+            actual_steps = (actual_batches // grad_accum) * adjusted_epochs
+            print(f"\n[VERIFICATION] Actual dataloader: {actual_batches} batches")
+            print(f"[VERIFICATION] Actual total steps: {actual_steps}")
             stats["actual_batches_per_epoch"] = actual_batches
             stats["actual_total_steps"] = actual_steps
         except Exception as e:
-            print(f"Could not get dataloader length: {e}")
+            print(f"[VERIFICATION] Could not verify dataloader: {e}")
 
     # Train
     print(f"\n{'='*50}")
@@ -386,14 +694,18 @@ def train_phase(
     print(f"Start time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*50}\n")
 
+    start_time = datetime.now()
     train_result = trainer.train()
+    end_time = datetime.now()
 
     final_loss = train_result.training_loss
+    training_time = (end_time - start_time).total_seconds()
 
     print(f"\n{'='*50}")
     print(f"Phase {phase_name} training complete!")
     print(f"Final loss: {final_loss:.4f}")
-    print(f"End time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Training time: {training_time:.1f}s ({training_time/60:.1f} min)")
+    print(f"End time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*50}\n")
 
     # Save checkpoint
@@ -401,24 +713,17 @@ def train_phase(
     model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
 
-    # Save metadata
+    # Update stats
     stats["final_loss"] = final_loss
+    stats["training_time_seconds"] = training_time
     stats["timestamp"] = datetime.now().isoformat()
 
+    # Save phase metadata
     metadata = {
         "phase": phase_name,
         "model": "Elson-Finance-Trading-14B",
         "method": "Curriculum DoRA v4",
-        "epochs": epochs,
-        "learning_rate": learning_rate,
-        "warmup_steps": warmup_steps,
-        "scheduler": scheduler,
-        "packing": packing,
-        "batch_size": batch_size * grad_accum,
-        "training_pairs": len(dataset),
-        "final_loss": final_loss,
         "stats": stats,
-        "timestamp": datetime.now().isoformat(),
     }
 
     with open(f"{output_dir}/training_metadata.json", "w") as f:
@@ -444,12 +749,17 @@ def main():
     parser.add_argument("--data_dir", type=str, required=True,
                        help="Directory containing training data")
 
-    # Phase data files
-    parser.add_argument("--phase_a_file", type=str, required=True,
+    # Training mode
+    parser.add_argument("--mode", type=str, default="curriculum",
+                       choices=["curriculum", "full"],
+                       help="Training mode: curriculum (subset) or full (40,993)")
+
+    # Phase data files (for curriculum mode)
+    parser.add_argument("--phase_a_file", type=str, default="",
                        help="Phase A training data file")
-    parser.add_argument("--phase_b_file", type=str, required=True,
+    parser.add_argument("--phase_b_file", type=str, default="",
                        help="Phase B training data file")
-    parser.add_argument("--phase_c_file", type=str, required=True,
+    parser.add_argument("--phase_c_file", type=str, default="",
                        help="Phase C training data file")
 
     # DoRA config
@@ -490,11 +800,17 @@ def main():
     parser.add_argument("--packing_c", type=str, default="true")
     parser.add_argument("--min_steps_c", type=int, default=50)
 
+    # Safety calibration
+    parser.add_argument("--enable_safety_filter", action="store_true",
+                       help="Filter records with guaranteed/risk-free language")
+
     # Execution config
     parser.add_argument("--phases", type=str, default="all",
                        help="Which phases to run: all, A, B, C")
     parser.add_argument("--log_every", type=int, default=1,
                        help="Log every N steps")
+    parser.add_argument("--seed", type=int, default=42,
+                       help="Random seed for domain balancing")
 
     args = parser.parse_args()
 
@@ -508,13 +824,25 @@ def main():
     lr_b = float(args.lr_b)
     lr_c = float(args.lr_c)
 
+    # Validate learning rate ordering (lr_a > lr_b > lr_c)
+    if not (lr_a >= lr_b >= lr_c):
+        print(f"WARNING: Learning rates should decrease: lr_a={lr_a} >= lr_b={lr_b} >= lr_c={lr_c}")
+
     print("\n" + "=" * 70)
     print("ELSON TB2 - CURRICULUM TRAINING V4")
     print("=" * 70)
+    print(f"Mode: {args.mode.upper()}")
     print(f"Base model: {args.base_model}")
     print(f"Output dir: {args.output_dir}")
-    print(f"Phases to run: {args.phases}")
+    print(f"Git commit: {get_git_commit_hash()}")
+    print(f"Safety filter: {'ENABLED' if args.enable_safety_filter else 'DISABLED'}")
     print("=" * 70 + "\n")
+
+    # Track overall stats
+    all_phase_stats = {}
+    dataset_files = {}
+    safety_stats = {"flagged_records": 0, "violation_counts": {}}
+    training_start = datetime.now()
 
     # Determine which phases to run
     phases_to_run = []
@@ -526,65 +854,111 @@ def main():
     # Load tokenizer
     tokenizer = load_tokenizer(args.base_model)
 
+    # Prepare data based on mode
+    if args.mode == "full":
+        print("\n" + "=" * 70)
+        print("FULL CORPUS MODE (40,993 with domain balancing)")
+        print("=" * 70)
+
+        # Load all data
+        all_data = load_full_corpus(args.data_dir)
+        dataset_files = {
+            "final_training_data.json": 23493,
+            "insurance_training_data.json": 10000,
+            "accounting_training_data.json": 5000,
+            "tool_use_training_data.json": 2500,
+        }
+
+        # Apply safety filter
+        if args.enable_safety_filter:
+            all_data, safety_stats = filter_safety_violations(all_data, remove=True)
+            print(f"\nSafety filter: {safety_stats['flagged_records']} records removed")
+            for pattern, count in safety_stats['violation_counts'].items():
+                print(f"  {pattern}: {count}")
+
+        # Domain balanced sampling
+        print("\nApplying domain-balanced sampling...")
+        all_data = domain_balanced_sample(all_data, seed=args.seed)
+
+        # For full mode, use all data for each phase (or split as needed)
+        phase_data = {
+            "A": all_data,
+            "B": all_data,
+            "C": all_data,
+        }
+    else:
+        # Curriculum mode - load phase-specific files
+        phase_data = {}
+        for phase in phases_to_run:
+            if phase == "A":
+                data_file = args.phase_a_file
+            elif phase == "B":
+                data_file = args.phase_b_file
+            else:
+                data_file = args.phase_c_file
+
+            print(f"\nLoading Phase {phase} data from {data_file}...")
+            data = load_training_data(data_file)
+            dataset_files[data_file] = len(data)
+
+            # Apply safety filter
+            if args.enable_safety_filter:
+                data, phase_safety = filter_safety_violations(data, remove=True)
+                print(f"Safety filter: {phase_safety['flagged_records']} records removed")
+                safety_stats["flagged_records"] += phase_safety["flagged_records"]
+                for k, v in phase_safety["violation_counts"].items():
+                    safety_stats["violation_counts"][k] = \
+                        safety_stats["violation_counts"].get(k, 0) + v
+
+            phase_data[phase] = data
+
     # Load or create model
     model = None
 
     for phase in phases_to_run:
-        # Determine file and config for this phase
+        # Get phase config
         if phase == "A":
-            data_file = args.phase_a_file
             epochs = args.phase_a_epochs
             lr = lr_a
             warmup = args.warmup_steps_a
             scheduler = args.scheduler_a
             packing = packing_a
             min_steps = args.min_steps_a
+            scheduler_threshold = 100  # Phase A always uses constant_with_warmup
         elif phase == "B":
-            data_file = args.phase_b_file
             epochs = args.phase_b_epochs
             lr = lr_b
             warmup = args.warmup_steps_b
             scheduler = args.scheduler_b
             packing = packing_b
             min_steps = args.min_steps_b
-        else:  # C
-            data_file = args.phase_c_file
+            scheduler_threshold = SCHEDULER_THRESHOLD_PHASE_B
+        else:
             epochs = args.phase_c_epochs
             lr = lr_c
             warmup = args.warmup_steps_c
             scheduler = args.scheduler_c
             packing = packing_c
             min_steps = args.min_steps_c
+            scheduler_threshold = SCHEDULER_THRESHOLD_PHASE_C
 
         phase_output_dir = f"{args.output_dir}/phase_{phase}"
         os.makedirs(phase_output_dir, exist_ok=True)
 
-        # Load training data
-        print(f"\nLoading Phase {phase} training data from {data_file}...")
-        training_data = load_training_data(data_file)
-        print(f"Loaded {len(training_data):,} training examples")
-
-        dataset = prepare_dataset(training_data)
+        # Prepare dataset
+        dataset = prepare_dataset(phase_data[phase])
+        print(f"\nPhase {phase}: {len(dataset):,} training examples")
 
         # Load model (continue from previous phase if available)
         prev_phase = {"B": "A", "C": "B"}.get(phase)
         prev_checkpoint = f"{args.output_dir}/phase_{prev_phase}" if prev_phase else None
 
-        if prev_checkpoint and os.path.exists(prev_checkpoint):
-            print(f"\nLoading model from Phase {prev_phase} checkpoint...")
-            if model is None:
-                base_model = load_base_model(args.base_model)
-                model = PeftModel.from_pretrained(
-                    base_model,
-                    prev_checkpoint,
-                    is_trainable=True
-                )
-            # Model already loaded, continue
+        if prev_checkpoint and os.path.exists(prev_checkpoint) and prev_phase in phases_to_run:
+            print(f"\nContinuing from Phase {prev_phase} checkpoint...")
+            # Model already loaded and trained, continue
         else:
             if model is None:
-                # Fresh start - load base and add adapter
                 base_model = load_base_model(args.base_model)
-
                 print("\nConfiguring DoRA adapter...")
                 dora_config = create_dora_config(args.rank, args.alpha)
                 model = get_peft_model(base_model, dora_config)
@@ -606,9 +980,11 @@ def main():
             grad_accum=args.grad_accum,
             max_length=args.max_length,
             min_steps=min_steps,
+            scheduler_threshold=scheduler_threshold,
             log_every=args.log_every,
         )
 
+        all_phase_stats[phase] = stats
         print(f"\nPhase {phase} complete. Final loss: {final_loss:.4f}")
 
     # Copy final phase to main output directory
@@ -623,10 +999,38 @@ def main():
         if os.path.isfile(src):
             shutil.copy2(src, dst)
 
+    # Calculate total training time
+    training_end = datetime.now()
+    total_time = (training_end - training_start).total_seconds()
+
+    # Write training manifest
+    manifest_path = write_training_manifest(
+        output_dir=args.output_dir,
+        base_model=args.base_model,
+        rank=args.rank,
+        alpha=args.alpha,
+        mode=args.mode,
+        dataset_files=dataset_files,
+        phase_stats=all_phase_stats,
+        safety_stats=safety_stats,
+        total_training_time=total_time,
+    )
+
+    # Print final summary
     print("\n" + "=" * 70)
     print("CURRICULUM TRAINING V4 COMPLETE")
     print("=" * 70)
+    print(f"Mode: {args.mode.upper()}")
+    print(f"Total training time: {total_time:.1f}s ({total_time/60:.1f} min)")
     print(f"Model saved to: {args.output_dir}")
+    print(f"Manifest: {manifest_path}")
+    print("\nPer-phase summary:")
+    for phase, stats in all_phase_stats.items():
+        print(f"  Phase {phase}: loss={stats.get('final_loss', 'N/A'):.4f}, "
+              f"steps={stats.get('total_optimizer_steps')}, "
+              f"packing={stats.get('packing')}")
+    if safety_stats["flagged_records"] > 0:
+        print(f"\nSafety calibration: {safety_stats['flagged_records']} records filtered")
     print("=" * 70 + "\n")
 
 

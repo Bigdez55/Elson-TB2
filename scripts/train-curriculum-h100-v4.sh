@@ -83,6 +83,8 @@ NC='\033[0m'
 # Parse arguments
 DRY_RUN=false
 PHASE_TO_RUN="all"
+MODE="curriculum"
+ENABLE_SAFETY_FILTER=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -94,8 +96,21 @@ while [[ $# -gt 0 ]]; do
             PHASE_TO_RUN="$2"
             shift 2
             ;;
+        --mode)
+            MODE="$2"
+            shift 2
+            ;;
+        --full)
+            MODE="full"
+            shift
+            ;;
+        --enable-safety-filter)
+            ENABLE_SAFETY_FILTER=true
+            shift
+            ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"
+            echo "Usage: $0 [--dry-run] [--phase A|B|C|all] [--mode curriculum|full] [--full] [--enable-safety-filter]"
             exit 1
             ;;
     esac
@@ -223,43 +238,63 @@ run_training() {
     echo -e "\n${GREEN}════════════════════════════════════════════════════════════════${NC}"
     echo -e "${GREEN}  Starting v4 Curriculum Training Pipeline${NC}"
     echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}Mode: ${MODE}${NC}"
+    echo -e "${CYAN}Safety filter: ${ENABLE_SAFETY_FILTER}${NC}"
 
     # Create output directory
     mkdir -p "/workspace/$DORA_OUTPUT"
 
-    # Run the Python training module
-    python3 -m backend.scripts.train_curriculum_h100_v4 \
-        --base_model "/workspace/base_model" \
-        --output_dir "/workspace/$DORA_OUTPUT" \
-        --data_dir "$(pwd)/$CURRICULUM_DIR" \
-        --phase_a_file "$PHASE_A_FILE" \
-        --phase_b_file "$PHASE_B_FILE" \
-        --phase_c_file "$PHASE_C_FILE" \
-        --rank "$DORA_RANK" \
-        --alpha "$DORA_ALPHA" \
-        --batch_size "$BATCH_SIZE" \
-        --grad_accum "$GRAD_ACCUM" \
-        --max_length "$MAX_LENGTH" \
-        --phase_a_epochs "$PHASE_A_EPOCHS" \
-        --phase_b_epochs "$PHASE_B_EPOCHS" \
-        --phase_c_epochs "$PHASE_C_EPOCHS" \
-        --lr_a "$PHASE_A_LR" \
-        --lr_b "$PHASE_B_LR" \
-        --lr_c "$PHASE_C_LR" \
-        --warmup_steps_a "$PHASE_A_WARMUP_STEPS" \
-        --warmup_steps_b "$PHASE_B_WARMUP_STEPS" \
-        --warmup_steps_c "$PHASE_C_WARMUP_STEPS" \
-        --scheduler_a "$PHASE_A_SCHEDULER" \
-        --scheduler_b "$PHASE_B_SCHEDULER" \
-        --scheduler_c "$PHASE_C_SCHEDULER" \
-        --packing_a "$PHASE_A_PACKING" \
-        --packing_b "$PHASE_B_PACKING" \
-        --packing_c "$PHASE_C_PACKING" \
-        --min_steps_a "$MIN_STEPS_PHASE_A" \
-        --min_steps_b "$MIN_STEPS_PHASE_B" \
-        --min_steps_c "$MIN_STEPS_PHASE_C" \
-        --phases "$PHASE_TO_RUN" \
+    # Build command args
+    CMD_ARGS=(
+        --base_model "/workspace/base_model"
+        --output_dir "/workspace/$DORA_OUTPUT"
+        --mode "$MODE"
+        --rank "$DORA_RANK"
+        --alpha "$DORA_ALPHA"
+        --batch_size "$BATCH_SIZE"
+        --grad_accum "$GRAD_ACCUM"
+        --max_length "$MAX_LENGTH"
+        --phase_a_epochs "$PHASE_A_EPOCHS"
+        --phase_b_epochs "$PHASE_B_EPOCHS"
+        --phase_c_epochs "$PHASE_C_EPOCHS"
+        --lr_a "$PHASE_A_LR"
+        --lr_b "$PHASE_B_LR"
+        --lr_c "$PHASE_C_LR"
+        --warmup_steps_a "$PHASE_A_WARMUP_STEPS"
+        --warmup_steps_b "$PHASE_B_WARMUP_STEPS"
+        --warmup_steps_c "$PHASE_C_WARMUP_STEPS"
+        --scheduler_a "$PHASE_A_SCHEDULER"
+        --scheduler_b "$PHASE_B_SCHEDULER"
+        --scheduler_c "$PHASE_C_SCHEDULER"
+        --packing_a "$PHASE_A_PACKING"
+        --packing_b "$PHASE_B_PACKING"
+        --packing_c "$PHASE_C_PACKING"
+        --min_steps_a "$MIN_STEPS_PHASE_A"
+        --min_steps_b "$MIN_STEPS_PHASE_B"
+        --min_steps_c "$MIN_STEPS_PHASE_C"
+        --phases "$PHASE_TO_RUN"
         --log_every 1
+    )
+
+    # Add data_dir based on mode
+    if [[ "$MODE" == "full" ]]; then
+        CMD_ARGS+=(--data_dir "$(pwd)/$DATA_DIR")
+    else
+        CMD_ARGS+=(
+            --data_dir "$(pwd)/$CURRICULUM_DIR"
+            --phase_a_file "$PHASE_A_FILE"
+            --phase_b_file "$PHASE_B_FILE"
+            --phase_c_file "$PHASE_C_FILE"
+        )
+    fi
+
+    # Add safety filter if enabled
+    if [[ "$ENABLE_SAFETY_FILTER" == "true" ]]; then
+        CMD_ARGS+=(--enable_safety_filter)
+    fi
+
+    # Run the Python training module
+    python3 -m backend.scripts.train_curriculum_h100_v4 "${CMD_ARGS[@]}"
 
     echo -e "${GREEN}Curriculum training complete!${NC}"
 }
