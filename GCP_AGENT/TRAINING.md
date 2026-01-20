@@ -339,20 +339,212 @@ This uses `consolidated_training_data.json` instead of curriculum phases.
 
 ---
 
-## Next Steps After Training
+## MANDATORY: Post-Training Protocol
+
+> **CRITICAL: This protocol MUST be followed after EVERY training session. No exceptions.**
+
+### Step 9: Run Inference Tests (REQUIRED)
+
+After training completes, run these tests BEFORE stopping the VM:
+
+```bash
+# Test 1: Quick inference check
+python3 << 'EOF'
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+import torch
+import json
+from datetime import datetime
+
+print("="*60)
+print("POST-TRAINING INFERENCE TEST")
+print("="*60)
+
+# Load model
+print("\nLoading model...")
+base = AutoModelForCausalLM.from_pretrained(
+    "/workspace/base_model",
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
+model = PeftModel.from_pretrained(
+    base,
+    "/workspace/wealth-dora-elson14b-h100-v3-curriculum"
+)
+tokenizer = AutoTokenizer.from_pretrained("/workspace/wealth-dora-elson14b-h100-v3-curriculum")
+
+# Test questions across domains
+test_questions = [
+    ("retirement_planning", "What is a 401(k) and how does it work?"),
+    ("federal_income_tax", "Explain the difference between standard and itemized deductions."),
+    ("estate_planning", "What is a revocable living trust?"),
+    ("investment", "What is dollar-cost averaging?"),
+    ("compliance", "What is the fiduciary duty of a financial advisor?"),
+]
+
+results = []
+print("\nRunning inference tests...")
+for domain, question in test_questions:
+    prompt = f"### Instruction:\n{question}\n\n### Response:\n"
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+
+    start_time = datetime.now()
+    outputs = model.generate(**inputs, max_new_tokens=200, temperature=0.7, do_sample=True)
+    latency = (datetime.now() - start_time).total_seconds()
+
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = response.split("### Response:\n")[-1].strip()
+
+    results.append({
+        "domain": domain,
+        "question": question,
+        "response_length": len(response),
+        "latency_seconds": latency,
+        "response_preview": response[:200] + "..." if len(response) > 200 else response
+    })
+    print(f"  ✓ {domain}: {latency:.2f}s, {len(response)} chars")
+
+# Save results
+with open("/workspace/inference_test_results.json", "w") as f:
+    json.dump(results, f, indent=2)
+
+print("\n" + "="*60)
+print("INFERENCE TEST COMPLETE")
+print(f"Results saved to: /workspace/inference_test_results.json")
+print("="*60)
+EOF
+```
+
+### Step 10: Log Training Results (REQUIRED)
+
+After tests complete, log everything in TRAINING_LOG.md:
+
+```bash
+# View training metadata
+cat /workspace/wealth-dora-elson14b-h100-v3-curriculum/training_metadata.json
+
+# View inference test results
+cat /workspace/inference_test_results.json
+
+# Check final loss values from each phase
+grep -r "Final loss" /workspace/wealth-dora-elson14b-h100-v3-curriculum/
+```
+
+**MANDATORY LOGGING CHECKLIST:**
+
+Update `GCP_AGENT/TRAINING_LOG.md` with:
+
+- [ ] **Training Results**
+  - [ ] Phase A final loss
+  - [ ] Phase B final loss
+  - [ ] Phase C final loss
+  - [ ] Total training time
+  - [ ] Number of steps per phase
+
+- [ ] **Inference Test Results**
+  - [ ] Average latency (seconds)
+  - [ ] Response quality assessment (1-5)
+  - [ ] Domain coverage pass/fail
+
+- [ ] **Difficulties Encountered**
+  - [ ] Any errors during training
+  - [ ] Package/dependency issues
+  - [ ] OOM or GPU issues
+  - [ ] Data quality issues
+
+- [ ] **Areas for Improvement**
+  - [ ] Hyperparameter suggestions
+  - [ ] Data quality observations
+  - [ ] Training speed optimizations
+  - [ ] Model quality observations
+
+### Step 11: Update Training Log (REQUIRED)
+
+```bash
+# On local machine or via commit
+# Edit GCP_AGENT/TRAINING_LOG.md with the following template:
+
+### Session X: [Model Name] (YYYY-MM-DD)
+
+**Training Results:**
+| Phase | Final Loss | Steps | Time |
+|-------|-----------|-------|------|
+| A | X.XXX | XX | XX min |
+| B | X.XXX | XX | XX min |
+| C | X.XXX | XX | XX min |
+
+**Inference Test Results:**
+| Domain | Latency | Quality (1-5) |
+|--------|---------|---------------|
+| retirement_planning | X.Xs | X |
+| federal_income_tax | X.Xs | X |
+| estate_planning | X.Xs | X |
+| investment | X.Xs | X |
+| compliance | X.Xs | X |
+
+**Difficulties Encountered:**
+- [List any issues]
+
+**Areas for Improvement:**
+- [List suggestions]
+
+**Commit Hash:** [Git commit of training code used]
+```
+
+### Step 12: Commit Training Log Update (REQUIRED)
+
+```bash
+# After updating TRAINING_LOG.md
+cd ~/Elson-TB2
+git add GCP_AGENT/TRAINING_LOG.md
+git commit -m "docs: Log training session X results
+
+- Phase A/B/C loss values
+- Inference test results
+- Difficulties: [brief summary]
+- Improvements: [brief summary]"
+git push origin main
+```
+
+---
+
+## Post-Training Protocol Summary
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              MANDATORY POST-TRAINING PROTOCOL               │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. ✓ Training completes (all phases)                       │
+│  2. ✓ Run inference tests (5 domain questions)              │
+│  3. ✓ Record all loss values and timing                     │
+│  4. ✓ Document difficulties encountered                     │
+│  5. ✓ Note areas for improvement                            │
+│  6. ✓ Update TRAINING_LOG.md                                │
+│  7. ✓ Commit and push training log                          │
+│  8. ✓ THEN stop the VM                                      │
+│                                                             │
+│  ⚠️  DO NOT STOP VM UNTIL PROTOCOL IS COMPLETE ⚠️            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Next Steps After Protocol Complete
 
 1. **Deploy for inference:**
    ```bash
    ./scripts/deploy-vllm-dora.sh l4 dora
    ```
 
-2. **Run evaluation benchmark:**
+2. **Run full evaluation benchmark:**
    ```bash
    python scripts/run_model_evaluation.py --api-url http://EXTERNAL_IP:8000
    ```
 
 3. **Compare with previous models:**
-   - Check loss values
+   - Check loss values in TRAINING_LOG.md
    - Run benchmark comparisons
    - Test specific domain questions
 

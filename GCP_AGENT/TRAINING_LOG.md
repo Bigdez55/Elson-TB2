@@ -2,6 +2,52 @@
 
 **Purpose:** Track all model training sessions, results, and comparisons
 
+> **IMPORTANT:** This log MUST be updated after EVERY training session.
+> See [TRAINING.md](TRAINING.md) for the mandatory post-training protocol.
+
+---
+
+## How to Log a Training Session
+
+After every training session, add an entry using this template:
+
+```markdown
+### Session X: [Model Name] (YYYY-MM-DD)
+
+| Attribute | Value |
+|-----------|-------|
+| **Date** | YYYY-MM-DD |
+| **Model** | Elson-Finance-Trading-14B |
+| **Method** | DoRA / LoRA / etc |
+| **GPU** | H100 / L4 |
+| **VM** | elson-h100-spot |
+
+**Training Results:**
+| Phase | Final Loss | Steps | Time |
+|-------|-----------|-------|------|
+| A | X.XXX | XX | XX min |
+| B | X.XXX | XX | XX min |
+| C | X.XXX | XX | XX min |
+
+**Inference Test Results:**
+| Domain | Latency | Quality (1-5) |
+|--------|---------|---------------|
+| retirement_planning | X.Xs | X |
+| federal_income_tax | X.Xs | X |
+| estate_planning | X.Xs | X |
+| investment | X.Xs | X |
+| compliance | X.Xs | X |
+
+**Difficulties Encountered:**
+- [List any errors, package issues, OOM, etc.]
+
+**Areas for Improvement:**
+- [Hyperparameter suggestions, data quality notes, etc.]
+
+**Output Model:** `model-name`
+**Commit Hash:** `abc1234`
+```
+
 ---
 
 ## Training Sessions
