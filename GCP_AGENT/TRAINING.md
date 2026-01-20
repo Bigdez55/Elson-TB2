@@ -12,9 +12,31 @@
 | **Method** | DoRA (Weight-Decomposed Low-Rank Adaptation) |
 | **Approach** | 3-Phase Curriculum Learning |
 | **GPU** | NVIDIA H100 80GB HBM3 |
-| **Training Data** | 40,993+ Q&A pairs |
+| **Training Data** | 40,993 Q&A pairs |
 | **Estimated Time** | 45-60 minutes |
 | **Estimated Cost** | ~$2-3 (H100 Spot) |
+
+---
+
+## Dataset Corpus: Source of Truth
+
+> **The full Phase 2 training corpus is exactly 40,993 Q&A pairs.**
+
+| Dataset File | Records | Purpose |
+|--------------|---------|---------|
+| `final_training_data.json` | 23,493 | Core financial planning backbone |
+| `insurance_training_data.json` | 10,000 | Insurance domain competence |
+| `accounting_training_data.json` | 5,000 | Accounting/GAAP/IFRS workflows |
+| `tool_use_training_data.json` | 2,500 | Structured outputs and tool calling |
+| **TOTAL** | **40,993** | **Full training corpus** |
+
+### Why Curriculum Runs Use Subsets
+
+Curriculum training sessions intentionally train on a **subset** of the full corpus per cycle (typically 15,000-20,000 examples) to stage learning by difficulty and domain. This is not a bug - it's the design.
+
+### Why Not One Giant File?
+
+The corpus is split into four schema-compatible files to allow domain-weighted sampling and prevent general_finance from dominating training.
 
 ---
 

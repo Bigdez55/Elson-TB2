@@ -249,7 +249,33 @@ Each line in a bucket file is a JSON object:
 }
 ```
 
-### 4.4 Training Data Statistics
+### 4.4 Dataset Corpus: Source of Truth
+
+> **The full Phase 2 training corpus is exactly 40,993 Q&A pairs.**
+
+| Dataset File | Records | Purpose |
+|--------------|---------|---------|
+| `final_training_data.json` | 23,493 | Core financial planning backbone |
+| `insurance_training_data.json` | 10,000 | Insurance domain competence |
+| `accounting_training_data.json` | 5,000 | Accounting/GAAP/IFRS workflows |
+| `tool_use_training_data.json` | 2,500 | Structured outputs and tool calling |
+| **TOTAL** | **40,993** | **Full training corpus** |
+
+#### Why Curriculum Runs Use Subsets
+
+Curriculum training sessions intentionally train on a **subset** of the full corpus per cycle (typically 15,000-20,000 examples) to stage learning by difficulty and domain. This is not a bug - it's the design.
+
+- **Full corpus training** (40,993): Used for final production runs
+- **Curriculum cycles** (15-20K): Used for iterative development and domain balancing
+
+#### Why Not One Giant File?
+
+The corpus is split into four schema-compatible files to allow:
+1. **Domain-weighted sampling** - Prevent general_finance from dominating
+2. **Targeted competence building** - Train specific weaknesses
+3. **Flexible curriculum design** - Mix and match for different training goals
+
+### 4.5 Training Data Statistics (Summary)
 
 | Source | Pairs | Description |
 |--------|-------|-------------|
@@ -258,7 +284,7 @@ Each line in a bucket file is a JSON object:
 | insurance_training_data.json | 10,000 | Insurance workflows |
 | accounting_training_data.json | 5,000 | Accounting integration |
 | tool_use_training_data.json | 2,500 | Tool calling examples |
-| **TOTAL** | **40,993+** | Combined training corpus |
+| **TOTAL** | **40,993** | Combined training corpus |
 
 ---
 

@@ -78,9 +78,27 @@ cat GCP_AGENT/README.md
 |-----------|--------|---------|
 | **Base Model** | Ready | `elson-finance-trading-14b-final` (27.52 GB) |
 | **Training Method** | **Curriculum (3-Phase)** | Phase A → B → C |
-| **Training Data** | 40,993+ pairs | Domain buckets + consolidated |
+| **Training Data** | 40,993 pairs | See Source of Truth below |
 | **Latest Adapter** | `wealth-dora-elson14b-h100-v2` | DoRA v2 |
 | **H100 VM** | TERMINATED | Start when needed |
+
+---
+
+## Dataset Corpus: Source of Truth
+
+> **The full Phase 2 training corpus is exactly 40,993 Q&A pairs.**
+
+| Dataset File | Records | Purpose |
+|--------------|---------|---------|
+| `final_training_data.json` | 23,493 | Core financial planning backbone |
+| `insurance_training_data.json` | 10,000 | Insurance domain competence |
+| `accounting_training_data.json` | 5,000 | Accounting/GAAP/IFRS workflows |
+| `tool_use_training_data.json` | 2,500 | Structured outputs and tool calling |
+| **TOTAL** | **40,993** | **Full training corpus** |
+
+**Why Curriculum Runs Use Subsets:** Curriculum sessions train on 15-20K examples per cycle to stage learning. Full corpus training (40,993) is for production runs.
+
+**Why Not One Giant File?** Split files enable domain-weighted sampling and prevent general_finance from dominating.
 
 ---
 
