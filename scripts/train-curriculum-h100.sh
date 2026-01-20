@@ -142,7 +142,7 @@ install_dependencies() {
     pip install --quiet --upgrade pip
     pip install --quiet torch transformers peft bitsandbytes accelerate
     pip install --quiet datasets trl wandb
-    pip install --quiet auto-awq  # For quantization
+    # pip install --quiet auto-awq  # Disabled - causes conflicts with transformers
     echo -e "${GREEN}Dependencies installed${NC}"
 }
 
@@ -302,7 +302,7 @@ trainer = SFTTrainer(
     model=model,
     args=training_args,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,  # Changed from tokenizer= for trl 0.27.0+
     max_seq_length=MAX_LENGTH,
     dataset_text_field="text",
     packing=True,
