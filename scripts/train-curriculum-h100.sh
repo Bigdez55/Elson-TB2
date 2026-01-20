@@ -29,8 +29,8 @@ QDORA_OUTPUT="elson-finance-trading-wealth-14b-q4-v3-curriculum"
 # Training hyperparameters (optimized for H100 80GB)
 DORA_RANK=128
 DORA_ALPHA=256
-BATCH_SIZE=16
-GRAD_ACCUM=4
+BATCH_SIZE=4
+GRAD_ACCUM=16
 EPOCHS_PER_PHASE=2
 MAX_LENGTH=2048
 LEARNING_RATE="2e-4"
@@ -187,8 +187,8 @@ PHASE = "$PHASE"
 TRAINING_FILE = "$TRAINING_FILE"
 DORA_RANK = int(os.environ.get('DORA_RANK', 128))
 DORA_ALPHA = int(os.environ.get('DORA_ALPHA', 256))
-BATCH_SIZE = int(os.environ.get('BATCH_SIZE', 16))
-GRAD_ACCUM = int(os.environ.get('GRAD_ACCUM', 4))
+BATCH_SIZE = int(os.environ.get('BATCH_SIZE', 4))
+GRAD_ACCUM = int(os.environ.get('GRAD_ACCUM', 16))
 EPOCHS = int(os.environ.get('EPOCHS_PER_PHASE', 2))
 MAX_LENGTH = int(os.environ.get('MAX_LENGTH', 2048))
 LEARNING_RATE = float(os.environ.get('LEARNING_RATE', 2e-4))
@@ -303,7 +303,7 @@ trainer = SFTTrainer(
     args=training_args,
     train_dataset=dataset,
     processing_class=tokenizer,  # Changed from tokenizer= for trl 0.27.0+
-    max_seq_length=MAX_LENGTH,
+    max_length=MAX_LENGTH,
     dataset_text_field="text",
     packing=True,
 )
