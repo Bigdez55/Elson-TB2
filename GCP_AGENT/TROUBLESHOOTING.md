@@ -144,6 +144,76 @@ ls -la backend/training_data/curriculum_runs/merged_phase*.jsonl
 
 ---
 
+### TRL 0.27.0 API Compatibility Error (CRITICAL)
+
+**Symptom:** `TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'max_length'` or `'max_seq_length'`
+
+**Cause:** TRL 0.27.0+ moved `max_length`, `dataset_text_field`, and `packing` parameters from `SFTTrainer` to `SFTConfig`.
+
+**Solution:**
+
+Replace `TrainingArguments` with `SFTConfig` and move parameters:
+
+**BEFORE (broken):**
+```python
+from transformers import TrainingArguments
+
+training_args = TrainingArguments(
+    output_dir=OUTPUT_DIR,
+    # ... other args
+)
+
+trainer = SFTTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset,
+    processing_class=tokenizer,
+    max_seq_length=MAX_LENGTH,  # ERROR: Not valid here
+    dataset_text_field="text",   # ERROR: Not valid here
+    packing=True,                # ERROR: Not valid here
+)
+```
+
+**AFTER (correct for TRL 0.27.0+):**
+```python
+from trl import SFTConfig
+
+training_args = SFTConfig(
+    output_dir=OUTPUT_DIR,
+    # ... other args
+    # SFT-specific parameters go HERE now:
+    max_length=MAX_LENGTH,
+    dataset_text_field="text",
+    packing=True,
+)
+
+trainer = SFTTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset,
+    processing_class=tokenizer,  # Use processing_class, NOT tokenizer
+)
+```
+
+**Quick Fix Script:**
+```bash
+# Check TRL version
+pip show trl | grep Version
+
+# If version >= 0.27.0, apply this fix to train-curriculum-h100.sh:
+sed -i 's/from transformers import.*TrainingArguments/from trl import SFTConfig/g' scripts/train-curriculum-h100.sh
+```
+
+**Valid SFTTrainer Parameters (TRL 0.27.0+):**
+- `model`, `args`, `data_collator`, `train_dataset`, `eval_dataset`
+- `processing_class`, `compute_loss_func`, `compute_metrics`
+- `callbacks`, `optimizers`, `peft_config`, `formatting_func`
+
+**Valid SFTConfig Parameters (for sequence handling):**
+- `max_length`, `dataset_text_field`, `packing`, `packing_strategy`
+
+---
+
 ### Training Crashes with OOM
 
 **Symptom:** CUDA out of memory error

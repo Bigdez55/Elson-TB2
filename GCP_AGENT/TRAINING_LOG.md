@@ -52,6 +52,71 @@ After every training session, add an entry using this template:
 
 ## Training Sessions
 
+### Session 6: Curriculum Training v4 - Full Scale (2026-01-21) ✅ COMPLETE
+
+| Attribute | Value |
+|-----------|-------|
+| **Date** | 2026-01-21 |
+| **Model** | Elson-Finance-Trading-14B |
+| **Method** | DoRA (3-Phase Curriculum) |
+| **GPU** | H100 80GB HBM3 |
+| **VM** | elson-h100-spot |
+
+**Training Data:**
+| Phase | Examples | Difficulty Mix |
+|-------|----------|----------------|
+| A | 21,356 | 35% easy, 35% medium, 25% hard, 5% extreme |
+| B | 12,854 | 20% easy, 40% medium, 30% hard, 10% extreme |
+| C | 11,927 | 10% easy, 25% medium, 35% hard, 30% extreme |
+| **Total** | **46,137** | Curriculum progression |
+
+**Hyperparameters:**
+| Parameter | Value |
+|-----------|-------|
+| Rank (r) | 128 |
+| Alpha | 256 |
+| Batch Size | 4 |
+| Grad Accum | 16 |
+| Effective Batch | 64 |
+| Epochs/Phase | 2 |
+| Learning Rate | 2e-4 |
+| Max Length | 2048 |
+
+**Training Results:**
+| Phase | Final Loss | Steps | Time |
+|-------|-----------|-------|------|
+| A (Domain Blocks) | 0.6980 | 50 | ~95 min |
+| B (Mixed Curriculum) | 0.2706 | 34 | ~65 min |
+| C (Stress Epoch) | 0.1622 | 34 | ~65 min |
+| **Total** | **0.1622** | **118** | **~225 min (~3.75 hrs)** |
+
+**Inference Test Results (on H100):**
+| Domain | Latency | Response Quality |
+|--------|---------|-----------------|
+| retirement_planning | 81.55s | Excellent - comprehensive 401k explanation with key features |
+| federal_income_tax | 25.17s | Good - clear standard vs itemized deduction comparison |
+| estate_planning | 14.66s | Good - concise revocable living trust explanation |
+| investment | 27.01s | Excellent - DCA explanation with behavioral insight |
+| compliance | 22.02s | Good - clear fiduciary duty definition |
+
+**Difficulties Encountered:**
+- TRL 0.27.0 API breaking change: `max_length`, `dataset_text_field`, `packing` moved from `SFTTrainer` to `SFTConfig`
+- Required replacing `TrainingArguments` with `SFTConfig` from trl
+- Local changes on VM required `git stash` before pull
+- Flash attention warnings (non-blocking but recommend flash_attention_2)
+
+**Areas for Improvement:**
+- Enable flash_attention_2 for better packing support and faster training
+- Inference latency still high (14-82s) - consider quantization or vLLM optimization
+- Loss progression excellent: 0.698 → 0.271 → 0.162 (6.4x larger dataset than v3)
+- Consider increasing Phase A data (domain blocks) for even stronger foundation
+
+**Output Model:** `gs://elson-33a95-elson-models/wealth-dora-elson14b-h100-v3-curriculum/`
+**Model Size:** 2.07 GB
+**Training Cost:** ~$9.40 (3.75 hrs × $2.50/hr H100 Spot)
+
+---
+
 ### Session 5: Curriculum Training v3 (2026-01-20) ✅ COMPLETE
 
 | Attribute | Value |
@@ -246,6 +311,7 @@ After every training session, add an entry using this template:
 
 | Model | Method | Data | Loss | Time | GPU |
 |-------|--------|------|------|------|-----|
+| wealth-dora-v4-curriculum | DoRA Curriculum | 46,137 | 0.1622 | 225 min | H100 |
 | wealth-dora-v3-curriculum | DoRA Curriculum | 7,198 | 0.7560 | 42 min | H100 |
 | wealth-dora-v2 | DoRA Flat | 408 | 0.14 | 6 min | H100 |
 | wealth-lora-vm2 | 4-bit LoRA | 377 | 0.0532 | 25 min | L4 |
@@ -281,12 +347,13 @@ After every training session, add an entry using this template:
 
 | Session | GPU | Duration | Cost |
 |---------|-----|----------|------|
+| Session 6 (Curriculum v4) | H100 Spot | ~225 min | ~$9.40 |
 | Session 5 (Curriculum v3) | H100 Spot | ~42 min | ~$1.75 |
 | Session 4 (DoRA v2) | H100 Spot | ~6 min | ~$0.25 |
 | Session 3 (LoRA v2) | L4 | ~25 min | ~$0.30 |
 | Session 2 (LoRA v1) | L4 | ~24 min | ~$0.28 |
-| **Total** | | | ~$2.58 |
+| **Total** | | | ~$11.98 |
 
 ---
 
-*Last Updated: 2026-01-20*
+*Last Updated: 2026-01-21*
