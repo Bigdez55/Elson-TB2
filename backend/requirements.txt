@@ -25,7 +25,7 @@ cryptography>=43.0.0
 httpx>=0.28.0
 python-dotenv>=1.0.1
 requests>=2.32.4
-urllib3>=2.6.0
+urllib3>=2.6.3  # Fix CVE-2025-50182, CVE-2025-50181, CVE-2025-66418, CVE-2025-66471, CVE-2026-21441
 
 # Logging
 structlog>=24.4.0
@@ -80,9 +80,11 @@ stripe>=7.0.0
 
 # Security: Pin these to fix known vulnerabilities
 pillow>=11.3.0
-aiohttp>=3.9.0
+aiohttp>=3.13.3  # Fix 8 CVEs (CVE-2025-69223 through CVE-2025-69230)
 werkzeug>=3.1.5  # Fix CVE-2025-66221, CVE-2026-21860
 filelock>=3.20.3  # Fix CVE-2025-68146, CVE-2026-22701
+cbor2>=5.8.0  # Fix CVE-2025-68131
+pyasn1>=0.6.2  # Fix CVE-2026-23490
 
 # Redis and Caching
 redis>=5.0.0
@@ -107,10 +109,4 @@ openbb>=4.3.0
 financetoolkit>=1.9.0
 
 # FinGPT Dependencies - Enhanced sentiment analysis
-peft>=0.7.0                    # LoRA adapter support
-bitsandbytes>=0.41.0           # Quantization for large models
 sentencepiece>=0.2.0           # Tokenizer support
-
-# RAG Components (for Phase 2+)
-chromadb>=0.4.0                # Vector store
-sentence-transformers>=2.3.0   # Embeddings
