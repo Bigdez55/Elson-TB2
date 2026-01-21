@@ -239,7 +239,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
         )}
         
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <FormControlLabel
               control={
                 <Switch
@@ -264,7 +264,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
           
           {settings.roundup_enabled && (
             <>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle2" gutterBottom color={secondaryTextColor}>
                   Roundup Multiplier
                   <Tooltip title="Multiply your roundups to invest more. For example, with 2x multiplier, a $0.50 roundup becomes $1.00">
@@ -288,7 +288,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                 </Box>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle2" gutterBottom color={secondaryTextColor}>
                   Investment Frequency
                   <Tooltip title="How often your collected roundups will be invested">
@@ -309,7 +309,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
               </Grid>
               
               {settings.roundup_frequency === 'threshold' && (
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="subtitle2" gutterBottom color={secondaryTextColor}>
                     Investment Threshold ($)
                     <Tooltip title="Minimum amount to collect before investing">
@@ -329,7 +329,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                 </Grid>
               )}
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" gutterBottom color={secondaryTextColor}>
                   Investment Target
                   <Tooltip title="Where your roundups will be invested">
@@ -385,7 +385,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                 )}
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="subtitle1" gutterBottom color={textColor} sx={{ mt: 2 }}>
                   Linked Accounts
@@ -395,7 +395,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Paper
                       elevation={darkMode ? 2 : 1}
                       sx={{
@@ -425,7 +425,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                       </Button>
                     </Paper>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Paper
                       elevation={darkMode ? 2 : 1}
                       sx={{
@@ -464,13 +464,13 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                 )}
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="subtitle1" gutterBottom color={textColor} sx={{ mt: 2 }}>
                   Notification Preferences
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControlLabel
                       control={
                         <Switch
@@ -482,7 +482,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                       label="Notify on roundup collection"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <FormControlLabel
                       control={
                         <Switch
@@ -535,7 +535,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
           ) : stats ? (
             <>
               <Grid container spacing={3}>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: bgPaperLight }}>
                     <Typography variant="body2" color={secondaryTextColor}>
                       Total Roundups
@@ -545,7 +545,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: bgPaperLight }}>
                     <Typography variant="body2" color={secondaryTextColor}>
                       Total Amount
@@ -555,7 +555,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: bgPaperLight }}>
                     <Typography variant="body2" color={secondaryTextColor}>
                       Pending
@@ -565,7 +565,7 @@ export const RoundupSettings: React.FC<RoundupSettingsProps> = ({
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid size={{ xs: 6, sm: 3 }}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: bgPaperLight }}>
                     <Typography variant="body2" color={secondaryTextColor}>
                       Invested

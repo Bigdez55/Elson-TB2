@@ -498,28 +498,28 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
                 <Typography variant="h6">Order Summary</Typography>
               </Box>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">Order Type:</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" fontWeight="medium" color={orderType === 'buy' ? 'success.main' : 'error.main'}>
                     {orderType.toUpperCase()}
                   </Typography>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">Stock:</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2">{stock.symbol} @ ${formatNumber(stock.price)}</Typography>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">
                     {investmentType === 'dollars' ? 'Investment:' : 'Shares:'}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2">
                     {investmentType === 'dollars'
                       ? formatCurrency(amount as number)
@@ -527,12 +527,12 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
                   </Typography>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">
                     {investmentType === 'dollars' ? 'Est. Shares:' : 'Est. Cost:'}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2">
                     {investmentType === 'dollars'
                       ? formatNumber(estimates.estimatedShares)
@@ -540,10 +540,10 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
                   </Typography>
                 </Grid>
 
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">Portfolio:</Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2">{portfolio.name}</Typography>
                 </Grid>
               </Grid>
@@ -555,31 +555,31 @@ const BeginnerOrderForm: React.FC<BeginnerOrderFormProps> = ({
                   Fee Breakdown
                 </Typography>
                 <Grid container spacing={1}>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography variant="body2" color="text.secondary">Order Value:</Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                  <Grid size={4} sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">{formatCurrency(estimates.estimatedCost)}</Typography>
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Tooltip title={estimates.fees.feeDescription}>
                       <Typography variant="body2" color="text.secondary" sx={{ cursor: 'help', textDecoration: 'underline dotted' }}>
                         Trading Fee:
                       </Typography>
                     </Tooltip>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                  <Grid size={4} sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">{formatCurrency(estimates.fees.totalFees)}</Typography>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Divider sx={{ my: 0.5 }} />
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography variant="body2" fontWeight="bold">
                       Total {orderType === 'buy' ? 'Cost' : 'Proceeds'}:
                     </Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ textAlign: 'right' }}>
+                  <Grid size={4} sx={{ textAlign: 'right' }}>
                     <Typography variant="body2" fontWeight="bold" color={orderType === 'buy' ? 'error.main' : 'success.main'}>
                       {formatCurrency(estimates.totalCost)}
                     </Typography>

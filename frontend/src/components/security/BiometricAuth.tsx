@@ -51,16 +51,18 @@ export const BiometricAuth: React.FC<BiometricAuthProps> = ({
       const options = await startResponse.json();
 
       // Step 2: Call browser WebAuthn API
-      const assertionResponse = await startAuthentication({
+      // Convert server response to WebAuthn options format
+      const webAuthnOptions = {
         challenge: options.challenge,
         rpId: options.rp_id,
         timeout: options.timeout,
         userVerification: options.user_verification,
-        allowCredentials: options.allowed_credentials.map((cred: any) => ({
+        allowCredentials: options.allowed_credentials?.map((cred: any) => ({
           type: cred.type,
           id: cred.id,
         })),
-      });
+      };
+      const assertionResponse = await startAuthentication({ optionsJSON: webAuthnOptions as any });
 
       // Step 3: Complete authentication
       const completeResponse = await fetch(

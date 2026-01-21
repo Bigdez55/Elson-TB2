@@ -320,7 +320,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
           
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <StockSymbolInput
                   label="Investment Symbol"
                   value={formState.symbol}
@@ -333,7 +333,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
                 </Typography>
               </Grid>
               
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth variant="outlined">
                   <InputLabel id="portfolio-label">Portfolio</InputLabel>
                   <Select
@@ -354,7 +354,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" gutterBottom color="text.secondary">
                   Recommended ETFs
                 </Typography>
@@ -375,7 +375,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
                 </Box>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" gutterBottom>
                   Investment Amount
                 </Typography>
@@ -395,7 +395,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
                 />
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="subtitle2" gutterBottom>
                   Description (Optional)
                 </Typography>
@@ -419,19 +419,19 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
                 Investment Summary
               </Typography>
               <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">Symbol:</Typography>
                   <Typography variant="body1" fontWeight="bold">
                     {formState.symbol || '-'}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="body2" color="text.secondary">Amount:</Typography>
                   <Typography variant="body1" fontWeight="bold">
                     {formatCurrency(formState.investment_amount)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">Portfolio:</Typography>
                   <Typography variant="body1">
                     {portfolios.find(p => p.id === formState.portfolio_id)?.name || '-'}
@@ -562,7 +562,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
         
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <StockSymbolInput
                 label="Investment Symbol"
                 value={formState.symbol}
@@ -574,7 +574,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
               </Typography>
             </Grid>
             
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth variant="outlined">
                 <InputLabel id="portfolio-label">Portfolio</InputLabel>
                 <Select
@@ -594,7 +594,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
               </FormControl>
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom color="text.secondary">
                 Recommended ETFs
               </Typography>
@@ -615,7 +615,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
               </Box>
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom>
                 Investment Amount
               </Typography>
@@ -634,7 +634,7 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
               />
             </Grid>
             
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="subtitle2" gutterBottom>
                 Description (Optional)
               </Typography>
@@ -657,19 +657,19 @@ export const MicroInvestForm: React.FC<MicroInvestFormProps> = ({
               Investment Summary
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">Symbol:</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {formState.symbol || '-'}
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">Amount:</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {formatCurrency(formState.investment_amount)}
                 </Typography>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Typography variant="body2" color="text.secondary">Portfolio:</Typography>
                 <Typography variant="body1">
                   {portfolios.find(p => p.id === formState.portfolio_id)?.name || '-'}

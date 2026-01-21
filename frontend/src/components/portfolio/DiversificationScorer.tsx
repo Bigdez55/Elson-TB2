@@ -302,7 +302,7 @@ const DiversificationScorer: React.FC<DiversificationScorerProps> = ({
             
             {/* Issues and Strengths */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Diversification Issues
                 </Typography>
@@ -330,7 +330,7 @@ const DiversificationScorer: React.FC<DiversificationScorerProps> = ({
                 )}
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Diversification Strengths
                 </Typography>
@@ -361,7 +361,7 @@ const DiversificationScorer: React.FC<DiversificationScorerProps> = ({
             
             {/* Asset Class and Sector Analysis */}
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Asset Class Allocation
                   <EducationalTooltip
@@ -402,7 +402,7 @@ const DiversificationScorer: React.FC<DiversificationScorerProps> = ({
                 )}
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Sector Allocation
                   <EducationalTooltip

@@ -66,7 +66,8 @@ export const BiometricSetup: React.FC<BiometricSetupProps> = ({
       const options = await startResponse.json();
 
       // Step 2: Call browser WebAuthn API
-      const attestationResponse = await startRegistration({
+      // Convert server response to WebAuthn options format
+      const webAuthnOptions = {
         challenge: options.challenge,
         rp: {
           name: options.rp_name,
@@ -81,7 +82,8 @@ export const BiometricSetup: React.FC<BiometricSetupProps> = ({
         timeout: options.timeout,
         attestation: options.attestation,
         authenticatorSelection: options.authenticator_selection,
-      });
+      };
+      const attestationResponse = await startRegistration({ optionsJSON: webAuthnOptions as any });
 
       // Step 3: Complete registration
       const completeResponse = await fetch(

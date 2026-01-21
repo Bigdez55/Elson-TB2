@@ -393,7 +393,7 @@ const VolatilityDashboard: React.FC = () => {
               <CardHeader title="Current Model Status" />
               <CardContent>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Typography variant="subtitle2">Model Status</Typography>
                       <Chip 
@@ -403,7 +403,7 @@ const VolatilityDashboard: React.FC = () => {
                       />
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Typography variant="subtitle2">Last Updated</Typography>
                       <Typography variant="body2">
@@ -411,7 +411,7 @@ const VolatilityDashboard: React.FC = () => {
                       </Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Typography variant="subtitle2">Current Volatility Regime</Typography>
                       {modelStatus.volatility_regime ? (
@@ -425,7 +425,7 @@ const VolatilityDashboard: React.FC = () => {
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Typography variant="subtitle2">Circuit Breaker Status</Typography>
                       <Chip 
@@ -457,7 +457,7 @@ const VolatilityDashboard: React.FC = () => {
                 <Grid container spacing={2}>
                   {calculatePerformanceStatus() && (
                     <>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', height: '100%' }}>
                           <Typography variant="subtitle2" gutterBottom>
                             High Volatility Win Rate
@@ -477,7 +477,7 @@ const VolatilityDashboard: React.FC = () => {
                           </Typography>
                         </Paper>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', height: '100%' }}>
                           <Typography variant="subtitle2" gutterBottom>
                             Extreme Volatility Win Rate
@@ -497,7 +497,7 @@ const VolatilityDashboard: React.FC = () => {
                           </Typography>
                         </Paper>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', height: '100%' }}>
                           <Typography variant="subtitle2" gutterBottom>
                             Performance Differential
@@ -517,7 +517,7 @@ const VolatilityDashboard: React.FC = () => {
                           </Typography>
                         </Paper>
                       </Grid>
-                      <Grid item xs={12} md={3}>
+                      <Grid size={{ xs: 12, md: 3 }}>
                         <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.default', height: '100%' }}>
                           <Typography variant="subtitle2" gutterBottom>
                             Overall Status
@@ -555,7 +555,7 @@ const VolatilityDashboard: React.FC = () => {
             {performanceData ? (
               <Box>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={8}>
+                  <Grid size={{ xs: 12, md: 8 }}>
                     <Paper sx={{ p: 2, height: '100%' }}>
                       <Typography variant="h6" gutterBottom>
                         Win Rate by Volatility Regime
@@ -579,7 +579,7 @@ const VolatilityDashboard: React.FC = () => {
                       </ResponsiveContainer>
                     </Paper>
                   </Grid>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Paper sx={{ p: 2, height: '100%' }}>
                       <Typography variant="h6" gutterBottom>
                         Performance Metrics
@@ -625,32 +625,32 @@ const VolatilityDashboard: React.FC = () => {
                         Overall Summary
                       </Typography>
                       <Grid container spacing={1}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Overall Win Rate:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {formatPercent(performanceData.performance.summary.overall_win_rate)}
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Overall Return:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {performanceData.performance.summary.overall_return.toFixed(2)}%
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Volatility Robustness:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {performanceData.performance.summary.volatility_robustness.toFixed(2)}%
                           </Typography>
@@ -671,7 +671,7 @@ const VolatilityDashboard: React.FC = () => {
           <TabPanel value={tabIndex} index={1}>
             {performanceData ? (
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Paper sx={{ p: 2, height: '100%' }}>
                     <Typography variant="h6" gutterBottom>
                       Volatility Regime Distribution
@@ -697,7 +697,7 @@ const VolatilityDashboard: React.FC = () => {
                     </ResponsiveContainer>
                   </Paper>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Paper sx={{ p: 2, height: '100%' }}>
                     <Typography variant="h6" gutterBottom>
                       Market Condition Summary
@@ -707,34 +707,34 @@ const VolatilityDashboard: React.FC = () => {
                         Current Market Assessment
                       </Typography>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Predominant Volatility Regime:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {performanceData && Object.entries(performanceData.performance)
                               .filter(([regime]) => regime !== 'summary')
                               .sort((a, b) => (b[1] as RegimePerformance).sample_count - (a[1] as RegimePerformance).sample_count)[0][0]}
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Total Trading Samples:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {performanceData.performance.summary.total_samples}
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" color="text.secondary">
                             Date Range:
                           </Typography>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid size={6}>
                           <Typography variant="body2" align="right">
                             {dayjs(performanceData.date_range.start_date).format('MMM D')} - {dayjs(performanceData.date_range.end_date).format('MMM D, YYYY')}
                           </Typography>
@@ -800,7 +800,7 @@ const VolatilityDashboard: React.FC = () => {
           <TabPanel value={tabIndex} index={2}>
             {parameterHistory.length > 0 ? (
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="h6" gutterBottom>
                       Parameter Adaptation History
@@ -842,7 +842,7 @@ const VolatilityDashboard: React.FC = () => {
                     </ResponsiveContainer>
                   </Paper>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="h6" gutterBottom>
                       Recent Parameter Adaptations

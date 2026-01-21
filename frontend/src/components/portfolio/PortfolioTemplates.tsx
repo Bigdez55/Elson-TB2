@@ -422,7 +422,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
           
           <Grid container spacing={2}>
             {featuredTemplates.map((template) => (
-              <Grid item xs={12} sm={6} key={template.id}>
+              <Grid size={{ xs: 12, sm: 6 }} key={template.id}>
                 <Paper 
                   elevation={3}
                   sx={{ 
@@ -518,7 +518,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
         
         <Grid container spacing={2}>
           {getFilteredTemplates().map((template) => (
-            <Grid item xs={12} sm={6} md={4} key={template.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={template.id}>
               <Card 
                 variant="outlined" 
                 sx={{ 
@@ -686,7 +686,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
               
               <Box sx={{ mb: 3 }}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Paper variant="outlined" sx={{ p: 2, height: '100%' }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Risk Level
@@ -715,7 +715,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
                     </Paper>
                   </Grid>
                   
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Paper variant="outlined" sx={{ p: 2, height: '100%' }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Expected Annual Return
@@ -751,7 +751,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
                     </Paper>
                   </Grid>
                   
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <Paper variant="outlined" sx={{ p: 2, height: '100%' }}>
                       <Typography variant="subtitle2" gutterBottom>
                         Suitable Goals
@@ -773,7 +773,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
                           Portfolio Metrics
                         </Typography>
                         <Grid container spacing={1}>
-                          <Grid item xs={6}>
+                          <Grid size={6}>
                             <Typography variant="caption" color="text.secondary">
                               Volatility:
                             </Typography>
@@ -802,7 +802,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
                               </Box>
                             </Box>
                           </Grid>
-                          <Grid item xs={6}>
+                          <Grid size={6}>
                             <Typography variant="caption" color="text.secondary">
                               Diversification:
                             </Typography>
@@ -846,7 +846,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
               </Typography>
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={7}>
+                <Grid size={{ xs: 12, md: 7 }}>
                   <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Box sx={{ position: 'relative', width: 250, height: 250 }}>
                       {/* This is a simplified visualization - in a real app you would use a charting library */}
@@ -905,7 +905,7 @@ const PortfolioTemplates: React.FC<PortfolioTemplatesProps> = ({
                   </Box>
                 </Grid>
                 
-                <Grid item xs={12} md={5}>
+                <Grid size={{ xs: 12, md: 5 }}>
                   <List>
                     {Object.entries(selectedTemplate.allocation)
                       .sort(([, a], [, b]) => b - a)

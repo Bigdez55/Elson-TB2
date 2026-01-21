@@ -384,7 +384,7 @@ const PortfolioBuilder: React.FC = () => {
       
       <Grid container spacing={3}>
         {/* Left Column - Allocation Controls */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -425,7 +425,7 @@ const PortfolioBuilder: React.FC = () => {
               
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 {RISK_PROFILES.map((profile) => (
-                  <Grid item xs={6} sm={3} key={profile.id}>
+                  <Grid size={{ xs: 6, sm: 3 }} key={profile.id}>
                     <Paper
                       elevation={0}
                       sx={{
@@ -625,7 +625,7 @@ const PortfolioBuilder: React.FC = () => {
                       {education.description}
                     </Typography>
                     <Grid container spacing={2}>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="caption" color="text.secondary">
                           Risk Level
                         </Typography>
@@ -633,7 +633,7 @@ const PortfolioBuilder: React.FC = () => {
                           {education.riskLevel}
                         </Typography>
                       </Grid>
-                      <Grid item xs={6}>
+                      <Grid size={6}>
                         <Typography variant="caption" color="text.secondary">
                           Recommended Time Horizon
                         </Typography>
@@ -692,7 +692,7 @@ const PortfolioBuilder: React.FC = () => {
         </Grid>
         
         {/* Right Column - Visualization */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           {/* Portfolio Visualization */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
@@ -727,7 +727,7 @@ const PortfolioBuilder: React.FC = () => {
               
               {/* Portfolio Metrics */}
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="subtitle2" gutterBottom>
                     Risk Score
                     <EducationalTooltip
@@ -765,7 +765,7 @@ const PortfolioBuilder: React.FC = () => {
                   </Box>
                 </Grid>
                 
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="subtitle2" gutterBottom>
                     Diversification Score
                     <EducationalTooltip
@@ -937,7 +937,7 @@ const PortfolioBuilder: React.FC = () => {
                     
                     <Grid container spacing={2}>
                       {ASSET_CLASSES.filter(asset => allocation[asset.id] > 0).map((asset) => (
-                        <Grid item xs={12} key={asset.id}>
+                        <Grid size={12} key={asset.id}>
                           <Paper variant="outlined" sx={{ p: 1.5 }}>
                             <Typography variant="subtitle2" sx={{ mb: 1, color: asset.color }}>
                               {asset.name} ({allocation[asset.id]}%)
@@ -945,10 +945,9 @@ const PortfolioBuilder: React.FC = () => {
                             
                             <List dense disablePadding>
                               {SUGGESTED_ETFS[asset.id as keyof typeof SUGGESTED_ETFS].map((etf, index) => (
-                                <ListItem 
+                                <ListItem
                                   key={etf.symbol}
-                                  selected={index === 0}
-                                  sx={{ 
+                                  sx={{
                                     borderRadius: 1,
                                     mb: 0.5,
                                     bgcolor: index === 0 ? `${asset.color}10` : 'transparent'

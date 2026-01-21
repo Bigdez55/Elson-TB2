@@ -268,12 +268,12 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
         <Divider sx={{ mb: 1 }} />
 
         <Grid container spacing={1}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="body2" color="text.secondary">
               {investmentType === 'dollars' ? 'Investment Amount' : 'Shares'}
             </Typography>
           </Grid>
-          <Grid item xs={6} sx={{ textAlign: 'right' }}>
+          <Grid size={6} sx={{ textAlign: 'right' }}>
             <Typography variant="body2" fontWeight="medium">
               {investmentType === 'dollars'
                 ? formatCurrency(amount || 0)
@@ -281,23 +281,23 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="body2" color="text.secondary">
               Market Price
             </Typography>
           </Grid>
-          <Grid item xs={6} sx={{ textAlign: 'right' }}>
+          <Grid size={6} sx={{ textAlign: 'right' }}>
             <Typography variant="body2" fontWeight="medium">
               {formatCurrency(currentPrice)}
             </Typography>
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="body2" color="text.secondary">
               Est. {investmentType === 'dollars' ? 'Shares' : 'Cost'}
             </Typography>
           </Grid>
-          <Grid item xs={6} sx={{ textAlign: 'right' }}>
+          <Grid size={6} sx={{ textAlign: 'right' }}>
             <Typography variant="body2" fontWeight="medium">
               {investmentType === 'dollars'
                 ? formatNumber(calculatedValues.estimatedShares, 4)
@@ -307,12 +307,12 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
 
           {portfolioName && (
             <>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">
                   Portfolio
                 </Typography>
               </Grid>
-              <Grid item xs={6} sx={{ textAlign: 'right' }}>
+              <Grid size={6} sx={{ textAlign: 'right' }}>
                 <Typography variant="body2" fontWeight="medium">
                   {portfolioName}
                 </Typography>
@@ -343,12 +343,12 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
         </Box>
 
         <Grid container spacing={1}>
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="body2" color="text.secondary">
               Order Value
             </Typography>
           </Grid>
-          <Grid item xs={6} sx={{ textAlign: 'right' }}>
+          <Grid size={6} sx={{ textAlign: 'right' }}>
             <Typography variant="body2">
               {formatCurrency(calculatedValues.estimatedCost)}
             </Typography>
@@ -356,12 +356,12 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
 
           {isPaperTrading ? (
             <>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">
                   Paper Trading Fee
                 </Typography>
               </Grid>
-              <Grid item xs={6} sx={{ textAlign: 'right' }}>
+              <Grid size={6} sx={{ textAlign: 'right' }}>
                 <Typography variant="body2">
                   {formatCurrency(calculatedValues.fees)}
                 </Typography>
@@ -369,12 +369,12 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
             </>
           ) : (
             <>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Typography variant="body2" color="text.secondary">
                   Commission (0.35%)
                 </Typography>
               </Grid>
-              <Grid item xs={6} sx={{ textAlign: 'right' }}>
+              <Grid size={6} sx={{ textAlign: 'right' }}>
                 <Typography variant="body2">
                   {formatCurrency(calculatedValues.commission)}
                 </Typography>
@@ -382,16 +382,16 @@ export const OrderPreviewScreen: React.FC<OrderPreviewScreenProps> = ({
             </>
           )}
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Divider sx={{ my: 1 }} />
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid size={6}>
             <Typography variant="body1" fontWeight="bold">
               Total {isBuy ? 'Cost' : 'Proceeds'}
             </Typography>
           </Grid>
-          <Grid item xs={6} sx={{ textAlign: 'right' }}>
+          <Grid size={6} sx={{ textAlign: 'right' }}>
             <Typography variant="body1" fontWeight="bold" color={isBuy ? 'error.main' : 'success.main'}>
               {formatCurrency(calculatedValues.totalAmount)}
             </Typography>
