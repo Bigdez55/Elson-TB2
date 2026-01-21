@@ -82,12 +82,12 @@ class MarketSimulationService:
             volatility = self.volatility_by_symbol.get(symbol, self.default_volatility)
             daily_drift = Decimal("0.0002")  # Slight upward bias
 
-            # Generate daily returns
+            # Generate daily returns (days - 1 because we start with current price)
             np.random.seed(hash(symbol) % 10000)  # Deterministic seed based on symbol
             returns = np.random.normal(
                 float(daily_drift),
                 float(volatility) * 3,  # Higher volatility for daily returns
-                days,
+                days - 1,
             )
 
             # Calculate prices working backwards from current price

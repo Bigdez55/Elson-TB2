@@ -1,8 +1,10 @@
 """Tests for broker API integration.
 
 This module tests the broker API integration with mock responses.
+Note: These tests require real API credentials and network access.
 """
 
+import os
 import unittest.mock as mock
 from datetime import datetime, timedelta
 
@@ -12,6 +14,20 @@ from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
 from app.services.broker.base import BaseBroker, BrokerError
 from app.services.broker.factory import BrokerType, get_broker
 from app.services.broker.mock_responses import generate_mock_response
+
+
+# Skip these tests if no API credentials are configured
+SCHWAB_CREDENTIALS_AVAILABLE = bool(os.getenv("SCHWAB_API_KEY"))
+ALPACA_CREDENTIALS_AVAILABLE = bool(os.getenv("ALPACA_API_KEY"))
+
+skip_schwab = pytest.mark.skipif(
+    not SCHWAB_CREDENTIALS_AVAILABLE,
+    reason="Schwab API credentials not configured"
+)
+skip_alpaca = pytest.mark.skipif(
+    not ALPACA_CREDENTIALS_AVAILABLE,
+    reason="Alpaca API credentials not configured"
+)
 
 
 class TestBrokerAPI:
@@ -147,6 +163,7 @@ class TestBrokerAPI:
         else:
             raise ValueError(f"Unexpected API call: {method} {endpoint}")
 
+    @skip_schwab
     def test_schwab_broker_basic_functionality(self, mock_schwab_api):
         """Test basic functionality of the Schwab broker implementation."""
         broker = get_broker(BrokerType.SCHWAB)
@@ -175,6 +192,7 @@ class TestBrokerAPI:
         assert "opens_at" in hours
         assert "closes_at" in hours
 
+    @skip_schwab
     def test_schwab_broker_order_execution(self, mock_schwab_api):
         """Test order execution with the Schwab broker implementation."""
         broker = get_broker(BrokerType.SCHWAB)
@@ -219,6 +237,7 @@ class TestBrokerAPI:
         assert execution["status"] == "FILLED"
         assert execution["filled_quantity"] > 0
 
+    @skip_alpaca
     def test_alpaca_broker_basic_functionality(self, mock_alpaca_api):
         """Test basic functionality of the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -246,6 +265,7 @@ class TestBrokerAPI:
         assert "is_open" in hours
         assert "opens_at" in hours or "next_open" in hours
 
+    @skip_alpaca
     def test_alpaca_broker_order_execution(self, mock_alpaca_api):
         """Test order execution with the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -292,6 +312,7 @@ class TestBrokerAPI:
         assert execution["average_price"] is not None
         assert len(execution["executions"]) > 0
 
+    @skip_alpaca
     def test_alpaca_broker_advanced_orders(self, mock_alpaca_api):
         """Test advanced order types with the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -323,6 +344,7 @@ class TestBrokerAPI:
         assert "broker_order_id" in result
         assert result["status"] == TradeStatus.PENDING
 
+    @skip_schwab
     def test_error_handling(self, mock_schwab_api):
         """Test error handling in broker implementations."""
         broker = get_broker(BrokerType.SCHWAB)

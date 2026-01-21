@@ -1,6 +1,8 @@
 import asyncio
 import os
-from typing import AsyncGenerator, Generator
+from datetime import datetime
+from decimal import Decimal
+from typing import Any, AsyncGenerator, Dict, Generator
 
 import pytest
 import pytest_asyncio
@@ -11,8 +13,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.core.config import Settings
+from app.core.security import create_access_token, get_password_hash
 from app.db.base import Base, get_db
 from app.main import app
+from app.models.user import User
+from app.models.portfolio import Portfolio
 
 
 # Test settings
@@ -52,6 +57,12 @@ def db_session(engine):
     finally:
         session.close()
         Base.metadata.drop_all(bind=engine)
+
+
+# Alias for db_session (some tests use 'db' instead)
+@pytest.fixture(scope="function")
+def db(db_session):
+    return db_session
 
 
 # FastAPI test client
@@ -124,3 +135,123 @@ def cleanup():
     # Clean up test database
     if os.path.exists("./test.db"):
         os.remove("./test.db")
+
+
+# Test user fixture - creates a user in the database
+@pytest.fixture
+def test_user(db_session) -> Dict[str, Any]:
+    """Create a test user in the database."""
+    user = User(
+        email="testuser@example.com",
+        hashed_password=get_password_hash("testpassword123"),
+        full_name="Test User",
+        is_active=True,
+        is_verified=True,
+        risk_tolerance="moderate",
+        trading_style="long_term",
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "password": "testpassword123",
+    }
+
+
+# Test portfolio fixture - creates a portfolio for the test user
+@pytest.fixture
+def test_portfolio(db_session, test_user) -> Dict[str, Any]:
+    """Create a test portfolio for the test user."""
+    portfolio = Portfolio(
+        user_id=test_user["id"],
+        name="Test Portfolio",
+        description="A test portfolio",
+        cash_balance=Decimal("100000.00"),
+        total_value=Decimal("100000.00"),
+        is_paper=True,
+    )
+    db_session.add(portfolio)
+    db_session.commit()
+    db_session.refresh(portfolio)
+
+    return {
+        "id": portfolio.id,
+        "user_id": portfolio.user_id,
+        "name": portfolio.name,
+        "cash_balance": float(portfolio.cash_balance),
+    }
+
+
+# Authorized client fixture - client with authentication token
+@pytest.fixture
+def authorized_client(client, test_user) -> TestClient:
+    """Create a test client with authentication."""
+    # Create access token for the test user
+    access_token = create_access_token(data={"sub": test_user["email"]})
+
+    # Add authorization header to client
+    client.headers["Authorization"] = f"Bearer {access_token}"
+
+    return client
+
+
+# Minor user fixtures for family account testing
+@pytest.fixture
+def test_minor(db_session, test_user) -> Dict[str, Any]:
+    """Create a minor user linked to the test user."""
+    minor = User(
+        email="minor@example.com",
+        hashed_password=get_password_hash("minorpassword123"),
+        full_name="Test Minor",
+        is_active=True,
+        is_verified=True,
+        is_minor=True,
+        guardian_id=test_user["id"],
+        risk_tolerance="conservative",
+        trading_style="long_term",
+    )
+    db_session.add(minor)
+    db_session.commit()
+    db_session.refresh(minor)
+
+    return {
+        "id": minor.id,
+        "email": minor.email,
+        "full_name": minor.full_name,
+        "guardian_id": minor.guardian_id,
+    }
+
+
+@pytest.fixture
+def minor_portfolio(db_session, test_minor) -> Dict[str, Any]:
+    """Create a portfolio for the minor user."""
+    portfolio = Portfolio(
+        user_id=test_minor["id"],
+        name="Minor Portfolio",
+        description="Portfolio for minor user",
+        cash_balance=Decimal("10000.00"),
+        total_value=Decimal("10000.00"),
+        is_paper=True,
+    )
+    db_session.add(portfolio)
+    db_session.commit()
+    db_session.refresh(portfolio)
+
+    return {
+        "id": portfolio.id,
+        "user_id": portfolio.user_id,
+        "name": portfolio.name,
+        "cash_balance": float(portfolio.cash_balance),
+    }
+
+
+@pytest.fixture
+def minor_client(client, test_minor) -> TestClient:
+    """Create a test client for the minor user."""
+    access_token = create_access_token(data={"sub": test_minor["email"]})
+    client.headers["Authorization"] = f"Bearer {access_token}"
+    return client

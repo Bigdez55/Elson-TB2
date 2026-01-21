@@ -63,9 +63,7 @@ class PaperBroker(BaseBroker):
 
             # Initialize paper_trading service lazily if not done yet
             if self.paper_trading is None:
-                self.paper_trading = PaperTradingService(
-                    self.db, simulation_service=self.market_simulation
-                )
+                self.paper_trading = PaperTradingService(self.db)
 
             # For this implementation, we'll simulate a successful trade execution
             # without actually calling the paper_trading service (to avoid circular dependencies)

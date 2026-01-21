@@ -203,8 +203,16 @@ class PaperTradingService:
             execution_price = current_price / slippage_factor
 
         # 3. Determine fill quantity (partial fills possible)
-        # Convert Decimal to float for calculations
-        quantity_float = float(trade.quantity)
+        # Handle dollar-based trades where quantity may be None
+        if trade.quantity is not None:
+            quantity_float = float(trade.quantity)
+        elif hasattr(trade, 'investment_amount') and trade.investment_amount:
+            # Dollar-based trade: calculate quantity from investment amount
+            quantity_float = float(trade.investment_amount) / execution_price
+        else:
+            return self._create_rejection_result(
+                trade, "Neither quantity nor investment_amount specified"
+            )
         filled_quantity = quantity_float
         if random.random() < self.partial_fill_probability:
             # Partial fill: 60-95% of requested quantity
@@ -384,9 +392,11 @@ class PaperTradingService:
 
         # Volume impact (larger orders = more slippage)
         volume_multiplier = 1.0
-        if trade.quantity > self.volume_impact_threshold:
+        # Handle dollar-based trades where quantity may be None
+        trade_quantity = trade.quantity if trade.quantity is not None else 0
+        if trade_quantity > self.volume_impact_threshold:
             volume_multiplier = (
-                1 + (trade.quantity / self.volume_impact_threshold - 1) * 0.5
+                1 + (trade_quantity / self.volume_impact_threshold - 1) * 0.5
             )
 
         # Market volatility impact (would use real volatility data in practice)

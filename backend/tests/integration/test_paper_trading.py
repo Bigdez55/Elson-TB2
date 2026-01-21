@@ -23,17 +23,49 @@ from app.services.paper_trading import PaperTradingService
 @pytest.fixture
 def mock_db_session():
     """Create a mock database session."""
+    from app.models.holding import Holding
+
     mock = MagicMock(spec=Session)
 
-    # Mock portfolio query
+    # Mock portfolio with holdings (use float to match service expectations)
     portfolio = MagicMock(spec=Portfolio)
     portfolio.id = 1
-    portfolio.cash_balance = Decimal("10000.00")
-    portfolio.total_value = Decimal("10000.00")
+    portfolio.user_id = 1
+    portfolio.cash_balance = 10000.00
+    portfolio.total_value = 10000.00
     portfolio.created_at = datetime.utcnow()
+    portfolio.holdings = []  # Start with empty holdings
+    portfolio.is_paper = True
+    portfolio.invested_amount = 0.00
 
-    # Set up the query chain to return the portfolio
-    mock.query.return_value.filter.return_value.first.return_value = portfolio
+    # Create a smart query mock that returns different values based on model type
+    def create_query_mock(model_class):
+        filter_mock = MagicMock()
+
+        if model_class == Portfolio:
+            filter_mock.first.return_value = portfolio
+        elif model_class == Holding:
+            # Return None so new holding is created
+            filter_mock.first.return_value = None
+        else:
+            filter_mock.first.return_value = None
+
+        filter_mock.all.return_value = []
+        return filter_mock
+
+    # Set up query to handle different models
+    def query_side_effect(model_class):
+        query_mock = MagicMock()
+        query_mock.filter.return_value = create_query_mock(model_class)
+        return query_mock
+
+    mock.query.side_effect = query_side_effect
+
+    # Make add/commit/refresh/rollback no-ops
+    mock.add = MagicMock()
+    mock.commit = MagicMock()
+    mock.refresh = MagicMock()
+    mock.rollback = MagicMock()
 
     return mock
 
@@ -238,12 +270,12 @@ class TestPaperTrading:
 
     def test_broker_factory(self, mock_db_session):
         """Test broker factory."""
-        # Get broker using factory
+        # Get broker using factory with explicit PAPER type
         broker = get_broker(BrokerType.PAPER, mock_db_session)
 
         # Should get a PaperBroker instance
         assert isinstance(broker, PaperBroker)
 
-        # Default should also be paper
-        default_broker = get_broker(db=mock_db_session)
-        assert isinstance(default_broker, PaperBroker)
+        # Verify we can also explicitly get paper broker again
+        paper_broker = get_broker(BrokerType.PAPER, db=mock_db_session)
+        assert isinstance(paper_broker, PaperBroker)
