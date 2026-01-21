@@ -12,28 +12,23 @@ YOUR trading patterns, YOUR users' preferences, and YOUR strategies.
 Copyright (c) 2024 Elson Wealth. All rights reserved.
 """
 
-import os
 import json
 import logging
+import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
 
 import torch
+from datasets import Dataset
+from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    TrainingArguments,
-    Trainer,
     DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
 )
-from peft import (
-    LoraConfig,
-    get_peft_model,
-    PeftModel,
-    prepare_model_for_kbit_training,
-)
-from datasets import Dataset
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +36,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FineTuningConfig:
     """Configuration for LoRA fine-tuning."""
+
     # LoRA parameters
     lora_r: int = 16  # Rank of the low-rank matrices
     lora_alpha: int = 32  # Scaling factor
@@ -62,8 +58,13 @@ class FineTuningConfig:
         if self.target_modules is None:
             # Default: adapt attention and MLP layers
             self.target_modules = [
-                "q_proj", "k_proj", "v_proj", "o_proj",
-                "gate_proj", "up_proj", "down_proj"
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
             ]
 
 
@@ -112,6 +113,7 @@ class ElsonFineTuner:
         # Load model with quantization for memory efficiency
         if load_in_4bit:
             from transformers import BitsAndBytesConfig
+
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type="nf4",
@@ -135,9 +137,7 @@ class ElsonFineTuner:
         logger.info("Base model loaded successfully")
 
     def prepare_training_data(
-        self,
-        examples: List[Dict[str, str]],
-        system_prompt: Optional[str] = None
+        self, examples: List[Dict[str, str]], system_prompt: Optional[str] = None
     ) -> None:
         """
         Prepare training data from trading examples.
@@ -155,8 +155,11 @@ class ElsonFineTuner:
                 ...
             ]
         """
-        system = system_prompt or """You are Elson-Finance-Trading, analyzing markets
+        system = (
+            system_prompt
+            or """You are Elson-Finance-Trading, analyzing markets
 for autonomous trading decisions. Provide structured recommendations."""
+        )
 
         formatted_examples = []
         for ex in examples:
@@ -296,9 +299,7 @@ class ModelSoup:
         logger.info(f"Added variant: {variant_path} (total: {len(self.variant_paths)})")
 
     def create_soup(
-        self,
-        output_path: str,
-        weights: Optional[List[float]] = None
+        self, output_path: str, weights: Optional[List[float]] = None
     ) -> str:
         """
         Create model soup by averaging variant weights.
@@ -335,10 +336,9 @@ class ModelSoup:
         # Average weights
         avg_state_dict = {}
         for key in state_dicts[0].keys():
-            stacked = torch.stack([
-                sd[key].float() * w
-                for sd, w in zip(state_dicts, weights)
-            ])
+            stacked = torch.stack(
+                [sd[key].float() * w for sd, w in zip(state_dicts, weights)]
+            )
             avg_state_dict[key] = stacked.sum(dim=0)
 
         # Load base model and apply averaged weights
@@ -407,10 +407,7 @@ STOP_LOSS: ${result['entry_price'] * 0.95:.2f}
 TAKE_PROFIT: ${result['exit_price']:.2f}
 REASONING: Based on RSI of {indicators.get('rsi', 50):.1f} and {'bullish' if indicators.get('macd_bullish', False) else 'bearish'} MACD, with sentiment at {indicators.get('sentiment', 0):.2f}, this trade resulted in {result['profit_pct']:.1f}% profit."""
 
-        examples.append({
-            "input": input_text,
-            "output": output_text
-        })
+        examples.append({"input": input_text, "output": output_text})
 
     logger.info(f"Created {len(examples)} training examples from backtests")
     return examples

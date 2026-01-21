@@ -8,20 +8,21 @@ Key Principle: The AI helps with organization, categorization, and education.
 It does NOT perform actual tax calculations, filing, or professional accounting.
 """
 
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import List, Optional, Dict, Any
-import re
-
+from typing import Any, Dict, List, Optional
 
 # =============================================================================
 # RULE DEFINITIONS
 # =============================================================================
 
+
 class AccountingAuthority(str, Enum):
     """Decision authority for accounting compliance"""
+
     COMPLIANCE = "compliance"  # Binding
     EDUCATION = "education"  # Advisory
     TAX_PROFESSIONAL = "tax_professional"  # Requires CPA/EA
@@ -29,6 +30,7 @@ class AccountingAuthority(str, Enum):
 
 class AccountingRuleAction(str, Enum):
     """Actions when rule triggers"""
+
     BLOCK_RESPONSE = "block_response"
     ADD_DISCLAIMER = "add_disclaimer"
     ADD_WARNING = "add_warning"
@@ -38,6 +40,7 @@ class AccountingRuleAction(str, Enum):
 
 class AccountingRuleSeverity(str, Enum):
     """Rule severity levels"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -48,9 +51,11 @@ class AccountingRuleSeverity(str, Enum):
 # CONTEXT OBJECTS
 # =============================================================================
 
+
 @dataclass
 class AccountingRequestContext:
     """Context for accounting-related requests"""
+
     request_type: str  # categorize, budget, forecast, kpi, tax_question
     involves_tax_filing: bool = False
     involves_tax_calculation: bool = False
@@ -63,6 +68,7 @@ class AccountingRequestContext:
 @dataclass
 class AccountingResponseContext:
     """Context for checking AI responses"""
+
     response_text: str
     includes_tax_advice: bool = False
     includes_specific_numbers: bool = False
@@ -73,9 +79,11 @@ class AccountingResponseContext:
 # COMPLIANCE RULES
 # =============================================================================
 
+
 @dataclass
 class AccountingRule:
     """Definition of an accounting compliance rule"""
+
     rule_id: str
     name: str
     description: str
@@ -99,7 +107,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.CRITICAL,
         action=AccountingRuleAction.BLOCK_RESPONSE,
         category="tax_boundary",
-        check_function="check_no_tax_filing_instructions"
+        check_function="check_no_tax_filing_instructions",
     ),
     AccountingRule(
         rule_id="ACCT_TAX_002",
@@ -109,7 +117,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.CRITICAL,
         action=AccountingRuleAction.REDIRECT_TO_PROFESSIONAL,
         category="tax_boundary",
-        check_function="check_no_specific_tax_calculations"
+        check_function="check_no_specific_tax_calculations",
     ),
     AccountingRule(
         rule_id="ACCT_TAX_003",
@@ -119,7 +127,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.CRITICAL,
         action=AccountingRuleAction.BLOCK_RESPONSE,
         category="tax_boundary",
-        check_function="check_no_tax_evasion"
+        check_function="check_no_tax_evasion",
     ),
     AccountingRule(
         rule_id="ACCT_TAX_004",
@@ -129,9 +137,8 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.MEDIUM,
         action=AccountingRuleAction.ADD_DISCLAIMER,
         category="tax_boundary",
-        check_function="check_tax_year_disclaimer"
+        check_function="check_tax_year_disclaimer",
     ),
-
     # ==========================================================================
     # PROFESSIONAL BOUNDARY RULES
     # ==========================================================================
@@ -143,7 +150,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.HIGH,
         action=AccountingRuleAction.REDIRECT_TO_PROFESSIONAL,
         category="professional_boundary",
-        check_function="check_cpa_referral_needed"
+        check_function="check_cpa_referral_needed",
     ),
     AccountingRule(
         rule_id="ACCT_PROF_002",
@@ -153,7 +160,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.CRITICAL,
         action=AccountingRuleAction.REDIRECT_TO_PROFESSIONAL,
         category="professional_boundary",
-        check_function="check_audit_limitation"
+        check_function="check_audit_limitation",
     ),
     AccountingRule(
         rule_id="ACCT_PROF_003",
@@ -163,9 +170,8 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.HIGH,
         action=AccountingRuleAction.ADD_WARNING,
         category="professional_boundary",
-        check_function="check_entity_advice_limitation"
+        check_function="check_entity_advice_limitation",
     ),
-
     # ==========================================================================
     # DATA INTEGRITY RULES
     # ==========================================================================
@@ -177,7 +183,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.MEDIUM,
         action=AccountingRuleAction.ADD_DISCLAIMER,
         category="data_integrity",
-        check_function="check_categorization_disclaimer"
+        check_function="check_categorization_disclaimer",
     ),
     AccountingRule(
         rule_id="ACCT_DATA_002",
@@ -187,9 +193,8 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.MEDIUM,
         action=AccountingRuleAction.ADD_DISCLAIMER,
         category="data_integrity",
-        check_function="check_projection_disclaimer"
+        check_function="check_projection_disclaimer",
     ),
-
     # ==========================================================================
     # PERSONAL/BUSINESS SEPARATION
     # ==========================================================================
@@ -201,7 +206,7 @@ ACCOUNTING_RULES: List[AccountingRule] = [
         severity=AccountingRuleSeverity.MEDIUM,
         action=AccountingRuleAction.ADD_WARNING,
         category="separation",
-        check_function="check_separation_warning"
+        check_function="check_separation_warning",
     ),
 ]
 
@@ -210,8 +215,9 @@ ACCOUNTING_RULES: List[AccountingRule] = [
 # RULE CHECK FUNCTIONS
 # =============================================================================
 
+
 def check_no_tax_filing_instructions(
-    response: AccountingResponseContext
+    response: AccountingResponseContext,
 ) -> tuple[bool, str]:
     """Block responses with specific tax filing instructions"""
     filing_patterns = [
@@ -236,7 +242,7 @@ def check_no_tax_filing_instructions(
 
 
 def check_no_specific_tax_calculations(
-    response: AccountingResponseContext
+    response: AccountingResponseContext,
 ) -> tuple[bool, str]:
     """Block specific tax liability calculations"""
     calculation_patterns = [
@@ -259,9 +265,7 @@ def check_no_specific_tax_calculations(
     return True, ""
 
 
-def check_no_tax_evasion(
-    response: AccountingResponseContext
-) -> tuple[bool, str]:
+def check_no_tax_evasion(response: AccountingResponseContext) -> tuple[bool, str]:
     """Block any tax evasion assistance"""
     evasion_patterns = [
         r"(hide|conceal)\s+(income|money|assets)",
@@ -284,9 +288,7 @@ def check_no_tax_evasion(
     return True, ""
 
 
-def check_tax_year_disclaimer(
-    response: AccountingResponseContext
-) -> tuple[bool, str]:
+def check_tax_year_disclaimer(response: AccountingResponseContext) -> tuple[bool, str]:
     """Add disclaimer about tax information currency"""
     tax_terms = [
         "tax bracket",
@@ -307,9 +309,7 @@ def check_tax_year_disclaimer(
     return True, ""
 
 
-def check_cpa_referral_needed(
-    request: AccountingRequestContext
-) -> tuple[bool, str]:
+def check_cpa_referral_needed(request: AccountingRequestContext) -> tuple[bool, str]:
     """Determine if CPA referral is needed"""
     complex_indicators = [
         request.involves_business_accounting,
@@ -327,9 +327,7 @@ def check_cpa_referral_needed(
     return True, ""
 
 
-def check_audit_limitation(
-    request: AccountingRequestContext
-) -> tuple[bool, str]:
+def check_audit_limitation(request: AccountingRequestContext) -> tuple[bool, str]:
     """Cannot assist with audits"""
     if request.involves_audit:
         return False, (
@@ -343,7 +341,7 @@ def check_audit_limitation(
 
 
 def check_entity_advice_limitation(
-    response: AccountingResponseContext
+    response: AccountingResponseContext,
 ) -> tuple[bool, str]:
     """Warn about business entity advice"""
     entity_terms = [
@@ -366,7 +364,7 @@ def check_entity_advice_limitation(
 
 
 def check_categorization_disclaimer(
-    response: AccountingResponseContext
+    response: AccountingResponseContext,
 ) -> tuple[bool, str]:
     """Add disclaimer for categorization suggestions"""
     categorization_terms = [
@@ -387,7 +385,7 @@ def check_categorization_disclaimer(
 
 
 def check_projection_disclaimer(
-    response: AccountingResponseContext
+    response: AccountingResponseContext,
 ) -> tuple[bool, str]:
     """Add disclaimer for projections and forecasts"""
     projection_terms = [
@@ -408,9 +406,7 @@ def check_projection_disclaimer(
     return True, ""
 
 
-def check_separation_warning(
-    response: AccountingResponseContext
-) -> tuple[bool, str]:
+def check_separation_warning(response: AccountingResponseContext) -> tuple[bool, str]:
     """Warn about personal/business separation"""
     separation_concerns = [
         "personal expense",
@@ -458,7 +454,6 @@ CATEGORIZATION_PATTERNS = {
         r"capital gain",
         r"distribution",
     ],
-
     # Expense patterns
     "expense_housing": [
         r"rent",
@@ -549,6 +544,7 @@ def suggest_category(description: str) -> tuple[Optional[str], Decimal]:
 # =============================================================================
 # MAIN COMPLIANCE CHECK FUNCTION
 # =============================================================================
+
 
 class AccountingComplianceResult:
     """Result of accounting compliance check"""

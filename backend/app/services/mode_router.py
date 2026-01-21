@@ -8,25 +8,27 @@ This enables one model to serve both citizen-friendly (Goal A) and
 institutional-depth (Goal B) use cases through routing, not mixing.
 """
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional, List, Dict, Any, Tuple
-import re
-
+from typing import Any, Dict, List, Optional, Tuple
 
 # =============================================================================
 # ENUMS
 # =============================================================================
 
+
 class ResponseMode(str, Enum):
     """Response depth modes"""
-    SIMPLE = "simple"           # Citizen-friendly, 2-6 sentences
-    STANDARD = "standard"       # Balanced depth, typical use case
-    DEEP_DIVE = "deep_dive"     # Institutional depth, full analysis
+
+    SIMPLE = "simple"  # Citizen-friendly, 2-6 sentences
+    STANDARD = "standard"  # Balanced depth, typical use case
+    DEEP_DIVE = "deep_dive"  # Institutional depth, full analysis
 
 
 class TaskType(str, Enum):
     """Classification of financial tasks"""
+
     # Goal A - Citizen/Personal Finance
     BUDGETING = "budgeting"
     SAVINGS = "savings"
@@ -53,10 +55,11 @@ class TaskType(str, Enum):
 
 class RiskLevel(str, Enum):
     """Risk level of the request - determines required depth"""
-    LOW = "low"           # General education, no action implications
-    MEDIUM = "medium"     # Planning context, some action implications
-    HIGH = "high"         # Specific advice context, significant implications
-    CRITICAL = "critical" # Tax, legal, compliance - requires maximum rigor
+
+    LOW = "low"  # General education, no action implications
+    MEDIUM = "medium"  # Planning context, some action implications
+    HIGH = "high"  # Specific advice context, significant implications
+    CRITICAL = "critical"  # Tax, legal, compliance - requires maximum rigor
 
 
 # =============================================================================
@@ -65,89 +68,137 @@ class RiskLevel(str, Enum):
 
 # Keywords that indicate higher risk/depth requirements
 HIGH_RISK_PATTERNS = [
-    r'\b(should i|is it safe|recommend|best|optimal)\b.*\b(invest|buy|sell|trade)\b',
-    r'\b(tax|irs|audit|compliance|legal|fiduciary)\b',
-    r'\b(estate|inheritance|trust|beneficiary)\b',
-    r'\b(margin|leverage|options|derivatives|short)\b',
-    r'\b(specific|exact|precise)\s+(amount|number|calculation)\b',
-    r'\b(guaranteed|certain|always|never)\b.*\b(return|profit|gain)\b',
+    r"\b(should i|is it safe|recommend|best|optimal)\b.*\b(invest|buy|sell|trade)\b",
+    r"\b(tax|irs|audit|compliance|legal|fiduciary)\b",
+    r"\b(estate|inheritance|trust|beneficiary)\b",
+    r"\b(margin|leverage|options|derivatives|short)\b",
+    r"\b(specific|exact|precise)\s+(amount|number|calculation)\b",
+    r"\b(guaranteed|certain|always|never)\b.*\b(return|profit|gain)\b",
 ]
 
 MEDIUM_RISK_PATTERNS = [
-    r'\b(plan|strategy|approach|method)\b.*\b(retire|save|invest)\b',
-    r'\b(portfolio|allocation|diversif|rebalance)\b',
-    r'\b(how much|when should|how long)\b.*\b(save|invest|retire)\b',
-    r'\b(compare|versus|vs|better)\b.*\b(fund|etf|stock|bond)\b',
+    r"\b(plan|strategy|approach|method)\b.*\b(retire|save|invest)\b",
+    r"\b(portfolio|allocation|diversif|rebalance)\b",
+    r"\b(how much|when should|how long)\b.*\b(save|invest|retire)\b",
+    r"\b(compare|versus|vs|better)\b.*\b(fund|etf|stock|bond)\b",
 ]
 
 LOW_RISK_PATTERNS = [
-    r'\b(what is|explain|define|meaning of)\b',
-    r'\b(how does|how do)\b.*\b(work|function)\b',
-    r'\b(example|instance|illustration)\b',
-    r'\b(history|background|overview)\b',
+    r"\b(what is|explain|define|meaning of)\b",
+    r"\b(how does|how do)\b.*\b(work|function)\b",
+    r"\b(example|instance|illustration)\b",
+    r"\b(history|background|overview)\b",
 ]
 
 # Task type classification patterns
 TASK_PATTERNS: Dict[TaskType, List[str]] = {
     TaskType.BUDGETING: [
-        r'\bbudget\b', r'\bspending\b', r'\bexpense\b', r'\b50.?30.?20\b',
-        r'\btrack\b.*\b(money|spend)\b', r'\bmonthly\b.*\b(plan|limit)\b',
+        r"\bbudget\b",
+        r"\bspending\b",
+        r"\bexpense\b",
+        r"\b50.?30.?20\b",
+        r"\btrack\b.*\b(money|spend)\b",
+        r"\bmonthly\b.*\b(plan|limit)\b",
     ],
     TaskType.SAVINGS: [
-        r'\b(save|saving|savings)\b', r'\bemergency fund\b',
-        r'\bhigh.?yield\b', r'\bsinking fund\b',
+        r"\b(save|saving|savings)\b",
+        r"\bemergency fund\b",
+        r"\bhigh.?yield\b",
+        r"\bsinking fund\b",
     ],
     TaskType.DEBT_MANAGEMENT: [
-        r'\bdebt\b', r'\bloan\b', r'\bcredit card\b', r'\bmortgage\b',
-        r'\b(pay off|payoff|snowball|avalanche)\b',
+        r"\bdebt\b",
+        r"\bloan\b",
+        r"\bcredit card\b",
+        r"\bmortgage\b",
+        r"\b(pay off|payoff|snowball|avalanche)\b",
     ],
     TaskType.RETIREMENT_BASIC: [
-        r'\bretire\b', r'\b401k\b', r'\bira\b', r'\broth\b',
-        r'\bpension\b', r'\bsocial security\b',
+        r"\bretire\b",
+        r"\b401k\b",
+        r"\bira\b",
+        r"\broth\b",
+        r"\bpension\b",
+        r"\bsocial security\b",
     ],
     TaskType.INSURANCE_BASICS: [
-        r'\binsurance\b', r'\bpolicy\b', r'\bpremium\b', r'\bcoverage\b',
-        r'\bdeductible\b', r'\bbeneficiary\b',
+        r"\binsurance\b",
+        r"\bpolicy\b",
+        r"\bpremium\b",
+        r"\bcoverage\b",
+        r"\bdeductible\b",
+        r"\bbeneficiary\b",
     ],
     TaskType.TAX_EDUCATION: [
-        r'\btax\b', r'\birs\b', r'\bdeduction\b', r'\bcredit\b',
-        r'\bwithholding\b', r'\bfiling\b',
+        r"\btax\b",
+        r"\birs\b",
+        r"\bdeduction\b",
+        r"\bcredit\b",
+        r"\bwithholding\b",
+        r"\bfiling\b",
     ],
     TaskType.PORTFOLIO_CONSTRUCTION: [
-        r'\bportfolio\b', r'\ballocation\b', r'\bdiversif\b',
-        r'\brebalance\b', r'\basset class\b',
+        r"\bportfolio\b",
+        r"\ballocation\b",
+        r"\bdiversif\b",
+        r"\brebalance\b",
+        r"\basset class\b",
     ],
     TaskType.RISK_ANALYSIS: [
-        r'\brisk\b.*\b(assess|analyz|measur)\b', r'\bvolatility\b',
-        r'\bsharpe\b', r'\bbeta\b', r'\bdrawdown\b', r'\bvar\b',
+        r"\brisk\b.*\b(assess|analyz|measur)\b",
+        r"\bvolatility\b",
+        r"\bsharpe\b",
+        r"\bbeta\b",
+        r"\bdrawdown\b",
+        r"\bvar\b",
     ],
     TaskType.TAX_OPTIMIZATION: [
-        r'\btax.?(loss|gain)\s*harvest\b', r'\btax.?efficient\b',
-        r'\basset location\b', r'\btax.?advantaged\b',
+        r"\btax.?(loss|gain)\s*harvest\b",
+        r"\btax.?efficient\b",
+        r"\basset location\b",
+        r"\btax.?advantaged\b",
     ],
     TaskType.ESTATE_PLANNING: [
-        r'\bestate\b', r'\binheritance\b', r'\btrust\b', r'\bwill\b',
-        r'\bprobate\b', r'\bbeneficiary\b.*\bdesignation\b',
+        r"\bestate\b",
+        r"\binheritance\b",
+        r"\btrust\b",
+        r"\bwill\b",
+        r"\bprobate\b",
+        r"\bbeneficiary\b.*\bdesignation\b",
     ],
     TaskType.COMPLIANCE_CHECK: [
-        r'\bcompliance\b', r'\bregulation\b', r'\bfiduciary\b',
-        r'\bsuitability\b', r'\bdisclosure\b',
+        r"\bcompliance\b",
+        r"\bregulation\b",
+        r"\bfiduciary\b",
+        r"\bsuitability\b",
+        r"\bdisclosure\b",
     ],
     TaskType.TRADE_ANALYSIS: [
-        r'\btrade\b', r'\bentry\b', r'\bexit\b', r'\bposition\b',
-        r'\bstop.?loss\b', r'\btarget\b',
+        r"\btrade\b",
+        r"\bentry\b",
+        r"\bexit\b",
+        r"\bposition\b",
+        r"\bstop.?loss\b",
+        r"\btarget\b",
     ],
     TaskType.SCENARIO_MODELING: [
-        r'\bscenario\b', r'\bwhat if\b', r'\bsimulat\b',
-        r'\bproject\b', r'\bforecast\b',
+        r"\bscenario\b",
+        r"\bwhat if\b",
+        r"\bsimulat\b",
+        r"\bproject\b",
+        r"\bforecast\b",
     ],
     TaskType.MARKET_DATA: [
-        r'\bprice\b', r'\bquote\b', r'\bcurrent\b.*\bmarket\b',
-        r'\bpe ratio\b', r'\beps\b', r'\bdividend yield\b',
+        r"\bprice\b",
+        r"\bquote\b",
+        r"\bcurrent\b.*\bmarket\b",
+        r"\bpe ratio\b",
+        r"\beps\b",
+        r"\bdividend yield\b",
     ],
     TaskType.PRODUCT_EXPLANATION: [
-        r'\b(what is|explain)\b.*\b(etf|fund|bond|stock|option)\b',
-        r'\bhow does\b.*\b(work|function)\b',
+        r"\b(what is|explain)\b.*\b(etf|fund|bond|stock|option)\b",
+        r"\bhow does\b.*\b(work|function)\b",
     ],
 }
 
@@ -156,9 +207,11 @@ TASK_PATTERNS: Dict[TaskType, List[str]] = {
 # ROUTER CONTEXT
 # =============================================================================
 
+
 @dataclass
 class UserContext:
     """User profile for routing decisions"""
+
     user_id: Optional[str] = None
     wealth_tier: str = "mass_market"  # mass_market, affluent, hnw, uhnw, institutional
     is_professional: bool = False
@@ -170,6 +223,7 @@ class UserContext:
 @dataclass
 class RoutingDecision:
     """Output of the mode router"""
+
     mode: ResponseMode
     task_type: TaskType
     risk_level: RiskLevel
@@ -185,6 +239,7 @@ class RoutingDecision:
 # MODE ROUTER
 # =============================================================================
 
+
 class ModeRouter:
     """
     Routes prompts to appropriate response mode based on:
@@ -198,9 +253,15 @@ class ModeRouter:
 
     def _compile_patterns(self):
         """Pre-compile regex patterns for performance"""
-        self.high_risk_compiled = [re.compile(p, re.IGNORECASE) for p in HIGH_RISK_PATTERNS]
-        self.medium_risk_compiled = [re.compile(p, re.IGNORECASE) for p in MEDIUM_RISK_PATTERNS]
-        self.low_risk_compiled = [re.compile(p, re.IGNORECASE) for p in LOW_RISK_PATTERNS]
+        self.high_risk_compiled = [
+            re.compile(p, re.IGNORECASE) for p in HIGH_RISK_PATTERNS
+        ]
+        self.medium_risk_compiled = [
+            re.compile(p, re.IGNORECASE) for p in MEDIUM_RISK_PATTERNS
+        ]
+        self.low_risk_compiled = [
+            re.compile(p, re.IGNORECASE) for p in LOW_RISK_PATTERNS
+        ]
 
         self.task_compiled: Dict[TaskType, List[re.Pattern]] = {}
         for task, patterns in TASK_PATTERNS.items():
@@ -242,12 +303,16 @@ class ModeRouter:
 
         # Task-based risk defaults
         high_risk_tasks = {
-            TaskType.TAX_OPTIMIZATION, TaskType.ESTATE_PLANNING,
-            TaskType.COMPLIANCE_CHECK, TaskType.TRADE_ANALYSIS,
+            TaskType.TAX_OPTIMIZATION,
+            TaskType.ESTATE_PLANNING,
+            TaskType.COMPLIANCE_CHECK,
+            TaskType.TRADE_ANALYSIS,
         }
         medium_risk_tasks = {
-            TaskType.PORTFOLIO_CONSTRUCTION, TaskType.RISK_ANALYSIS,
-            TaskType.SCENARIO_MODELING, TaskType.RETIREMENT_BASIC,
+            TaskType.PORTFOLIO_CONSTRUCTION,
+            TaskType.RISK_ANALYSIS,
+            TaskType.SCENARIO_MODELING,
+            TaskType.RETIREMENT_BASIC,
         }
 
         if task_type in high_risk_tasks:
@@ -261,7 +326,7 @@ class ModeRouter:
         self,
         risk_level: RiskLevel,
         task_type: TaskType,
-        user_context: Optional[UserContext] = None
+        user_context: Optional[UserContext] = None,
     ) -> ResponseMode:
         """Determine response mode based on risk and context"""
         # User override takes precedence
@@ -285,7 +350,9 @@ class ModeRouter:
         # Low risk uses simple
         return ResponseMode.SIMPLE
 
-    def get_required_schemas(self, task_type: TaskType, mode: ResponseMode) -> List[str]:
+    def get_required_schemas(
+        self, task_type: TaskType, mode: ResponseMode
+    ) -> List[str]:
         """Determine which JSON schemas are required for this task"""
         schemas = []
 
@@ -308,7 +375,9 @@ class ModeRouter:
 
         return schema_mapping.get(task_type, [])
 
-    def get_required_disclaimers(self, task_type: TaskType, risk_level: RiskLevel) -> List[str]:
+    def get_required_disclaimers(
+        self, task_type: TaskType, risk_level: RiskLevel
+    ) -> List[str]:
         """Determine which disclaimers are required"""
         disclaimers = []
 
@@ -342,10 +411,10 @@ class ModeRouter:
 
         # Check for specific data requests
         tool_indicators = [
-            r'\bcurrent\b.*\b(price|quote|rate)\b',
-            r'\btoday\b.*\b(market|stock|fund)\b',
-            r'\b(pe|p/e|eps|dividend)\b.*\bratio\b',
-            r'\bfundamental\b.*\bdata\b',
+            r"\bcurrent\b.*\b(price|quote|rate)\b",
+            r"\btoday\b.*\b(market|stock|fund)\b",
+            r"\b(pe|p/e|eps|dividend)\b.*\bratio\b",
+            r"\bfundamental\b.*\bdata\b",
         ]
 
         for pattern in tool_indicators:
@@ -361,16 +430,18 @@ class ModeRouter:
             return True
 
         # Compliance and tax always need retrieval
-        if task_type in {TaskType.COMPLIANCE_CHECK, TaskType.TAX_OPTIMIZATION,
-                         TaskType.TAX_EDUCATION, TaskType.ESTATE_PLANNING}:
+        if task_type in {
+            TaskType.COMPLIANCE_CHECK,
+            TaskType.TAX_OPTIMIZATION,
+            TaskType.TAX_EDUCATION,
+            TaskType.ESTATE_PLANNING,
+        }:
             return True
 
         return False
 
     def route(
-        self,
-        prompt: str,
-        user_context: Optional[UserContext] = None
+        self, prompt: str, user_context: Optional[UserContext] = None
     ) -> RoutingDecision:
         """
         Main routing function - classifies prompt and returns routing decision.
@@ -399,8 +470,7 @@ class ModeRouter:
 
         # 5. Build reasoning
         reasoning = self._build_reasoning(
-            task_type, risk_level, mode,
-            user_context, requires_tool, requires_retrieval
+            task_type, risk_level, mode, user_context, requires_tool, requires_retrieval
         )
 
         return RoutingDecision(
@@ -448,6 +518,7 @@ class ModeRouter:
 # ANSWER CONTRACT
 # =============================================================================
 
+
 @dataclass
 class AnswerContract:
     """
@@ -458,14 +529,15 @@ class AnswerContract:
     Section 3: Next actions (checklist or JSON schema)
     Section 4: Compliance note (short, only when relevant)
     """
+
     mode: ResponseMode
     risk_level: RiskLevel
 
     # Section toggles
-    include_summary: bool = True        # Always true
-    include_detail: bool = False        # Based on mode/risk
-    include_actions: bool = True        # Usually true
-    include_compliance: bool = False    # Only when disclaimers needed
+    include_summary: bool = True  # Always true
+    include_detail: bool = False  # Based on mode/risk
+    include_actions: bool = True  # Usually true
+    include_compliance: bool = False  # Only when disclaimers needed
 
     # Output format
     output_schema: Optional[str] = None  # JSON schema to use
@@ -476,13 +548,15 @@ class AnswerContract:
     def from_routing(cls, decision: RoutingDecision) -> "AnswerContract":
         """Create answer contract from routing decision"""
         include_detail = (
-            decision.mode == ResponseMode.DEEP_DIVE or
-            decision.risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL}
+            decision.mode == ResponseMode.DEEP_DIVE
+            or decision.risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL}
         )
 
         include_compliance = len(decision.required_disclaimers) > 0
 
-        output_schema = decision.required_schemas[0] if decision.required_schemas else None
+        output_schema = (
+            decision.required_schemas[0] if decision.required_schemas else None
+        )
 
         # Adjust summary length based on mode
         if decision.mode == ResponseMode.SIMPLE:
@@ -529,7 +603,9 @@ class AnswerContract:
         parts.append("1. **Summary**: Brief plain-English overview")
 
         if self.include_detail:
-            parts.append("2. **Analysis**: Detailed examination with assumptions and constraints")
+            parts.append(
+                "2. **Analysis**: Detailed examination with assumptions and constraints"
+            )
 
         if self.include_actions:
             parts.append(f"3. **Next Steps**: Actionable checklist")
@@ -538,7 +614,9 @@ class AnswerContract:
             parts.append("4. **Important Notes**: Brief compliance/disclaimer notes")
 
         if self.output_schema:
-            parts.append(f"\nProvide structured output using the {self.output_schema} schema.")
+            parts.append(
+                f"\nProvide structured output using the {self.output_schema} schema."
+            )
 
         return "\n".join(parts)
 
@@ -550,6 +628,7 @@ class AnswerContract:
 # Global router instance
 _router: Optional[ModeRouter] = None
 
+
 def get_router() -> ModeRouter:
     """Get or create the global router instance"""
     global _router
@@ -559,14 +638,15 @@ def get_router() -> ModeRouter:
 
 
 def route_prompt(
-    prompt: str,
-    user_context: Optional[UserContext] = None
+    prompt: str, user_context: Optional[UserContext] = None
 ) -> RoutingDecision:
     """Convenience function to route a prompt"""
     return get_router().route(prompt, user_context)
 
 
-def get_answer_contract(prompt: str, user_context: Optional[UserContext] = None) -> AnswerContract:
+def get_answer_contract(
+    prompt: str, user_context: Optional[UserContext] = None
+) -> AnswerContract:
     """Get the answer contract for a prompt"""
     decision = route_prompt(prompt, user_context)
     return AnswerContract.from_routing(decision)

@@ -1,14 +1,15 @@
-from typing import List, Dict, Optional, Any
-from sqlalchemy.orm import Session
-from datetime import datetime
-import logging
 import json
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from app.models.user import User, UserRole
-from app.models.trade import Trade, TradeStatus
-from app.models.notification import Notification, NotificationType
+from sqlalchemy.orm import Session
+
 from app.models.account import Account, AccountType
+from app.models.notification import Notification, NotificationType
 from app.models.portfolio import Portfolio
+from app.models.trade import Trade, TradeStatus
+from app.models.user import User, UserRole
 
 # Setup logger
 logger = logging.getLogger(__name__)

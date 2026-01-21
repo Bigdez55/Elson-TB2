@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -135,7 +135,7 @@ class TWAPExecutionStrategy(TradingStrategy):
             if not self._check_price_limit(current_price):
                 return self._create_hold_signal(
                     current_price,
-                    f"Price {current_price:.2f} beyond limit {self.price_limit:.2f}"
+                    f"Price {current_price:.2f} beyond limit {self.price_limit:.2f}",
                 )
 
             # Generate execution signal
@@ -147,8 +147,7 @@ class TWAPExecutionStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in TWAP execution: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -174,7 +173,9 @@ class TWAPExecutionStrategy(TradingStrategy):
 
         # Create equal-sized slices
         base_slice_size = self.total_quantity / self.num_slices
-        slice_duration = timedelta(minutes=self.execution_window_minutes / self.num_slices)
+        slice_duration = timedelta(
+            minutes=self.execution_window_minutes / self.num_slices
+        )
 
         self.slice_schedule = []
 
@@ -187,8 +188,7 @@ class TWAPExecutionStrategy(TradingStrategy):
             if self.randomize_timing and i > 0:  # Don't randomize first slice
                 max_offset = slice_duration * self.timing_variance
                 offset_seconds = random.uniform(
-                    -max_offset.total_seconds(),
-                    max_offset.total_seconds()
+                    -max_offset.total_seconds(), max_offset.total_seconds()
                 )
                 actual_time = base_start + timedelta(seconds=offset_seconds)
                 # Ensure we don't go before previous slice
@@ -198,22 +198,26 @@ class TWAPExecutionStrategy(TradingStrategy):
 
             # Apply size randomization
             if self.randomize_size:
-                size_multiplier = 1 + random.uniform(-self.size_variance, self.size_variance)
+                size_multiplier = 1 + random.uniform(
+                    -self.size_variance, self.size_variance
+                )
                 target_quantity = base_slice_size * size_multiplier
             else:
                 target_quantity = base_slice_size
 
             target_quantity = max(target_quantity, self.min_slice_size)
 
-            self.slice_schedule.append({
-                "index": i,
-                "target_time": actual_time,
-                "window_start": base_start,
-                "window_end": base_end,
-                "target_quantity": target_quantity,
-                "executed_quantity": 0.0,
-                "executed": False,
-            })
+            self.slice_schedule.append(
+                {
+                    "index": i,
+                    "target_time": actual_time,
+                    "window_start": base_start,
+                    "window_end": base_end,
+                    "target_quantity": target_quantity,
+                    "executed_quantity": 0.0,
+                    "executed": False,
+                }
+            )
 
         # Normalize quantities to total
         total_scheduled = sum(s["target_quantity"] for s in self.slice_schedule)
@@ -237,9 +241,7 @@ class TWAPExecutionStrategy(TradingStrategy):
             return current_price >= self.price_limit
 
     def _generate_execution_signal(
-        self,
-        current_price: float,
-        current_time: datetime
+        self, current_price: float, current_time: datetime
     ) -> Dict[str, Any]:
         """Generate execution signal for current time"""
         remaining_total = self.total_quantity - self.executed_quantity
@@ -275,8 +277,7 @@ class TWAPExecutionStrategy(TradingStrategy):
             if next_slice:
                 time_until = (next_slice["target_time"] - current_time).total_seconds()
                 return self._create_hold_signal(
-                    current_price,
-                    f"Next slice in {time_until:.0f}s"
+                    current_price, f"Next slice in {time_until:.0f}s"
                 )
             else:
                 return self._create_hold_signal(current_price, "No pending slices")
@@ -286,17 +287,18 @@ class TWAPExecutionStrategy(TradingStrategy):
         slices_being_executed = []
 
         for slice_info in slices_to_execute:
-            remaining_slice = slice_info["target_quantity"] - slice_info["executed_quantity"]
+            remaining_slice = (
+                slice_info["target_quantity"] - slice_info["executed_quantity"]
+            )
             if remaining_slice > 0:
                 order_size += remaining_slice
                 slices_being_executed.append(slice_info["index"])
 
         # Apply catch-up if behind schedule
         if self.catch_up_enabled:
-            time_progress = (
-                (current_time - self.start_time).total_seconds() /
-                (self.end_time - self.start_time).total_seconds()
-            )
+            time_progress = (current_time - self.start_time).total_seconds() / (
+                self.end_time - self.start_time
+            ).total_seconds()
             expected_executed = self.total_quantity * time_progress
             shortfall = expected_executed - self.executed_quantity
 
@@ -318,15 +320,22 @@ class TWAPExecutionStrategy(TradingStrategy):
         # Calculate metrics
         time_elapsed = (current_time - self.start_time).total_seconds() / 60
         time_progress = time_elapsed / self.execution_window_minutes
-        quantity_progress = self.executed_quantity / self.total_quantity if self.total_quantity > 0 else 0
+        quantity_progress = (
+            self.executed_quantity / self.total_quantity
+            if self.total_quantity > 0
+            else 0
+        )
 
         # Calculate actual TWAP
-        actual_twap = sum(self.prices) / len(self.prices) if self.prices else current_price
+        actual_twap = (
+            sum(self.prices) / len(self.prices) if self.prices else current_price
+        )
 
         # Average execution price
         avg_exec_price = (
             self.executed_value / self.executed_quantity
-            if self.executed_quantity > 0 else 0
+            if self.executed_quantity > 0
+            else 0
         )
 
         # Schedule status
@@ -338,7 +347,9 @@ class TWAPExecutionStrategy(TradingStrategy):
 
         # Confidence based on price vs TWAP
         confidence = 0.8
-        price_vs_twap = (current_price - actual_twap) / actual_twap if actual_twap > 0 else 0
+        price_vs_twap = (
+            (current_price - actual_twap) / actual_twap if actual_twap > 0 else 0
+        )
 
         if self.side == "buy":
             if price_vs_twap < -0.002:
@@ -382,10 +393,7 @@ class TWAPExecutionStrategy(TradingStrategy):
         return signal
 
     def record_execution(
-        self,
-        quantity: float,
-        price: float,
-        slice_indices: Optional[List[int]] = None
+        self, quantity: float, price: float, slice_indices: Optional[List[int]] = None
     ) -> None:
         """Record completed execution"""
         self.executed_quantity += quantity
@@ -396,9 +404,9 @@ class TWAPExecutionStrategy(TradingStrategy):
             for idx in slice_indices:
                 if 0 <= idx < len(self.slice_schedule):
                     self.slice_schedule[idx]["executed"] = True
-                    self.slice_schedule[idx]["executed_quantity"] = (
-                        self.slice_schedule[idx]["target_quantity"]
-                    )
+                    self.slice_schedule[idx]["executed_quantity"] = self.slice_schedule[
+                        idx
+                    ]["target_quantity"]
 
         logger.info(
             f"TWAP execution recorded: {quantity} @ {price:.2f}, "
@@ -412,7 +420,8 @@ class TWAPExecutionStrategy(TradingStrategy):
         """Get execution performance summary"""
         avg_exec_price = (
             self.executed_value / self.executed_quantity
-            if self.executed_quantity > 0 else 0
+            if self.executed_quantity > 0
+            else 0
         )
         market_twap = sum(self.prices) / len(self.prices) if self.prices else 0
 

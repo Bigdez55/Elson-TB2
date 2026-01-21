@@ -16,42 +16,45 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from webauthn import (
-    generate_registration_options,
-    verify_registration_response,
     generate_authentication_options,
-    verify_authentication_response,
+    generate_registration_options,
     options_to_json,
-)
-from webauthn.helpers.structs import (
-    AuthenticatorSelectionCriteria,
-    UserVerificationRequirement,
-    PublicKeyCredentialDescriptor,
-    RegistrationCredential,
-    AuthenticationCredential,
-    AuthenticatorAttestationResponse,
-    AuthenticatorAssertionResponse,
+    verify_authentication_response,
+    verify_registration_response,
 )
 from webauthn.helpers.cose import COSEAlgorithmIdentifier
-from webauthn.helpers.exceptions import InvalidRegistrationResponse, InvalidAuthenticationResponse
+from webauthn.helpers.exceptions import (
+    InvalidAuthenticationResponse,
+    InvalidRegistrationResponse,
+)
+from webauthn.helpers.structs import (
+    AuthenticationCredential,
+    AuthenticatorAssertionResponse,
+    AuthenticatorAttestationResponse,
+    AuthenticatorSelectionCriteria,
+    PublicKeyCredentialDescriptor,
+    RegistrationCredential,
+    UserVerificationRequirement,
+)
 
-from app.api.deps import get_db, get_current_active_user, get_redis
+from app.api.deps import get_current_active_user, get_db, get_redis
 from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token
-from app.models.security import WebAuthnCredential, SecurityAuditLog
+from app.models.security import SecurityAuditLog, WebAuthnCredential
 from app.models.user import User
 from app.schemas.security import (
-    WebAuthnCredentialResponse,
-    WebAuthnCredentialListResponse,
-    WebAuthnRegistrationStartRequest,
-    WebAuthnRegistrationStartResponse,
-    WebAuthnRegistrationCompleteRequest,
-    WebAuthnRegistrationCompleteResponse,
-    WebAuthnAuthenticationStartRequest,
-    WebAuthnAuthenticationStartResponse,
     WebAuthnAuthenticationCompleteRequest,
     WebAuthnAuthenticationCompleteResponse,
-    WebAuthnCredentialUpdateRequest,
+    WebAuthnAuthenticationStartRequest,
+    WebAuthnAuthenticationStartResponse,
     WebAuthnCredentialDeleteResponse,
+    WebAuthnCredentialListResponse,
+    WebAuthnCredentialResponse,
+    WebAuthnCredentialUpdateRequest,
+    WebAuthnRegistrationCompleteRequest,
+    WebAuthnRegistrationCompleteResponse,
+    WebAuthnRegistrationStartRequest,
+    WebAuthnRegistrationStartResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,7 +75,7 @@ def safe_b64decode(data: str) -> bytes:
     """Safely decode base64url string with automatic padding"""
     padding = 4 - len(data) % 4
     if padding != 4:
-        data += '=' * padding
+        data += "=" * padding
     return base64.urlsafe_b64decode(data)
 
 
@@ -90,7 +93,7 @@ async def log_security_event(
     success: bool,
     ip_address: str,
     details: dict,
-    db: Session
+    db: Session,
 ):
     """Log security-related events for audit trail"""
     try:
@@ -99,7 +102,7 @@ async def log_security_event(
             action=action,
             status="success" if success else "failed",
             ip_address=ip_address,
-            details=json.dumps(details)
+            details=json.dumps(details),
         )
         db.add(audit_log)
         db.commit()
@@ -108,10 +111,7 @@ async def log_security_event(
 
 
 async def check_rate_limit(
-    redis_client,
-    key: str,
-    max_attempts: int,
-    window_seconds: int
+    redis_client, key: str, max_attempts: int, window_seconds: int
 ) -> bool:
     """Check if rate limit is exceeded"""
     try:
@@ -144,23 +144,19 @@ async def list_credentials(
 
     return WebAuthnCredentialListResponse(
         credentials=[
-            WebAuthnCredentialResponse.model_validate(cred)
-            for cred in credentials
+            WebAuthnCredentialResponse.model_validate(cred) for cred in credentials
         ],
         total=len(credentials),
     )
 
 
-@router.post(
-    "/register/start",
-    response_model=WebAuthnRegistrationStartResponse
-)
+@router.post("/register/start", response_model=WebAuthnRegistrationStartResponse)
 async def start_registration(
     request: WebAuthnRegistrationStartRequest,
     request_obj: Request,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
-    redis_client = Depends(get_redis),
+    redis_client=Depends(get_redis),
 ):
     """
     Start WebAuthn registration process (Step 1)
@@ -170,8 +166,12 @@ async def start_registration(
 
     # Rate limiting - max 5 registrations per day per user
     rate_limit_key = f"webauthn:reg_limit:{current_user.id}"
-    if not await check_rate_limit(redis_client, rate_limit_key, MAX_REGISTRATIONS_PER_DAY, 86400):
-        logger.warning(f"Rate limit exceeded for user {current_user.id} from {ip_address}")
+    if not await check_rate_limit(
+        redis_client, rate_limit_key, MAX_REGISTRATIONS_PER_DAY, 86400
+    ):
+        logger.warning(
+            f"Rate limit exceeded for user {current_user.id} from {ip_address}"
+        )
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many registration attempts. Please try again later.",
@@ -191,9 +191,7 @@ async def start_registration(
     for cred in existing_credentials:
         try:
             exclude_credentials.append(
-                PublicKeyCredentialDescriptor(
-                    id=safe_b64decode(cred.credential_id)
-                )
+                PublicKeyCredentialDescriptor(id=safe_b64decode(cred.credential_id))
             )
         except Exception as e:
             logger.error(f"Failed to decode credential {cred.id}: {e}")
@@ -231,7 +229,7 @@ async def start_registration(
     redis_client.setex(
         redis_key,
         timedelta(minutes=CHALLENGE_TIMEOUT_MINUTES),
-        json.dumps(challenge_data)
+        json.dumps(challenge_data),
     )
 
     # Log the registration attempt
@@ -241,7 +239,7 @@ async def start_registration(
         success=True,
         ip_address=ip_address,
         details={"challenge_id": challenge_id},
-        db=db
+        db=db,
     )
 
     # Convert options to JSON-serializable format
@@ -249,9 +247,7 @@ async def start_registration(
     options_parsed = json.loads(options_dict)
 
     return WebAuthnRegistrationStartResponse(
-        challenge=base64.urlsafe_b64encode(
-            options.challenge
-        ).decode().rstrip("="),
+        challenge=base64.urlsafe_b64encode(options.challenge).decode().rstrip("="),
         rp_id=RP_ID,
         rp_name=RP_NAME,
         user_id=base64.urlsafe_b64encode(user_id).decode().rstrip("="),
@@ -267,16 +263,13 @@ async def start_registration(
     )
 
 
-@router.post(
-    "/register/complete",
-    response_model=WebAuthnRegistrationCompleteResponse
-)
+@router.post("/register/complete", response_model=WebAuthnRegistrationCompleteResponse)
 async def complete_registration(
     request: WebAuthnRegistrationCompleteRequest,
     request_obj: Request,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
-    redis_client = Depends(get_redis),
+    redis_client=Depends(get_redis),
 ):
     """
     Complete WebAuthn registration (Step 2)
@@ -305,7 +298,7 @@ async def complete_registration(
             success=False,
             ip_address=ip_address,
             details={"reason": "No challenge found"},
-            db=db
+            db=db,
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -314,7 +307,9 @@ async def complete_registration(
 
     # Verify user_id matches
     if stored_data.get("user_id") != current_user.id:
-        logger.error(f"User ID mismatch in registration: stored={stored_data.get('user_id')}, actual={current_user.id}")
+        logger.error(
+            f"User ID mismatch in registration: stored={stored_data.get('user_id')}, actual={current_user.id}"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid registration request.",
@@ -346,14 +341,14 @@ async def complete_registration(
         # Check if credential already exists
         existing = (
             db.query(WebAuthnCredential)
-            .filter(
-                WebAuthnCredential.credential_id == request.credential_id
-            )
+            .filter(WebAuthnCredential.credential_id == request.credential_id)
             .first()
         )
 
         if existing:
-            logger.warning(f"Duplicate credential registration attempt: {request.credential_id}")
+            logger.warning(
+                f"Duplicate credential registration attempt: {request.credential_id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This credential is already registered.",
@@ -377,7 +372,7 @@ async def complete_registration(
             sign_count=verification.sign_count,
             authenticator_type=request.authenticator_type or "platform",
             device_type=_detect_device_type(request.authenticator_type),
-            aaguid=verification.aaguid if hasattr(verification, 'aaguid') else None,
+            aaguid=verification.aaguid if hasattr(verification, "aaguid") else None,
         )
 
         db.add(new_credential)
@@ -398,7 +393,7 @@ async def complete_registration(
                 "credential_name": credential_name,
                 "authenticator_type": request.authenticator_type,
             },
-            db=db
+            db=db,
         )
 
         return WebAuthnRegistrationCompleteResponse(
@@ -408,28 +403,33 @@ async def complete_registration(
         )
 
     except InvalidRegistrationResponse as e:
-        logger.error(f"Registration verification failed for user {current_user.id}: {e}")
+        logger.error(
+            f"Registration verification failed for user {current_user.id}: {e}"
+        )
         await log_security_event(
             user_id=current_user.id,
             action="webauthn_registration_failed",
             success=False,
             ip_address=ip_address,
             details={"reason": "Verification failed"},
-            db=db
+            db=db,
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Registration verification failed. Please try again.",
         )
     except Exception as e:
-        logger.error(f"Unexpected error in registration for user {current_user.id}: {e}", exc_info=True)
+        logger.error(
+            f"Unexpected error in registration for user {current_user.id}: {e}",
+            exc_info=True,
+        )
         await log_security_event(
             user_id=current_user.id,
             action="webauthn_registration_failed",
             success=False,
             ip_address=ip_address,
             details={"reason": "Internal error"},
-            db=db
+            db=db,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -437,15 +437,12 @@ async def complete_registration(
         )
 
 
-@router.post(
-    "/authenticate/start",
-    response_model=WebAuthnAuthenticationStartResponse
-)
+@router.post("/authenticate/start", response_model=WebAuthnAuthenticationStartResponse)
 async def start_authentication(
     request: WebAuthnAuthenticationStartRequest,
     request_obj: Request,
     db: Session = Depends(get_db),
-    redis_client = Depends(get_redis),
+    redis_client=Depends(get_redis),
 ):
     """
     Start WebAuthn authentication (Step 1)
@@ -455,7 +452,9 @@ async def start_authentication(
 
     # Rate limiting - max 10 attempts per hour
     rate_limit_key = f"webauthn:auth_limit:{ip_address}"
-    if not await check_rate_limit(redis_client, rate_limit_key, MAX_ATTEMPTS_PER_HOUR, 3600):
+    if not await check_rate_limit(
+        redis_client, rate_limit_key, MAX_ATTEMPTS_PER_HOUR, 3600
+    ):
         logger.warning(f"Auth rate limit exceeded from {ip_address}")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -511,10 +510,12 @@ async def start_authentication(
     allowed_credentials = []
     for cred in credentials:
         try:
-            allowed_credentials.append({
-                "type": "public-key",
-                "id": cred.credential_id,
-            })
+            allowed_credentials.append(
+                {
+                    "type": "public-key",
+                    "id": cred.credential_id,
+                }
+            )
         except Exception as e:
             logger.error(f"Failed to process credential {cred.id}: {e}")
             continue
@@ -531,7 +532,7 @@ async def start_authentication(
     redis_client.setex(
         redis_key,
         timedelta(minutes=CHALLENGE_TIMEOUT_MINUTES),
-        json.dumps(challenge_data)
+        json.dumps(challenge_data),
     )
 
     return WebAuthnAuthenticationStartResponse(
@@ -544,14 +545,13 @@ async def start_authentication(
 
 
 @router.post(
-    "/authenticate/complete",
-    response_model=WebAuthnAuthenticationCompleteResponse
+    "/authenticate/complete", response_model=WebAuthnAuthenticationCompleteResponse
 )
 async def complete_authentication(
     request: WebAuthnAuthenticationCompleteRequest,
     request_obj: Request,
     db: Session = Depends(get_db),
-    redis_client = Depends(get_redis),
+    redis_client=Depends(get_redis),
 ):
     """
     Complete WebAuthn authentication (Step 2)
@@ -613,7 +613,7 @@ async def complete_authentication(
                 success=False,
                 ip_address=ip_address,
                 details={"reason": "Credential not found"},
-                db=db
+                db=db,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -622,7 +622,9 @@ async def complete_authentication(
 
         # SECURITY: Verify credential belongs to the user who requested the challenge
         if stored_data.get("user_id") != credential.user_id:
-            logger.error(f"User ID mismatch in auth: stored={stored_data.get('user_id')}, credential={credential.user_id}")
+            logger.error(
+                f"User ID mismatch in auth: stored={stored_data.get('user_id')}, credential={credential.user_id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Authentication failed",
@@ -648,7 +650,9 @@ async def complete_authentication(
                 client_data_json=client_data_bytes,
                 authenticator_data=safe_b64decode(request.authenticator_data),
                 signature=safe_b64decode(request.signature),
-                user_handle=safe_b64decode(request.user_handle) if request.user_handle else None,
+                user_handle=(
+                    safe_b64decode(request.user_handle) if request.user_handle else None
+                ),
             ),
             type="public-key",
         )
@@ -666,8 +670,13 @@ async def complete_authentication(
         )
 
         # SECURITY: Check sign count for replay attack protection
-        if verification.new_sign_count <= credential.sign_count and verification.new_sign_count != 0:
-            logger.error(f"Possible replay attack detected for credential {credential.id}: old={credential.sign_count}, new={verification.new_sign_count}")
+        if (
+            verification.new_sign_count <= credential.sign_count
+            and verification.new_sign_count != 0
+        ):
+            logger.error(
+                f"Possible replay attack detected for credential {credential.id}: old={credential.sign_count}, new={verification.new_sign_count}"
+            )
             await log_security_event(
                 user_id=user.id,
                 action="webauthn_replay_attack_detected",
@@ -678,7 +687,7 @@ async def complete_authentication(
                     "old_sign_count": credential.sign_count,
                     "new_sign_count": verification.new_sign_count,
                 },
-                db=db
+                db=db,
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -704,7 +713,7 @@ async def complete_authentication(
             success=True,
             ip_address=ip_address,
             details={"credential_id": credential.id},
-            db=db
+            db=db,
         )
 
         return WebAuthnAuthenticationCompleteResponse(
@@ -716,14 +725,14 @@ async def complete_authentication(
 
     except InvalidAuthenticationResponse as e:
         logger.error(f"Authentication verification failed from {ip_address}: {e}")
-        if 'user' in locals():
+        if "user" in locals():
             await log_security_event(
                 user_id=user.id,
                 action="webauthn_authentication_failed",
                 success=False,
                 ip_address=ip_address,
                 details={"reason": "Verification failed"},
-                db=db
+                db=db,
             )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -732,7 +741,9 @@ async def complete_authentication(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error in authentication from {ip_address}: {e}", exc_info=True)
+        logger.error(
+            f"Unexpected error in authentication from {ip_address}: {e}", exc_info=True
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred. Please try again later.",
@@ -776,15 +787,14 @@ async def update_credential_name(
         success=True,
         ip_address=ip_address,
         details={"credential_id": credential_id, "new_name": sanitized_name},
-        db=db
+        db=db,
     )
 
     return WebAuthnCredentialResponse.model_validate(credential)
 
 
 @router.delete(
-    "/credentials/{credential_id}",
-    response_model=WebAuthnCredentialDeleteResponse
+    "/credentials/{credential_id}", response_model=WebAuthnCredentialDeleteResponse
 )
 async def delete_credential(
     credential_id: int,
@@ -820,7 +830,7 @@ async def delete_credential(
         success=True,
         ip_address=ip_address,
         details={"credential_id": credential_id, "credential_name": credential_name},
-        db=db
+        db=db,
     )
 
     return WebAuthnCredentialDeleteResponse(

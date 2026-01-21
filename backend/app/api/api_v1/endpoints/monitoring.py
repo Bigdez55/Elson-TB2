@@ -1,17 +1,19 @@
 """
 Monitoring endpoints for the personal trading platform.
 """
-from typing import Dict, Any
-from fastapi import APIRouter, Depends
-from datetime import datetime
 
+from datetime import datetime
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends
+
+from app.api.deps import get_current_active_user as get_current_user
 from app.core.monitoring import (
     get_monitoring_summary,
     metrics_collector,
-    trading_monitor,
     performance_tracker,
+    trading_monitor,
 )
-from app.api.deps import get_current_active_user as get_current_user
 from app.models.user import User
 
 router = APIRouter()

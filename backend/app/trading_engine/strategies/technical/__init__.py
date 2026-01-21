@@ -5,12 +5,12 @@ Contains strategies based on technical indicators like RSI, MACD,
 Bollinger Bands, Ichimoku Cloud, and candlestick patterns.
 """
 
-from .rsi_strategy import RSIStrategy
-from .bollinger_bands import BollingerBandsStrategy
-from .macd_strategy import MACDStrategy
-from .ichimoku import IchimokuCloudStrategy
 from .adx_trend import ADXTrendStrategy
+from .bollinger_bands import BollingerBandsStrategy
 from .candlestick_patterns import CandlestickPatternStrategy
+from .ichimoku import IchimokuCloudStrategy
+from .macd_strategy import MACDStrategy
+from .rsi_strategy import RSIStrategy
 from .stochastic import StochasticStrategy
 
 __all__ = [

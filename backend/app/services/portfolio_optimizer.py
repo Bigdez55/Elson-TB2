@@ -14,8 +14,8 @@ import structlog
 from scipy.optimize import minimize
 from sqlalchemy.orm import Session
 
-from app.models.portfolio import Portfolio
 from app.models.holding import Holding
+from app.models.portfolio import Portfolio
 from app.services.enhanced_market_data import enhanced_market_data_service
 
 logger = structlog.get_logger()
@@ -250,11 +250,11 @@ class PortfolioOptimizer:
                                 "current_value": holding.market_value,
                                 "target_value": round(target_value, 2),
                                 "amount_needed": round(amount_needed, 2),
-                                "shares_to_trade": round(
-                                    amount_needed / holding.current_price, 4
-                                )
-                                if holding.current_price > 0
-                                else 0,
+                                "shares_to_trade": (
+                                    round(amount_needed / holding.current_price, 4)
+                                    if holding.current_price > 0
+                                    else 0
+                                ),
                             }
                         )
 

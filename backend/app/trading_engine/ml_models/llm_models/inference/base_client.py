@@ -5,18 +5,19 @@ Abstract interface for LLM inference backends.
 All inference clients (Ollama, vLLM, Vertex AI) implement this interface.
 """
 
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator, Dict, List, Optional
 from enum import Enum
-import time
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 
 class InferenceBackend(Enum):
     """Supported inference backends for Elson Financial AI."""
-    OLLAMA = "ollama"      # Local development
-    VLLM = "vllm"          # Production (self-hosted)
-    VERTEX_AI = "vertex"   # GCP native (future)
+
+    OLLAMA = "ollama"  # Local development
+    VLLM = "vllm"  # Production (self-hosted)
+    VERTEX_AI = "vertex"  # GCP native (future)
 
 
 @dataclass
@@ -33,6 +34,7 @@ class InferenceResponse:
         reasoning: Optional chain-of-thought reasoning
         raw_response: Original response from backend for debugging
     """
+
     text: str
     model: str
     tokens_used: int = 0
@@ -67,6 +69,7 @@ class GenerationConfig:
         presence_penalty: Penalty for token presence
         frequency_penalty: Penalty for token frequency
     """
+
     temperature: float = 0.7
     max_tokens: int = 2048
     top_p: float = 0.9
@@ -88,10 +91,7 @@ class BaseInferenceClient(ABC):
     """
 
     def __init__(
-        self,
-        model_name: str,
-        backend: InferenceBackend,
-        timeout_seconds: float = 60.0
+        self, model_name: str, backend: InferenceBackend, timeout_seconds: float = 60.0
     ):
         """
         Initialize inference client.
@@ -113,7 +113,7 @@ class BaseInferenceClient(ABC):
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> InferenceResponse:
         """
         Generate a single response from the model.
@@ -133,7 +133,7 @@ class BaseInferenceClient(ABC):
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> AsyncIterator[str]:
         """
         Generate streaming response from the model.
@@ -180,7 +180,8 @@ class BaseInferenceClient(ABC):
         """
         avg_latency = (
             self._total_latency_ms / self._request_count
-            if self._request_count > 0 else 0.0
+            if self._request_count > 0
+            else 0.0
         )
         return {
             "model": self.model_name,
@@ -211,9 +212,7 @@ class InferenceClientFactory:
 
     @staticmethod
     def create(
-        backend: str,
-        model_name: str = "elson-finance-trading",
-        **kwargs
+        backend: str, model_name: str = "elson-finance-trading", **kwargs
     ) -> BaseInferenceClient:
         """
         Create an inference client for the specified backend.
@@ -238,14 +237,14 @@ class InferenceClientFactory:
             return OllamaInferenceClient(
                 model_name=model_name,
                 base_url=kwargs.get("endpoint", "http://localhost:11434"),
-                timeout_seconds=kwargs.get("timeout", 60.0)
+                timeout_seconds=kwargs.get("timeout", 60.0),
             )
         elif backend_enum == InferenceBackend.VLLM:
             return VLLMInferenceClient(
                 model_name=model_name,
                 base_url=kwargs.get("endpoint", "http://localhost:8000"),
                 api_key=kwargs.get("api_key"),
-                timeout_seconds=kwargs.get("timeout", 60.0)
+                timeout_seconds=kwargs.get("timeout", 60.0),
             )
         elif backend_enum == InferenceBackend.VERTEX_AI:
             raise NotImplementedError("Vertex AI client coming soon")

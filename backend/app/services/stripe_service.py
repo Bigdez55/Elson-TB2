@@ -1,14 +1,15 @@
-from typing import Dict, Any, Optional, Tuple, List
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
 import stripe
+import structlog
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
 
 from app.core.config import settings
-from app.models.subscription import Subscription, SubscriptionPayment, PaymentStatus
+from app.models.subscription import PaymentStatus, Subscription, SubscriptionPayment
 from app.models.user import User
-from app.schemas.subscription import CreditCardInfo, BankAccountInfo
-import structlog
+from app.schemas.subscription import BankAccountInfo, CreditCardInfo
 
 # Initialize Stripe with API key
 stripe.api_key = settings.STRIPE_API_KEY

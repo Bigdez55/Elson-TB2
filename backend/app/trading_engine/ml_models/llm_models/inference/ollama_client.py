@@ -60,7 +60,7 @@ Always explain your reasoning chain before providing recommendations."""
         self,
         model_name: str = "elson-finance-trading",
         base_url: str = "http://localhost:11434",
-        timeout_seconds: float = 60.0
+        timeout_seconds: float = 60.0,
     ):
         """
         Initialize Ollama client.
@@ -73,7 +73,7 @@ Always explain your reasoning chain before providing recommendations."""
         super().__init__(
             model_name=model_name,
             backend=InferenceBackend.OLLAMA,
-            timeout_seconds=timeout_seconds
+            timeout_seconds=timeout_seconds,
         )
         self.base_url = base_url.rstrip("/")
         self._session: Optional[aiohttp.ClientSession] = None
@@ -94,7 +94,7 @@ Always explain your reasoning chain before providing recommendations."""
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> InferenceResponse:
         """
         Generate a single response from Ollama.
@@ -123,7 +123,7 @@ Always explain your reasoning chain before providing recommendations."""
                 "top_p": config.top_p,
                 "top_k": config.top_k if config.top_k > 0 else 40,
                 "repeat_penalty": 1.0 + config.frequency_penalty,
-            }
+            },
         }
 
         if config.stop_sequences:
@@ -133,8 +133,7 @@ Always explain your reasoning chain before providing recommendations."""
 
         try:
             async with session.post(
-                f"{self.base_url}/api/generate",
-                json=payload
+                f"{self.base_url}/api/generate", json=payload
             ) as resp:
                 resp.raise_for_status()
                 data = await resp.json()
@@ -144,11 +143,12 @@ Always explain your reasoning chain before providing recommendations."""
                 response = InferenceResponse(
                     text=data.get("response", ""),
                     model=self.model_name,
-                    tokens_used=data.get("eval_count", 0) + data.get("prompt_eval_count", 0),
+                    tokens_used=data.get("eval_count", 0)
+                    + data.get("prompt_eval_count", 0),
                     latency_ms=latency_ms,
                     confidence=self._extract_confidence(data.get("response", "")),
                     reasoning=self._extract_reasoning(data.get("response", "")),
-                    raw_response=data
+                    raw_response=data,
                 )
 
                 self._track_request(response)
@@ -161,7 +161,7 @@ Always explain your reasoning chain before providing recommendations."""
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> AsyncIterator[str]:
         """
         Generate streaming response from Ollama.
@@ -186,19 +186,17 @@ Always explain your reasoning chain before providing recommendations."""
                 "temperature": config.temperature,
                 "num_predict": config.max_tokens,
                 "top_p": config.top_p,
-            }
+            },
         }
 
         session = await self._get_session()
 
-        async with session.post(
-            f"{self.base_url}/api/generate",
-            json=payload
-        ) as resp:
+        async with session.post(f"{self.base_url}/api/generate", json=payload) as resp:
             resp.raise_for_status()
             async for line in resp.content:
                 if line:
                     import json
+
                     try:
                         data = json.loads(line)
                         if "response" in data:
@@ -218,14 +216,10 @@ Always explain your reasoning chain before providing recommendations."""
         """
         session = await self._get_session()
 
-        payload = {
-            "model": self.model_name,
-            "prompt": text
-        }
+        payload = {"model": self.model_name, "prompt": text}
 
         async with session.post(
-            f"{self.base_url}/api/embeddings",
-            json=payload
+            f"{self.base_url}/api/embeddings", json=payload
         ) as resp:
             resp.raise_for_status()
             data = await resp.json()
@@ -254,6 +248,7 @@ Always explain your reasoning chain before providing recommendations."""
     def _extract_confidence(self, text: str) -> Optional[float]:
         """Extract confidence score from response text."""
         import re
+
         # Look for patterns like "confidence: 85%" or "85% confidence"
         patterns = [
             r"confidence[:\s]+(\d+(?:\.\d+)?)\s*%",

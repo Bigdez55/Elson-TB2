@@ -20,6 +20,7 @@ try:
         get_api_client,
         get_resilient_client,
     )
+
     BACKEND_AVAILABLE = True
 except ImportError:
     # Backend not available - define minimal fallbacks
@@ -27,14 +28,17 @@ except ImportError:
 
     class ApiError(Exception):
         """API error exception for standalone mode."""
+
         pass
 
     class BaseApiClient:
         """Base API client stub for standalone mode."""
+
         pass
 
     class ApiProvider:
         """API provider stub for standalone mode."""
+
         YAHOO_FINANCE = "yahoo_finance"
         ALPHA_VANTAGE = "alpha_vantage"
 

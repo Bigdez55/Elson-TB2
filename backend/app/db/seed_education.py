@@ -8,18 +8,20 @@ Usage:
 
 import sys
 from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
+
 from app.db.base import SessionLocal
 from app.models.education import (
+    CompletionRequirement,
+    ContentLevel,
+    ContentType,
     EducationalContent,
     LearningPath,
     LearningPathItem,
     TradingPermission,
     UserPermission,
     content_prerequisites,
-    ContentType,
-    ContentLevel,
-    CompletionRequirement,
 )
 
 
@@ -29,7 +31,9 @@ def clear_existing_data(db: Session):
 
     # Delete in order of dependencies
     db.query(LearningPathItem).delete()
-    db.execute(content_prerequisites.delete())  # Use Table.delete() for association table
+    db.execute(
+        content_prerequisites.delete()
+    )  # Use Table.delete() for association table
     db.query(UserPermission).delete()
     db.query(TradingPermission).delete()
     db.query(LearningPath).delete()
@@ -46,86 +50,96 @@ def seed_beginner_content(db: Session) -> dict:
     content_items = []
 
     # 1. Introduction to Stock Trading (Module)
-    content_items.append(EducationalContent(
-        title="Introduction to Stock Trading",
-        slug="intro-stock-trading",
-        description="Learn the fundamentals of stock trading, including what stocks are, how markets work, and basic terminology.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.BEGINNER,
-        completion_requirement=CompletionRequirement.TIME,
-        estimated_minutes=30,
-        min_age=13,
-        importance_level=10,
-        content_path="/education/modules/intro-stock-trading",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Introduction to Stock Trading",
+            slug="intro-stock-trading",
+            description="Learn the fundamentals of stock trading, including what stocks are, how markets work, and basic terminology.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.BEGINNER,
+            completion_requirement=CompletionRequirement.TIME,
+            estimated_minutes=30,
+            min_age=13,
+            importance_level=10,
+            content_path="/education/modules/intro-stock-trading",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 2. Understanding Market Orders (Article)
-    content_items.append(EducationalContent(
-        title="Understanding Market Orders",
-        slug="understanding-market-orders",
-        description="Learn about different order types: market orders, limit orders, stop orders, and when to use each one.",
-        content_type=ContentType.ARTICLE,
-        level=ContentLevel.BEGINNER,
-        completion_requirement=CompletionRequirement.TIME,
-        estimated_minutes=15,
-        min_age=13,
-        importance_level=9,
-        content_path="/education/articles/market-orders",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Understanding Market Orders",
+            slug="understanding-market-orders",
+            description="Learn about different order types: market orders, limit orders, stop orders, and when to use each one.",
+            content_type=ContentType.ARTICLE,
+            level=ContentLevel.BEGINNER,
+            completion_requirement=CompletionRequirement.TIME,
+            estimated_minutes=15,
+            min_age=13,
+            importance_level=9,
+            content_path="/education/articles/market-orders",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 3. Stock Market Basics Quiz
-    content_items.append(EducationalContent(
-        title="Stock Market Basics Quiz",
-        slug="stock-market-basics-quiz",
-        description="Test your knowledge of basic stock market concepts and terminology.",
-        content_type=ContentType.QUIZ,
-        level=ContentLevel.BEGINNER,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=10,
-        min_age=13,
-        importance_level=8,
-        passing_score=70,
-        content_path="/education/quizzes/stock-basics",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Stock Market Basics Quiz",
+            slug="stock-market-basics-quiz",
+            description="Test your knowledge of basic stock market concepts and terminology.",
+            content_type=ContentType.QUIZ,
+            level=ContentLevel.BEGINNER,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=10,
+            min_age=13,
+            importance_level=8,
+            passing_score=70,
+            content_path="/education/quizzes/stock-basics",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 4. Reading Stock Charts (Video)
-    content_items.append(EducationalContent(
-        title="Reading Stock Charts - Basics",
-        slug="reading-stock-charts",
-        description="Visual guide to understanding stock price charts, including candlesticks, volume, and basic patterns.",
-        content_type=ContentType.VIDEO,
-        level=ContentLevel.BEGINNER,
-        completion_requirement=CompletionRequirement.TIME,
-        estimated_minutes=20,
-        min_age=13,
-        importance_level=7,
-        content_path="/education/videos/stock-charts",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Reading Stock Charts - Basics",
+            slug="reading-stock-charts",
+            description="Visual guide to understanding stock price charts, including candlesticks, volume, and basic patterns.",
+            content_type=ContentType.VIDEO,
+            level=ContentLevel.BEGINNER,
+            completion_requirement=CompletionRequirement.TIME,
+            estimated_minutes=20,
+            min_age=13,
+            importance_level=7,
+            content_path="/education/videos/stock-charts",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 5. Risk Management Fundamentals (Module)
-    content_items.append(EducationalContent(
-        title="Risk Management Fundamentals",
-        slug="risk-management-fundamentals",
-        description="Learn how to protect your investments through proper risk management, position sizing, and diversification.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.BEGINNER,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=25,
-        min_age=13,
-        importance_level=10,
-        passing_score=80,
-        content_path="/education/modules/risk-management",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Risk Management Fundamentals",
+            slug="risk-management-fundamentals",
+            description="Learn how to protect your investments through proper risk management, position sizing, and diversification.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.BEGINNER,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=25,
+            min_age=13,
+            importance_level=10,
+            passing_score=80,
+            content_path="/education/modules/risk-management",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # Add all content to database
     for item in content_items:
@@ -155,70 +169,78 @@ def seed_intermediate_content(db: Session) -> dict:
     content_items = []
 
     # 1. Technical Analysis Introduction (Module)
-    content_items.append(EducationalContent(
-        title="Technical Analysis Introduction",
-        slug="technical-analysis-intro",
-        description="Learn to analyze stock price movements using technical indicators like moving averages, RSI, and MACD.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.INTERMEDIATE,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=45,
-        min_age=16,
-        importance_level=8,
-        passing_score=75,
-        content_path="/education/modules/technical-analysis",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Technical Analysis Introduction",
+            slug="technical-analysis-intro",
+            description="Learn to analyze stock price movements using technical indicators like moving averages, RSI, and MACD.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.INTERMEDIATE,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=45,
+            min_age=16,
+            importance_level=8,
+            passing_score=75,
+            content_path="/education/modules/technical-analysis",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 2. Fundamental Analysis Basics (Module)
-    content_items.append(EducationalContent(
-        title="Fundamental Analysis Basics",
-        slug="fundamental-analysis-basics",
-        description="Understand company financials, P/E ratios, earnings reports, and how to evaluate stock value.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.INTERMEDIATE,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=40,
-        min_age=16,
-        importance_level=8,
-        passing_score=75,
-        content_path="/education/modules/fundamental-analysis",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Fundamental Analysis Basics",
+            slug="fundamental-analysis-basics",
+            description="Understand company financials, P/E ratios, earnings reports, and how to evaluate stock value.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.INTERMEDIATE,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=40,
+            min_age=16,
+            importance_level=8,
+            passing_score=75,
+            content_path="/education/modules/fundamental-analysis",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 3. Portfolio Diversification Strategies (Article)
-    content_items.append(EducationalContent(
-        title="Portfolio Diversification Strategies",
-        slug="portfolio-diversification",
-        description="Learn advanced diversification techniques across sectors, asset classes, and risk profiles.",
-        content_type=ContentType.ARTICLE,
-        level=ContentLevel.INTERMEDIATE,
-        completion_requirement=CompletionRequirement.TIME,
-        estimated_minutes=25,
-        min_age=16,
-        importance_level=7,
-        content_path="/education/articles/diversification",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Portfolio Diversification Strategies",
+            slug="portfolio-diversification",
+            description="Learn advanced diversification techniques across sectors, asset classes, and risk profiles.",
+            content_type=ContentType.ARTICLE,
+            level=ContentLevel.INTERMEDIATE,
+            completion_requirement=CompletionRequirement.TIME,
+            estimated_minutes=25,
+            min_age=16,
+            importance_level=7,
+            content_path="/education/articles/diversification",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 4. Options Trading Basics (Interactive)
-    content_items.append(EducationalContent(
-        title="Options Trading Basics",
-        slug="options-trading-basics",
-        description="Interactive guide to understanding call and put options, including strategies and risk management.",
-        content_type=ContentType.INTERACTIVE,
-        level=ContentLevel.INTERMEDIATE,
-        completion_requirement=CompletionRequirement.INTERACTION,
-        estimated_minutes=50,
-        min_age=18,
-        importance_level=9,
-        content_path="/education/interactive/options-basics",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Options Trading Basics",
+            slug="options-trading-basics",
+            description="Interactive guide to understanding call and put options, including strategies and risk management.",
+            content_type=ContentType.INTERACTIVE,
+            level=ContentLevel.INTERMEDIATE,
+            completion_requirement=CompletionRequirement.INTERACTION,
+            estimated_minutes=50,
+            min_age=18,
+            importance_level=9,
+            content_path="/education/interactive/options-basics",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     for item in content_items:
         db.add(item)
@@ -245,54 +267,60 @@ def seed_advanced_content(db: Session) -> dict:
     content_items = []
 
     # 1. Advanced Options Strategies (Module)
-    content_items.append(EducationalContent(
-        title="Advanced Options Strategies",
-        slug="advanced-options-strategies",
-        description="Master complex options strategies like spreads, straddles, iron condors, and butterfly spreads.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.ADVANCED,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=60,
-        min_age=18,
-        importance_level=7,
-        passing_score=80,
-        content_path="/education/modules/advanced-options",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Advanced Options Strategies",
+            slug="advanced-options-strategies",
+            description="Master complex options strategies like spreads, straddles, iron condors, and butterfly spreads.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.ADVANCED,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=60,
+            min_age=18,
+            importance_level=7,
+            passing_score=80,
+            content_path="/education/modules/advanced-options",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 2. Algorithmic Trading Concepts (Module)
-    content_items.append(EducationalContent(
-        title="Algorithmic Trading Concepts",
-        slug="algorithmic-trading",
-        description="Introduction to automated trading, backtesting strategies, and understanding trading algorithms.",
-        content_type=ContentType.MODULE,
-        level=ContentLevel.ADVANCED,
-        completion_requirement=CompletionRequirement.QUIZ,
-        estimated_minutes=55,
-        min_age=18,
-        importance_level=8,
-        passing_score=85,
-        content_path="/education/modules/algo-trading",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Algorithmic Trading Concepts",
+            slug="algorithmic-trading",
+            description="Introduction to automated trading, backtesting strategies, and understanding trading algorithms.",
+            content_type=ContentType.MODULE,
+            level=ContentLevel.ADVANCED,
+            completion_requirement=CompletionRequirement.QUIZ,
+            estimated_minutes=55,
+            min_age=18,
+            importance_level=8,
+            passing_score=85,
+            content_path="/education/modules/algo-trading",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 3. Market Psychology and Sentiment (Article)
-    content_items.append(EducationalContent(
-        title="Market Psychology and Sentiment Analysis",
-        slug="market-psychology",
-        description="Understand how market psychology, sentiment indicators, and behavioral finance affect trading decisions.",
-        content_type=ContentType.ARTICLE,
-        level=ContentLevel.ADVANCED,
-        completion_requirement=CompletionRequirement.TIME,
-        estimated_minutes=30,
-        min_age=18,
-        importance_level=6,
-        content_path="/education/articles/market-psychology",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    content_items.append(
+        EducationalContent(
+            title="Market Psychology and Sentiment Analysis",
+            slug="market-psychology",
+            description="Understand how market psychology, sentiment indicators, and behavioral finance affect trading decisions.",
+            content_type=ContentType.ARTICLE,
+            level=ContentLevel.ADVANCED,
+            completion_requirement=CompletionRequirement.TIME,
+            estimated_minutes=30,
+            min_age=18,
+            importance_level=6,
+            content_path="/education/articles/market-psychology",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     for item in content_items:
         db.add(item)
@@ -311,7 +339,12 @@ def seed_advanced_content(db: Session) -> dict:
     }
 
 
-def seed_learning_paths(db: Session, beginner_content: dict, intermediate_content: dict, advanced_content: dict):
+def seed_learning_paths(
+    db: Session,
+    beginner_content: dict,
+    intermediate_content: dict,
+    advanced_content: dict,
+):
     """Create structured learning paths."""
     print("\nSeeding learning paths...")
 
@@ -464,46 +497,63 @@ def seed_learning_paths(db: Session, beginner_content: dict, intermediate_conten
     }
 
 
-def seed_prerequisites(db: Session, beginner_content: dict, intermediate_content: dict, advanced_content: dict):
+def seed_prerequisites(
+    db: Session,
+    beginner_content: dict,
+    intermediate_content: dict,
+    advanced_content: dict,
+):
     """Set up content prerequisites."""
     print("\nSeeding content prerequisites...")
 
     prerequisite_data = []
 
     # Quiz requires module completion
-    prerequisite_data.append({
-        "content_id": beginner_content["basics_quiz"].id,
-        "prerequisite_id": beginner_content["intro_stock_trading"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": beginner_content["basics_quiz"].id,
+            "prerequisite_id": beginner_content["intro_stock_trading"].id,
+        }
+    )
 
     # Intermediate requires beginner completion
-    prerequisite_data.append({
-        "content_id": intermediate_content["technical_analysis"].id,
-        "prerequisite_id": beginner_content["basics_quiz"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": intermediate_content["technical_analysis"].id,
+            "prerequisite_id": beginner_content["basics_quiz"].id,
+        }
+    )
 
-    prerequisite_data.append({
-        "content_id": intermediate_content["fundamental_analysis"].id,
-        "prerequisite_id": beginner_content["basics_quiz"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": intermediate_content["fundamental_analysis"].id,
+            "prerequisite_id": beginner_content["basics_quiz"].id,
+        }
+    )
 
     # Options require intermediate knowledge
-    prerequisite_data.append({
-        "content_id": intermediate_content["options_basics"].id,
-        "prerequisite_id": intermediate_content["technical_analysis"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": intermediate_content["options_basics"].id,
+            "prerequisite_id": intermediate_content["technical_analysis"].id,
+        }
+    )
 
     # Advanced options require basic options
-    prerequisite_data.append({
-        "content_id": advanced_content["advanced_options"].id,
-        "prerequisite_id": intermediate_content["options_basics"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": advanced_content["advanced_options"].id,
+            "prerequisite_id": intermediate_content["options_basics"].id,
+        }
+    )
 
     # Algo trading requires technical analysis
-    prerequisite_data.append({
-        "content_id": advanced_content["algo_trading"].id,
-        "prerequisite_id": intermediate_content["technical_analysis"].id,
-    })
+    prerequisite_data.append(
+        {
+            "content_id": advanced_content["algo_trading"].id,
+            "prerequisite_id": intermediate_content["technical_analysis"].id,
+        }
+    )
 
     # Insert into association table
     for prereq in prerequisite_data:
@@ -521,56 +571,64 @@ def seed_permissions(db: Session, paths: dict, beginner_content: dict):
     permissions = []
 
     # 1. Stock Trading Permission (Beginner)
-    permissions.append(TradingPermission(
-        name="Stock Trading Permission",
-        description="Allows user to trade stocks in live mode. Requires completion of beginner trading course.",
-        permission_type="trade_stocks",
-        requires_guardian_approval=True,  # For users under 18
-        min_age=13,
-        required_learning_path_id=paths["beginner_path"].id,
-        required_score=70,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    permissions.append(
+        TradingPermission(
+            name="Stock Trading Permission",
+            description="Allows user to trade stocks in live mode. Requires completion of beginner trading course.",
+            permission_type="trade_stocks",
+            requires_guardian_approval=True,  # For users under 18
+            min_age=13,
+            required_learning_path_id=paths["beginner_path"].id,
+            required_score=70,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 2. Options Trading Permission (Advanced)
-    permissions.append(TradingPermission(
-        name="Options Trading Permission",
-        description="Allows user to trade options. Requires 18+ and completion of options trading course.",
-        permission_type="trade_options",
-        requires_guardian_approval=False,
-        min_age=18,
-        required_learning_path_id=paths["options_path"].id,
-        required_score=80,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    permissions.append(
+        TradingPermission(
+            name="Options Trading Permission",
+            description="Allows user to trade options. Requires 18+ and completion of options trading course.",
+            permission_type="trade_options",
+            requires_guardian_approval=False,
+            min_age=18,
+            required_learning_path_id=paths["options_path"].id,
+            required_score=80,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 3. Margin Trading Permission (Advanced)
-    permissions.append(TradingPermission(
-        name="Margin Trading Permission",
-        description="Allows margin trading with borrowed funds. Requires 21+ and intermediate trading knowledge.",
-        permission_type="trade_margin",
-        requires_guardian_approval=False,
-        min_age=21,
-        required_learning_path_id=paths["intermediate_path"].id,
-        required_score=85,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    permissions.append(
+        TradingPermission(
+            name="Margin Trading Permission",
+            description="Allows margin trading with borrowed funds. Requires 21+ and intermediate trading knowledge.",
+            permission_type="trade_margin",
+            requires_guardian_approval=False,
+            min_age=21,
+            required_learning_path_id=paths["intermediate_path"].id,
+            required_score=85,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     # 4. Algorithmic Trading Permission
-    permissions.append(TradingPermission(
-        name="Algorithmic Trading Permission",
-        description="Allows automated trading strategies. Requires completion of algorithmic trading course.",
-        permission_type="trade_algorithmic",
-        requires_guardian_approval=False,
-        min_age=18,
-        required_content_id=beginner_content["risk_management"].id,
-        required_score=90,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
-    ))
+    permissions.append(
+        TradingPermission(
+            name="Algorithmic Trading Permission",
+            description="Allows automated trading strategies. Requires completion of algorithmic trading course.",
+            permission_type="trade_algorithmic",
+            requires_guardian_approval=False,
+            min_age=18,
+            required_content_id=beginner_content["risk_management"].id,
+            required_score=90,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
 
     for perm in permissions:
         db.add(perm)
@@ -598,7 +656,9 @@ def main():
         advanced_content = seed_advanced_content(db)
 
         # Seed learning paths
-        paths = seed_learning_paths(db, beginner_content, intermediate_content, advanced_content)
+        paths = seed_learning_paths(
+            db, beginner_content, intermediate_content, advanced_content
+        )
 
         # Seed prerequisites
         seed_prerequisites(db, beginner_content, intermediate_content, advanced_content)
@@ -610,7 +670,9 @@ def main():
         print("  ✅ SEED SCRIPT COMPLETED SUCCESSFULLY")
         print("=" * 80)
         print("\nSummary:")
-        print(f"  - Educational Content: {len(beginner_content) + len(intermediate_content) + len(advanced_content)} items")
+        print(
+            f"  - Educational Content: {len(beginner_content) + len(intermediate_content) + len(advanced_content)} items"
+        )
         print(f"  - Learning Paths: {len(paths)}")
         print(f"  - Trading Permissions: 4")
         print(f"  - Prerequisites: 6 relationships")
@@ -622,6 +684,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Error during seed: {str(e)}")
         import traceback
+
         traceback.print_exc()
         db.rollback()
         sys.exit(1)

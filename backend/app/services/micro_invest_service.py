@@ -8,38 +8,39 @@ This module provides functionality for handling micro-investments, including:
 """
 
 import logging
-from decimal import Decimal, ROUND_UP
-from typing import List, Dict, Optional, Any, Union, Tuple
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc, asc
-from fastapi import HTTPException, status
+from decimal import ROUND_UP, Decimal
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+from fastapi import HTTPException, status
+from sqlalchemy import and_, asc, desc, func, or_
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.models.portfolio import Portfolio
 from app.models.trade import (
-    Trade,
-    TradeStatus,
-    TradeType,
     InvestmentType,
-    TradeSource,
     OrderType,
     RoundupTransaction,
+    Trade,
+    TradeSource,
+    TradeStatus,
+    TradeType,
 )
 from app.models.user import User, UserRole
-from app.models.user_settings import UserSettings, RoundupFrequency, MicroInvestTarget
-from app.models.portfolio import Portfolio
+from app.models.user_settings import MicroInvestTarget, RoundupFrequency, UserSettings
 from app.schemas.micro_invest import (
-    RoundupTransactionCreate,
-    UserSettingsCreate,
     MicroInvestmentCreate,
-    UserSettingsUpdate,
-    RoundupTransactionUpdate,
-    RoundupSummary,
     MicroInvestStats,
+    RoundupSummary,
+    RoundupTransactionCreate,
+    RoundupTransactionUpdate,
+    UserSettingsCreate,
+    UserSettingsUpdate,
 )
 from app.services.market_data import MarketDataService
-from app.services.trading import TradingService
 from app.services.notifications import NotificationService
-from app.core.config import settings
+from app.services.trading import TradingService
 
 logger = logging.getLogger(__name__)
 
@@ -482,7 +483,10 @@ class MicroInvestService:
                         process_now = True
 
                 # Idempotency check: Skip if already processed today for daily/weekly
-                if process_now and settings.roundup_frequency in [RoundupFrequency.DAILY, RoundupFrequency.WEEKLY]:
+                if process_now and settings.roundup_frequency in [
+                    RoundupFrequency.DAILY,
+                    RoundupFrequency.WEEKLY,
+                ]:
                     # Check if we already have an invested roundup today for this user
                     already_processed = (
                         self.db.query(RoundupTransaction)

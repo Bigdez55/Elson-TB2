@@ -14,8 +14,9 @@ try:
         QuantumFeatureEncoder,
         QuantumKernelClassifier,
         QuantumVariationalClassifier,
-        quantum_range_prediction
+        quantum_range_prediction,
     )
+
     _QUANTUM_AVAILABLE = True
 except ImportError:
     QuantumFeatureEncoder = None
@@ -28,11 +29,12 @@ except ImportError:
 # Optional deep learning models (requires tensorflow/torch)
 try:
     from .deep_learning_models import (  # noqa: E402
-        TimeSeriesGenerator,
-        LSTMPricePredictor,
         CNNPricePredictor,
-        deep_learning_range_prediction
+        LSTMPricePredictor,
+        TimeSeriesGenerator,
+        deep_learning_range_prediction,
     )
+
     _DEEP_LEARNING_AVAILABLE = True
 except ImportError:
     TimeSeriesGenerator = None
@@ -45,12 +47,13 @@ except ImportError:
 # NLP models
 try:
     from .nlp_models import (  # noqa: E402
+        FinancialNewsClassifier,
         TextPreprocessor,
         TransformerSentimentAnalyzer,
-        FinancialNewsClassifier,
+        find_market_moving_news,
         sentiment_analysis_batch,
-        find_market_moving_news
     )
+
     _NLP_AVAILABLE = True
 except ImportError:
     TextPreprocessor = None
@@ -61,76 +64,72 @@ except ImportError:
     _NLP_AVAILABLE = False
     logger.debug("NLP models not available")
 
-# Wealth Management Integration (5-Layer Hybrid Architecture)
-from .wealth_model_loader import (  # noqa: E402
-    WealthModelLoader,
-    ModelConfig,
-    ModelSource,
-    create_wealth_model_loader,
-    load_wealth_model,
-    get_wealth_model_info
-)
-
-from .wealth_llm_service import (  # noqa: E402
-    # Enums
-    ServiceTier,
+from .wealth_llm_service import (  # noqa: E402; Enums; Data classes; 5-Layer Components; Main Service
     AdvisoryMode,
-    DecisionAuthority,
-    ComplianceCategory,
-    # Data classes
-    UserProfile,
-    ComplianceResult,
-    QueryContext,
     AdvisoryResponse,
-    # 5-Layer Components
+    ComplianceCategory,
+    ComplianceEngine,
+    ComplianceResult,
+    DecisionAuthority,
+    QueryContext,
     QueryRouter,
     RAGLayer,
-    ComplianceEngine,
+    ServiceTier,
+    UserProfile,
     ValidationLayer,
-    # Main Service
     WealthLLMService,
     create_wealth_service,
-    quick_wealth_query
+    quick_wealth_query,
+)
+
+# Wealth Management Integration (5-Layer Hybrid Architecture)
+from .wealth_model_loader import (  # noqa: E402
+    ModelConfig,
+    ModelSource,
+    WealthModelLoader,
+    create_wealth_model_loader,
+    get_wealth_model_info,
+    load_wealth_model,
 )
 
 __all__ = [
     # Quantum models (optional - requires qiskit)
-    'QuantumFeatureEncoder',
-    'QuantumKernelClassifier',
-    'QuantumVariationalClassifier',
-    'quantum_range_prediction',
+    "QuantumFeatureEncoder",
+    "QuantumKernelClassifier",
+    "QuantumVariationalClassifier",
+    "quantum_range_prediction",
     # Deep learning models (optional - requires tensorflow/torch)
-    'TimeSeriesGenerator',
-    'LSTMPricePredictor',
-    'CNNPricePredictor',
-    'deep_learning_range_prediction',
+    "TimeSeriesGenerator",
+    "LSTMPricePredictor",
+    "CNNPricePredictor",
+    "deep_learning_range_prediction",
     # NLP models
-    'TextPreprocessor',
-    'TransformerSentimentAnalyzer',
-    'FinancialNewsClassifier',
-    'sentiment_analysis_batch',
-    'find_market_moving_news',
+    "TextPreprocessor",
+    "TransformerSentimentAnalyzer",
+    "FinancialNewsClassifier",
+    "sentiment_analysis_batch",
+    "find_market_moving_news",
     # Wealth Management Model Loader
-    'WealthModelLoader',
-    'ModelConfig',
-    'ModelSource',
-    'create_wealth_model_loader',
-    'load_wealth_model',
-    'get_wealth_model_info',
+    "WealthModelLoader",
+    "ModelConfig",
+    "ModelSource",
+    "create_wealth_model_loader",
+    "load_wealth_model",
+    "get_wealth_model_info",
     # Wealth Management LLM Service (5-Layer Architecture)
-    'ServiceTier',
-    'AdvisoryMode',
-    'DecisionAuthority',
-    'ComplianceCategory',
-    'UserProfile',
-    'ComplianceResult',
-    'QueryContext',
-    'AdvisoryResponse',
-    'QueryRouter',
-    'RAGLayer',
-    'ComplianceEngine',
-    'ValidationLayer',
-    'WealthLLMService',
-    'create_wealth_service',
-    'quick_wealth_query',
+    "ServiceTier",
+    "AdvisoryMode",
+    "DecisionAuthority",
+    "ComplianceCategory",
+    "UserProfile",
+    "ComplianceResult",
+    "QueryContext",
+    "AdvisoryResponse",
+    "QueryRouter",
+    "RAGLayer",
+    "ComplianceEngine",
+    "ValidationLayer",
+    "WealthLLMService",
+    "create_wealth_service",
+    "quick_wealth_query",
 ]

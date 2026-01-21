@@ -4,22 +4,23 @@ Comprehensive Redis Testing for Biometric Authentication
 Tests all Redis functionality used by the biometric system
 """
 
-import sys
-import os
-import json
-import time
 import base64
+import json
+import os
 import secrets
+import sys
+import time
 from datetime import timedelta
 
 # Add backend to path
-sys.path.insert(0, '/workspaces/Elson-TB2/backend')
+sys.path.insert(0, "/workspaces/Elson-TB2/backend")
+
 
 def test_redis_basic():
     """Test basic Redis connectivity and operations"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 1: Basic Redis Connectivity")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from app.core.security import redis_client
@@ -62,27 +63,29 @@ def test_redis_basic():
         assert count3 == 3, f"Expected 3, got {count3}"
         redis_client.delete("test_counter")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL BASIC REDIS TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ REDIS BASIC TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def test_redis_challenge_storage():
     """Test challenge storage for biometric authentication"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 2: Challenge Storage (WebAuthn)")
-    print("="*60)
+    print("=" * 60)
 
     try:
-        from app.core.security import redis_client
         import uuid
+
+        from app.core.security import redis_client
 
         # Simulate registration challenge
         user_id = 123
@@ -94,16 +97,12 @@ def test_redis_challenge_storage():
             "challenge": challenge_b64,
             "user_id": user_id,
             "rp_id": "localhost",
-            "timeout": 60000
+            "timeout": 60000,
         }
 
         print(f"\n✓ Storing challenge for user {user_id}...")
         redis_key = f"webauthn:reg:{user_id}:{challenge_id}"
-        redis_client.setex(
-            redis_key,
-            300,  # 5 minutes
-            json.dumps(challenge_data)
-        )
+        redis_client.setex(redis_key, 300, json.dumps(challenge_data))  # 5 minutes
         print(f"  ✅ Stored: {redis_key}")
 
         # Retrieve challenge
@@ -113,8 +112,8 @@ def test_redis_challenge_storage():
         print(f"  ✅ Retrieved: user_id={stored_data['user_id']}")
         print(f"  ✅ Challenge: {stored_data['challenge'][:20]}...")
 
-        assert stored_data['user_id'] == user_id, "User ID mismatch"
-        assert stored_data['challenge'] == challenge_b64, "Challenge mismatch"
+        assert stored_data["user_id"] == user_id, "User ID mismatch"
+        assert stored_data["challenge"] == challenge_b64, "Challenge mismatch"
 
         # Check TTL
         ttl = redis_client.ttl(redis_key)
@@ -128,23 +127,24 @@ def test_redis_challenge_storage():
         assert stored is None, "Challenge should be deleted"
         print(f"  ✅ Challenge deleted successfully")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL CHALLENGE STORAGE TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ CHALLENGE STORAGE TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def test_redis_rate_limiting():
     """Test rate limiting functionality"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 3: Rate Limiting")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from app.core.security import redis_client
@@ -186,38 +186,34 @@ def test_redis_rate_limiting():
         # Clean up
         redis_client.delete(rate_limit_key)
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL RATE LIMITING TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ RATE LIMITING TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def test_redis_multi_worker():
     """Test that Redis works across multiple connections (simulating workers)"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 4: Multi-Worker Compatibility")
-    print("="*60)
+    print("=" * 60)
 
     try:
         import redis
+
         from app.core.config import settings
 
         # Create two separate Redis clients (simulating different workers)
         print("\n✓ Creating two Redis clients (simulating workers)...")
-        client1 = redis.Redis.from_url(
-            settings.REDIS_URL,
-            decode_responses=False
-        )
-        client2 = redis.Redis.from_url(
-            settings.REDIS_URL,
-            decode_responses=False
-        )
+        client1 = redis.Redis.from_url(settings.REDIS_URL, decode_responses=False)
+        client2 = redis.Redis.from_url(settings.REDIS_URL, decode_responses=False)
 
         # Worker 1 writes
         print(f"\n✓ Worker 1: Writing challenge...")
@@ -250,23 +246,24 @@ def test_redis_multi_worker():
         # Clean up
         client1.delete(challenge_key, rate_key)
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL MULTI-WORKER TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ MULTI-WORKER TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def test_redis_persistence():
     """Test that Redis data persists and expires correctly"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 5: Data Persistence & Expiration")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from app.core.security import redis_client
@@ -304,23 +301,24 @@ def test_redis_persistence():
         # Clean up
         redis_client.delete("test:persist")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL PERSISTENCE TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ PERSISTENCE TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def test_redis_error_handling():
     """Test Redis error handling"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST 6: Error Handling")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from app.core.security import redis_client
@@ -357,23 +355,24 @@ def test_redis_error_handling():
             print(f"  ✅ JSONDecodeError caught correctly")
         redis_client.delete("test:invalid_json")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL ERROR HANDLING TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ ERROR HANDLING TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 def generate_report(results):
     """Generate final test report"""
-    print("\n\n" + "="*60)
+    print("\n\n" + "=" * 60)
     print("REDIS COMPREHENSIVE TEST REPORT")
-    print("="*60)
+    print("=" * 60)
 
     total = len(results)
     passed = sum(results.values())
@@ -390,9 +389,9 @@ def generate_report(results):
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"   {status} - {test_name}")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("REDIS FUNCTIONALITY STATUS")
-    print("="*60)
+    print("=" * 60)
 
     if passed == total:
         print("\n✅ ALL REDIS TESTS PASSED!")
@@ -430,15 +429,15 @@ def generate_report(results):
         print("  3. Verify Redis port 6379 is accessible")
         print("  4. Check Redis logs: redis-cli MONITOR")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
 
     return passed == total
 
 
 if __name__ == "__main__":
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STARTING COMPREHENSIVE REDIS TESTS")
-    print("="*60)
+    print("=" * 60)
     print(f"\nDate: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Testing Redis for biometric authentication system")
 
@@ -460,7 +459,9 @@ if __name__ == "__main__":
     with open(report_file, "w") as f:
         f.write("# Redis Comprehensive Test Results\n\n")
         f.write(f"**Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"**Status:** {'✅ ALL TESTS PASSED' if all_passed else '❌ SOME TESTS FAILED'}\n\n")
+        f.write(
+            f"**Status:** {'✅ ALL TESTS PASSED' if all_passed else '❌ SOME TESTS FAILED'}\n\n"
+        )
         f.write("## Test Summary\n\n")
         for test_name, result in results.items():
             status = "✅ PASS" if result else "❌ FAIL"

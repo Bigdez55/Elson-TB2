@@ -4,9 +4,9 @@ This module provides custom exception classes used throughout the application
 for handling various error conditions in a structured way.
 """
 
+import logging
 from functools import wraps
 from typing import Any, Callable, Optional, TypeVar
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class BrokerError(TradingPlatformError):
         error_code: Optional[str] = None,
         broker_response: Optional[dict] = None,
         metadata: Optional[dict] = None,
-        details: Optional[dict] = None
+        details: Optional[dict] = None,
     ):
         super().__init__(message, details)
         self.broker = broker
@@ -49,7 +49,7 @@ class MarketDataError(TradingPlatformError):
         message: str,
         symbol: Optional[str] = None,
         source: Optional[str] = None,
-        details: Optional[dict] = None
+        details: Optional[dict] = None,
     ):
         super().__init__(message, details)
         self.symbol = symbol
@@ -65,7 +65,7 @@ class OrderExecutionError(TradingPlatformError):
         order_id: Optional[str] = None,
         symbol: Optional[str] = None,
         reason: Optional[str] = None,
-        details: Optional[dict] = None
+        details: Optional[dict] = None,
     ):
         super().__init__(message, details)
         self.order_id = order_id
@@ -81,7 +81,7 @@ class ResourceNotFoundError(TradingPlatformError):
         message: str,
         resource_type: Optional[str] = None,
         resource_id: Optional[str] = None,
-        details: Optional[dict] = None
+        details: Optional[dict] = None,
     ):
         super().__init__(message, details)
         self.resource_type = resource_type
@@ -90,26 +90,31 @@ class ResourceNotFoundError(TradingPlatformError):
 
 class AuthenticationError(TradingPlatformError):
     """Exception raised when authentication fails."""
+
     pass
 
 
 class AuthorizationError(TradingPlatformError):
     """Exception raised when authorization fails."""
+
     pass
 
 
 class ValidationError(TradingPlatformError):
     """Exception raised when data validation fails."""
+
     pass
 
 
 class RateLimitError(TradingPlatformError):
     """Exception raised when rate limit is exceeded."""
+
     pass
 
 
 class ConfigurationError(TradingPlatformError):
     """Exception raised when configuration is invalid."""
+
     pass
 
 
@@ -121,14 +126,14 @@ class ServiceError(TradingPlatformError):
         message: str,
         service: Optional[str] = None,
         operation: Optional[str] = None,
-        details: Optional[dict] = None
+        details: Optional[dict] = None,
     ):
         super().__init__(message, details)
         self.service = service
         self.operation = operation
 
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 def handle_errors(func: Optional[F] = None) -> Any:

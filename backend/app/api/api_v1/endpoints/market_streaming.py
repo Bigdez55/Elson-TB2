@@ -3,13 +3,14 @@ Market streaming WebSocket endpoints for real-time data.
 """
 
 import logging
-from fastapi import APIRouter, WebSocket, HTTPException, Depends
-from fastapi.responses import JSONResponse
-from typing import Dict, Any
+from typing import Any, Dict
 
-from app.services.market_streaming import personal_market_streaming
+from fastapi import APIRouter, Depends, HTTPException, WebSocket
+from fastapi.responses import JSONResponse
+
 from app.api.deps import get_current_active_user
 from app.models.user import User
+from app.services.market_streaming import personal_market_streaming
 
 logger = logging.getLogger(__name__)
 

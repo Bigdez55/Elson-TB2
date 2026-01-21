@@ -16,8 +16,8 @@ from sklearn.preprocessing import StandardScaler
 from sqlalchemy.orm import Session
 from xgboost import XGBRegressor
 
-from app.models.portfolio import Portfolio
 from app.models.holding import Holding
+from app.models.portfolio import Portfolio
 from app.models.user import User
 from app.services.market_data import market_data_service
 

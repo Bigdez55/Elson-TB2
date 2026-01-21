@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +99,7 @@ class RSIStrategy(TradingStrategy):
 
             if df is None or len(df) < self.rsi_period + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate RSI
@@ -120,8 +119,7 @@ class RSIStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating RSI signal for {self.symbol}: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -208,7 +206,7 @@ class RSIStrategy(TradingStrategy):
                 return None
 
             recent = df.tail(lookback)
-            prev = df.iloc[-lookback*2:-lookback]
+            prev = df.iloc[-lookback * 2 : -lookback]
 
             # Get price and RSI highs/lows
             recent_price_high = recent["high"].max()
@@ -236,9 +234,7 @@ class RSIStrategy(TradingStrategy):
             return None
 
     def _generate_trading_decision(
-        self,
-        df: pd.DataFrame,
-        divergence: Optional[str]
+        self, df: pd.DataFrame, divergence: Optional[str]
     ) -> Dict[str, Any]:
         """Generate trading decision based on RSI and divergence"""
         last_row = df.iloc[-1]
@@ -317,9 +313,7 @@ class RSIStrategy(TradingStrategy):
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str
+        self, price: float, action: str
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit levels"""
         # Use ATR-based stops if available, otherwise use percentage
@@ -349,9 +343,7 @@ class RSIStrategy(TradingStrategy):
         }
 
     async def _custom_validation(
-        self,
-        signal: Dict[str, Any],
-        market_data: Dict[str, Any]
+        self, signal: Dict[str, Any], market_data: Dict[str, Any]
     ) -> bool:
         """Custom validation for RSI signals"""
         # Check RSI is in valid range

@@ -4,27 +4,30 @@ Test Biometric Endpoints with Redis Integration
 Verifies that biometric authentication works with Redis
 """
 
-import sys
-import os
-import json
 import asyncio
+import json
+import os
+import sys
 from datetime import datetime
 
-sys.path.insert(0, '/workspaces/Elson-TB2/backend')
+sys.path.insert(0, "/workspaces/Elson-TB2/backend")
+
 
 async def test_biometric_redis_integration():
     """Test biometric endpoints use Redis correctly"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("BIOMETRIC + REDIS INTEGRATION TEST")
-    print("="*60)
+    print("=" * 60)
     print(f"Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
-        from app.core.security import redis_client
-        from app.api.deps import get_redis
-        from app.db.base import get_db
-        from sqlalchemy.orm import Session
         import uuid
+
+        from sqlalchemy.orm import Session
+
+        from app.api.deps import get_redis
+        from app.core.security import redis_client
+        from app.db.base import get_db
 
         # Test 1: Verify Redis is available
         print("\n✓ Test 1: Redis Availability")
@@ -46,7 +49,7 @@ async def test_biometric_redis_integration():
             "challenge": "test_challenge_123",
             "user_id": user_id,
             "rp_id": "localhost",
-            "timeout": 60000
+            "timeout": 60000,
         }
 
         redis_client.setex(redis_key, 300, json.dumps(challenge_data))
@@ -72,7 +75,7 @@ async def test_biometric_redis_integration():
             "challenge": "auth_challenge_456",
             "user_id": user_id,
             "email": email,
-            "timeout": 60000
+            "timeout": 60000,
         }
 
         redis_client.setex(redis_key, 300, json.dumps(auth_challenge_data))
@@ -149,9 +152,9 @@ async def test_biometric_redis_integration():
         assert len(remaining) == 0, "All keys should be deleted"
         print(f"  ✅ Cleanup verified (0 remaining)")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✅ ALL BIOMETRIC + REDIS INTEGRATION TESTS PASSED")
-        print("="*60)
+        print("=" * 60)
 
         print("\n📋 Integration Status:")
         print("  ✅ Redis client available to biometric endpoints")
@@ -170,6 +173,7 @@ async def test_biometric_redis_integration():
     except Exception as e:
         print(f"\n❌ INTEGRATION TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -183,10 +187,12 @@ if __name__ == "__main__":
         "test": "Biometric + Redis Integration",
         "status": "PASSED" if success else "FAILED",
         "redis_running": True,
-        "integration_verified": success
+        "integration_verified": success,
     }
 
-    with open("/workspaces/Elson-TB2/biometric_redis_integration_results.json", "w") as f:
+    with open(
+        "/workspaces/Elson-TB2/biometric_redis_integration_results.json", "w"
+    ) as f:
         json.dump(result, f, indent=2)
 
     print(f"\n📄 Results saved to: biometric_redis_integration_results.json")

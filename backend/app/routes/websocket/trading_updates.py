@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Set
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import sessionmaker
 
-from app.core.security import get_current_user_ws
 from app.core.auth.trading_auth import TradingPermissionError
+from app.core.security import get_current_user_ws
 from app.db.database import engine
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade, TradeStatus
@@ -24,9 +24,9 @@ class TradingWebSocketManager:
     """Manager for trading WebSocket connections and real-time updates."""
 
     def __init__(self):
-        self.active_connections: Dict[
-            int, Set[WebSocket]
-        ] = {}  # user_id -> set of websockets
+        self.active_connections: Dict[int, Set[WebSocket]] = (
+            {}
+        )  # user_id -> set of websockets
         self.user_portfolios: Dict[int, int] = {}  # user_id -> portfolio_id
 
     async def connect(self, websocket: WebSocket, user_id: int, portfolio_id: int):
@@ -113,9 +113,11 @@ class TradingWebSocketManager:
                     "daily_return": float(portfolio.daily_return),
                     "total_return": float(portfolio.total_return),
                     "total_return_percent": float(portfolio.total_return_percent),
-                    "last_updated": portfolio.updated_at.isoformat()
-                    if portfolio.updated_at
-                    else None,
+                    "last_updated": (
+                        portfolio.updated_at.isoformat()
+                        if portfolio.updated_at
+                        else None
+                    ),
                 }
 
                 message = {

@@ -1,29 +1,26 @@
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
 import json
 import logging
-import redis
-from app.core.logging_config import (
-    log_ai_operation,
-    log_system_error,
-)
 import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import redis
 from scipy.optimize import minimize
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.services.market_data import MarketDataService
-from app.services.neural_network import NeuralNetworkService
-from app.services.market_data_processor import MarketDataProcessor
-from app.models.portfolio import Portfolio
+from app.core.logging_config import log_ai_operation, log_system_error
 from app.models.holding import Holding
-from app.models.trade import Trade, TradeType, OrderType, TradeStatus
+from app.models.portfolio import Portfolio
+from app.models.trade import OrderType, Trade, TradeStatus, TradeType
 from app.models.user import User
+from app.services.market_data import MarketDataService
+from app.services.market_data_processor import MarketDataProcessor
+from app.services.neural_network import NeuralNetworkService
 
 logger = logging.getLogger(__name__)
 
@@ -1027,12 +1024,16 @@ class AIPortfolioManager:
             trade = Trade(
                 id=trade_id,
                 symbol=recommendation["symbol"],
-                trade_type=TradeType.BUY
-                if recommendation["action"] == "BUY"
-                else TradeType.SELL,
-                side=TradeType.BUY
-                if recommendation["action"] == "BUY"
-                else TradeType.SELL,
+                trade_type=(
+                    TradeType.BUY
+                    if recommendation["action"] == "BUY"
+                    else TradeType.SELL
+                ),
+                side=(
+                    TradeType.BUY
+                    if recommendation["action"] == "BUY"
+                    else TradeType.SELL
+                ),
                 order_type=OrderType.MARKET,  # Use market orders for rebalancing
                 quantity=recommendation["quantity"],
                 portfolio_id=portfolio.id,

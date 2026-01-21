@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Bar:
     """Represents a single price bar (OHLCV)"""
+
     timestamp: datetime
     open: float
     high: float
@@ -227,12 +228,7 @@ class DataHandler:
             symbol=symbol,
         )
 
-    def get_bars(
-        self,
-        symbol: str,
-        start_index: int,
-        count: int
-    ) -> List[Bar]:
+    def get_bars(self, symbol: str, start_index: int, count: int) -> List[Bar]:
         """Get multiple bars"""
         bars = []
         for i in range(start_index, min(start_index + count, len(self.data[symbol]))):
@@ -242,10 +238,7 @@ class DataHandler:
         return bars
 
     def get_lookback(
-        self,
-        symbol: str,
-        current_index: int,
-        lookback: int
+        self, symbol: str, current_index: int, lookback: int
     ) -> pd.DataFrame:
         """
         Get lookback window of data.
@@ -266,10 +259,7 @@ class DataHandler:
 
         return self.data[symbol].iloc[start:end].copy()
 
-    def iterate_bars(
-        self,
-        warmup: int = 0
-    ) -> Generator[Dict[str, Bar], None, None]:
+    def iterate_bars(self, warmup: int = 0) -> Generator[Dict[str, Bar], None, None]:
         """
         Iterate through bars for all symbols.
 
@@ -297,11 +287,7 @@ class DataHandler:
             if bars:
                 yield bars
 
-    def get_market_data(
-        self,
-        symbol: str,
-        index: int
-    ) -> Dict[str, Any]:
+    def get_market_data(self, symbol: str, index: int) -> Dict[str, Any]:
         """
         Get market data dictionary for strategy consumption.
 
@@ -328,10 +314,7 @@ class DataHandler:
         }
 
     def add_indicator(
-        self,
-        symbol: str,
-        name: str,
-        values: Union[List[float], np.ndarray, pd.Series]
+        self, symbol: str, name: str, values: Union[List[float], np.ndarray, pd.Series]
     ) -> None:
         """
         Add a calculated indicator to the data.

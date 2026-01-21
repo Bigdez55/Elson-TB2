@@ -1,17 +1,18 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Boolean,
-    ForeignKey,
-    DateTime,
-    Text,
-    JSON,
-)
-from sqlalchemy.orm import relationship
+import enum
 from datetime import datetime
 from uuid import uuid4
-import enum
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship
 
 from app.db.base import Base
 

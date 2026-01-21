@@ -1,6 +1,6 @@
+import json
 import logging
 import os
-import json
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -77,7 +77,13 @@ class RiskConfig:
                     "max_trades_per_day": 5,
                     "max_trades_per_week": 20,
                     "min_holding_period_days": 7,  # Minimum 7 day hold
-                    "restricted_assets": ["penny_stocks", "options", "futures", "leveraged_etfs", "crypto"],
+                    "restricted_assets": [
+                        "penny_stocks",
+                        "options",
+                        "futures",
+                        "leveraged_etfs",
+                        "crypto",
+                    ],
                     "min_market_cap": 1000000000,  # $1B min market cap
                 },
                 "correlation_limits": {
@@ -384,7 +390,7 @@ class RiskConfig:
         param_path: str,
         value: Any,
         reason: Optional[str] = None,
-        audit_log_path: Optional[str] = None
+        audit_log_path: Optional[str] = None,
     ) -> bool:
         """
         Set a configuration parameter with audit logging
@@ -408,7 +414,9 @@ class RiskConfig:
 
             # Log the change
             if audit_log_path:
-                self._log_param_change(param_path, old_value, value, reason, audit_log_path)
+                self._log_param_change(
+                    param_path, old_value, value, reason, audit_log_path
+                )
 
             return True
         except Exception as e:
@@ -421,7 +429,7 @@ class RiskConfig:
         old_value: Any,
         new_value: Any,
         reason: Optional[str],
-        audit_log_path: str
+        audit_log_path: str,
     ) -> None:
         """Log parameter changes to audit log"""
         timestamp = datetime.utcnow().isoformat()
@@ -431,12 +439,12 @@ class RiskConfig:
             "parameter": param_path,
             "old_value": old_value,
             "new_value": new_value,
-            "reason": reason or "No reason provided"
+            "reason": reason or "No reason provided",
         }
 
         try:
             os.makedirs(os.path.dirname(audit_log_path), exist_ok=True)
-            with open(audit_log_path, 'a') as f:
+            with open(audit_log_path, "a") as f:
                 f.write(json.dumps(log_entry) + "\n")
         except Exception as e:
             logger.error(f"Error writing to audit log: {str(e)}")
@@ -446,7 +454,9 @@ class RiskConfig:
             f"Old: {old_value}, New: {new_value}, Reason: {reason or 'No reason provided'}"
         )
 
-    def create_custom_profile(self, template_profile: RiskProfile = RiskProfile.MODERATE) -> Dict[str, Any]:
+    def create_custom_profile(
+        self, template_profile: RiskProfile = RiskProfile.MODERATE
+    ) -> Dict[str, Any]:
         """
         Create a custom risk profile based on a template
 
@@ -461,6 +471,7 @@ class RiskConfig:
 
         # Deep copy the template profile
         import copy
+
         custom_profile = copy.deepcopy(self.config[template_profile.value])
 
         # Set as custom profile
@@ -477,10 +488,18 @@ class RiskConfig:
             Dictionary with exposure limit values
         """
         return {
-            "max_equity_exposure": self.get_param("exposure_limits.max_equity_exposure") or 1.0,
-            "max_fixed_income_exposure": self.get_param("exposure_limits.max_fixed_income_exposure") or 1.0,
-            "max_alternative_exposure": self.get_param("exposure_limits.max_alternative_exposure") or 1.0,
-            "min_cash_allocation": self.get_param("exposure_limits.min_cash_allocation") or 0.0,
+            "max_equity_exposure": self.get_param("exposure_limits.max_equity_exposure")
+            or 1.0,
+            "max_fixed_income_exposure": self.get_param(
+                "exposure_limits.max_fixed_income_exposure"
+            )
+            or 1.0,
+            "max_alternative_exposure": self.get_param(
+                "exposure_limits.max_alternative_exposure"
+            )
+            or 1.0,
+            "min_cash_allocation": self.get_param("exposure_limits.min_cash_allocation")
+            or 0.0,
         }
 
     def get_vix_threshold(self) -> float:

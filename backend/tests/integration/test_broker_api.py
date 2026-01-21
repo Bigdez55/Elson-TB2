@@ -15,8 +15,6 @@ from app.services.broker.factory import BrokerType, get_broker
 from app.services.broker.mock_responses import generate_mock_response
 
 
-
-
 class TestBrokerAPI:
     """Test broker API integration."""
 
@@ -64,7 +62,9 @@ class TestBrokerAPI:
                 account_id="test-account-123",
             )
             # Ensure order_id is present for Schwab
-            order_response["order_id"] = order_response.get("id", order_response.get("order_id"))
+            order_response["order_id"] = order_response.get(
+                "id", order_response.get("order_id")
+            )
             return order_response
         elif endpoint.startswith("/orders/") and method == "GET":
             # Check if this is an executions endpoint
@@ -72,7 +72,11 @@ class TestBrokerAPI:
                 if "test-filled-order" in endpoint:
                     return {
                         "executions": [
-                            {"price": 175.50, "quantity": 10, "timestamp": datetime.now().isoformat()}
+                            {
+                                "price": 175.50,
+                                "quantity": 10,
+                                "timestamp": datetime.now().isoformat(),
+                            }
                         ]
                     }
                 else:
@@ -133,15 +137,17 @@ class TestBrokerAPI:
                     status = "pending"
 
                 return {
-                    "executions": [
-                        {
-                            "price": 175.50,
-                            "quantity": 10,
-                            "timestamp": datetime.now().isoformat(),
-                        }
-                    ]
-                    if status == "filled"
-                    else []
+                    "executions": (
+                        [
+                            {
+                                "price": 175.50,
+                                "quantity": 10,
+                                "timestamp": datetime.now().isoformat(),
+                            }
+                        ]
+                        if status == "filled"
+                        else []
+                    )
                 }
             else:
                 # This is a call to get order status

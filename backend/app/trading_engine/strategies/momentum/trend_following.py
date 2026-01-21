@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -105,8 +105,7 @@ class TrendFollowingStrategy(TradingStrategy):
 
             if df is None or len(df) < self.slow_ma + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient data"
+                    market_data.get("price", 0.0), "Insufficient data"
                 )
 
             df = self._calculate_indicators(df)
@@ -118,8 +117,7 @@ class TrendFollowingStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in trend following: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -177,8 +175,8 @@ class TrendFollowingStrategy(TradingStrategy):
             df["high"] - df["low"],
             np.maximum(
                 abs(df["high"] - df["close"].shift(1)),
-                abs(df["low"] - df["close"].shift(1))
-            )
+                abs(df["low"] - df["close"].shift(1)),
+            ),
         )
         df["atr"] = df["tr"].rolling(window=self.atr_period).mean()
 
@@ -187,13 +185,11 @@ class TrendFollowingStrategy(TradingStrategy):
             df = self._calculate_supertrend(df)
 
         # MA alignment
-        df["ma_bullish"] = (
-            (df["ma_fast"] > df["ma_medium"]) &
-            (df["ma_medium"] > df["ma_slow"])
+        df["ma_bullish"] = (df["ma_fast"] > df["ma_medium"]) & (
+            df["ma_medium"] > df["ma_slow"]
         )
-        df["ma_bearish"] = (
-            (df["ma_fast"] < df["ma_medium"]) &
-            (df["ma_medium"] < df["ma_slow"])
+        df["ma_bearish"] = (df["ma_fast"] < df["ma_medium"]) & (
+            df["ma_medium"] < df["ma_slow"]
         )
 
         return df
@@ -207,11 +203,13 @@ class TrendFollowingStrategy(TradingStrategy):
 
         df["dm_plus"] = np.where(
             (df["high"] - df["high"].shift(1)) > (df["low"].shift(1) - df["low"]),
-            np.maximum(df["high"] - df["high"].shift(1), 0), 0
+            np.maximum(df["high"] - df["high"].shift(1), 0),
+            0,
         )
         df["dm_minus"] = np.where(
             (df["low"].shift(1) - df["low"]) > (df["high"] - df["high"].shift(1)),
-            np.maximum(df["low"].shift(1) - df["low"], 0), 0
+            np.maximum(df["low"].shift(1) - df["low"], 0),
+            0,
         )
 
         df["atr_adx"] = df["tr"].rolling(window=self.adx_period).mean()
@@ -221,7 +219,9 @@ class TrendFollowingStrategy(TradingStrategy):
         df["di_plus"] = 100 * df["dm_plus_smooth"] / df["atr_adx"]
         df["di_minus"] = 100 * df["dm_minus_smooth"] / df["atr_adx"]
 
-        df["dx"] = 100 * abs(df["di_plus"] - df["di_minus"]) / (df["di_plus"] + df["di_minus"])
+        df["dx"] = (
+            100 * abs(df["di_plus"] - df["di_minus"]) / (df["di_plus"] + df["di_minus"])
+        )
         df["adx"] = df["dx"].rolling(window=self.adx_period).mean()
 
         return df
@@ -238,12 +238,12 @@ class TrendFollowingStrategy(TradingStrategy):
         direction = pd.Series(index=df.index, dtype=int)
 
         for i in range(1, len(df)):
-            if df["close"].iloc[i] > upper_band.iloc[i-1]:
+            if df["close"].iloc[i] > upper_band.iloc[i - 1]:
                 direction.iloc[i] = 1
-            elif df["close"].iloc[i] < lower_band.iloc[i-1]:
+            elif df["close"].iloc[i] < lower_band.iloc[i - 1]:
                 direction.iloc[i] = -1
             else:
-                direction.iloc[i] = direction.iloc[i-1]
+                direction.iloc[i] = direction.iloc[i - 1]
 
             if direction.iloc[i] == 1:
                 supertrend.iloc[i] = lower_band.iloc[i]
@@ -268,7 +268,9 @@ class TrendFollowingStrategy(TradingStrategy):
         ma_bearish = bool(last_row.get("ma_bearish", False))
         atr = float(last_row.get("atr", 0))
 
-        self.trend_strength = "strong" if adx > 40 else ("moderate" if adx > 25 else "weak")
+        self.trend_strength = (
+            "strong" if adx > 40 else ("moderate" if adx > 25 else "weak")
+        )
 
         action = "hold"
         confidence = 0.0
@@ -354,17 +356,22 @@ class TrendFollowingStrategy(TradingStrategy):
             "di_plus": float(row.get("di_plus", 0)),
             "di_minus": float(row.get("di_minus", 0)),
             "atr": float(row.get("atr", 0)),
-            "supertrend": float(row.get("supertrend", 0)) if pd.notna(row.get("supertrend")) else None,
-            "supertrend_direction": int(row.get("supertrend_direction", 0)) if pd.notna(row.get("supertrend_direction")) else None,
+            "supertrend": (
+                float(row.get("supertrend", 0))
+                if pd.notna(row.get("supertrend"))
+                else None
+            ),
+            "supertrend_direction": (
+                int(row.get("supertrend_direction", 0))
+                if pd.notna(row.get("supertrend_direction"))
+                else None
+            ),
             "trend_strength": self.trend_strength,
             "current_trend": self.current_trend,
         }
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        atr: float
+        self, price: float, action: str, atr: float
     ) -> Dict[str, float]:
         """Calculate stops using ATR"""
         atr_multiplier = 2.5

@@ -51,7 +51,7 @@ export const BiometricManagement: React.FC = () => {
 
   const handleDeleteCredential = async (credentialId: number) => {
     if (
-      !confirm(
+      !window.confirm(
         'Are you sure you want to remove this biometric credential? You can always add it again later.'
       )
     ) {

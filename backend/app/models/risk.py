@@ -5,6 +5,7 @@ from enum import Enum
 
 class RiskLevel(str, Enum):
     """Risk level categorization for trading and portfolio management."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"

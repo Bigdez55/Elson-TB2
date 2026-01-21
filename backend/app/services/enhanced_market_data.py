@@ -452,11 +452,13 @@ class EnhancedMarketDataService:
                 "quotesCount": 10,
                 "newsCount": 0,
                 "enableFuzzyQuery": False,
-                "quotesQueryId": "tss_match_phrase_query"
+                "quotesQueryId": "tss_match_phrase_query",
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(search_url, params=params, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                async with session.get(
+                    search_url, params=params, timeout=aiohttp.ClientTimeout(total=5)
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
                         quotes = data.get("quotes", [])
@@ -476,18 +478,25 @@ class EnhancedMarketDataService:
                             else:
                                 asset_type = quote_type or "unknown"
 
-                            results.append({
-                                "symbol": quote.get("symbol", ""),
-                                "name": quote.get("longname") or quote.get("shortname", ""),
-                                "type": asset_type,
-                                "exchange": quote.get("exchange", ""),
-                                "score": quote.get("score", 0)
-                            })
+                            results.append(
+                                {
+                                    "symbol": quote.get("symbol", ""),
+                                    "name": quote.get("longname")
+                                    or quote.get("shortname", ""),
+                                    "type": asset_type,
+                                    "exchange": quote.get("exchange", ""),
+                                    "score": quote.get("score", 0),
+                                }
+                            )
 
-                        logger.info(f"Symbol search for '{query}' returned {len(results)} results")
+                        logger.info(
+                            f"Symbol search for '{query}' returned {len(results)} results"
+                        )
                         return results[:10]  # Limit to top 10 results
                     else:
-                        logger.warning(f"Yahoo Finance search returned status {response.status}")
+                        logger.warning(
+                            f"Yahoo Finance search returned status {response.status}"
+                        )
                         return self._fallback_search(query)
 
         except asyncio.TimeoutError:
@@ -511,31 +520,79 @@ class EnhancedMarketDataService:
 
         # Common symbols as fallback
         common_symbols = [
-            {"symbol": "AAPL", "name": "Apple Inc.", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "MSFT", "name": "Microsoft Corporation", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "GOOGL", "name": "Alphabet Inc.", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "AMZN", "name": "Amazon.com Inc.", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "TSLA", "name": "Tesla Inc.", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "META", "name": "Meta Platforms Inc.", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "NVDA", "name": "NVIDIA Corporation", "type": "stock", "exchange": "NASDAQ"},
-            {"symbol": "BTC-USD", "name": "Bitcoin USD", "type": "crypto", "exchange": "CCC"},
-            {"symbol": "ETH-USD", "name": "Ethereum USD", "type": "crypto", "exchange": "CCC"},
+            {
+                "symbol": "AAPL",
+                "name": "Apple Inc.",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "MSFT",
+                "name": "Microsoft Corporation",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "GOOGL",
+                "name": "Alphabet Inc.",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "AMZN",
+                "name": "Amazon.com Inc.",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "TSLA",
+                "name": "Tesla Inc.",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "META",
+                "name": "Meta Platforms Inc.",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "NVDA",
+                "name": "NVIDIA Corporation",
+                "type": "stock",
+                "exchange": "NASDAQ",
+            },
+            {
+                "symbol": "BTC-USD",
+                "name": "Bitcoin USD",
+                "type": "crypto",
+                "exchange": "CCC",
+            },
+            {
+                "symbol": "ETH-USD",
+                "name": "Ethereum USD",
+                "type": "crypto",
+                "exchange": "CCC",
+            },
         ]
 
         # Filter based on query
         results = [
-            s for s in common_symbols
+            s
+            for s in common_symbols
             if query_upper in s["symbol"] or query_upper in s["name"].upper()
         ]
 
         # If no matches and query looks like a symbol, add it as unknown
         if not results and len(query_upper) <= 6:
-            results.append({
-                "symbol": query_upper,
-                "name": f"{query_upper}",
-                "type": "unknown",
-                "exchange": ""
-            })
+            results.append(
+                {
+                    "symbol": query_upper,
+                    "name": f"{query_upper}",
+                    "type": "unknown",
+                    "exchange": "",
+                }
+            )
 
         return results[:10]
 

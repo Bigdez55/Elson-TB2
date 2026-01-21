@@ -174,13 +174,13 @@ async def get_position_by_symbol(
                     asset_type=holding.asset_type,
                 )
 
-        raise HTTPException(status_code=404, detail=f"Position not found for symbol: {symbol}")
+        raise HTTPException(
+            status_code=404, detail=f"Position not found for symbol: {symbol}"
+        )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get position: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get position: {str(e)}")
 
 
 @router.get("/stats", response_model=TradingStatsResponse)
@@ -227,19 +227,27 @@ async def get_trading_stats(
 
         # Group trades by symbol for FIFO P&L calculation
         from collections import defaultdict
+
         symbol_buys = defaultdict(list)  # symbol -> list of (quantity, price) remaining
 
         # First pass: collect all buys
         for trade in trades:
-            if trade.trade_type.value == "buy" and trade.filled_quantity and trade.filled_price:
-                symbol_buys[trade.symbol].append({
-                    "quantity": trade.filled_quantity,
-                    "price": trade.filled_price
-                })
+            if (
+                trade.trade_type.value == "buy"
+                and trade.filled_quantity
+                and trade.filled_price
+            ):
+                symbol_buys[trade.symbol].append(
+                    {"quantity": trade.filled_quantity, "price": trade.filled_price}
+                )
 
         # Second pass: match sells against buys using FIFO
         for trade in trades:
-            if trade.trade_type.value == "sell" and trade.filled_quantity and trade.filled_price:
+            if (
+                trade.trade_type.value == "sell"
+                and trade.filled_quantity
+                and trade.filled_price
+            ):
                 sell_qty = trade.filled_quantity
                 sell_price = trade.filled_price
                 buys = symbol_buys.get(trade.symbol, [])
@@ -269,7 +277,7 @@ async def get_trading_stats(
                     trade_pnl += sell_qty * sell_price
 
                 # Subtract commission and fees from P&L
-                trade_pnl -= (trade.commission + trade.fees)
+                trade_pnl -= trade.commission + trade.fees
 
                 if trade_pnl > 0:
                     winning_trades += 1
@@ -368,7 +376,11 @@ async def get_trading_account(
             pattern_day_trader=False,
             trading_blocked=False,
             last_equity_close=portfolio_value,
-            created_at=current_user.created_at.isoformat() if current_user.created_at else datetime.utcnow().isoformat(),
+            created_at=(
+                current_user.created_at.isoformat()
+                if current_user.created_at
+                else datetime.utcnow().isoformat()
+            ),
         )
     except Exception as e:
         raise HTTPException(
@@ -416,11 +428,15 @@ async def get_batch_data(
         portfolio_summary: Dict[str, Any] = {
             "total_value": total_value,
             "cash_balance": portfolio.cash_balance if portfolio else 100000.0,
-            "positions_value": (portfolio.total_value - portfolio.cash_balance) if portfolio else 0.0,
+            "positions_value": (
+                (portfolio.total_value - portfolio.cash_balance) if portfolio else 0.0
+            ),
             "day_pnl": round(day_pnl, 2),
             "day_pnl_percent": round(day_pnl_percent, 2),
             "total_pnl": portfolio.total_return if portfolio else 0.0,
-            "total_pnl_percent": portfolio.total_return_percentage if portfolio else 0.0,
+            "total_pnl_percent": (
+                portfolio.total_return_percentage if portfolio else 0.0
+            ),
             "paper_trading": trading_mode == "paper",
             "last_updated": datetime.utcnow().isoformat(),
         }
@@ -468,7 +484,11 @@ async def get_batch_data(
             pattern_day_trader=False,
             trading_blocked=False,
             last_equity_close=portfolio_value,
-            created_at=current_user.created_at.isoformat() if current_user.created_at else datetime.utcnow().isoformat(),
+            created_at=(
+                current_user.created_at.isoformat()
+                if current_user.created_at
+                else datetime.utcnow().isoformat()
+            ),
         )
 
         return BatchDataResponse(
@@ -494,16 +514,16 @@ async def sync_trading_modes(
 
         # Count data in each mode
         portfolios = (
-            db.query(Portfolio)
-            .filter(Portfolio.owner_id == current_user.id)
-            .all()
+            db.query(Portfolio).filter(Portfolio.owner_id == current_user.id).all()
         )
 
         paper_count = 0
         live_count = 0
 
         for portfolio in portfolios:
-            trade_count = db.query(Trade).filter(Trade.portfolio_id == portfolio.id).count()
+            trade_count = (
+                db.query(Trade).filter(Trade.portfolio_id == portfolio.id).count()
+            )
             # For now, we consider all portfolios as potentially having both modes
             # In a real implementation, you'd track mode per portfolio/trade
             paper_count += trade_count
@@ -536,8 +556,8 @@ async def reset_paper_account(
     This clears all positions and trades, resetting the account for fresh paper trading.
     """
     try:
-        from app.models.portfolio import Portfolio
         from app.models.holding import Holding
+        from app.models.portfolio import Portfolio
 
         # Get user's active portfolio
         portfolio = (
@@ -596,7 +616,12 @@ async def reset_paper_account(
 
 @router.post("/fund-paper-account")
 async def fund_paper_account(
-    amount: float = Query(default=100000.0, ge=1000, le=1000000, description="Amount to add to paper account"),
+    amount: float = Query(
+        default=100000.0,
+        ge=1000,
+        le=1000000,
+        description="Amount to add to paper account",
+    ),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):

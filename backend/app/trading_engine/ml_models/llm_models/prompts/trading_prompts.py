@@ -5,14 +5,15 @@ Structured prompts for autonomous trading decisions.
 Designed to elicit chain-of-thought reasoning from the merged model.
 """
 
+import json
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-import json
 
 
 @dataclass
 class MarketContext:
     """Market context data for prompt building."""
+
     symbol: str
     current_price: float
     price_change_pct: float
@@ -26,6 +27,7 @@ class MarketContext:
 @dataclass
 class TechnicalIndicators:
     """Technical indicators for prompt building."""
+
     rsi: float
     macd: float
     macd_signal: float
@@ -42,6 +44,7 @@ class TechnicalIndicators:
 @dataclass
 class SentimentData:
     """Sentiment data for prompt building."""
+
     news_sentiment: float  # -1 to 1
     social_sentiment: float  # -1 to 1
     analyst_rating: str  # Strong Buy, Buy, Hold, Sell, Strong Sell
@@ -51,6 +54,7 @@ class SentimentData:
 @dataclass
 class MLPrediction:
     """ML model prediction for prompt building."""
+
     predicted_direction: str  # UP, DOWN, SIDEWAYS
     confidence: float  # 0-1
     predicted_price: Optional[float] = None
@@ -98,7 +102,7 @@ Always explain your reasoning before providing the recommendation."""
         technicals: TechnicalIndicators,
         sentiment: SentimentData,
         ml_prediction: MLPrediction,
-        portfolio_context: Optional[Dict[str, Any]] = None
+        portfolio_context: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Build a comprehensive trading analysis prompt.
@@ -177,7 +181,7 @@ Provide your analysis and recommendation:"""
         macd_bullish: bool,
         sentiment_score: float,
         ml_direction: str,
-        ml_confidence: float
+        ml_confidence: float,
     ) -> str:
         """
         Build a quick signal prompt for fast decisions.
@@ -213,7 +217,7 @@ Provide a brief trading signal:
         entry_price: float,
         current_price: float,
         portfolio_value: float,
-        existing_positions: List[Dict[str, Any]]
+        existing_positions: List[Dict[str, Any]],
     ) -> str:
         """
         Build a risk assessment prompt for position sizing.
@@ -231,10 +235,12 @@ Provide a brief trading signal:
         """
         position_pct = (position_size / portfolio_value) * 100
 
-        positions_str = "\n".join([
-            f"  - {p['symbol']}: ${p['value']:,.2f} ({p['weight']*100:.1f}%)"
-            for p in existing_positions[:10]
-        ])
+        positions_str = "\n".join(
+            [
+                f"  - {p['symbol']}: ${p['value']:,.2f} ({p['weight']*100:.1f}%)"
+                for p in existing_positions[:10]
+            ]
+        )
 
         return f"""## RISK ASSESSMENT: {symbol} Position
 
@@ -294,7 +300,7 @@ Provide your risk assessment:"""
             "take_profit": None,
             "position_size_pct": 5,
             "time_horizon": "swing",
-            "reasoning": response_text
+            "reasoning": response_text,
         }
 
         # Extract action
@@ -303,32 +309,44 @@ Provide your risk assessment:"""
             result["action"] = action_match.group(1).upper()
 
         # Extract confidence
-        conf_match = re.search(r"CONFIDENCE[:\s]*(\d+(?:\.\d+)?)\s*%?", response_text, re.I)
+        conf_match = re.search(
+            r"CONFIDENCE[:\s]*(\d+(?:\.\d+)?)\s*%?", response_text, re.I
+        )
         if conf_match:
             result["confidence"] = float(conf_match.group(1)) / 100
 
         # Extract prices
-        entry_match = re.search(r"ENTRY[_\s]*PRICE[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I)
+        entry_match = re.search(
+            r"ENTRY[_\s]*PRICE[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I
+        )
         if entry_match:
             result["entry_price"] = float(entry_match.group(1))
 
-        stop_match = re.search(r"STOP[_\s]*LOSS[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I)
+        stop_match = re.search(
+            r"STOP[_\s]*LOSS[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I
+        )
         if stop_match:
             result["stop_loss"] = float(stop_match.group(1))
 
-        tp_match = re.search(r"TAKE[_\s]*PROFIT[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I)
+        tp_match = re.search(
+            r"TAKE[_\s]*PROFIT[:\s]*\$?(\d+(?:\.\d+)?)", response_text, re.I
+        )
         if tp_match:
             result["take_profit"] = float(tp_match.group(1))
 
         # Extract position size
-        size_match = re.search(r"POSITION[_\s]*SIZE[:\s]*(\d+(?:\.\d+)?)\s*%?", response_text, re.I)
+        size_match = re.search(
+            r"POSITION[_\s]*SIZE[:\s]*(\d+(?:\.\d+)?)\s*%?", response_text, re.I
+        )
         if size_match:
             result["position_size_pct"] = float(size_match.group(1))
 
         # Extract time horizon
         if "day trade" in response_text.lower():
             result["time_horizon"] = "day"
-        elif "position" in response_text.lower() or "long term" in response_text.lower():
+        elif (
+            "position" in response_text.lower() or "long term" in response_text.lower()
+        ):
             result["time_horizon"] = "position"
         else:
             result["time_horizon"] = "swing"

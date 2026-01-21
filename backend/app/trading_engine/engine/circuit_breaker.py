@@ -1,12 +1,13 @@
 import json
 import logging
 import os
-import threading
 import random
-import yaml
+import threading
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, Optional, Tuple, Union, Callable, List, Any
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,9 @@ class CircuitBreaker:
         self.circuit_breakers: Dict[str, Dict] = {}
         self.config: Dict = {}
         self.lock = threading.RLock()
-        self.volatility_history: Dict[str, List[VolatilityLevel]] = {}  # Track recent volatility levels for hysteresis
+        self.volatility_history: Dict[str, List[VolatilityLevel]] = (
+            {}
+        )  # Track recent volatility levels for hysteresis
 
         # Load configuration
         if config_path and os.path.exists(config_path):

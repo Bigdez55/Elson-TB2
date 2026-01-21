@@ -98,9 +98,11 @@ async def get_multiple_quotes(
                 "successful": successful_quotes,
                 "failed": len(symbol_list) - successful_quotes,
             },
-            "timestamp": quotes[next(iter(quotes.keys()))]["timestamp"]
-            if quotes and any(quotes.values())
-            else None,
+            "timestamp": (
+                quotes[next(iter(quotes.keys()))]["timestamp"]
+                if quotes and any(quotes.values())
+                else None
+            ),
         }
 
     except HTTPException:

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -113,8 +113,7 @@ class PairsTradingStrategy(TradingStrategy):
         try:
             if self.pair_symbol is None:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "No pair symbol configured"
+                    market_data.get("price", 0.0), "No pair symbol configured"
                 )
 
             # Get data for both symbols
@@ -122,8 +121,7 @@ class PairsTradingStrategy(TradingStrategy):
 
             if df is None or len(df) < self.lookback_period:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate spread and statistics
@@ -134,7 +132,7 @@ class PairsTradingStrategy(TradingStrategy):
             if abs(self.correlation) < self.min_correlation:
                 return self._create_hold_signal(
                     market_data.get("price", 0.0),
-                    f"Correlation too low ({self.correlation:.2f})"
+                    f"Correlation too low ({self.correlation:.2f})",
                 )
 
             # Generate trading decision
@@ -146,8 +144,7 @@ class PairsTradingStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in pairs trading: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -200,14 +197,16 @@ class PairsTradingStrategy(TradingStrategy):
                     df1[["timestamp", "symbol_1"]],
                     df2[["timestamp", "symbol_2"]],
                     on="timestamp",
-                    how="inner"
+                    how="inner",
                 )
             else:
                 # Assume aligned by index
-                df = pd.DataFrame({
-                    "symbol_1": df1["symbol_1"].values[:min(len(df1), len(df2))],
-                    "symbol_2": df2["symbol_2"].values[:min(len(df1), len(df2))]
-                })
+                df = pd.DataFrame(
+                    {
+                        "symbol_1": df1["symbol_1"].values[: min(len(df1), len(df2))],
+                        "symbol_2": df2["symbol_2"].values[: min(len(df1), len(df2))],
+                    }
+                )
 
             df["symbol_1"] = pd.to_numeric(df["symbol_1"], errors="coerce")
             df["symbol_2"] = pd.to_numeric(df["symbol_2"], errors="coerce")
@@ -361,23 +360,22 @@ class PairsTradingStrategy(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                symbol_1_price, action, z_score
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(symbol_1_price, action, z_score)
+            )
 
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        z_score: float
+        self, price: float, action: str, z_score: float
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit based on spread statistics"""
         # For pairs trading, stops are based on Z-score levels
         # Converting to price levels is approximate
 
-        spread_at_stop = self.spread_mean + (self.z_score_stop * self.spread_std * (-1 if action == "buy" else 1))
+        spread_at_stop = self.spread_mean + (
+            self.z_score_stop * self.spread_std * (-1 if action == "buy" else 1)
+        )
         spread_at_target = self.spread_mean  # Target is mean
 
         # Approximate price impact (simplified)

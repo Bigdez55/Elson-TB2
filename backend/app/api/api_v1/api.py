@@ -18,11 +18,11 @@ from app.api.api_v1.endpoints import (
     risk_management,
     risk_routes,
     security,
+    tools_financetoolkit,
+    tools_openbb,
+    tools_yfinance,
     trading,
     wealth_advisory,
-    tools_openbb,
-    tools_financetoolkit,
-    tools_yfinance,
 )
 
 api_router = APIRouter()

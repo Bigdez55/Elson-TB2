@@ -233,15 +233,19 @@ async def get_market_sentiment(
         # Try to get volatility data from trading-engine
         volatility_regime = None
         try:
-            from app.trading_engine.ml_models.volatility_regime import VolatilityDetector, VolatilityRegime
             import pandas as pd
+
+            from app.trading_engine.ml_models.volatility_regime import (
+                VolatilityDetector,
+                VolatilityRegime,
+            )
 
             if historical_data:
                 df = pd.DataFrame(historical_data)
-                if 'close' not in df.columns and 'price' in df.columns:
-                    df['close'] = df['price']
+                if "close" not in df.columns and "price" in df.columns:
+                    df["close"] = df["price"]
 
-                if 'close' in df.columns and len(df) >= 5:
+                if "close" in df.columns and len(df) >= 5:
                     detector = VolatilityDetector()
                     regime, vol_value = detector.detect_regime(df)
                     volatility_regime = regime.name
@@ -265,10 +269,14 @@ async def get_market_sentiment(
             "sentiment_score": round(sentiment_score, 3),
             "sentiment_label": sentiment_label,
             "confidence": round(confidence, 1),
-            "key_factors": key_factors if key_factors else ["Analyzing market conditions..."],
+            "key_factors": (
+                key_factors if key_factors else ["Analyzing market conditions..."]
+            ),
             "data_sources": {
                 "price_momentum": "available",
-                "volatility_analysis": "available" if volatility_regime else "unavailable",
+                "volatility_analysis": (
+                    "available" if volatility_regime else "unavailable"
+                ),
                 "news_sentiment": "beta",
                 "social_sentiment": "coming_soon",
             },

@@ -9,16 +9,17 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Set
+
 from sqlalchemy.orm import Session
 
-from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.models.trade import Trade
+from app.models.user import User
 from app.services.market_data import MarketDataService
-from app.trading_engine.strategies.registry import StrategyRegistry
-from app.trading_engine.strategies.base import TradingStrategy
-from app.trading_engine.engine.trade_executor import TradeExecutor
 from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
+from app.trading_engine.engine.trade_executor import TradeExecutor
+from app.trading_engine.strategies.base import TradingStrategy
+from app.trading_engine.strategies.registry import StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,9 @@ class AutoTradingService:
 
     _instance = None
     _running_tasks: Dict[int, asyncio.Task] = {}  # user_id -> task
-    _active_strategies: Dict[int, Dict[str, TradingStrategy]] = {}  # user_id -> {strategy_name: strategy}
+    _active_strategies: Dict[int, Dict[str, TradingStrategy]] = (
+        {}
+    )  # user_id -> {strategy_name: strategy}
     _market_data_service: Optional[MarketDataService] = None
 
     def __new__(cls):
@@ -166,9 +169,7 @@ class AutoTradingService:
             return False
 
     @classmethod
-    async def _auto_trading_loop(
-        cls, user_id: int, portfolio_id: int, db: Session
-    ):
+    async def _auto_trading_loop(cls, user_id: int, portfolio_id: int, db: Session):
         """
         Main loop that continuously generates signals and executes trades.
 
@@ -213,9 +214,7 @@ class AutoTradingService:
                 # Process each strategy
                 for strategy_key, strategy in strategies.items():
                     try:
-                        await cls._process_strategy(
-                            strategy, portfolio, db, user_id
-                        )
+                        await cls._process_strategy(strategy, portfolio, db, user_id)
                     except Exception as e:
                         logger.error(
                             f"Error processing strategy {strategy_key}: {str(e)}"

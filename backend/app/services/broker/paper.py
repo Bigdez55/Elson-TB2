@@ -39,9 +39,7 @@ class PaperBroker(BaseBroker):
 
         # Import PaperTradingService at runtime to avoid circular imports
         if PaperTradingService is None:
-            from app.services.paper_trading import (
-                PaperTradingService as PTService,
-            )
+            from app.services.paper_trading import PaperTradingService as PTService
 
             PaperTradingService = PTService
 
@@ -142,9 +140,9 @@ class PaperBroker(BaseBroker):
                 "positions_value": positions_value,
                 "total_value": float(portfolio.cash_balance) + positions_value,
                 "buying_power": float(portfolio.cash_balance),
-                "created_at": portfolio.created_at.isoformat()
-                if portfolio.created_at
-                else None,
+                "created_at": (
+                    portfolio.created_at.isoformat() if portfolio.created_at else None
+                ),
                 "last_updated": datetime.utcnow().isoformat(),
             }
 
@@ -206,9 +204,11 @@ class PaperBroker(BaseBroker):
                 "status": order["status"],
                 "filled_quantity": order["quantity"],
                 "filled_price": order["price"],
-                "executed_at": order["executed_at"].isoformat()
-                if isinstance(order["executed_at"], datetime)
-                else order["executed_at"],
+                "executed_at": (
+                    order["executed_at"].isoformat()
+                    if isinstance(order["executed_at"], datetime)
+                    else order["executed_at"]
+                ),
                 "commission": order["commission"],
             }
 

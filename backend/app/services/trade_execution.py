@@ -271,9 +271,9 @@ class TradeExecutionService:
             symbol=trade.symbol,
             quantity=trade.quantity,
             price=stop_price,  # Initial stop price
-            trade_type="sell"
-            if trade.trade_type == "buy"
-            else "buy",  # Opposite of original
+            trade_type=(
+                "sell" if trade.trade_type == "buy" else "buy"
+            ),  # Opposite of original
             order_type=OrderType.STOP,
             status=TradeStatus.PENDING,
             is_fractional=trade.is_fractional,
@@ -386,9 +386,9 @@ class TradeExecutionService:
             symbol=trade.symbol,
             quantity=trade.quantity,
             price=take_profit_price,
-            trade_type="sell"
-            if trade.trade_type == "buy"
-            else "buy",  # Opposite of original
+            trade_type=(
+                "sell" if trade.trade_type == "buy" else "buy"
+            ),  # Opposite of original
             order_type=OrderType.LIMIT,
             status=TradeStatus.PENDING,
             is_fractional=trade.is_fractional,
@@ -404,9 +404,9 @@ class TradeExecutionService:
             symbol=trade.symbol,
             quantity=trade.quantity,
             price=stop_loss_price,
-            trade_type="sell"
-            if trade.trade_type == "buy"
-            else "buy",  # Opposite of original
+            trade_type=(
+                "sell" if trade.trade_type == "buy" else "buy"
+            ),  # Opposite of original
             order_type=OrderType.STOP,
             status=TradeStatus.PENDING,
             is_fractional=trade.is_fractional,

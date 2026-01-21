@@ -16,8 +16,8 @@ from app.core.config import Settings
 from app.core.security import create_access_token, get_password_hash
 from app.db.base import Base, get_db
 from app.main import app
-from app.models.user import User
 from app.models.portfolio import Portfolio, PortfolioType
+from app.models.user import User
 
 
 # Test settings
@@ -224,7 +224,9 @@ def test_minor(db_session, test_user) -> Dict[str, Any]:
         "id": minor.id,
         "email": minor.email,
         "full_name": minor.full_name,
-        "guardian_id": test_user["id"],  # Track the guardian relationship in the fixture return
+        "guardian_id": test_user[
+            "id"
+        ],  # Track the guardian relationship in the fixture return
     }
 
 

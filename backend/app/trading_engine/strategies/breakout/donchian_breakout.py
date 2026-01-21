@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
     description="Donchian Channel breakout (Turtle Trading style)",
     default_parameters={
         "entry_period": 20,  # System 1: 20-day breakout
-        "exit_period": 10,   # Exit on 10-day low/high
+        "exit_period": 10,  # Exit on 10-day low/high
         "atr_period": 20,
         "risk_per_trade": 0.02,  # 2% risk per trade
         "use_system_2": False,  # 55-day breakout
@@ -117,8 +117,7 @@ class DonchianBreakout(TradingStrategy):
 
             if df is None or len(df) < max(self.entry_period, self.system_2_entry) + 5:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate Donchian Channels and ATR
@@ -133,8 +132,7 @@ class DonchianBreakout(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in Donchian strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -251,8 +249,7 @@ class DonchianBreakout(TradingStrategy):
         if action == "hold":
             # System 1: Skip if last signal was profitable
             skip_system_1 = (
-                self.last_signal_profitable is True and
-                not self.use_system_2
+                self.last_signal_profitable is True and not self.use_system_2
             )
 
             # Long entry: break above upper channel
@@ -311,9 +308,11 @@ class DonchianBreakout(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, atr, exit_lower, exit_upper
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(
+                    current_price, action, atr, exit_lower, exit_upper
+                )
+            )
 
         return signal
 
@@ -345,7 +344,7 @@ class DonchianBreakout(TradingStrategy):
         action: str,
         atr: float,
         exit_lower: float,
-        exit_upper: float
+        exit_upper: float,
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit (Turtle style: 2N stop)"""
         stop_distance = atr * 2  # 2N stop loss

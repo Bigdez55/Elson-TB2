@@ -111,9 +111,7 @@ class TestAdvancedTradingIntegration:
             first_strategy = service.strategies[symbol][0]
             assert "strategy" in first_strategy
             assert "executor" in first_strategy
-            assert isinstance(
-                first_strategy["strategy"], MovingAverageStrategy
-            )
+            assert isinstance(first_strategy["strategy"], MovingAverageStrategy)
 
     @pytest.mark.asyncio
     async def test_ai_model_initialization(self, mock_db, mock_market_data_service):

@@ -18,15 +18,16 @@ Usage:
     benchmark.generate_report(results)
 """
 
+import json
 import logging
 import time
-import json
-import numpy as np
-import pandas as pd
-from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BenchmarkResult:
     """Results from a single benchmark run."""
+
     model_name: str
     dataset_name: str
     accuracy: float
@@ -51,6 +53,7 @@ class BenchmarkResult:
 @dataclass
 class BenchmarkDataset:
     """A benchmark dataset for sentiment analysis."""
+
     name: str
     description: str
     samples: List[Dict[str, Any]]
@@ -82,55 +85,182 @@ class FinancialSentimentDatasets:
         """
         return [
             # Positive samples
-            {"text": "The company's net sales rose 10% to EUR 1.4 billion.", "label": "positive"},
-            {"text": "Operating profit increased to EUR 13.5 million from EUR 8.9 million.", "label": "positive"},
-            {"text": "The company reported strong growth in all business segments.", "label": "positive"},
-            {"text": "Revenue exceeded expectations with a 15% year-over-year increase.", "label": "positive"},
-            {"text": "The acquisition is expected to significantly boost earnings per share.", "label": "positive"},
-            {"text": "Customer satisfaction scores reached an all-time high.", "label": "positive"},
-            {"text": "The new product launch generated exceptional market response.", "label": "positive"},
-            {"text": "Quarterly dividends increased by 20% compared to last year.", "label": "positive"},
-            {"text": "The company secured a major contract worth $500 million.", "label": "positive"},
-            {"text": "Market share expanded to 35% from 28% in the previous quarter.", "label": "positive"},
-            {"text": "Gross margins improved by 250 basis points due to operational efficiency.", "label": "positive"},
-            {"text": "The company's credit rating was upgraded to investment grade.", "label": "positive"},
-            {"text": "Free cash flow generation exceeded management guidance.", "label": "positive"},
-            {"text": "International expansion contributed to 40% revenue growth.", "label": "positive"},
-            {"text": "The board approved a $2 billion share buyback program.", "label": "positive"},
-
+            {
+                "text": "The company's net sales rose 10% to EUR 1.4 billion.",
+                "label": "positive",
+            },
+            {
+                "text": "Operating profit increased to EUR 13.5 million from EUR 8.9 million.",
+                "label": "positive",
+            },
+            {
+                "text": "The company reported strong growth in all business segments.",
+                "label": "positive",
+            },
+            {
+                "text": "Revenue exceeded expectations with a 15% year-over-year increase.",
+                "label": "positive",
+            },
+            {
+                "text": "The acquisition is expected to significantly boost earnings per share.",
+                "label": "positive",
+            },
+            {
+                "text": "Customer satisfaction scores reached an all-time high.",
+                "label": "positive",
+            },
+            {
+                "text": "The new product launch generated exceptional market response.",
+                "label": "positive",
+            },
+            {
+                "text": "Quarterly dividends increased by 20% compared to last year.",
+                "label": "positive",
+            },
+            {
+                "text": "The company secured a major contract worth $500 million.",
+                "label": "positive",
+            },
+            {
+                "text": "Market share expanded to 35% from 28% in the previous quarter.",
+                "label": "positive",
+            },
+            {
+                "text": "Gross margins improved by 250 basis points due to operational efficiency.",
+                "label": "positive",
+            },
+            {
+                "text": "The company's credit rating was upgraded to investment grade.",
+                "label": "positive",
+            },
+            {
+                "text": "Free cash flow generation exceeded management guidance.",
+                "label": "positive",
+            },
+            {
+                "text": "International expansion contributed to 40% revenue growth.",
+                "label": "positive",
+            },
+            {
+                "text": "The board approved a $2 billion share buyback program.",
+                "label": "positive",
+            },
             # Negative samples
-            {"text": "Net profit fell 20% to EUR 100 million due to increased costs.", "label": "negative"},
-            {"text": "The company announced 500 job cuts as part of restructuring.", "label": "negative"},
-            {"text": "Revenue declined 8% amid challenging market conditions.", "label": "negative"},
-            {"text": "The company missed earnings estimates by a significant margin.", "label": "negative"},
-            {"text": "Management lowered full-year guidance citing supply chain issues.", "label": "negative"},
-            {"text": "The company faces regulatory investigation for accounting practices.", "label": "negative"},
-            {"text": "Key executives resigned amid strategic disagreements.", "label": "negative"},
-            {"text": "The product recall will cost an estimated $150 million.", "label": "negative"},
-            {"text": "Market share declined to 22% from 28% due to increased competition.", "label": "negative"},
-            {"text": "The company's debt was downgraded to junk status.", "label": "negative"},
-            {"text": "Operating losses widened to $80 million in the quarter.", "label": "negative"},
-            {"text": "The company suspended dividend payments to preserve cash.", "label": "negative"},
-            {"text": "Customer churn rate increased to 15% from 8% last year.", "label": "negative"},
-            {"text": "The proposed merger was blocked by antitrust regulators.", "label": "negative"},
-            {"text": "Inventory write-downs totaled $200 million this quarter.", "label": "negative"},
-
+            {
+                "text": "Net profit fell 20% to EUR 100 million due to increased costs.",
+                "label": "negative",
+            },
+            {
+                "text": "The company announced 500 job cuts as part of restructuring.",
+                "label": "negative",
+            },
+            {
+                "text": "Revenue declined 8% amid challenging market conditions.",
+                "label": "negative",
+            },
+            {
+                "text": "The company missed earnings estimates by a significant margin.",
+                "label": "negative",
+            },
+            {
+                "text": "Management lowered full-year guidance citing supply chain issues.",
+                "label": "negative",
+            },
+            {
+                "text": "The company faces regulatory investigation for accounting practices.",
+                "label": "negative",
+            },
+            {
+                "text": "Key executives resigned amid strategic disagreements.",
+                "label": "negative",
+            },
+            {
+                "text": "The product recall will cost an estimated $150 million.",
+                "label": "negative",
+            },
+            {
+                "text": "Market share declined to 22% from 28% due to increased competition.",
+                "label": "negative",
+            },
+            {
+                "text": "The company's debt was downgraded to junk status.",
+                "label": "negative",
+            },
+            {
+                "text": "Operating losses widened to $80 million in the quarter.",
+                "label": "negative",
+            },
+            {
+                "text": "The company suspended dividend payments to preserve cash.",
+                "label": "negative",
+            },
+            {
+                "text": "Customer churn rate increased to 15% from 8% last year.",
+                "label": "negative",
+            },
+            {
+                "text": "The proposed merger was blocked by antitrust regulators.",
+                "label": "negative",
+            },
+            {
+                "text": "Inventory write-downs totaled $200 million this quarter.",
+                "label": "negative",
+            },
             # Neutral samples
-            {"text": "The company will release its quarterly results next Tuesday.", "label": "neutral"},
-            {"text": "The board appointed John Smith as the new CEO.", "label": "neutral"},
-            {"text": "The company operates in 45 countries worldwide.", "label": "neutral"},
-            {"text": "Annual general meeting will be held on March 15.", "label": "neutral"},
+            {
+                "text": "The company will release its quarterly results next Tuesday.",
+                "label": "neutral",
+            },
+            {
+                "text": "The board appointed John Smith as the new CEO.",
+                "label": "neutral",
+            },
+            {
+                "text": "The company operates in 45 countries worldwide.",
+                "label": "neutral",
+            },
+            {
+                "text": "Annual general meeting will be held on March 15.",
+                "label": "neutral",
+            },
             {"text": "The company has 12,000 employees globally.", "label": "neutral"},
-            {"text": "Trading volume was average during the session.", "label": "neutral"},
-            {"text": "The company maintains its presence in the European market.", "label": "neutral"},
-            {"text": "The merger is expected to close in the second quarter.", "label": "neutral"},
-            {"text": "Management will present at the investor conference next week.", "label": "neutral"},
-            {"text": "The company is headquartered in New York City.", "label": "neutral"},
-            {"text": "The product line includes both consumer and enterprise solutions.", "label": "neutral"},
-            {"text": "Fiscal year ends in December for the company.", "label": "neutral"},
-            {"text": "The company completed its previously announced restructuring.", "label": "neutral"},
+            {
+                "text": "Trading volume was average during the session.",
+                "label": "neutral",
+            },
+            {
+                "text": "The company maintains its presence in the European market.",
+                "label": "neutral",
+            },
+            {
+                "text": "The merger is expected to close in the second quarter.",
+                "label": "neutral",
+            },
+            {
+                "text": "Management will present at the investor conference next week.",
+                "label": "neutral",
+            },
+            {
+                "text": "The company is headquartered in New York City.",
+                "label": "neutral",
+            },
+            {
+                "text": "The product line includes both consumer and enterprise solutions.",
+                "label": "neutral",
+            },
+            {
+                "text": "Fiscal year ends in December for the company.",
+                "label": "neutral",
+            },
+            {
+                "text": "The company completed its previously announced restructuring.",
+                "label": "neutral",
+            },
             {"text": "Options expiry is scheduled for Friday.", "label": "neutral"},
-            {"text": "The company's shares are traded on the NYSE.", "label": "neutral"},
+            {
+                "text": "The company's shares are traded on the NYSE.",
+                "label": "neutral",
+            },
         ]
 
     @staticmethod
@@ -142,40 +272,122 @@ class FinancialSentimentDatasets:
         """
         return [
             # Positive
-            {"text": "Apple's iPhone sales are crushing it this quarter! $AAPL to the moon!", "label": "positive"},
-            {"text": "Just loaded up on more NVDA shares. AI boom is just getting started.", "label": "positive"},
-            {"text": "Tesla's production numbers are insane. Elon delivers again.", "label": "positive"},
-            {"text": "Microsoft Azure growth is unstoppable. Best cloud play out there.", "label": "positive"},
-            {"text": "Amazon's AWS margins keep expanding. Bezos machine keeps printing.", "label": "positive"},
-            {"text": "Google's ad revenue beat is massive. Digital advertising king.", "label": "positive"},
-            {"text": "JPMorgan crushing earnings. Banks are back baby!", "label": "positive"},
-            {"text": "This is the best quarter Netflix has had in years. Streaming wars won.", "label": "positive"},
-            {"text": "AMD is taking serious market share from Intel. Lisa Su is a genius.", "label": "positive"},
-            {"text": "Visa transaction volumes hitting records. Cashless economy winner.", "label": "positive"},
-
+            {
+                "text": "Apple's iPhone sales are crushing it this quarter! $AAPL to the moon!",
+                "label": "positive",
+            },
+            {
+                "text": "Just loaded up on more NVDA shares. AI boom is just getting started.",
+                "label": "positive",
+            },
+            {
+                "text": "Tesla's production numbers are insane. Elon delivers again.",
+                "label": "positive",
+            },
+            {
+                "text": "Microsoft Azure growth is unstoppable. Best cloud play out there.",
+                "label": "positive",
+            },
+            {
+                "text": "Amazon's AWS margins keep expanding. Bezos machine keeps printing.",
+                "label": "positive",
+            },
+            {
+                "text": "Google's ad revenue beat is massive. Digital advertising king.",
+                "label": "positive",
+            },
+            {
+                "text": "JPMorgan crushing earnings. Banks are back baby!",
+                "label": "positive",
+            },
+            {
+                "text": "This is the best quarter Netflix has had in years. Streaming wars won.",
+                "label": "positive",
+            },
+            {
+                "text": "AMD is taking serious market share from Intel. Lisa Su is a genius.",
+                "label": "positive",
+            },
+            {
+                "text": "Visa transaction volumes hitting records. Cashless economy winner.",
+                "label": "positive",
+            },
             # Negative
-            {"text": "Meta is burning cash on metaverse nonsense. Zuck has lost the plot.", "label": "negative"},
-            {"text": "Intel keeps disappointing. Another quarter of losses incoming.", "label": "negative"},
-            {"text": "Twitter is a disaster. Musk destroyed billions in value.", "label": "negative"},
-            {"text": "Peloton is done. Who buys exercise bikes anymore?", "label": "negative"},
-            {"text": "Boeing 737 MAX problems continue. Avoid this stock.", "label": "negative"},
-            {"text": "Zoom's growth has completely stalled. Pandemic darling no more.", "label": "negative"},
-            {"text": "Chinese tech stocks are uninvestable. Too much regulatory risk.", "label": "negative"},
-            {"text": "WeWork was always a scam. Glad I stayed away.", "label": "negative"},
-            {"text": "Cathie Wood's funds are imploding. ARKK is a disaster.", "label": "negative"},
-            {"text": "Crypto exchange just got hacked. Another billion lost.", "label": "negative"},
-
+            {
+                "text": "Meta is burning cash on metaverse nonsense. Zuck has lost the plot.",
+                "label": "negative",
+            },
+            {
+                "text": "Intel keeps disappointing. Another quarter of losses incoming.",
+                "label": "negative",
+            },
+            {
+                "text": "Twitter is a disaster. Musk destroyed billions in value.",
+                "label": "negative",
+            },
+            {
+                "text": "Peloton is done. Who buys exercise bikes anymore?",
+                "label": "negative",
+            },
+            {
+                "text": "Boeing 737 MAX problems continue. Avoid this stock.",
+                "label": "negative",
+            },
+            {
+                "text": "Zoom's growth has completely stalled. Pandemic darling no more.",
+                "label": "negative",
+            },
+            {
+                "text": "Chinese tech stocks are uninvestable. Too much regulatory risk.",
+                "label": "negative",
+            },
+            {
+                "text": "WeWork was always a scam. Glad I stayed away.",
+                "label": "negative",
+            },
+            {
+                "text": "Cathie Wood's funds are imploding. ARKK is a disaster.",
+                "label": "negative",
+            },
+            {
+                "text": "Crypto exchange just got hacked. Another billion lost.",
+                "label": "negative",
+            },
             # Neutral
-            {"text": "Fed meeting tomorrow. Markets waiting for Powell's comments.", "label": "neutral"},
-            {"text": "Apple announcing new products next week. Typical September event.", "label": "neutral"},
-            {"text": "SPY trading sideways today. No clear direction.", "label": "neutral"},
-            {"text": "Earnings season kicks off next week with banks reporting.", "label": "neutral"},
+            {
+                "text": "Fed meeting tomorrow. Markets waiting for Powell's comments.",
+                "label": "neutral",
+            },
+            {
+                "text": "Apple announcing new products next week. Typical September event.",
+                "label": "neutral",
+            },
+            {
+                "text": "SPY trading sideways today. No clear direction.",
+                "label": "neutral",
+            },
+            {
+                "text": "Earnings season kicks off next week with banks reporting.",
+                "label": "neutral",
+            },
             {"text": "Oil prices stable around $75 per barrel.", "label": "neutral"},
-            {"text": "Treasury yields holding steady at current levels.", "label": "neutral"},
-            {"text": "VIX at normal levels. No major volatility expected.", "label": "neutral"},
-            {"text": "Dollar index unchanged against major currencies.", "label": "neutral"},
+            {
+                "text": "Treasury yields holding steady at current levels.",
+                "label": "neutral",
+            },
+            {
+                "text": "VIX at normal levels. No major volatility expected.",
+                "label": "neutral",
+            },
+            {
+                "text": "Dollar index unchanged against major currencies.",
+                "label": "neutral",
+            },
             {"text": "Market closed for holiday on Monday.", "label": "neutral"},
-            {"text": "New IPO filing from tech startup. Details still sparse.", "label": "neutral"},
+            {
+                "text": "New IPO filing from tech startup. Details still sparse.",
+                "label": "neutral",
+            },
         ]
 
     @staticmethod
@@ -185,25 +397,68 @@ class FinancialSentimentDatasets:
         """
         return [
             # Positive
-            {"text": "We're pleased to report record revenue this quarter, driven by strong demand across all segments. Our strategic investments are paying off, and we expect continued momentum.", "label": "positive"},
-            {"text": "Gross margins expanded 300 basis points year-over-year, reflecting our operational excellence initiatives and favorable product mix.", "label": "positive"},
-            {"text": "Customer acquisition costs decreased while lifetime value increased, demonstrating the strength of our go-to-market strategy.", "label": "positive"},
-            {"text": "We're raising our full-year guidance based on the strong performance we've seen and our robust pipeline heading into Q4.", "label": "positive"},
-            {"text": "The integration of our recent acquisition is ahead of schedule and synergies are exceeding our initial estimates.", "label": "positive"},
-
+            {
+                "text": "We're pleased to report record revenue this quarter, driven by strong demand across all segments. Our strategic investments are paying off, and we expect continued momentum.",
+                "label": "positive",
+            },
+            {
+                "text": "Gross margins expanded 300 basis points year-over-year, reflecting our operational excellence initiatives and favorable product mix.",
+                "label": "positive",
+            },
+            {
+                "text": "Customer acquisition costs decreased while lifetime value increased, demonstrating the strength of our go-to-market strategy.",
+                "label": "positive",
+            },
+            {
+                "text": "We're raising our full-year guidance based on the strong performance we've seen and our robust pipeline heading into Q4.",
+                "label": "positive",
+            },
+            {
+                "text": "The integration of our recent acquisition is ahead of schedule and synergies are exceeding our initial estimates.",
+                "label": "positive",
+            },
             # Negative
-            {"text": "Unfortunately, supply chain disruptions continued to impact our ability to meet demand, resulting in lower than expected shipments.", "label": "negative"},
-            {"text": "We're implementing a restructuring plan that will result in workforce reductions to align our cost structure with current market conditions.", "label": "negative"},
-            {"text": "Currency headwinds negatively impacted international revenue by approximately $150 million this quarter.", "label": "negative"},
-            {"text": "We're lowering our guidance for the remainder of the year due to macroeconomic uncertainty and softening demand.", "label": "negative"},
-            {"text": "Competitive pressures in our core market led to pricing concessions that impacted our margins this quarter.", "label": "negative"},
-
+            {
+                "text": "Unfortunately, supply chain disruptions continued to impact our ability to meet demand, resulting in lower than expected shipments.",
+                "label": "negative",
+            },
+            {
+                "text": "We're implementing a restructuring plan that will result in workforce reductions to align our cost structure with current market conditions.",
+                "label": "negative",
+            },
+            {
+                "text": "Currency headwinds negatively impacted international revenue by approximately $150 million this quarter.",
+                "label": "negative",
+            },
+            {
+                "text": "We're lowering our guidance for the remainder of the year due to macroeconomic uncertainty and softening demand.",
+                "label": "negative",
+            },
+            {
+                "text": "Competitive pressures in our core market led to pricing concessions that impacted our margins this quarter.",
+                "label": "negative",
+            },
             # Neutral
-            {"text": "Revenue came in line with our expectations, and we're maintaining our full-year outlook as communicated last quarter.", "label": "neutral"},
-            {"text": "We continue to invest in R&D to maintain our technology leadership position in the market.", "label": "neutral"},
-            {"text": "Our capital allocation priorities remain unchanged: organic investment, M&A, and returning capital to shareholders.", "label": "neutral"},
-            {"text": "We're monitoring the evolving regulatory landscape and working with policymakers on compliance requirements.", "label": "neutral"},
-            {"text": "The transition to our new ERP system is on track for completion by year-end.", "label": "neutral"},
+            {
+                "text": "Revenue came in line with our expectations, and we're maintaining our full-year outlook as communicated last quarter.",
+                "label": "neutral",
+            },
+            {
+                "text": "We continue to invest in R&D to maintain our technology leadership position in the market.",
+                "label": "neutral",
+            },
+            {
+                "text": "Our capital allocation priorities remain unchanged: organic investment, M&A, and returning capital to shareholders.",
+                "label": "neutral",
+            },
+            {
+                "text": "We're monitoring the evolving regulatory landscape and working with policymakers on compliance requirements.",
+                "label": "neutral",
+            },
+            {
+                "text": "The transition to our new ERP system is on track for completion by year-end.",
+                "label": "neutral",
+            },
         ]
 
     @classmethod
@@ -214,19 +469,19 @@ class FinancialSentimentDatasets:
                 name="FPB",
                 description="Financial PhraseBank - Expert-labeled financial sentences",
                 samples=cls.get_fpb_samples(),
-                label_mapping={"positive": 1, "neutral": 0, "negative": -1}
+                label_mapping={"positive": 1, "neutral": 0, "negative": -1},
             ),
             BenchmarkDataset(
                 name="FiQA-SA",
                 description="Financial QA Sentiment - Social media & news opinions",
                 samples=cls.get_fiqa_samples(),
-                label_mapping={"positive": 1, "neutral": 0, "negative": -1}
+                label_mapping={"positive": 1, "neutral": 0, "negative": -1},
             ),
             BenchmarkDataset(
                 name="EarningsCalls",
                 description="Earnings Call Excerpts - Corporate communication analysis",
                 samples=cls.get_earnings_call_samples(),
-                label_mapping={"positive": 1, "neutral": 0, "negative": -1}
+                label_mapping={"positive": 1, "neutral": 0, "negative": -1},
             ),
         ]
 
@@ -261,9 +516,9 @@ class SentimentBenchmark:
         """Lazy-load FinGPT analyzer."""
         if self._fingpt_analyzer is None:
             from .nlp_models import FinGPTSentimentAnalyzer
+
             self._fingpt_analyzer = FinGPTSentimentAnalyzer(
-                load_in_8bit=True,
-                device_map="auto" if self.use_gpu else "cpu"
+                load_in_8bit=True, device_map="auto" if self.use_gpu else "cpu"
             )
         return self._fingpt_analyzer
 
@@ -272,9 +527,10 @@ class SentimentBenchmark:
         """Lazy-load Transformer analyzer (DistilBERT baseline)."""
         if self._transformer_analyzer is None:
             from .nlp_models import TransformerSentimentAnalyzer
+
             self._transformer_analyzer = TransformerSentimentAnalyzer(
-                model_name='distilbert-base-uncased-finetuned-sst-2-english',
-                device='cuda' if self.use_gpu else 'cpu'
+                model_name="distilbert-base-uncased-finetuned-sst-2-english",
+                device="cuda" if self.use_gpu else "cpu",
             )
         return self._transformer_analyzer
 
@@ -283,17 +539,27 @@ class SentimentBenchmark:
         label = label.lower().strip()
 
         # Map various label formats
-        if label in ['positive', 'pos', 'bullish', 'strongly positive', 'mildly positive']:
-            return 'positive'
-        elif label in ['negative', 'neg', 'bearish', 'strongly negative', 'mildly negative']:
-            return 'negative'
+        if label in [
+            "positive",
+            "pos",
+            "bullish",
+            "strongly positive",
+            "mildly positive",
+        ]:
+            return "positive"
+        elif label in [
+            "negative",
+            "neg",
+            "bearish",
+            "strongly negative",
+            "mildly negative",
+        ]:
+            return "negative"
         else:
-            return 'neutral'
+            return "neutral"
 
     def _calculate_metrics(
-        self,
-        predictions: List[str],
-        ground_truth: List[str]
+        self, predictions: List[str], ground_truth: List[str]
     ) -> Tuple[float, float, float, float, Dict, Dict]:
         """
         Calculate classification metrics.
@@ -303,7 +569,7 @@ class SentimentBenchmark:
         """
         from collections import defaultdict
 
-        labels = ['positive', 'negative', 'neutral']
+        labels = ["positive", "negative", "neutral"]
 
         # Initialize confusion matrix
         confusion = {l1: {l2: 0 for l2 in labels} for l1 in labels}
@@ -334,16 +600,20 @@ class SentimentBenchmark:
 
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0
+                else 0
+            )
 
             per_class[label] = {
-                'precision': round(precision, 4),
-                'recall': round(recall, 4),
-                'f1': round(f1, 4),
-                'support': sum(confusion[label].values())
+                "precision": round(precision, 4),
+                "recall": round(recall, 4),
+                "f1": round(f1, 4),
+                "support": sum(confusion[label].values()),
             }
 
-            if per_class[label]['support'] > 0:
+            if per_class[label]["support"] > 0:
                 precisions.append(precision)
                 recalls.append(recall)
                 f1s.append(f1)
@@ -356,10 +626,7 @@ class SentimentBenchmark:
         return accuracy, avg_precision, avg_recall, avg_f1, confusion, per_class
 
     def benchmark_model(
-        self,
-        model_name: str,
-        predict_fn,
-        dataset: BenchmarkDataset
+        self, model_name: str, predict_fn, dataset: BenchmarkDataset
     ) -> BenchmarkResult:
         """
         Benchmark a single model on a dataset.
@@ -372,19 +639,21 @@ class SentimentBenchmark:
         Returns:
             BenchmarkResult with all metrics
         """
-        logger.info(f"Benchmarking {model_name} on {dataset.name} ({dataset.size} samples)")
+        logger.info(
+            f"Benchmarking {model_name} on {dataset.name} ({dataset.size} samples)"
+        )
 
-        texts = [s['text'] for s in dataset.samples]
-        ground_truth = [s['label'] for s in dataset.samples]
+        texts = [s["text"] for s in dataset.samples]
+        ground_truth = [s["label"] for s in dataset.samples]
 
         # Run predictions with timing
         start_time = time.time()
         try:
             results = predict_fn(texts)
-            predictions = [r.get('sentiment', 'neutral') for r in results]
+            predictions = [r.get("sentiment", "neutral") for r in results]
         except Exception as e:
             logger.error(f"Error during prediction: {str(e)}")
-            predictions = ['neutral'] * len(texts)
+            predictions = ["neutral"] * len(texts)
 
         inference_time = (time.time() - start_time) * 1000  # Convert to ms
 
@@ -397,12 +666,14 @@ class SentimentBenchmark:
         errors = []
         for i, (pred, true, text) in enumerate(zip(predictions, ground_truth, texts)):
             if self._normalize_label(pred) != self._normalize_label(true):
-                errors.append({
-                    'index': i,
-                    'text': text[:100] + '...' if len(text) > 100 else text,
-                    'predicted': pred,
-                    'actual': true
-                })
+                errors.append(
+                    {
+                        "index": i,
+                        "text": text[:100] + "..." if len(text) > 100 else text,
+                        "predicted": pred,
+                        "actual": true,
+                    }
+                )
 
         result = BenchmarkResult(
             model_name=model_name,
@@ -415,7 +686,7 @@ class SentimentBenchmark:
             samples_evaluated=dataset.size,
             confusion_matrix=confusion,
             per_class_metrics=per_class,
-            errors=errors[:10]  # Keep top 10 errors for analysis
+            errors=errors[:10],  # Keep top 10 errors for analysis
         )
 
         logger.info(f"  Accuracy: {result.accuracy:.2%}")
@@ -434,9 +705,9 @@ class SentimentBenchmark:
         Returns:
             List of BenchmarkResult objects
         """
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info("Starting Full Sentiment Analysis Benchmark")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
         all_results = []
 
@@ -447,11 +718,13 @@ class SentimentBenchmark:
                 result = self.benchmark_model(
                     model_name="DistilBERT-SST2",
                     predict_fn=self.transformer_analyzer.predict,
-                    dataset=dataset
+                    dataset=dataset,
                 )
                 all_results.append(result)
             except Exception as e:
-                logger.error(f"Error benchmarking DistilBERT on {dataset.name}: {str(e)}")
+                logger.error(
+                    f"Error benchmarking DistilBERT on {dataset.name}: {str(e)}"
+                )
 
         # Benchmark FinGPT (financial domain)
         if include_fingpt:
@@ -461,11 +734,13 @@ class SentimentBenchmark:
                     result = self.benchmark_model(
                         model_name="FinGPT-Sentiment",
                         predict_fn=self.fingpt_analyzer.analyze_financial_text,
-                        dataset=dataset
+                        dataset=dataset,
                     )
                     all_results.append(result)
                 except Exception as e:
-                    logger.error(f"Error benchmarking FinGPT on {dataset.name}: {str(e)}")
+                    logger.error(
+                        f"Error benchmarking FinGPT on {dataset.name}: {str(e)}"
+                    )
 
         self.results = all_results
         return all_results
@@ -532,33 +807,53 @@ class SentimentBenchmark:
 
         # Compare FinGPT vs DistilBERT
         for dataset_name in by_dataset:
-            fingpt_result = next((r for r in by_dataset[dataset_name] if 'FinGPT' in r.model_name), None)
-            distilbert_result = next((r for r in by_dataset[dataset_name] if 'DistilBERT' in r.model_name), None)
+            fingpt_result = next(
+                (r for r in by_dataset[dataset_name] if "FinGPT" in r.model_name), None
+            )
+            distilbert_result = next(
+                (r for r in by_dataset[dataset_name] if "DistilBERT" in r.model_name),
+                None,
+            )
 
             if fingpt_result and distilbert_result:
                 acc_diff = (fingpt_result.accuracy - distilbert_result.accuracy) * 100
-                f1_diff = (fingpt_result.f1_score - distilbert_result.f1_score)
-                speed_diff = distilbert_result.inference_time_ms - fingpt_result.inference_time_ms
+                f1_diff = fingpt_result.f1_score - distilbert_result.f1_score
+                speed_diff = (
+                    distilbert_result.inference_time_ms
+                    - fingpt_result.inference_time_ms
+                )
 
                 report.append(f"### {dataset_name}")
                 report.append(f"- Accuracy Change: {acc_diff:+.2f}%")
                 report.append(f"- F1 Score Change: {f1_diff:+.4f}")
-                report.append(f"- Speed Difference: {speed_diff:+.2f}ms (negative = FinGPT slower)")
+                report.append(
+                    f"- Speed Difference: {speed_diff:+.2f}ms (negative = FinGPT slower)"
+                )
                 report.append("")
 
         # Recommendations
         report.append("## Recommendations\n")
 
-        avg_fingpt_f1 = np.mean([r.f1_score for r in results if 'FinGPT' in r.model_name])
-        avg_distilbert_f1 = np.mean([r.f1_score for r in results if 'DistilBERT' in r.model_name])
+        avg_fingpt_f1 = np.mean(
+            [r.f1_score for r in results if "FinGPT" in r.model_name]
+        )
+        avg_distilbert_f1 = np.mean(
+            [r.f1_score for r in results if "DistilBERT" in r.model_name]
+        )
 
         if avg_fingpt_f1 > avg_distilbert_f1:
             improvement = (avg_fingpt_f1 - avg_distilbert_f1) / avg_distilbert_f1 * 100
-            report.append(f"**FinGPT outperforms DistilBERT by {improvement:.1f}% on average.**\n")
-            report.append("Recommendation: Use FinGPT for production financial sentiment analysis.")
+            report.append(
+                f"**FinGPT outperforms DistilBERT by {improvement:.1f}% on average.**\n"
+            )
+            report.append(
+                "Recommendation: Use FinGPT for production financial sentiment analysis."
+            )
         else:
             report.append("**DistilBERT performs comparably or better than FinGPT.**\n")
-            report.append("Recommendation: Continue using DistilBERT for lower latency.")
+            report.append(
+                "Recommendation: Continue using DistilBERT for lower latency."
+            )
 
         return "\n".join(report)
 
@@ -573,15 +868,15 @@ class SentimentBenchmark:
             Path to saved file
         """
         if not filepath:
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filepath = f"benchmark_results_{timestamp}.json"
 
         data = {
-            'timestamp': datetime.now().isoformat(),
-            'results': [asdict(r) for r in self.results]
+            "timestamp": datetime.now().isoformat(),
+            "results": [asdict(r) for r in self.results],
         }
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(data, f, indent=2)
 
         logger.info(f"Results saved to {filepath}")
@@ -609,8 +904,7 @@ def run_quick_benchmark():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
     # Run quick benchmark

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -109,8 +109,7 @@ class StatisticalMeanReversion(TradingStrategy):
 
             if df is None or len(df) < self.lookback_period * 2:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate Z-score and related metrics
@@ -124,7 +123,7 @@ class StatisticalMeanReversion(TradingStrategy):
                 if half_life < self.min_half_life or half_life > self.max_half_life:
                     return self._create_hold_signal(
                         float(df.iloc[-1]["close"]),
-                        f"Half-life ({half_life:.1f}) outside acceptable range"
+                        f"Half-life ({half_life:.1f}) outside acceptable range",
                     )
 
             # Generate trading decision
@@ -136,8 +135,7 @@ class StatisticalMeanReversion(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in mean reversion strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -199,7 +197,9 @@ class StatisticalMeanReversion(TradingStrategy):
         if self.use_bollinger:
             df["bb_upper"] = df["mean"] + (df["std"] * self.bollinger_std)
             df["bb_lower"] = df["mean"] - (df["std"] * self.bollinger_std)
-            df["percent_b"] = (df["close"] - df["bb_lower"]) / (df["bb_upper"] - df["bb_lower"])
+            df["percent_b"] = (df["close"] - df["bb_lower"]) / (
+                df["bb_upper"] - df["bb_lower"]
+            )
 
         # Price distance from mean
         df["distance_pct"] = (df["close"] - df["mean"]) / df["mean"]
@@ -290,7 +290,9 @@ class StatisticalMeanReversion(TradingStrategy):
                 reasons.append("Z-score falling")
 
         # Exit signals (reversion to mean)
-        elif abs(z_score) < self.z_score_exit and abs(prev_z_score) >= self.z_score_exit:
+        elif (
+            abs(z_score) < self.z_score_exit and abs(prev_z_score) >= self.z_score_exit
+        ):
             # Close existing positions (signal depends on position)
             if prev_z_score < -self.z_score_exit:
                 reasons.append("Mean reversion target reached (was long)")
@@ -300,7 +302,9 @@ class StatisticalMeanReversion(TradingStrategy):
         # Add half-life confidence
         if self.estimated_half_life:
             if self.min_half_life <= self.estimated_half_life <= self.max_half_life:
-                confidence = min(confidence + 0.1, 1.0) if confidence > 0 else confidence
+                confidence = (
+                    min(confidence + 0.1, 1.0) if confidence > 0 else confidence
+                )
                 reasons.append(f"Good half-life: {self.estimated_half_life:.1f} days")
 
         signal = {
@@ -315,23 +319,23 @@ class StatisticalMeanReversion(TradingStrategy):
                 "std": std,
                 "distance_pct": float(last_row.get("distance_pct", 0)),
                 "half_life": self.estimated_half_life,
-                "percent_b": float(last_row.get("percent_b", 0.5)) if self.use_bollinger else None,
+                "percent_b": (
+                    float(last_row.get("percent_b", 0.5))
+                    if self.use_bollinger
+                    else None
+                ),
             },
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, mean, std
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(current_price, action, mean, std)
+            )
 
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        mean: float,
-        std: float
+        self, price: float, action: str, mean: float, std: float
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit based on mean/std"""
         if action == "buy":

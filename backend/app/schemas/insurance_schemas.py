@@ -8,22 +8,23 @@ WARNING: These tools assist in understanding insurance concepts.
 They do not replace licensed insurance professionals or constitute advice.
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Literal
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from .base import BaseSchema
 
-
 # =============================================================================
 # ENUMS
 # =============================================================================
 
+
 class InsuranceTypeEnum(str, Enum):
     """Types of insurance coverage"""
+
     # Life Insurance
     TERM_LIFE = "term_life"
     WHOLE_LIFE = "whole_life"
@@ -66,6 +67,7 @@ class InsuranceTypeEnum(str, Enum):
 
 class InsurancePurposeEnum(str, Enum):
     """Primary purpose of insurance"""
+
     INCOME_REPLACEMENT = "income_replacement"
     DEBT_COVERAGE = "debt_coverage"
     FINAL_EXPENSES = "final_expenses"
@@ -81,6 +83,7 @@ class InsurancePurposeEnum(str, Enum):
 
 class RiskClassEnum(str, Enum):
     """Insurance underwriting risk classes"""
+
     PREFERRED_PLUS = "preferred_plus"
     PREFERRED = "preferred"
     STANDARD_PLUS = "standard_plus"
@@ -91,6 +94,7 @@ class RiskClassEnum(str, Enum):
 
 class SuitabilityStatusEnum(str, Enum):
     """Suitability determination status"""
+
     SUITABLE = "suitable"
     POTENTIALLY_SUITABLE = "potentially_suitable"
     NOT_SUITABLE = "not_suitable"
@@ -102,8 +106,10 @@ class SuitabilityStatusEnum(str, Enum):
 # SCHEMA 1: POLICY COMPARISON
 # =============================================================================
 
+
 class PolicyFeature(BaseSchema):
     """Individual policy feature for comparison"""
+
     feature_name: str
     policy_a_value: str
     policy_b_value: str
@@ -113,6 +119,7 @@ class PolicyFeature(BaseSchema):
 
 class PremiumComparison(BaseSchema):
     """Premium comparison between policies"""
+
     policy_a_premium: Decimal
     policy_b_premium: Decimal
     premium_frequency: Literal["monthly", "quarterly", "semi_annual", "annual"]
@@ -128,6 +135,7 @@ class PolicyComparison(BaseSchema):
     Used for: Comparing two insurance policies
     Compliance: Must not recommend; only present facts
     """
+
     # Metadata
     comparison_id: str
     created_at: datetime
@@ -163,7 +171,7 @@ class PolicyComparison(BaseSchema):
             "This comparison is for educational purposes only.",
             "Policy features and premiums may vary; verify with carrier.",
             "This does not constitute a recommendation to purchase any policy.",
-            "Consult a licensed insurance professional for personalized advice."
+            "Consult a licensed insurance professional for personalized advice.",
         ]
     )
 
@@ -172,8 +180,10 @@ class PolicyComparison(BaseSchema):
 # SCHEMA 2: SUITABILITY ASSESSMENT
 # =============================================================================
 
+
 class ClientInsuranceProfile(BaseSchema):
     """Client profile for suitability assessment"""
+
     age: int
     gender: Optional[Literal["male", "female"]] = None
     health_status: Literal["excellent", "good", "fair", "poor"]
@@ -188,6 +198,7 @@ class ClientInsuranceProfile(BaseSchema):
 
 class SuitabilityFactor(BaseSchema):
     """Individual suitability factor"""
+
     factor_name: str
     status: Literal["favorable", "neutral", "unfavorable", "disqualifying"]
     weight: Decimal  # 0-1
@@ -201,6 +212,7 @@ class SuitabilityAssessment(BaseSchema):
     Used for: Determining if a product type is suitable for a client
     Compliance: Must follow NAIC suitability guidelines
     """
+
     # Metadata
     assessment_id: str
     created_at: datetime
@@ -243,7 +255,7 @@ class SuitabilityAssessment(BaseSchema):
             "This assessment is for educational purposes only.",
             "Suitability determinations require licensed professional review.",
             "Individual circumstances may vary from this analysis.",
-            "This does not constitute a recommendation to purchase."
+            "This does not constitute a recommendation to purchase.",
         ]
     )
 
@@ -252,8 +264,10 @@ class SuitabilityAssessment(BaseSchema):
 # SCHEMA 3: NEEDS ANALYSIS
 # =============================================================================
 
+
 class CoverageGap(BaseSchema):
     """Identified coverage gap"""
+
     gap_type: InsurancePurposeEnum
     current_coverage: Decimal
     recommended_coverage: Decimal
@@ -264,6 +278,7 @@ class CoverageGap(BaseSchema):
 
 class IncomeReplacementCalculation(BaseSchema):
     """Income replacement needs calculation"""
+
     annual_income: Decimal
     replacement_ratio: Decimal  # Typically 60-80%
     years_needed: int
@@ -280,6 +295,7 @@ class NeedsAnalysis(BaseSchema):
     Used for: Identifying coverage gaps and needs
     Compliance: Educational only; not a recommendation
     """
+
     # Metadata
     analysis_id: str
     client_id: str
@@ -334,7 +350,7 @@ class NeedsAnalysis(BaseSchema):
             "This needs analysis is for educational purposes only.",
             "Actual needs may differ based on individual circumstances.",
             "Consult a licensed insurance professional for personalized recommendations.",
-            "Coverage amounts are estimates and should be verified."
+            "Coverage amounts are estimates and should be verified.",
         ]
     )
 
@@ -343,8 +359,10 @@ class NeedsAnalysis(BaseSchema):
 # SCHEMA 4: PREMIUM ILLUSTRATION SUMMARY
 # =============================================================================
 
+
 class IllustrationYear(BaseSchema):
     """Single year of illustration projection"""
+
     year: int
     age: int
     premium: Decimal
@@ -361,6 +379,7 @@ class PremiumIllustrationSummary(BaseSchema):
     Used for: Summarizing policy projections
     Compliance: Must distinguish guaranteed vs non-guaranteed
     """
+
     # Metadata
     illustration_id: str
     created_at: datetime
@@ -402,7 +421,7 @@ class PremiumIllustrationSummary(BaseSchema):
             "Non-guaranteed values are NOT guaranteed and may be higher or lower.",
             "Actual results will vary based on policy performance.",
             "Dividends are not guaranteed and are subject to change.",
-            "This summary does not replace the full policy illustration."
+            "This summary does not replace the full policy illustration.",
         ]
     )
 
@@ -412,7 +431,7 @@ class PremiumIllustrationSummary(BaseSchema):
             "This is a summary only; review the full illustration for complete details.",
             "Illustrations are hypothetical and not guarantees of future performance.",
             "Policy loans and withdrawals will reduce values and death benefits.",
-            "Consult a licensed insurance professional before purchasing."
+            "Consult a licensed insurance professional before purchasing.",
         ]
     )
 
@@ -421,8 +440,10 @@ class PremiumIllustrationSummary(BaseSchema):
 # SCHEMA 5: CLAIMS SCENARIO CHECKLIST
 # =============================================================================
 
+
 class ClaimStep(BaseSchema):
     """Individual claim process step"""
+
     step_number: int
     action: str
     responsible_party: Literal["policyholder", "beneficiary", "carrier", "agent"]
@@ -438,6 +459,7 @@ class ClaimsScenarioChecklist(BaseSchema):
     Used for: Guiding through potential claims scenarios
     Compliance: Educational; refer to carrier for actual claims
     """
+
     # Metadata
     checklist_id: str
     created_at: datetime
@@ -479,6 +501,6 @@ class ClaimsScenarioChecklist(BaseSchema):
             "This checklist is for educational purposes only.",
             "Actual claims processes vary by carrier and policy.",
             "Contact your insurance carrier for specific claims procedures.",
-            "Deadlines and requirements may differ from this general guidance."
+            "Deadlines and requirements may differ from this general guidance.",
         ]
     )

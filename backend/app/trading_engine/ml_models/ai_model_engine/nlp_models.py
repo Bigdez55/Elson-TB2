@@ -5,47 +5,60 @@ NLP models for sentiment analysis of financial news and social media data.
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers, models, optimizers
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, AutoConfig
-from transformers import pipeline, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
+from tensorflow.keras import layers, models, optimizers
+from transformers import (
+    AutoConfig,
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    TFAutoModelForSequenceClassification,
+    pipeline,
+)
 
 # PEFT for LoRA adapter support (FinGPT)
 try:
-    from peft import PeftModel, PeftConfig
+    from peft import PeftConfig, PeftModel
+
     PEFT_AVAILABLE = True
 except ImportError:
     PEFT_AVAILABLE = False
-import re
-from typing import List, Dict, Union, Tuple, Optional, Any
 import logging
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
+import re
 import string
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 # Download required NLTK resources
 try:
-    nltk.data.find('tokenizers/punkt')
+    nltk.data.find("tokenizers/punkt")
 except LookupError:
-    nltk.download('punkt')
+    nltk.download("punkt")
 
 try:
-    nltk.data.find('corpora/stopwords')
+    nltk.data.find("corpora/stopwords")
 except LookupError:
-    nltk.download('stopwords')
+    nltk.download("stopwords")
 
 logger = logging.getLogger(__name__)
 
 
 class TextPreprocessor:
     """Preprocess text data for sentiment analysis"""
-    
-    def __init__(self, lowercase: bool = True, remove_urls: bool = True, 
-                 remove_stopwords: bool = True, remove_punctuation: bool = True):
+
+    def __init__(
+        self,
+        lowercase: bool = True,
+        remove_urls: bool = True,
+        remove_stopwords: bool = True,
+        remove_punctuation: bool = True,
+    ):
         """
         Initialize the text preprocessor
-        
+
         Args:
             lowercase: Whether to convert text to lowercase
             remove_urls: Whether to remove URLs
@@ -56,52 +69,52 @@ class TextPreprocessor:
         self.remove_urls = remove_urls
         self.remove_stopwords = remove_stopwords
         self.remove_punctuation = remove_punctuation
-        self.stop_words = set(stopwords.words('english'))
-        
+        self.stop_words = set(stopwords.words("english"))
+
     def preprocess(self, text: str) -> str:
         """
         Preprocess a single text string
-        
+
         Args:
             text: Input text
-            
+
         Returns:
             Preprocessed text
         """
         if not isinstance(text, str):
             return ""
-        
+
         # Convert to lowercase
         if self.lowercase:
             text = text.lower()
-        
+
         # Remove URLs
         if self.remove_urls:
-            text = re.sub(r'http\S+', '', text)
-        
+            text = re.sub(r"http\S+", "", text)
+
         # Tokenize
         tokens = word_tokenize(text)
-        
+
         # Remove stopwords
         if self.remove_stopwords:
             tokens = [token for token in tokens if token not in self.stop_words]
-        
+
         # Remove punctuation
         if self.remove_punctuation:
             tokens = [token for token in tokens if token not in string.punctuation]
-        
+
         # Join tokens back into a single string
-        preprocessed_text = ' '.join(tokens)
-        
+        preprocessed_text = " ".join(tokens)
+
         return preprocessed_text
-    
+
     def preprocess_batch(self, texts: List[str]) -> List[str]:
         """
         Preprocess a batch of text strings
-        
+
         Args:
             texts: List of input texts
-            
+
         Returns:
             List of preprocessed texts
         """
@@ -112,17 +125,17 @@ class TransformerSentimentAnalyzer:
     """
     Sentiment analysis using pre-trained transformer models
     """
-    
+
     def __init__(
-        self, 
-        model_name: str = 'distilbert-base-uncased-finetuned-sst-2-english',
+        self,
+        model_name: str = "distilbert-base-uncased-finetuned-sst-2-english",
         max_length: int = 128,
         batch_size: int = 16,
-        device: str = None
+        device: str = None,
     ):
         """
         Initialize the transformer sentiment analyzer
-        
+
         Args:
             model_name: Name of the pre-trained model
             max_length: Maximum sequence length
@@ -132,136 +145,143 @@ class TransformerSentimentAnalyzer:
         self.model_name = model_name
         self.max_length = max_length
         self.batch_size = batch_size
-        
+
         # Determine device
         if device is None:
-            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
-        
+
         # In TensorFlow environment, we use TF models
         self.use_tensorflow = True
-        
+
         # Load tokenizer and model
         self.tokenizer = None
         self.model = None
         self.sentiment_pipeline = None
-        
+
         # Text preprocessor
         self.preprocessor = TextPreprocessor(
             lowercase=True,
             remove_urls=True,
             remove_stopwords=False,  # Pre-trained models often handle stopwords well
-            remove_punctuation=False  # Keep punctuation for better model performance
+            remove_punctuation=False,  # Keep punctuation for better model performance
         )
-    
-    def load_model(self) -> 'TransformerSentimentAnalyzer':
+
+    def load_model(self) -> "TransformerSentimentAnalyzer":
         """
         Load the pre-trained model and tokenizer
-        
+
         Returns:
             Self
         """
         try:
             logger.info(f"Loading model: {self.model_name}")
-            
+
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-            
+
             # Load model
             if self.use_tensorflow:
                 config = AutoConfig.from_pretrained(self.model_name)
                 self.model = TFAutoModelForSequenceClassification.from_pretrained(
-                    self.model_name, 
-                    config=config
+                    self.model_name, config=config
                 )
-            
+
             # Create sentiment pipeline for easier inference
             self.sentiment_pipeline = pipeline(
-                task='sentiment-analysis',
+                task="sentiment-analysis",
                 model=self.model_name,
                 tokenizer=self.tokenizer,
-                device=0 if self.device == 'cuda' else -1
+                device=0 if self.device == "cuda" else -1,
             )
-            
+
             logger.info("Model loaded successfully")
-            
+
         except Exception as e:
             logger.error(f"Error loading model: {str(e)}")
             raise
-        
+
         return self
-    
-    def predict(self, texts: Union[str, List[str]], preprocess: bool = True) -> List[Dict[str, Union[str, float]]]:
+
+    def predict(
+        self, texts: Union[str, List[str]], preprocess: bool = True
+    ) -> List[Dict[str, Union[str, float]]]:
         """
         Predict sentiment for one or more texts
-        
+
         Args:
             texts: Input text or list of texts
             preprocess: Whether to preprocess the input texts
-            
+
         Returns:
             List of dictionaries containing sentiment prediction results
         """
         if self.sentiment_pipeline is None:
             self.load_model()
-        
+
         # Handle single text input
         if isinstance(texts, str):
             texts = [texts]
-        
+
         # Preprocess texts if needed
         if preprocess:
             texts = self.preprocessor.preprocess_batch(texts)
-        
+
         # Predict sentiment
         results = self.sentiment_pipeline(texts, batch_size=self.batch_size)
-        
+
         # Format results for consistency
         formatted_results = []
         for i, result in enumerate(results):
             # Standardize result format
-            score = result['score']
-            label = result['label']
-            
+            score = result["score"]
+            label = result["label"]
+
             # Map label to consistent format
             sentiment = "positive" if "positive" in label.lower() else "negative"
-            
+
             # For negative sentiment, invert the score to keep -1 to 1 range
             sentiment_score = score if sentiment == "positive" else -score
-            
-            formatted_results.append({
-                'text': texts[i],
-                'sentiment': sentiment,
-                'score': sentiment_score,
-                'confidence': score
-            })
-        
+
+            formatted_results.append(
+                {
+                    "text": texts[i],
+                    "sentiment": sentiment,
+                    "score": sentiment_score,
+                    "confidence": score,
+                }
+            )
+
         return formatted_results
-    
-    def analyze_batch(self, df: pd.DataFrame, text_column: str = 'text') -> pd.DataFrame:
+
+    def analyze_batch(
+        self, df: pd.DataFrame, text_column: str = "text"
+    ) -> pd.DataFrame:
         """
         Analyze sentiment for a batch of texts in a DataFrame
-        
+
         Args:
             df: DataFrame containing texts
             text_column: Name of the column containing the texts
-            
+
         Returns:
             DataFrame with added sentiment analysis columns
         """
         # Extract texts from the DataFrame
         texts = df[text_column].tolist()
-        
+
         # Predict sentiment
         results = self.predict(texts)
-        
+
         # Add results to a new DataFrame
         result_df = pd.DataFrame(results)
-        
+
         # Combine with original DataFrame
-        combined_df = pd.concat([df.reset_index(drop=True), result_df.drop('text', axis=1)], axis=1)
-        
+        combined_df = pd.concat(
+            [df.reset_index(drop=True), result_df.drop("text", axis=1)], axis=1
+        )
+
         return combined_df
 
 
@@ -284,13 +304,13 @@ class FinGPTSentimentAnalyzer:
 
     # Financial sentiment labels mapping
     SENTIMENT_LABELS = {
-        'positive': 1.0,
-        'negative': -1.0,
-        'neutral': 0.0,
-        'strongly positive': 1.0,
-        'strongly negative': -1.0,
-        'mildly positive': 0.5,
-        'mildly negative': -0.5
+        "positive": 1.0,
+        "negative": -1.0,
+        "neutral": 0.0,
+        "strongly positive": 1.0,
+        "strongly negative": -1.0,
+        "mildly positive": 0.5,
+        "mildly negative": -0.5,
     }
 
     def __init__(
@@ -300,7 +320,7 @@ class FinGPTSentimentAnalyzer:
         max_length: int = 512,
         load_in_8bit: bool = True,
         load_in_4bit: bool = False,
-        device_map: str = "auto"
+        device_map: str = "auto",
     ):
         """
         Initialize the FinGPT sentiment analyzer.
@@ -330,7 +350,7 @@ class FinGPTSentimentAnalyzer:
                 "FinGPT features will be disabled."
             )
 
-    def load_model(self) -> 'FinGPTSentimentAnalyzer':
+    def load_model(self) -> "FinGPTSentimentAnalyzer":
         """
         Load the base model with FinGPT LoRA adapters.
 
@@ -342,7 +362,9 @@ class FinGPTSentimentAnalyzer:
             return self
 
         try:
-            logger.info(f"Loading FinGPT model: {self.base_model} with LoRA: {self.lora_weights}")
+            logger.info(
+                f"Loading FinGPT model: {self.base_model} with LoRA: {self.lora_weights}"
+            )
 
             # Configure quantization
             quantization_config = None
@@ -351,17 +373,14 @@ class FinGPTSentimentAnalyzer:
                     load_in_4bit=True,
                     bnb_4bit_quant_type="nf4",
                     bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True
+                    bnb_4bit_use_double_quant=True,
                 )
             elif self.load_in_8bit:
-                quantization_config = BitsAndBytesConfig(
-                    load_in_8bit=True
-                )
+                quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.base_model,
-                trust_remote_code=True
+                self.base_model, trust_remote_code=True
             )
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -372,14 +391,12 @@ class FinGPTSentimentAnalyzer:
                 quantization_config=quantization_config,
                 device_map=self.device_map,
                 trust_remote_code=True,
-                torch_dtype=torch.float16
+                torch_dtype=torch.float16,
             )
 
             # Load LoRA adapter
             self.model = PeftModel.from_pretrained(
-                base_model,
-                self.lora_weights,
-                torch_dtype=torch.float16
+                base_model, self.lora_weights, torch_dtype=torch.float16
             )
 
             # Set to evaluation mode
@@ -430,9 +447,7 @@ class FinGPTSentimentAnalyzer:
         return prompt
 
     def analyze_financial_text(
-        self,
-        texts: Union[str, List[str]],
-        detailed: bool = False
+        self, texts: Union[str, List[str]], detailed: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Analyze sentiment of financial text(s).
@@ -470,7 +485,7 @@ class FinGPTSentimentAnalyzer:
                     return_tensors="pt",
                     max_length=self.max_length,
                     truncation=True,
-                    padding=True
+                    padding=True,
                 )
 
                 # Move to device
@@ -484,35 +499,43 @@ class FinGPTSentimentAnalyzer:
                         max_new_tokens=32,
                         do_sample=False,
                         temperature=0.1,
-                        pad_token_id=self.tokenizer.pad_token_id
+                        pad_token_id=self.tokenizer.pad_token_id,
                     )
 
                 # Decode response
-                response = self.tokenizer.decode(
-                    outputs[0][inputs['input_ids'].shape[1]:],
-                    skip_special_tokens=True
-                ).strip().lower()
+                response = (
+                    self.tokenizer.decode(
+                        outputs[0][inputs["input_ids"].shape[1] :],
+                        skip_special_tokens=True,
+                    )
+                    .strip()
+                    .lower()
+                )
 
                 # Parse sentiment from response
                 sentiment, score = self._parse_sentiment(response)
 
-                results.append({
-                    'text': text[:200] + '...' if len(text) > 200 else text,
-                    'sentiment': sentiment,
-                    'score': score,
-                    'raw_response': response,
-                    'model': 'fingpt'
-                })
+                results.append(
+                    {
+                        "text": text[:200] + "..." if len(text) > 200 else text,
+                        "sentiment": sentiment,
+                        "score": score,
+                        "raw_response": response,
+                        "model": "fingpt",
+                    }
+                )
 
             except Exception as e:
                 logger.error(f"Error analyzing text: {str(e)}")
-                results.append({
-                    'text': text[:200] + '...' if len(text) > 200 else text,
-                    'sentiment': 'neutral',
-                    'score': 0.0,
-                    'error': str(e),
-                    'model': 'fingpt'
-                })
+                results.append(
+                    {
+                        "text": text[:200] + "..." if len(text) > 200 else text,
+                        "sentiment": "neutral",
+                        "score": 0.0,
+                        "error": str(e),
+                        "model": "fingpt",
+                    }
+                )
 
         return results
 
@@ -534,12 +557,12 @@ class FinGPTSentimentAnalyzer:
                 return label, score
 
         # Fallback parsing
-        if 'positive' in response:
-            return 'positive', 1.0
-        elif 'negative' in response:
-            return 'negative', -1.0
+        if "positive" in response:
+            return "positive", 1.0
+        elif "negative" in response:
+            return "negative", -1.0
         else:
-            return 'neutral', 0.0
+            return "neutral", 0.0
 
     def _fallback_analysis(self, texts: Union[str, List[str]]) -> List[Dict[str, Any]]:
         """
@@ -560,14 +583,12 @@ class FinGPTSentimentAnalyzer:
 
         # Add model identifier
         for result in results:
-            result['model'] = 'fallback_transformer'
+            result["model"] = "fallback_transformer"
 
         return results
 
     def analyze_earnings_call(
-        self,
-        transcript: str,
-        chunk_size: int = 1000
+        self, transcript: str, chunk_size: int = 1000
     ) -> Dict[str, Any]:
         """
         Analyze sentiment of an earnings call transcript.
@@ -586,31 +607,31 @@ class FinGPTSentimentAnalyzer:
         chunks = []
 
         for i in range(0, len(words), chunk_size):
-            chunk = ' '.join(words[i:i + chunk_size])
+            chunk = " ".join(words[i : i + chunk_size])
             chunks.append(chunk)
 
         # Analyze each chunk
         chunk_results = self.analyze_financial_text(chunks, detailed=True)
 
         # Aggregate results
-        scores = [r['score'] for r in chunk_results]
+        scores = [r["score"] for r in chunk_results]
         avg_score = np.mean(scores) if scores else 0.0
 
         # Determine overall sentiment
         if avg_score > 0.3:
-            overall_sentiment = 'positive'
+            overall_sentiment = "positive"
         elif avg_score < -0.3:
-            overall_sentiment = 'negative'
+            overall_sentiment = "negative"
         else:
-            overall_sentiment = 'neutral'
+            overall_sentiment = "neutral"
 
         return {
-            'overall_sentiment': overall_sentiment,
-            'overall_score': float(avg_score),
-            'score_std': float(np.std(scores)) if scores else 0.0,
-            'num_chunks': len(chunks),
-            'chunk_results': chunk_results,
-            'sentiment_trend': self._calculate_sentiment_trend(scores)
+            "overall_sentiment": overall_sentiment,
+            "overall_score": float(avg_score),
+            "score_std": float(np.std(scores)) if scores else 0.0,
+            "num_chunks": len(chunks),
+            "chunk_results": chunk_results,
+            "sentiment_trend": self._calculate_sentiment_trend(scores),
         }
 
     def _calculate_sentiment_trend(self, scores: List[float]) -> str:
@@ -624,7 +645,7 @@ class FinGPTSentimentAnalyzer:
             Trend description ('improving', 'declining', 'stable')
         """
         if len(scores) < 2:
-            return 'stable'
+            return "stable"
 
         # Compare first half to second half
         mid = len(scores) // 2
@@ -634,28 +655,28 @@ class FinGPTSentimentAnalyzer:
         diff = second_half_avg - first_half_avg
 
         if diff > 0.2:
-            return 'improving'
+            return "improving"
         elif diff < -0.2:
-            return 'declining'
+            return "declining"
         else:
-            return 'stable'
+            return "stable"
 
 
 class FinancialNewsClassifier:
     """
     Classifies financial news into categories (e.g., earnings, mergers, product releases)
     """
-    
+
     def __init__(
-        self, 
-        model_name: str = 'distilbert-base-uncased',
+        self,
+        model_name: str = "distilbert-base-uncased",
         max_length: int = 128,
         batch_size: int = 16,
-        num_classes: int = 5
+        num_classes: int = 5,
     ):
         """
         Initialize the financial news classifier
-        
+
         Args:
             model_name: Name of the pre-trained model to fine-tune
             max_length: Maximum sequence length
@@ -666,29 +687,29 @@ class FinancialNewsClassifier:
         self.max_length = max_length
         self.batch_size = batch_size
         self.num_classes = num_classes
-        
+
         self.tokenizer = None
         self.model = None
         self.class_names = [
-            'earnings', 
-            'merger_acquisition', 
-            'product_release', 
-            'executive_change', 
-            'regulatory'
+            "earnings",
+            "merger_acquisition",
+            "product_release",
+            "executive_change",
+            "regulatory",
         ][:num_classes]
-        
+
         # Text preprocessor
         self.preprocessor = TextPreprocessor(
             lowercase=True,
             remove_urls=True,
             remove_stopwords=False,
-            remove_punctuation=False
+            remove_punctuation=False,
         )
-    
-    def load_tokenizer(self) -> 'FinancialNewsClassifier':
+
+    def load_tokenizer(self) -> "FinancialNewsClassifier":
         """
         Load the tokenizer
-        
+
         Returns:
             Self
         """
@@ -697,98 +718,99 @@ class FinancialNewsClassifier:
         except Exception as e:
             logger.error(f"Error loading tokenizer: {str(e)}")
             raise
-        
+
         return self
-    
+
     def build_model(self) -> tf.keras.Model:
         """
         Build the model for financial news classification
-        
+
         Returns:
             Keras model
         """
         # Input layers
-        input_ids = layers.Input(shape=(self.max_length,), dtype=tf.int32, name='input_ids')
-        attention_mask = layers.Input(shape=(self.max_length,), dtype=tf.int32, name='attention_mask')
-        
+        input_ids = layers.Input(
+            shape=(self.max_length,), dtype=tf.int32, name="input_ids"
+        )
+        attention_mask = layers.Input(
+            shape=(self.max_length,), dtype=tf.int32, name="attention_mask"
+        )
+
         # Load pre-trained model
         config = AutoConfig.from_pretrained(
-            self.model_name,
-            num_labels=self.num_classes
+            self.model_name, num_labels=self.num_classes
         )
         transformer = TFAutoModelForSequenceClassification.from_pretrained(
-            self.model_name,
-            config=config
+            self.model_name, config=config
         )
-        
+
         # Get transformer outputs
-        transformer_outputs = transformer([input_ids, attention_mask], training=True).logits
-        
+        transformer_outputs = transformer(
+            [input_ids, attention_mask], training=True
+        ).logits
+
         # Add a softmax layer
-        outputs = layers.Activation('softmax')(transformer_outputs)
-        
+        outputs = layers.Activation("softmax")(transformer_outputs)
+
         # Create model
-        model = tf.keras.Model(
-            inputs=[input_ids, attention_mask],
-            outputs=outputs
-        )
-        
+        model = tf.keras.Model(inputs=[input_ids, attention_mask], outputs=outputs)
+
         # Compile model
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=2e-5),
-            loss='categorical_crossentropy',
-            metrics=['accuracy']
+            loss="categorical_crossentropy",
+            metrics=["accuracy"],
         )
-        
+
         return model
-    
+
     def prepare_data(
-        self, 
-        texts: List[str], 
-        labels: List[int]
+        self, texts: List[str], labels: List[int]
     ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
         """
         Prepare data for training or inference
-        
+
         Args:
             texts: List of texts
             labels: List of labels (class indices)
-            
+
         Returns:
             Tuple of (tokenized_inputs, one_hot_labels)
         """
         if self.tokenizer is None:
             self.load_tokenizer()
-        
+
         # Preprocess texts
         preprocessed_texts = self.preprocessor.preprocess_batch(texts)
-        
+
         # Tokenize texts
         tokenized = self.tokenizer(
             preprocessed_texts,
-            padding='max_length',
+            padding="max_length",
             truncation=True,
             max_length=self.max_length,
-            return_tensors='tf'
+            return_tensors="tf",
         )
-        
+
         # Convert labels to one-hot
-        one_hot_labels = tf.keras.utils.to_categorical(labels, num_classes=self.num_classes)
-        
+        one_hot_labels = tf.keras.utils.to_categorical(
+            labels, num_classes=self.num_classes
+        )
+
         return tokenized, one_hot_labels
-    
+
     def fit(
-        self, 
-        texts: List[str], 
+        self,
+        texts: List[str],
         labels: List[int],
         validation_texts: List[str] = None,
         validation_labels: List[int] = None,
         epochs: int = 3,
-        verbose: int = 1
-    ) -> 'FinancialNewsClassifier':
+        verbose: int = 1,
+    ) -> "FinancialNewsClassifier":
         """
         Fine-tune the model
-        
+
         Args:
             texts: Training texts
             labels: Training labels
@@ -796,23 +818,25 @@ class FinancialNewsClassifier:
             validation_labels: Validation labels
             epochs: Number of epochs
             verbose: Verbosity level
-            
+
         Returns:
             Self
         """
         # Prepare data
         train_inputs, train_labels = self.prepare_data(texts, labels)
-        
+
         # Prepare validation data if provided
         validation_data = None
         if validation_texts is not None and validation_labels is not None:
-            val_inputs, val_labels = self.prepare_data(validation_texts, validation_labels)
+            val_inputs, val_labels = self.prepare_data(
+                validation_texts, validation_labels
+            )
             validation_data = (val_inputs, val_labels)
-        
+
         # Build model if not already built
         if self.model is None:
             self.model = self.build_model()
-        
+
         # Train model
         self.model.fit(
             train_inputs,
@@ -820,30 +844,30 @@ class FinancialNewsClassifier:
             batch_size=self.batch_size,
             epochs=epochs,
             validation_data=validation_data,
-            verbose=verbose
+            verbose=verbose,
         )
-        
+
         return self
-    
+
     def predict(self, texts: List[str]) -> List[Dict[str, Union[str, float]]]:
         """
         Predict news categories for texts
-        
+
         Args:
             texts: List of texts
-            
+
         Returns:
             List of dictionaries containing classification results
         """
         if self.model is None:
             raise ValueError("Model has not been trained yet. Call fit() first.")
-        
+
         # Prepare data
         inputs, _ = self.prepare_data(texts, [0] * len(texts))
-        
+
         # Make predictions
         predictions = self.model.predict(inputs)
-        
+
         # Format results
         results = []
         for i, pred in enumerate(predictions):
@@ -851,40 +875,44 @@ class FinancialNewsClassifier:
             class_idx = np.argmax(pred)
             class_name = self.class_names[class_idx]
             confidence = float(pred[class_idx])
-            
-            results.append({
-                'text': texts[i],
-                'category': class_name,
-                'confidence': confidence,
-                'probabilities': {self.class_names[j]: float(p) for j, p in enumerate(pred)}
-            })
-        
+
+            results.append(
+                {
+                    "text": texts[i],
+                    "category": class_name,
+                    "confidence": confidence,
+                    "probabilities": {
+                        self.class_names[j]: float(p) for j, p in enumerate(pred)
+                    },
+                }
+            )
+
         return results
 
 
 def sentiment_analysis_batch(
     texts: List[str],
-    model_name: str = 'distilbert-base-uncased-finetuned-sst-2-english'
+    model_name: str = "distilbert-base-uncased-finetuned-sst-2-english",
 ) -> pd.DataFrame:
     """
     Perform sentiment analysis on a batch of texts and return results as a DataFrame
-    
+
     Args:
         texts: List of texts
         model_name: Name of the pre-trained model
-        
+
     Returns:
         DataFrame with sentiment analysis results
     """
     # Create analyzer
     analyzer = TransformerSentimentAnalyzer(model_name=model_name)
-    
+
     # Analyze texts
     results = analyzer.predict(texts)
-    
+
     # Convert to DataFrame
     df = pd.DataFrame(results)
-    
+
     return df
 
 
@@ -892,57 +920,55 @@ def find_market_moving_news(
     news_df: pd.DataFrame,
     sentiment_threshold: float = 0.8,
     min_confidence: float = 0.9,
-    text_column: str = 'title',
-    return_top_n: int = 10
+    text_column: str = "title",
+    return_top_n: int = 10,
 ) -> pd.DataFrame:
     """
     Find potentially market-moving news based on sentiment and other factors
-    
+
     Args:
         news_df: DataFrame with news articles
         sentiment_threshold: Threshold for sentiment score magnitude
         min_confidence: Minimum confidence for sentiment prediction
         text_column: Column containing the news text
         return_top_n: Number of top news to return
-        
+
     Returns:
         DataFrame with top market-moving news
     """
     # Ensure we have the required columns
     if text_column not in news_df.columns:
         raise ValueError(f"DataFrame must contain column: {text_column}")
-    
+
     # Analyze sentiment if not already present
-    if 'sentiment' not in news_df.columns or 'score' not in news_df.columns:
+    if "sentiment" not in news_df.columns or "score" not in news_df.columns:
         # Extract text
         texts = news_df[text_column].tolist()
-        
+
         # Analyze sentiment
         sentiment_df = sentiment_analysis_batch(texts)
-        
+
         # Combine with original DataFrame
         for col in sentiment_df.columns:
-            if col != 'text':
+            if col != "text":
                 news_df[col] = sentiment_df[col].values
-    
+
     # Filter high-impact news
     high_impact = news_df[
-        (abs(news_df['score']) >= sentiment_threshold) & 
-        (news_df['confidence'] >= min_confidence)
+        (abs(news_df["score"]) >= sentiment_threshold)
+        & (news_df["confidence"] >= min_confidence)
     ].copy()
-    
+
     # Sort by absolute sentiment score
-    high_impact['impact_score'] = abs(high_impact['score'])
-    high_impact = high_impact.sort_values(by='impact_score', ascending=False)
-    
+    high_impact["impact_score"] = abs(high_impact["score"])
+    high_impact = high_impact.sort_values(by="impact_score", ascending=False)
+
     # Return top N
     return high_impact.head(return_top_n)
 
 
 def fingpt_sentiment_analysis(
-    texts: Union[str, List[str]],
-    use_quantization: bool = True,
-    detailed: bool = False
+    texts: Union[str, List[str]], use_quantization: bool = True, detailed: bool = False
 ) -> pd.DataFrame:
     """
     Perform FinGPT-enhanced sentiment analysis on financial texts.
@@ -967,8 +993,7 @@ def fingpt_sentiment_analysis(
     """
     # Create FinGPT analyzer
     analyzer = FinGPTSentimentAnalyzer(
-        load_in_8bit=use_quantization,
-        load_in_4bit=not use_quantization
+        load_in_8bit=use_quantization, load_in_4bit=not use_quantization
     )
 
     # Analyze texts
@@ -981,8 +1006,7 @@ def fingpt_sentiment_analysis(
 
 
 def analyze_market_sentiment(
-    news_items: List[Dict[str, str]],
-    use_fingpt: bool = True
+    news_items: List[Dict[str, str]], use_fingpt: bool = True
 ) -> Dict[str, Any]:
     """
     Analyze overall market sentiment from a collection of news items.
@@ -1003,9 +1027,9 @@ def analyze_market_sentiment(
     # Extract texts
     texts = []
     for item in news_items:
-        text = item.get('title', '')
-        if 'description' in item and item['description']:
-            text += ' ' + item['description']
+        text = item.get("title", "")
+        if "description" in item and item["description"]:
+            text += " " + item["description"]
         texts.append(text)
 
     # Analyze sentiment
@@ -1017,7 +1041,7 @@ def analyze_market_sentiment(
         results = analyzer.predict(texts)
 
     # Calculate metrics
-    scores = [r['score'] for r in results]
+    scores = [r["score"] for r in results]
     avg_score = np.mean(scores) if scores else 0.0
 
     positive_count = sum(1 for s in scores if s > 0.2)
@@ -1026,24 +1050,28 @@ def analyze_market_sentiment(
 
     # Determine overall sentiment
     if avg_score > 0.2:
-        overall = 'bullish'
+        overall = "bullish"
     elif avg_score < -0.2:
-        overall = 'bearish'
+        overall = "bearish"
     else:
-        overall = 'neutral'
+        overall = "neutral"
 
     # Sort results by score
-    sorted_results = sorted(results, key=lambda x: x['score'], reverse=True)
+    sorted_results = sorted(results, key=lambda x: x["score"], reverse=True)
 
     return {
-        'overall_sentiment': overall,
-        'sentiment_score': float(avg_score),
-        'sentiment_std': float(np.std(scores)) if scores else 0.0,
-        'positive_ratio': positive_count / total if total > 0 else 0.0,
-        'negative_ratio': negative_count / total if total > 0 else 0.0,
-        'neutral_ratio': (total - positive_count - negative_count) / total if total > 0 else 0.0,
-        'total_analyzed': total,
-        'top_bullish': sorted_results[:3],
-        'top_bearish': sorted_results[-3:] if len(sorted_results) >= 3 else sorted_results,
-        'model_used': 'fingpt' if (use_fingpt and PEFT_AVAILABLE) else 'transformer'
+        "overall_sentiment": overall,
+        "sentiment_score": float(avg_score),
+        "sentiment_std": float(np.std(scores)) if scores else 0.0,
+        "positive_ratio": positive_count / total if total > 0 else 0.0,
+        "negative_ratio": negative_count / total if total > 0 else 0.0,
+        "neutral_ratio": (
+            (total - positive_count - negative_count) / total if total > 0 else 0.0
+        ),
+        "total_analyzed": total,
+        "top_bullish": sorted_results[:3],
+        "top_bearish": (
+            sorted_results[-3:] if len(sorted_results) >= 3 else sorted_results
+        ),
+        "model_used": "fingpt" if (use_fingpt and PEFT_AVAILABLE) else "transformer",
     }

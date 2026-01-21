@@ -13,8 +13,8 @@ from typing import Any, Dict, List, Optional, Type, Union
 import pandas as pd
 
 from ..strategies.base import TradingStrategy
-from .data_handler import DataHandler, Bar
-from .order import Order, OrderSide, OrderType, OrderStatus
+from .data_handler import Bar, DataHandler
+from .order import Order, OrderSide, OrderStatus, OrderType
 from .performance import PerformanceAnalyzer, PerformanceMetrics
 from .portfolio import Portfolio
 
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BacktestConfig:
     """Configuration for backtest"""
+
     initial_capital: float = 100000.0
     commission_rate: float = 0.001  # 0.1%
     slippage_rate: float = 0.0005  # 0.05%
@@ -40,6 +41,7 @@ class BacktestConfig:
 @dataclass
 class BacktestResult:
     """Results from a backtest run"""
+
     strategy_name: str
     config: BacktestConfig
     metrics: PerformanceMetrics
@@ -102,10 +104,7 @@ class BacktestEngine:
         self._current_bar: Optional[Dict[str, Bar]] = None
 
     def add_data(
-        self,
-        symbol: str,
-        data: Union[pd.DataFrame, List[Dict], str],
-        **kwargs
+        self, symbol: str, data: Union[pd.DataFrame, List[Dict], str], **kwargs
     ) -> None:
         """
         Add data for backtesting.
@@ -166,7 +165,7 @@ class BacktestEngine:
         metrics = self.analyzer.analyze(
             self.portfolio.get_equity_curve(),
             self.portfolio.trades,
-            self.config.initial_capital
+            self.config.initial_capital,
         )
 
         execution_time = (datetime.utcnow() - start_time).total_seconds()
@@ -240,9 +239,7 @@ class BacktestEngine:
         return bars_processed
 
     async def _process_strategy(
-        self,
-        strategy: TradingStrategy,
-        bars: Dict[str, Bar]
+        self, strategy: TradingStrategy, bars: Dict[str, Bar]
     ) -> None:
         """Process a single strategy for current bars"""
         # Check if strategy symbol is in current data
@@ -253,15 +250,12 @@ class BacktestEngine:
 
         # Prepare market data for strategy
         market_data = self.data_handler.get_market_data(
-            strategy.symbol,
-            self.data_handler.current_index
+            strategy.symbol, self.data_handler.current_index
         )
 
         # Add lookback data if available
         lookback_df = self.data_handler.get_lookback(
-            strategy.symbol,
-            self.data_handler.current_index,
-            100  # Default lookback
+            strategy.symbol, self.data_handler.current_index, 100  # Default lookback
         )
         if not lookback_df.empty:
             market_data["historical"] = lookback_df.to_dict("records")
@@ -283,10 +277,7 @@ class BacktestEngine:
             logger.error(f"Error processing strategy {strategy.name}: {e}")
 
     def _process_signal(
-        self,
-        signal: Dict[str, Any],
-        bar: Bar,
-        strategy: TradingStrategy
+        self, signal: Dict[str, Any], bar: Bar, strategy: TradingStrategy
     ) -> None:
         """Process a trading signal"""
         action = signal.get("action")
@@ -299,19 +290,16 @@ class BacktestEngine:
             return
 
         # Calculate position size
-        position_size = self._calculate_position_size(
-            signal, bar.close, strategy
-        )
+        position_size = self._calculate_position_size(signal, bar.close, strategy)
 
         if position_size <= 0:
             return
 
         # Check position limits
         if action == "buy":
-            current_positions = len([
-                p for p in self.portfolio.positions.values()
-                if p.quantity > 0
-            ])
+            current_positions = len(
+                [p for p in self.portfolio.positions.values() if p.quantity > 0]
+            )
             if current_positions >= self.config.max_positions:
                 logger.debug("Max positions reached, skipping buy signal")
                 return
@@ -337,17 +325,11 @@ class BacktestEngine:
 
         # Submit and execute immediately (market order)
         if self.portfolio.submit_order(order):
-            fill_price = order.get_fill_price(
-                bar.close,
-                self.config.slippage_rate
-            )
+            fill_price = order.get_fill_price(bar.close, self.config.slippage_rate)
             self.portfolio.execute_order(order, fill_price, bar.timestamp)
 
     def _calculate_position_size(
-        self,
-        signal: Dict[str, Any],
-        price: float,
-        strategy: TradingStrategy
+        self, signal: Dict[str, Any], price: float, strategy: TradingStrategy
     ) -> float:
         """Calculate position size based on sizing method"""
         portfolio_value = self.portfolio.total_value
@@ -360,8 +342,7 @@ class BacktestEngine:
         elif self.config.position_sizing == "percent":
             # Use strategy's position percentage
             position_pct = strategy.parameters.get(
-                "base_position_pct",
-                self.config.position_size
+                "base_position_pct", self.config.position_size
             )
             allocation = portfolio_value * position_pct
             return allocation / price
@@ -375,7 +356,9 @@ class BacktestEngine:
             if avg_loss == 0:
                 kelly_fraction = 0
             else:
-                kelly_fraction = (win_rate * avg_win - (1 - win_rate) * avg_loss) / avg_win
+                kelly_fraction = (
+                    win_rate * avg_win - (1 - win_rate) * avg_loss
+                ) / avg_win
 
             # Use half Kelly for safety
             kelly_fraction = max(0, min(kelly_fraction * 0.5, 0.25))
@@ -398,10 +381,7 @@ class BacktestEngine:
 
             # Check if order can be filled
             if order.can_fill_at_price(bar.close, bar.high, bar.low):
-                fill_price = order.get_fill_price(
-                    bar.close,
-                    self.config.slippage_rate
-                )
+                fill_price = order.get_fill_price(bar.close, self.config.slippage_rate)
                 self.portfolio.execute_order(order, fill_price, bar.timestamp)
 
     def _check_exit_conditions(self, bars: Dict[str, Bar]) -> None:
@@ -449,14 +429,11 @@ class BacktestEngine:
 
                 if self.portfolio.submit_order(exit_order):
                     exit_price = (
-                        entry_order.stop_loss if exit_reason == "stop_loss"
+                        entry_order.stop_loss
+                        if exit_reason == "stop_loss"
                         else entry_order.take_profit
                     )
-                    self.portfolio.execute_order(
-                        exit_order,
-                        exit_price,
-                        bar.timestamp
-                    )
+                    self.portfolio.execute_order(exit_order, exit_price, bar.timestamp)
                     logger.debug(
                         f"Exit triggered: {exit_reason} for {symbol} @ {exit_price:.2f}"
                     )
@@ -478,7 +455,7 @@ def run_backtest(
     data: Union[pd.DataFrame, List[Dict], str],
     symbol: str,
     config: Optional[BacktestConfig] = None,
-    **kwargs
+    **kwargs,
 ) -> BacktestResult:
     """
     Convenience function to run a backtest.

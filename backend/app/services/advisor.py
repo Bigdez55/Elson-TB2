@@ -2,6 +2,7 @@
 Base Advisor Service
 Provides base functionality for financial advisory services
 """
+
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -228,9 +229,9 @@ class BasicAdvisorService(AdvisorService):
                 confidence=confidence,
                 risk_level=risk_level,
                 reasoning=reasoning,
-                expected_return=market_trend * 12
-                if market_trend > 0
-                else None,  # Annualized
+                expected_return=(
+                    market_trend * 12 if market_trend > 0 else None
+                ),  # Annualized
                 expected_risk=volatility,
                 time_horizon="medium",
                 created_at=datetime.utcnow(),

@@ -61,14 +61,16 @@ class FinnhubClient(BaseApiClient):
             "previous_close": response.get("pc", 0),  # Previous close
             "change": response.get("c", 0) - response.get("pc", 0),  # Change
             "change_percent": (
-                (response.get("c", 0) - response.get("pc", 0)) / response.get("pc", 1)
-            )
-            * 100
-            if response.get("pc", 0)
-            else 0,
-            "timestamp": datetime.fromtimestamp(response.get("t", 0)).isoformat()
-            if response.get("t", 0)
-            else datetime.now().isoformat(),
+                ((response.get("c", 0) - response.get("pc", 0)) / response.get("pc", 1))
+                * 100
+                if response.get("pc", 0)
+                else 0
+            ),
+            "timestamp": (
+                datetime.fromtimestamp(response.get("t", 0)).isoformat()
+                if response.get("t", 0)
+                else datetime.now().isoformat()
+            ),
         }
 
     async def get_historical_data(
@@ -191,9 +193,11 @@ class FinnhubClient(BaseApiClient):
             "description": response.get("finnhubIndustry"),
             "exchange": response.get("exchange"),
             "industry": response.get("finnhubIndustry"),
-            "market_cap": float(response.get("marketCapitalization", 0)) * 1000000
-            if response.get("marketCapitalization")
-            else 0,
+            "market_cap": (
+                float(response.get("marketCapitalization", 0)) * 1000000
+                if response.get("marketCapitalization")
+                else 0
+            ),
             "outstanding_shares": response.get("shareOutstanding", 0),
             "phone": response.get("phone"),
             "country": response.get("country"),

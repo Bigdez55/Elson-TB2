@@ -7,12 +7,13 @@ using hybrid properties and the envelope encryption system.
 
 import json
 from datetime import datetime
-from typing import Any, Optional, Type, TypeVar, Union, Dict
+from typing import Any, Dict, Optional, Type, TypeVar, Union
+
+from sqlalchemy import String, TypeDecorator
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import TypeDecorator, String
 
-from .encryption import encrypt_sensitive_data, decrypt_sensitive_data
+from .encryption import decrypt_sensitive_data, encrypt_sensitive_data
 
 T = TypeVar("T")
 

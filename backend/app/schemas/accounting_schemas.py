@@ -9,22 +9,23 @@ They do not replace professional accountants or constitute tax advice.
 The AI should NOT perform actual tax calculations or filing instructions.
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Literal
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from .base import BaseSchema
 
-
 # =============================================================================
 # ENUMS
 # =============================================================================
 
+
 class AccountTypeEnum(str, Enum):
     """Standard chart of accounts types"""
+
     # Assets
     ASSET_CASH = "asset_cash"
     ASSET_CHECKING = "asset_checking"
@@ -74,6 +75,7 @@ class AccountTypeEnum(str, Enum):
 
 class TransactionStatusEnum(str, Enum):
     """Transaction reconciliation status"""
+
     PENDING = "pending"
     CLEARED = "cleared"
     RECONCILED = "reconciled"
@@ -82,6 +84,7 @@ class TransactionStatusEnum(str, Enum):
 
 class BudgetCategoryEnum(str, Enum):
     """Budget category types"""
+
     NEEDS = "needs"  # 50% rule
     WANTS = "wants"  # 30% rule
     SAVINGS = "savings"  # 20% rule
@@ -91,6 +94,7 @@ class BudgetCategoryEnum(str, Enum):
 
 class FrequencyEnum(str, Enum):
     """Recurring transaction frequency"""
+
     DAILY = "daily"
     WEEKLY = "weekly"
     BIWEEKLY = "biweekly"
@@ -104,8 +108,10 @@ class FrequencyEnum(str, Enum):
 # SCHEMA 1: LEDGER IMPORT / TRANSACTION CATEGORIZATION
 # =============================================================================
 
+
 class Transaction(BaseSchema):
     """Single financial transaction"""
+
     transaction_id: str
     date: date
     description: str
@@ -123,6 +129,7 @@ class Transaction(BaseSchema):
 
 class CategorySuggestion(BaseSchema):
     """AI-suggested category for a transaction"""
+
     transaction_id: str
     original_description: str
     suggested_category: AccountTypeEnum
@@ -138,6 +145,7 @@ class LedgerImport(BaseSchema):
     Used for: Importing and categorizing bank/credit card transactions
     Compliance: Educational; not for tax filing
     """
+
     # Metadata
     import_id: str
     created_at: datetime
@@ -182,8 +190,10 @@ class LedgerImport(BaseSchema):
 # SCHEMA 2: MONTHLY CLOSE CHECKLIST
 # =============================================================================
 
+
 class CloseCheckItem(BaseSchema):
     """Single item in monthly close checklist"""
+
     item_id: str
     category: str
     task: str
@@ -195,6 +205,7 @@ class CloseCheckItem(BaseSchema):
 
 class AccountBalance(BaseSchema):
     """Account balance for reconciliation"""
+
     account_name: str
     account_type: AccountTypeEnum
     book_balance: Decimal
@@ -211,6 +222,7 @@ class MonthlyCloseChecklist(BaseSchema):
     Used for: Guiding through month-end financial close process
     Compliance: Educational; standard accounting practices
     """
+
     # Metadata
     checklist_id: str
     period: str  # e.g., "2026-01"
@@ -260,8 +272,10 @@ class MonthlyCloseChecklist(BaseSchema):
 # SCHEMA 3: CASH FLOW FORECAST
 # =============================================================================
 
+
 class CashFlowItem(BaseSchema):
     """Single cash flow item (income or expense)"""
+
     item_id: str
     description: str
     amount: Decimal
@@ -276,6 +290,7 @@ class CashFlowItem(BaseSchema):
 
 class CashFlowPeriod(BaseSchema):
     """Cash flow for a single period (week/month)"""
+
     period_start: date
     period_end: date
     beginning_balance: Decimal
@@ -293,6 +308,7 @@ class CashFlowForecast(BaseSchema):
     Used for: Projecting future cash position
     Compliance: Educational projections only
     """
+
     # Metadata
     forecast_id: str
     created_at: datetime
@@ -348,8 +364,10 @@ class CashFlowForecast(BaseSchema):
 # SCHEMA 4: BUDGET PLAN
 # =============================================================================
 
+
 class BudgetLineItem(BaseSchema):
     """Single budget line item"""
+
     line_id: str
     category: str
     subcategory: Optional[str] = None
@@ -365,6 +383,7 @@ class BudgetLineItem(BaseSchema):
 
 class BudgetSummary(BaseSchema):
     """Budget summary by category type"""
+
     category_type: BudgetCategoryEnum
     budgeted: Decimal
     actual: Optional[Decimal] = None
@@ -380,6 +399,7 @@ class BudgetPlan(BaseSchema):
     Used for: Creating and tracking budgets
     Compliance: Educational; personal finance guidance
     """
+
     # Metadata
     budget_id: str
     name: str
@@ -439,8 +459,10 @@ class BudgetPlan(BaseSchema):
 # SCHEMA 5: BUSINESS KPIs
 # =============================================================================
 
+
 class KPIMetric(BaseSchema):
     """Single KPI metric"""
+
     metric_name: str
     current_value: Decimal
     previous_value: Optional[Decimal] = None
@@ -459,6 +481,7 @@ class BusinessKPIs(BaseSchema):
     Used for: Tracking key performance indicators for small businesses
     Compliance: Educational; not professional accounting
     """
+
     # Metadata
     report_id: str
     business_name: str
@@ -503,7 +526,9 @@ class BusinessKPIs(BaseSchema):
 
     # Benchmarks
     industry: Optional[str] = None
-    benchmark_comparisons: Dict[str, Dict[str, Decimal]] = {}  # metric -> {yours, industry_avg}
+    benchmark_comparisons: Dict[str, Dict[str, Decimal]] = (
+        {}
+    )  # metric -> {yours, industry_avg}
 
     # Disclaimers
     disclaimers: List[str] = Field(
@@ -520,8 +545,10 @@ class BusinessKPIs(BaseSchema):
 # GNUCASH IMPORT SCHEMAS
 # =============================================================================
 
+
 class GnuCashAccount(BaseSchema):
     """GnuCash account representation"""
+
     account_id: str
     name: str
     full_name: str  # Including parent hierarchy
@@ -535,6 +562,7 @@ class GnuCashAccount(BaseSchema):
 
 class GnuCashImportResult(BaseSchema):
     """Result of GnuCash file import"""
+
     import_id: str
     file_path: str
     file_type: Literal["xml", "sqlite"]

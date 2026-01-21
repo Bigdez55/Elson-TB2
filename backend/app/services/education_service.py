@@ -4,6 +4,7 @@ Provides a class-based interface to education functionality.
 """
 
 from typing import List, Optional
+
 from sqlalchemy.orm import Session
 
 from app.models.user import User

@@ -1,9 +1,11 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Enum
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 import enum
 
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db.base import Base
+
 # Import canonical SubscriptionPlan from subscription models
 from app.models.subscription import SubscriptionPlan
 
@@ -23,7 +25,9 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
 
     # User role for family accounts
-    role: Column[UserRole] = Column(Enum(UserRole), default=UserRole.ADULT, nullable=False)
+    role: Column[UserRole] = Column(
+        Enum(UserRole), default=UserRole.ADULT, nullable=False
+    )
 
     # Birthdate for age verification (stored as string for now)
     birthdate = Column(String(255), nullable=True)
@@ -55,7 +59,9 @@ class User(Base):
     last_login = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    portfolios = relationship("Portfolio", back_populates="owner", foreign_keys="[Portfolio.owner_id]")
+    portfolios = relationship(
+        "Portfolio", back_populates="owner", foreign_keys="[Portfolio.owner_id]"
+    )
     # accounts = relationship(
     #     "Account", foreign_keys="Account.user_id", back_populates="user"
     # )
@@ -66,14 +72,36 @@ class User(Base):
     subscriptions = relationship("Subscription", back_populates="user")
 
     # Security relationships
-    devices = relationship("Device", back_populates="user", cascade="all, delete-orphan")
-    sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
-    two_factor_config = relationship("TwoFactorConfig", back_populates="user", uselist=False, cascade="all, delete-orphan")
-    security_settings = relationship("SecuritySettings", back_populates="user", uselist=False, cascade="all, delete-orphan")
-    security_alerts = relationship("SecurityAlert", back_populates="user", cascade="all, delete-orphan")
-    login_history = relationship("LoginHistory", back_populates="user", cascade="all, delete-orphan")
-    security_audit_logs = relationship("SecurityAuditLog", back_populates="user", cascade="all, delete-orphan")
-    webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
+    devices = relationship(
+        "Device", back_populates="user", cascade="all, delete-orphan"
+    )
+    sessions = relationship(
+        "Session", back_populates="user", cascade="all, delete-orphan"
+    )
+    two_factor_config = relationship(
+        "TwoFactorConfig",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    security_settings = relationship(
+        "SecuritySettings",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    security_alerts = relationship(
+        "SecurityAlert", back_populates="user", cascade="all, delete-orphan"
+    )
+    login_history = relationship(
+        "LoginHistory", back_populates="user", cascade="all, delete-orphan"
+    )
+    security_audit_logs = relationship(
+        "SecurityAuditLog", back_populates="user", cascade="all, delete-orphan"
+    )
+    webauthn_credentials = relationship(
+        "WebAuthnCredential", back_populates="user", cascade="all, delete-orphan"
+    )
 
     # Educational and permissions relationships
     educational_progress = relationship(

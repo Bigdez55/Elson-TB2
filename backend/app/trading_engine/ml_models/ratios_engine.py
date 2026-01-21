@@ -13,14 +13,16 @@ Integrates with existing ELSON trading platform to provide:
 """
 
 import logging
-import pandas as pd
-import numpy as np
-from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
+import pandas as pd
 
 # FinanceToolkit import
 try:
     from financetoolkit import Toolkit
+
     FINANCETOOLKIT_AVAILABLE = True
 except ImportError:
     FINANCETOOLKIT_AVAILABLE = False
@@ -44,7 +46,7 @@ class ElsonFinancialRatios:
         symbols: Union[str, List[str]],
         api_key: Optional[str] = None,
         start_date: Optional[str] = None,
-        end_date: Optional[str] = None
+        end_date: Optional[str] = None,
     ):
         """
         Initialize the financial ratios engine
@@ -57,13 +59,17 @@ class ElsonFinancialRatios:
         """
         self.symbols = [symbols] if isinstance(symbols, str) else symbols
         self.api_key = api_key
-        self.start_date = start_date or (datetime.now() - timedelta(days=365*5)).strftime('%Y-%m-%d')
-        self.end_date = end_date or datetime.now().strftime('%Y-%m-%d')
+        self.start_date = start_date or (
+            datetime.now() - timedelta(days=365 * 5)
+        ).strftime("%Y-%m-%d")
+        self.end_date = end_date or datetime.now().strftime("%Y-%m-%d")
         self.available = FINANCETOOLKIT_AVAILABLE
         self.toolkit = None
 
         if not self.available:
-            logger.warning("FinanceToolkit not installed. Install with: pip install financetoolkit")
+            logger.warning(
+                "FinanceToolkit not installed. Install with: pip install financetoolkit"
+            )
             return
 
         self._initialize_toolkit()
@@ -79,7 +85,7 @@ class ElsonFinancialRatios:
                 api_key=self.api_key,
                 start_date=self.start_date,
                 end_date=self.end_date,
-                quarterly=False
+                quarterly=False,
             )
             logger.info(f"FinanceToolkit initialized for {len(self.symbols)} symbol(s)")
         except Exception as e:
@@ -107,38 +113,40 @@ class ElsonFinancialRatios:
         try:
             # Profitability Ratios
             try:
-                ratios['profitability'] = self.toolkit.ratios.collect_profitability_ratios()
+                ratios["profitability"] = (
+                    self.toolkit.ratios.collect_profitability_ratios()
+                )
             except Exception as e:
                 logger.warning(f"Could not fetch profitability ratios: {str(e)}")
-                ratios['profitability'] = pd.DataFrame()
+                ratios["profitability"] = pd.DataFrame()
 
             # Liquidity Ratios
             try:
-                ratios['liquidity'] = self.toolkit.ratios.collect_liquidity_ratios()
+                ratios["liquidity"] = self.toolkit.ratios.collect_liquidity_ratios()
             except Exception as e:
                 logger.warning(f"Could not fetch liquidity ratios: {str(e)}")
-                ratios['liquidity'] = pd.DataFrame()
+                ratios["liquidity"] = pd.DataFrame()
 
             # Solvency Ratios
             try:
-                ratios['solvency'] = self.toolkit.ratios.collect_solvency_ratios()
+                ratios["solvency"] = self.toolkit.ratios.collect_solvency_ratios()
             except Exception as e:
                 logger.warning(f"Could not fetch solvency ratios: {str(e)}")
-                ratios['solvency'] = pd.DataFrame()
+                ratios["solvency"] = pd.DataFrame()
 
             # Efficiency Ratios
             try:
-                ratios['efficiency'] = self.toolkit.ratios.collect_efficiency_ratios()
+                ratios["efficiency"] = self.toolkit.ratios.collect_efficiency_ratios()
             except Exception as e:
                 logger.warning(f"Could not fetch efficiency ratios: {str(e)}")
-                ratios['efficiency'] = pd.DataFrame()
+                ratios["efficiency"] = pd.DataFrame()
 
             # Valuation Ratios
             try:
-                ratios['valuation'] = self.toolkit.ratios.collect_valuation_ratios()
+                ratios["valuation"] = self.toolkit.ratios.collect_valuation_ratios()
             except Exception as e:
                 logger.warning(f"Could not fetch valuation ratios: {str(e)}")
-                ratios['valuation'] = pd.DataFrame()
+                ratios["valuation"] = pd.DataFrame()
 
         except Exception as e:
             logger.error(f"Error collecting ratios: {str(e)}")
@@ -148,11 +156,11 @@ class ElsonFinancialRatios:
     def _get_fallback_ratios(self) -> Dict[str, pd.DataFrame]:
         """Return empty DataFrames when FinanceToolkit is not available"""
         return {
-            'profitability': pd.DataFrame(),
-            'liquidity': pd.DataFrame(),
-            'solvency': pd.DataFrame(),
-            'efficiency': pd.DataFrame(),
-            'valuation': pd.DataFrame()
+            "profitability": pd.DataFrame(),
+            "liquidity": pd.DataFrame(),
+            "solvency": pd.DataFrame(),
+            "efficiency": pd.DataFrame(),
+            "valuation": pd.DataFrame(),
         }
 
     def get_profitability_ratios(self) -> pd.DataFrame:
@@ -306,25 +314,29 @@ class ElsonFinancialRatios:
         try:
             # Altman Z-Score (bankruptcy prediction)
             try:
-                models['altman_z_score'] = self.toolkit.models.get_altman_z_score()
+                models["altman_z_score"] = self.toolkit.models.get_altman_z_score()
             except Exception as e:
                 logger.warning(f"Could not calculate Altman Z-Score: {str(e)}")
 
             # Piotroski F-Score (financial health)
             try:
-                models['piotroski_score'] = self.toolkit.models.get_piotroski_score()
+                models["piotroski_score"] = self.toolkit.models.get_piotroski_score()
             except Exception as e:
                 logger.warning(f"Could not calculate Piotroski Score: {str(e)}")
 
             # Extended DuPont Analysis
             try:
-                models['dupont_analysis'] = self.toolkit.models.get_extended_dupont_analysis()
+                models["dupont_analysis"] = (
+                    self.toolkit.models.get_extended_dupont_analysis()
+                )
             except Exception as e:
                 logger.warning(f"Could not calculate DuPont Analysis: {str(e)}")
 
             # WACC
             try:
-                models['wacc'] = self.toolkit.models.get_weighted_average_cost_of_capital()
+                models["wacc"] = (
+                    self.toolkit.models.get_weighted_average_cost_of_capital()
+                )
             except Exception as e:
                 logger.warning(f"Could not calculate WACC: {str(e)}")
 
@@ -344,7 +356,7 @@ class ElsonFinancialRatios:
             Dictionary with scoring components and overall score
         """
         if not self.available or self.toolkit is None:
-            return {'overall_score': 0, 'available': False}
+            return {"overall_score": 0, "available": False}
 
         target_symbol = symbol or self.symbols[0]
 
@@ -356,10 +368,10 @@ class ElsonFinancialRatios:
                 piotroski = self.toolkit.models.get_piotroski_score()
                 if target_symbol in piotroski.index:
                     latest_score = piotroski.loc[target_symbol].iloc[-1]
-                    score_components['piotroski'] = {
-                        'value': float(latest_score) if pd.notna(latest_score) else 0,
-                        'max': 9,
-                        'interpretation': 'Financial health (higher is better)'
+                    score_components["piotroski"] = {
+                        "value": float(latest_score) if pd.notna(latest_score) else 0,
+                        "max": 9,
+                        "interpretation": "Financial health (higher is better)",
                     }
             except Exception:
                 pass
@@ -369,24 +381,24 @@ class ElsonFinancialRatios:
                 altman = self.toolkit.models.get_altman_z_score()
                 if target_symbol in altman.index:
                     latest_z = altman.loc[target_symbol].iloc[-1]
-                    score_components['altman_z'] = {
-                        'value': float(latest_z) if pd.notna(latest_z) else 0,
-                        'safe_zone': '>2.99',
-                        'grey_zone': '1.81-2.99',
-                        'distress_zone': '<1.81',
-                        'interpretation': 'Bankruptcy risk (higher is safer)'
+                    score_components["altman_z"] = {
+                        "value": float(latest_z) if pd.notna(latest_z) else 0,
+                        "safe_zone": ">2.99",
+                        "grey_zone": "1.81-2.99",
+                        "distress_zone": "<1.81",
+                        "interpretation": "Bankruptcy risk (higher is safer)",
                     }
             except Exception:
                 pass
 
             # Calculate overall score (normalized 0-100)
             overall = 50  # Default neutral score
-            if 'piotroski' in score_components:
+            if "piotroski" in score_components:
                 # Piotroski contributes 50% of score
-                overall = (score_components['piotroski']['value'] / 9) * 50
+                overall = (score_components["piotroski"]["value"] / 9) * 50
 
-            if 'altman_z' in score_components:
-                z = score_components['altman_z']['value']
+            if "altman_z" in score_components:
+                z = score_components["altman_z"]["value"]
                 # Altman Z contributes 50% of score
                 if z > 2.99:
                     overall += 50
@@ -395,15 +407,15 @@ class ElsonFinancialRatios:
                 # else: adds 0
 
             return {
-                'symbol': target_symbol,
-                'overall_score': round(overall, 2),
-                'components': score_components,
-                'timestamp': datetime.now().isoformat()
+                "symbol": target_symbol,
+                "overall_score": round(overall, 2),
+                "components": score_components,
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
             logger.error(f"Error calculating company score: {str(e)}")
-            return {'symbol': target_symbol, 'overall_score': 0, 'error': str(e)}
+            return {"symbol": target_symbol, "overall_score": 0, "error": str(e)}
 
     def compare_companies(self, metrics: List[str] = None) -> pd.DataFrame:
         """
@@ -420,23 +432,25 @@ class ElsonFinancialRatios:
 
         if metrics is None:
             metrics = [
-                'Return on Equity',
-                'Net Profit Margin',
-                'Current Ratio',
-                'Debt to Equity Ratio',
-                'Price to Earnings Ratio'
+                "Return on Equity",
+                "Net Profit Margin",
+                "Current Ratio",
+                "Debt to Equity Ratio",
+                "Price to Earnings Ratio",
             ]
 
         try:
             all_ratios = self.get_all_ratios()
 
             # Combine all ratio DataFrames
-            combined = pd.concat([
-                all_ratios['profitability'],
-                all_ratios['liquidity'],
-                all_ratios['solvency'],
-                all_ratios['valuation']
-            ])
+            combined = pd.concat(
+                [
+                    all_ratios["profitability"],
+                    all_ratios["liquidity"],
+                    all_ratios["solvency"],
+                    all_ratios["valuation"],
+                ]
+            )
 
             # Filter to selected metrics
             if not combined.empty:
@@ -465,10 +479,22 @@ def quick_ratio_analysis(symbol: str, api_key: Optional[str] = None) -> Dict[str
     ratios = ElsonFinancialRatios(symbol, api_key=api_key)
 
     return {
-        'symbol': symbol,
-        'profitability': ratios.get_profitability_ratios().to_dict() if not ratios.get_profitability_ratios().empty else {},
-        'valuation': ratios.get_valuation_ratios().to_dict() if not ratios.get_valuation_ratios().empty else {},
-        'risk': ratios.get_risk_metrics().to_dict() if not ratios.get_risk_metrics().empty else {},
-        'models': ratios.get_financial_models(),
-        'score': ratios.get_company_score()
+        "symbol": symbol,
+        "profitability": (
+            ratios.get_profitability_ratios().to_dict()
+            if not ratios.get_profitability_ratios().empty
+            else {}
+        ),
+        "valuation": (
+            ratios.get_valuation_ratios().to_dict()
+            if not ratios.get_valuation_ratios().empty
+            else {}
+        ),
+        "risk": (
+            ratios.get_risk_metrics().to_dict()
+            if not ratios.get_risk_metrics().empty
+            else {}
+        ),
+        "models": ratios.get_financial_models(),
+        "score": ratios.get_company_score(),
     }

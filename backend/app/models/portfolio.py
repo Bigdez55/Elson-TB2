@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Optional, Dict
 import enum
 import logging
+from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import Dict, Optional
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -15,9 +16,8 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
-    JSON,
 )
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import Session, relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class RiskProfile(str, enum.Enum):
     """Portfolio risk profile levels"""
+
     CONSERVATIVE = "conservative"
     MODERATE = "moderate"
     AGGRESSIVE = "aggressive"
@@ -34,6 +35,7 @@ class RiskProfile(str, enum.Enum):
 
 class PortfolioType(str, enum.Enum):
     """Portfolio type classifications"""
+
     STANDARD = "standard"
     CUSTODIAL = "custodial"
     RETIREMENT = "retirement"
@@ -59,9 +61,15 @@ class Portfolio(Base):
     rebalance_threshold = Column(Float, default=0.05)  # 5% deviation threshold
 
     # Portfolio type and risk configuration
-    portfolio_type = Column(Enum(PortfolioType), default=PortfolioType.STANDARD, nullable=False)
-    risk_profile = Column(Enum(RiskProfile), default=RiskProfile.MODERATE, nullable=False)
-    max_position_concentration = Column(Float, default=20.0)  # Max % of portfolio in single position
+    portfolio_type = Column(
+        Enum(PortfolioType), default=PortfolioType.STANDARD, nullable=False
+    )
+    risk_profile = Column(
+        Enum(RiskProfile), default=RiskProfile.MODERATE, nullable=False
+    )
+    max_position_concentration = Column(
+        Float, default=20.0
+    )  # Max % of portfolio in single position
 
     # Performance tracking
     daily_return = Column(Float, default=0.0)
@@ -74,7 +82,9 @@ class Portfolio(Base):
 
     # Ownership
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Alias for owner_id compatibility
+    user_id = Column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )  # Alias for owner_id compatibility
 
     # Account relationship for family accounts (temporarily commented out)
     # account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
@@ -115,11 +125,15 @@ class Portfolio(Base):
             day_start = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
 
             # Get all trades for this portfolio today
-            today_trades = session.query(Trade).filter(
-                Trade.portfolio_id == self.id,
-                Trade.status == TradeStatus.FILLED,
-                Trade.created_at >= day_start
-            ).all()
+            today_trades = (
+                session.query(Trade)
+                .filter(
+                    Trade.portfolio_id == self.id,
+                    Trade.status == TradeStatus.FILLED,
+                    Trade.created_at >= day_start,
+                )
+                .all()
+            )
 
             # Calculate P&L for today
             daily_pnl = 0
@@ -142,7 +156,9 @@ class Portfolio(Base):
             logger.error(f"Error calculating daily drawdown: {str(e)}")
             return Decimal("0")
 
-    def daily_loss_limit_reached(self, session: Optional[Session] = None, limit: Optional[Decimal] = None) -> bool:
+    def daily_loss_limit_reached(
+        self, session: Optional[Session] = None, limit: Optional[Decimal] = None
+    ) -> bool:
         """
         Check if the daily loss limit has been reached.
 
@@ -182,13 +198,16 @@ class Portfolio(Base):
                 from app.models.trade import Trade
 
                 # Define today
-                today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+                today = datetime.utcnow().replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
 
                 # Count trades from today
-                trade_count = session.query(Trade).filter(
-                    Trade.portfolio_id == self.id,
-                    Trade.created_at >= today
-                ).count()
+                trade_count = (
+                    session.query(Trade)
+                    .filter(Trade.portfolio_id == self.id, Trade.created_at >= today)
+                    .count()
+                )
 
                 return trade_count
             else:
@@ -220,18 +239,33 @@ class Portfolio(Base):
             # Map of symbols to sectors (simplified example)
             sector_map = {
                 # Technology
-                "AAPL": "Technology", "MSFT": "Technology", "GOOGL": "Technology",
-                "GOOG": "Technology", "NVDA": "Technology", "META": "Technology",
+                "AAPL": "Technology",
+                "MSFT": "Technology",
+                "GOOGL": "Technology",
+                "GOOG": "Technology",
+                "NVDA": "Technology",
+                "META": "Technology",
                 # Financial
-                "JPM": "Financial", "BAC": "Financial", "WFC": "Financial",
-                "GS": "Financial", "MS": "Financial", "C": "Financial",
+                "JPM": "Financial",
+                "BAC": "Financial",
+                "WFC": "Financial",
+                "GS": "Financial",
+                "MS": "Financial",
+                "C": "Financial",
                 # Energy
-                "XOM": "Energy", "CVX": "Energy", "COP": "Energy",
+                "XOM": "Energy",
+                "CVX": "Energy",
+                "COP": "Energy",
                 # Healthcare
-                "JNJ": "Healthcare", "PFE": "Healthcare", "MRK": "Healthcare",
-                "UNH": "Healthcare", "ABBV": "Healthcare",
+                "JNJ": "Healthcare",
+                "PFE": "Healthcare",
+                "MRK": "Healthcare",
+                "UNH": "Healthcare",
+                "ABBV": "Healthcare",
                 # Consumer
-                "AMZN": "Consumer", "TSLA": "Consumer", "WMT": "Consumer",
+                "AMZN": "Consumer",
+                "TSLA": "Consumer",
+                "WMT": "Consumer",
             }
 
             # Group holdings by sector
@@ -241,7 +275,9 @@ class Portfolio(Base):
                 sector = sector_map.get(symbol, "Other")
 
                 # Calculate position value
-                position_value = Decimal(str(holding.quantity)) * Decimal(str(holding.current_price or 0))
+                position_value = Decimal(str(holding.quantity)) * Decimal(
+                    str(holding.current_price or 0)
+                )
 
                 if sector not in sectors:
                     sectors[sector] = position_value
@@ -249,7 +285,9 @@ class Portfolio(Base):
                     sectors[sector] += position_value
 
             # Calculate percentages
-            total_value = Decimal(str(self.total_value)) if self.total_value else Decimal("0")
+            total_value = (
+                Decimal(str(self.total_value)) if self.total_value else Decimal("0")
+            )
             if total_value == 0:
                 return {}
 
@@ -280,8 +318,12 @@ class Portfolio(Base):
 
         # Check against concentration limit
         if self.total_value and self.total_value > 0:
-            concentration_percent = (total_position_value / Decimal(str(self.total_value))) * 100
-            return concentration_percent <= Decimal(str(self.max_position_concentration))
+            concentration_percent = (
+                total_position_value / Decimal(str(self.total_value))
+            ) * 100
+            return concentration_percent <= Decimal(
+                str(self.max_position_concentration)
+            )
 
         return True
 
@@ -290,7 +332,9 @@ class Portfolio(Base):
         self.last_valued_at = datetime.utcnow()
 
         # Calculate total portfolio value from holdings
-        total_value = Decimal(str(self.cash_balance)) if self.cash_balance else Decimal("0")
+        total_value = (
+            Decimal(str(self.cash_balance)) if self.cash_balance else Decimal("0")
+        )
         for holding in self.holdings:
             if holding.market_value:
                 total_value += Decimal(str(holding.market_value))
@@ -304,11 +348,15 @@ class Portfolio(Base):
 
         for holding in self.holdings:
             if holding.market_value:
-                position_percent = (Decimal(str(holding.market_value)) / Decimal(str(self.total_value))) * 100
+                position_percent = (
+                    Decimal(str(holding.market_value)) / Decimal(str(self.total_value))
+                ) * 100
                 # If any position has drifted more than threshold, rebalancing needed
                 holding_count = len(self.holdings) if self.holdings else 1
                 target_percent = Decimal("100") / Decimal(str(holding_count))
-                if abs(position_percent - target_percent) > Decimal(str(self.rebalance_threshold * 100)):
+                if abs(position_percent - target_percent) > Decimal(
+                    str(self.rebalance_threshold * 100)
+                ):
                     return True
 
         return False

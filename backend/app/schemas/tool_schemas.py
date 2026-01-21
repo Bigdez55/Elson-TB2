@@ -5,22 +5,23 @@ These schemas define the input/output contracts for tool calls,
 enabling the model to make auditable, grounded financial queries.
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any, Literal
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from .base import BaseSchema
 
-
 # =============================================================================
 # ENUMS
 # =============================================================================
 
+
 class TimeframeEnum(str, Enum):
     """Supported timeframes for historical data"""
+
     MINUTE_1 = "1m"
     MINUTE_5 = "5m"
     MINUTE_15 = "15m"
@@ -34,6 +35,7 @@ class TimeframeEnum(str, Enum):
 
 class RatioCategoryEnum(str, Enum):
     """FinanceToolkit ratio categories"""
+
     PROFITABILITY = "profitability"
     LIQUIDITY = "liquidity"
     SOLVENCY = "solvency"
@@ -45,6 +47,7 @@ class RatioCategoryEnum(str, Enum):
 
 class MacroSeriesEnum(str, Enum):
     """Supported macroeconomic data series"""
+
     GDP = "gdp"
     INFLATION = "inflation"
     UNEMPLOYMENT = "unemployment"
@@ -59,13 +62,16 @@ class MacroSeriesEnum(str, Enum):
 # OPENBB TOOL SCHEMAS
 # =============================================================================
 
+
 class QuoteRequest(BaseSchema):
     """Request schema for real-time quote"""
+
     symbol: str = Field(..., description="Ticker symbol (e.g., AAPL, MSFT)")
 
 
 class QuoteResponse(BaseSchema):
     """Response schema for real-time quote"""
+
     symbol: str
     price: Decimal
     open: Decimal
@@ -90,6 +96,7 @@ class QuoteResponse(BaseSchema):
 
 class OHLCVRequest(BaseSchema):
     """Request schema for historical OHLCV data"""
+
     symbol: str = Field(..., description="Ticker symbol")
     start_date: Optional[date] = Field(None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[date] = Field(None, description="End date (YYYY-MM-DD)")
@@ -99,6 +106,7 @@ class OHLCVRequest(BaseSchema):
 
 class OHLCVBar(BaseSchema):
     """Single OHLCV bar"""
+
     timestamp: datetime
     open: Decimal
     high: Decimal
@@ -110,6 +118,7 @@ class OHLCVBar(BaseSchema):
 
 class OHLCVResponse(BaseSchema):
     """Response schema for historical OHLCV data"""
+
     symbol: str
     timeframe: str
     bars: List[OHLCVBar]
@@ -121,11 +130,13 @@ class OHLCVResponse(BaseSchema):
 
 class FundamentalsRequest(BaseSchema):
     """Request schema for company fundamentals"""
+
     symbol: str = Field(..., description="Ticker symbol")
 
 
 class FundamentalsResponse(BaseSchema):
     """Response schema for company fundamentals overview"""
+
     symbol: str
     name: str
     sector: Optional[str] = None
@@ -172,12 +183,14 @@ class FundamentalsResponse(BaseSchema):
 
 class NewsRequest(BaseSchema):
     """Request schema for company news"""
+
     symbol: str = Field(..., description="Ticker symbol")
     limit: int = Field(10, ge=1, le=50, description="Number of headlines")
 
 
 class NewsItem(BaseSchema):
     """Single news item"""
+
     title: str
     url: str
     source: str
@@ -188,6 +201,7 @@ class NewsItem(BaseSchema):
 
 class NewsResponse(BaseSchema):
     """Response schema for company news"""
+
     symbol: str
     headlines: List[NewsItem]
     total_results: int
@@ -196,6 +210,7 @@ class NewsResponse(BaseSchema):
 
 class MacroRequest(BaseSchema):
     """Request schema for macroeconomic data"""
+
     series: MacroSeriesEnum = Field(..., description="Economic data series")
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -204,6 +219,7 @@ class MacroRequest(BaseSchema):
 
 class MacroDataPoint(BaseSchema):
     """Single macro data point"""
+
     date: date
     value: Decimal
     period: Optional[str] = None  # e.g., "Q1 2026", "Jan 2026"
@@ -211,6 +227,7 @@ class MacroDataPoint(BaseSchema):
 
 class MacroResponse(BaseSchema):
     """Response schema for macroeconomic data"""
+
     series: str
     country: str
     unit: str  # e.g., "percent", "billions USD"
@@ -224,8 +241,10 @@ class MacroResponse(BaseSchema):
 # FINANCETOOLKIT SCHEMAS
 # =============================================================================
 
+
 class FinancialStatementsRequest(BaseSchema):
     """Request schema for financial statements"""
+
     symbol: str = Field(..., description="Ticker symbol")
     period: Literal["annual", "quarterly"] = Field("annual")
     limit: int = Field(5, ge=1, le=10, description="Number of periods")
@@ -233,6 +252,7 @@ class FinancialStatementsRequest(BaseSchema):
 
 class IncomeStatement(BaseSchema):
     """Income statement data"""
+
     period_end: date
     revenue: Decimal
     cost_of_revenue: Decimal
@@ -250,6 +270,7 @@ class IncomeStatement(BaseSchema):
 
 class BalanceSheet(BaseSchema):
     """Balance sheet data"""
+
     period_end: date
     # Assets
     cash_and_equivalents: Decimal
@@ -275,6 +296,7 @@ class BalanceSheet(BaseSchema):
 
 class CashFlowStatement(BaseSchema):
     """Cash flow statement data"""
+
     period_end: date
     # Operating
     net_income: Decimal
@@ -301,6 +323,7 @@ class CashFlowStatement(BaseSchema):
 
 class FinancialStatementsResponse(BaseSchema):
     """Response schema for financial statements"""
+
     symbol: str
     period: str
     income_statements: List[IncomeStatement]
@@ -312,12 +335,14 @@ class FinancialStatementsResponse(BaseSchema):
 
 class RatioSummaryRequest(BaseSchema):
     """Request schema for ratio summary"""
+
     symbol: str = Field(..., description="Ticker symbol")
     period: Literal["annual", "quarterly"] = Field("annual")
 
 
 class RatioValue(BaseSchema):
     """Single ratio with metadata"""
+
     name: str
     value: Decimal
     formula: str
@@ -327,12 +352,14 @@ class RatioValue(BaseSchema):
 
 class RatioCategory(BaseSchema):
     """Category of ratios"""
+
     category: RatioCategoryEnum
     ratios: List[RatioValue]
 
 
 class RatioSummaryResponse(BaseSchema):
     """Response schema for ratio summary"""
+
     symbol: str
     period: str
     period_end: date
@@ -342,6 +369,7 @@ class RatioSummaryResponse(BaseSchema):
 
 class RatioCategoryRequest(BaseSchema):
     """Request schema for single ratio category"""
+
     symbol: str = Field(..., description="Ticker symbol")
     category: RatioCategoryEnum = Field(..., description="Ratio category")
     period: Literal["annual", "quarterly"] = Field("annual")
@@ -350,6 +378,7 @@ class RatioCategoryRequest(BaseSchema):
 
 class RatioCategoryResponse(BaseSchema):
     """Response schema for ratio category detail with trends"""
+
     symbol: str
     category: RatioCategoryEnum
     periods: List[date]
@@ -360,6 +389,7 @@ class RatioCategoryResponse(BaseSchema):
 
 class RatioCompareRequest(BaseSchema):
     """Request schema for multi-ticker comparison"""
+
     symbols: List[str] = Field(..., min_length=2, max_length=10)
     category: RatioCategoryEnum = Field(RatioCategoryEnum.ALL)
     period: Literal["annual", "quarterly"] = Field("annual")
@@ -367,6 +397,7 @@ class RatioCompareRequest(BaseSchema):
 
 class RatioCompareResponse(BaseSchema):
     """Response schema for multi-ticker ratio comparison"""
+
     symbols: List[str]
     category: str
     period_end: date
@@ -379,8 +410,10 @@ class RatioCompareResponse(BaseSchema):
 # TOOL CALL WRAPPER (for model output)
 # =============================================================================
 
+
 class ToolCall(BaseSchema):
     """Schema for model-generated tool calls"""
+
     tool: Literal[
         "openbb_quote",
         "openbb_ohlcv",
@@ -390,13 +423,14 @@ class ToolCall(BaseSchema):
         "financetoolkit_statements",
         "financetoolkit_ratios",
         "financetoolkit_category",
-        "financetoolkit_compare"
+        "financetoolkit_compare",
     ]
     params: Dict[str, Any]
 
 
 class ToolResponse(BaseSchema):
     """Wrapper for tool responses with provenance"""
+
     tool: str
     request_params: Dict[str, Any]
     response: Dict[str, Any]

@@ -15,18 +15,18 @@ Copyright (c) 2024 Elson Wealth. All rights reserved.
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
 from .inference.base_client import BaseInferenceClient, GenerationConfig
 from .prompts.trading_prompts import (
-    TradingPromptBuilder,
     MarketContext,
-    TechnicalIndicators,
-    SentimentData,
     MLPrediction,
+    SentimentData,
+    TechnicalIndicators,
+    TradingPromptBuilder,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 class TradingAction(Enum):
     """Trading action types."""
+
     STRONG_BUY = "STRONG_BUY"
     BUY = "BUY"
     HOLD = "HOLD"
@@ -60,6 +61,7 @@ class TradingDecision:
         ml_confidence: ML model confidence
         sentiment_score: Aggregate sentiment score
     """
+
     symbol: str
     action: TradingAction
     confidence: float
@@ -88,8 +90,8 @@ class TradingDecision:
             "component_scores": {
                 "llm": self.llm_confidence,
                 "ml": self.ml_confidence,
-                "sentiment": self.sentiment_score
-            }
+                "sentiment": self.sentiment_score,
+            },
         }
 
     @property
@@ -128,9 +130,9 @@ class ElsonFinanceEnsemble:
 
     # Default ensemble weights
     DEFAULT_WEIGHTS = {
-        "llm": 0.40,      # Elson-Finance LLM
-        "ml": 0.35,       # Hybrid ML models
-        "sentiment": 0.25  # Sentiment analysis
+        "llm": 0.40,  # Elson-Finance LLM
+        "ml": 0.35,  # Hybrid ML models
+        "sentiment": 0.25,  # Sentiment analysis
     }
 
     def __init__(
@@ -138,7 +140,7 @@ class ElsonFinanceEnsemble:
         llm_client: BaseInferenceClient,
         hybrid_model: Optional[Any] = None,
         sentiment_analyzer: Optional[Any] = None,
-        weights: Optional[Dict[str, float]] = None
+        weights: Optional[Dict[str, float]] = None,
     ):
         """
         Initialize ElsonFinanceEnsemble.
@@ -158,9 +160,7 @@ class ElsonFinanceEnsemble:
         total = sum(self.weights.values())
         self.weights = {k: v / total for k, v in self.weights.items()}
 
-        logger.info(
-            f"ElsonFinanceEnsemble initialized with weights: {self.weights}"
-        )
+        logger.info(f"ElsonFinanceEnsemble initialized with weights: {self.weights}")
 
     async def generate_trading_decision(
         self,
@@ -168,7 +168,7 @@ class ElsonFinanceEnsemble:
         market_data: pd.DataFrame,
         news: List[str],
         portfolio_context: Optional[Dict[str, Any]] = None,
-        config: Optional[GenerationConfig] = None
+        config: Optional[GenerationConfig] = None,
     ) -> TradingDecision:
         """
         Generate a comprehensive trading decision.
@@ -197,8 +197,7 @@ class ElsonFinanceEnsemble:
 
         # Step 5: Query LLM for reasoning
         llm_response = await self._query_llm(
-            market, technicals, sentiment, ml_prediction,
-            portfolio_context, config
+            market, technicals, sentiment, ml_prediction, portfolio_context, config
         )
 
         # Step 6: Combine signals
@@ -219,7 +218,7 @@ class ElsonFinanceEnsemble:
         price: float,
         rsi: float,
         macd_bullish: bool,
-        sentiment_score: float = 0.0
+        sentiment_score: float = 0.0,
     ) -> TradingDecision:
         """
         Generate a quick trading signal with minimal data.
@@ -242,7 +241,7 @@ class ElsonFinanceEnsemble:
             macd_bullish=macd_bullish,
             sentiment_score=sentiment_score,
             ml_direction="UP" if macd_bullish else "DOWN",
-            ml_confidence=0.6
+            ml_confidence=0.6,
         )
 
         # Query LLM
@@ -258,14 +257,10 @@ class ElsonFinanceEnsemble:
             entry_price=price,
             stop_loss=price * (1 - parsed.get("stop_loss_pct", 5) / 100),
             reasoning=parsed.get("reasoning", response.text),
-            llm_confidence=response.confidence or parsed["confidence"]
+            llm_confidence=response.confidence or parsed["confidence"],
         )
 
-    def _extract_market_context(
-        self,
-        symbol: str,
-        df: pd.DataFrame
-    ) -> MarketContext:
+    def _extract_market_context(self, symbol: str, df: pd.DataFrame) -> MarketContext:
         """Extract market context from DataFrame."""
         latest = df.iloc[-1]
         prev = df.iloc[-2] if len(df) > 1 else latest
@@ -273,14 +268,23 @@ class ElsonFinanceEnsemble:
         return MarketContext(
             symbol=symbol,
             current_price=float(latest.get("close", latest.get("Close", 0))),
-            price_change_pct=float(
-                (latest.get("close", 0) - prev.get("close", 0)) /
-                prev.get("close", 1) * 100
-            ) if prev.get("close", 0) > 0 else 0,
+            price_change_pct=(
+                float(
+                    (latest.get("close", 0) - prev.get("close", 0))
+                    / prev.get("close", 1)
+                    * 100
+                )
+                if prev.get("close", 0) > 0
+                else 0
+            ),
             volume=int(latest.get("volume", latest.get("Volume", 0))),
-            avg_volume=int(df["volume"].mean() if "volume" in df else df.get("Volume", pd.Series([0])).mean()),
+            avg_volume=int(
+                df["volume"].mean()
+                if "volume" in df
+                else df.get("Volume", pd.Series([0])).mean()
+            ),
             sector=latest.get("sector"),
-            beta=latest.get("beta")
+            beta=latest.get("beta"),
         )
 
     def _extract_technicals(self, df: pd.DataFrame) -> TechnicalIndicators:
@@ -291,28 +295,32 @@ class ElsonFinanceEnsemble:
             rsi=float(latest.get("rsi", latest.get("RSI", 50))),
             macd=float(latest.get("macd", latest.get("MACD", 0))),
             macd_signal=float(latest.get("macd_signal", latest.get("MACD_Signal", 0))),
-            sma_20=float(latest.get("sma_20", latest.get("SMA_20", latest.get("close", 0)))),
-            sma_50=float(latest.get("sma_50", latest.get("SMA_50", latest.get("close", 0)))),
-            sma_200=float(latest.get("sma_200", latest.get("SMA_200", latest.get("close", 0)))),
-            bollinger_upper=float(latest.get("bb_upper", latest.get("close", 0) * 1.02)),
-            bollinger_lower=float(latest.get("bb_lower", latest.get("close", 0) * 0.98)),
+            sma_20=float(
+                latest.get("sma_20", latest.get("SMA_20", latest.get("close", 0)))
+            ),
+            sma_50=float(
+                latest.get("sma_50", latest.get("SMA_50", latest.get("close", 0)))
+            ),
+            sma_200=float(
+                latest.get("sma_200", latest.get("SMA_200", latest.get("close", 0)))
+            ),
+            bollinger_upper=float(
+                latest.get("bb_upper", latest.get("close", 0) * 1.02)
+            ),
+            bollinger_lower=float(
+                latest.get("bb_lower", latest.get("close", 0) * 0.98)
+            ),
             atr=float(latest.get("atr", latest.get("ATR", 1))),
             support_level=latest.get("support"),
-            resistance_level=latest.get("resistance")
+            resistance_level=latest.get("resistance"),
         )
 
-    async def _get_ml_prediction(
-        self,
-        symbol: str,
-        df: pd.DataFrame
-    ) -> MLPrediction:
+    async def _get_ml_prediction(self, symbol: str, df: pd.DataFrame) -> MLPrediction:
         """Get prediction from existing ML model."""
         if self.hybrid_model is None:
             # Default prediction if no ML model
             return MLPrediction(
-                predicted_direction="SIDEWAYS",
-                confidence=0.5,
-                model_name="none"
+                predicted_direction="SIDEWAYS", confidence=0.5, model_name="none"
             )
 
         try:
@@ -322,21 +330,15 @@ class ElsonFinanceEnsemble:
                 predicted_direction=prediction.get("direction", "SIDEWAYS"),
                 confidence=prediction.get("confidence", 0.5),
                 predicted_price=prediction.get("price"),
-                model_name="hybrid_ml"
+                model_name="hybrid_ml",
             )
         except Exception as e:
             logger.warning(f"ML prediction failed: {e}")
             return MLPrediction(
-                predicted_direction="SIDEWAYS",
-                confidence=0.5,
-                model_name="none"
+                predicted_direction="SIDEWAYS", confidence=0.5, model_name="none"
             )
 
-    async def _get_sentiment(
-        self,
-        symbol: str,
-        news: List[str]
-    ) -> SentimentData:
+    async def _get_sentiment(self, symbol: str, news: List[str]) -> SentimentData:
         """Get sentiment from news and social data."""
         if self.sentiment_analyzer is None or not news:
             # Default sentiment if no analyzer
@@ -344,7 +346,7 @@ class ElsonFinanceEnsemble:
                 news_sentiment=0.0,
                 social_sentiment=0.0,
                 analyst_rating="Hold",
-                recent_headlines=news[:5] if news else []
+                recent_headlines=news[:5] if news else [],
             )
 
         try:
@@ -354,7 +356,7 @@ class ElsonFinanceEnsemble:
                 news_sentiment=result.get("news", 0.0),
                 social_sentiment=result.get("social", 0.0),
                 analyst_rating=result.get("analyst", "Hold"),
-                recent_headlines=news[:5]
+                recent_headlines=news[:5],
             )
         except Exception as e:
             logger.warning(f"Sentiment analysis failed: {e}")
@@ -362,7 +364,7 @@ class ElsonFinanceEnsemble:
                 news_sentiment=0.0,
                 social_sentiment=0.0,
                 analyst_rating="Hold",
-                recent_headlines=news[:5] if news else []
+                recent_headlines=news[:5] if news else [],
             )
 
     async def _query_llm(
@@ -372,7 +374,7 @@ class ElsonFinanceEnsemble:
         sentiment: SentimentData,
         ml_prediction: MLPrediction,
         portfolio_context: Optional[Dict[str, Any]],
-        config: Optional[GenerationConfig]
+        config: Optional[GenerationConfig],
     ) -> Dict[str, Any]:
         """Query Elson-Finance LLM for trading analysis."""
         # Build comprehensive prompt
@@ -381,14 +383,14 @@ class ElsonFinanceEnsemble:
             technicals=technicals,
             sentiment=sentiment,
             ml_prediction=ml_prediction,
-            portfolio_context=portfolio_context
+            portfolio_context=portfolio_context,
         )
 
         # Query LLM
         response = await self.llm_client.generate(
             prompt=prompt,
             config=config,
-            system_prompt=TradingPromptBuilder.SYSTEM_PROMPT
+            system_prompt=TradingPromptBuilder.SYSTEM_PROMPT,
         )
 
         # Parse response
@@ -405,7 +407,7 @@ class ElsonFinanceEnsemble:
         market: MarketContext,
         llm_response: Dict[str, Any],
         ml_prediction: MLPrediction,
-        sentiment: SentimentData
+        sentiment: SentimentData,
     ) -> TradingDecision:
         """Combine signals from all sources using weighted voting."""
         # Convert signals to numeric scores (-1 to 1)
@@ -415,9 +417,9 @@ class ElsonFinanceEnsemble:
 
         # Weighted combination
         combined_score = (
-            self.weights["llm"] * llm_score +
-            self.weights["ml"] * ml_score +
-            self.weights["sentiment"] * sentiment_score
+            self.weights["llm"] * llm_score
+            + self.weights["ml"] * ml_score
+            + self.weights["sentiment"] * sentiment_score
         )
 
         # Convert back to action
@@ -425,9 +427,9 @@ class ElsonFinanceEnsemble:
 
         # Calculate combined confidence
         combined_confidence = (
-            self.weights["llm"] * llm_response["confidence"] +
-            self.weights["ml"] * ml_prediction.confidence +
-            self.weights["sentiment"] * abs(sentiment_score)
+            self.weights["llm"] * llm_response["confidence"]
+            + self.weights["ml"] * ml_prediction.confidence
+            + self.weights["sentiment"] * abs(sentiment_score)
         )
 
         return TradingDecision(
@@ -442,7 +444,7 @@ class ElsonFinanceEnsemble:
             reasoning=llm_response.get("raw_response", ""),
             llm_confidence=llm_response["confidence"],
             ml_confidence=ml_prediction.confidence,
-            sentiment_score=sentiment_score
+            sentiment_score=sentiment_score,
         )
 
     @staticmethod
@@ -453,18 +455,14 @@ class ElsonFinanceEnsemble:
             "BUY": 0.5,
             "HOLD": 0.0,
             "SELL": -0.5,
-            "STRONG_SELL": -1.0
+            "STRONG_SELL": -1.0,
         }
         return scores.get(action.upper(), 0.0)
 
     @staticmethod
     def _direction_to_score(direction: str) -> float:
         """Convert direction to numeric score."""
-        scores = {
-            "UP": 0.5,
-            "SIDEWAYS": 0.0,
-            "DOWN": -0.5
-        }
+        scores = {"UP": 0.5, "SIDEWAYS": 0.0, "DOWN": -0.5}
         return scores.get(direction.upper(), 0.0)
 
     @staticmethod

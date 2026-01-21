@@ -1,9 +1,9 @@
-import os
 import json
-from typing import List, Optional, Dict
-from functools import lru_cache
+import os
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
+from typing import Dict, List, Optional
 
 from pydantic_settings import BaseSettings
 
@@ -51,6 +51,7 @@ def _parse_origins(env_value: str) -> List[str]:
 
 class BrokerEnum(str, Enum):
     """Supported broker types."""
+
     PAPER = "paper"
     SCHWAB = "schwab"
     ALPACA = "alpaca"
@@ -58,6 +59,7 @@ class BrokerEnum(str, Enum):
 
 class ApiProviderEnum(str, Enum):
     """Supported API providers."""
+
     ALPHA_VANTAGE = "alpha_vantage"
     FINNHUB = "finnhub"
     FMP = "fmp"
@@ -72,11 +74,16 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # Environment
-    ENVIRONMENT: str = "development"  # "development", "staging", "production", "testing"
+    ENVIRONMENT: str = (
+        "development"  # "development", "staging", "production", "testing"
+    )
     DEBUG: bool = True
 
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "elson-trading-super-secret-key-for-development-change-in-production-32-chars-minimum")
+    SECRET_KEY: str = os.getenv(
+        "SECRET_KEY",
+        "elson-trading-super-secret-key-for-development-change-in-production-32-chars-minimum",
+    )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     ALGORITHM: str = "HS256"
 
@@ -93,7 +100,9 @@ class Settings(BaseSettings):
     BROKER_PRIORITY_LIST: List[str] = ["alpaca", "paper"]
     BROKER_FAILURE_THRESHOLD: int = 3
     BROKER_RETRY_INTERVAL: int = 60  # seconds
-    LIVE_TRADING_ENABLED: bool = os.getenv("LIVE_TRADING_ENABLED", "false").lower() == "true"
+    LIVE_TRADING_ENABLED: bool = (
+        os.getenv("LIVE_TRADING_ENABLED", "false").lower() == "true"
+    )
     USE_PAPER_TRADING: bool = os.getenv("USE_PAPER_TRADING", "true").lower() == "true"
 
     # Paper Trading Settings
@@ -111,7 +120,9 @@ class Settings(BaseSettings):
     POLYGON_API_KEY: Optional[str] = os.getenv("POLYGON_API_KEY")
     ALPACA_API_KEY: Optional[str] = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY: Optional[str] = os.getenv("ALPACA_SECRET_KEY")
-    ALPACA_BASE_URL: str = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+    ALPACA_BASE_URL: str = os.getenv(
+        "ALPACA_BASE_URL", "https://paper-api.alpaca.markets"
+    )
     FINNHUB_API_KEY: Optional[str] = os.getenv("FINNHUB_API_KEY")
     FMP_API_KEY: Optional[str] = os.getenv("FMP_API_KEY")
     COINBASE_API_KEY: Optional[str] = os.getenv("COINBASE_API_KEY")
@@ -122,22 +133,11 @@ class Settings(BaseSettings):
         "finnhub",
         "fmp",
         "polygon",
-        "coinbase"
-    ]
-    MARKET_DATA_PROVIDER_PRIORITY: List[str] = [
-        "alpha_vantage",
-        "finnhub",
-        "polygon"
-    ]
-    COMPANY_DATA_PROVIDER_PRIORITY: List[str] = [
-        "fmp",
-        "alpha_vantage",
-        "finnhub"
-    ]
-    CRYPTO_DATA_PROVIDER_PRIORITY: List[str] = [
         "coinbase",
-        "alpha_vantage"
     ]
+    MARKET_DATA_PROVIDER_PRIORITY: List[str] = ["alpha_vantage", "finnhub", "polygon"]
+    COMPANY_DATA_PROVIDER_PRIORITY: List[str] = ["fmp", "alpha_vantage", "finnhub"]
+    CRYPTO_DATA_PROVIDER_PRIORITY: List[str] = ["coinbase", "alpha_vantage"]
     API_FAILURE_THRESHOLD: int = 3
     API_RETRY_INTERVAL: int = 300  # seconds
 
@@ -149,19 +149,27 @@ class Settings(BaseSettings):
     # Redis Sentinel for High Availability
     REDIS_SENTINEL_ENABLED: bool = False
     REDIS_SENTINEL_MASTER: str = "mymaster"
-    REDIS_SENTINEL_HOSTS: List[str] = ["sentinel1:26379", "sentinel2:26379", "sentinel3:26379"]
+    REDIS_SENTINEL_HOSTS: List[str] = [
+        "sentinel1:26379",
+        "sentinel2:26379",
+        "sentinel3:26379",
+    ]
     REDIS_PASSWORD: Optional[str] = os.getenv("REDIS_PASSWORD")
 
     # Redis Cluster for Horizontal Scaling
     REDIS_CLUSTER_ENABLED: bool = False
-    REDIS_CLUSTER_NODES: List[str] = ["redis-node1:6379", "redis-node2:6379", "redis-node3:6379"]
+    REDIS_CLUSTER_NODES: List[str] = [
+        "redis-node1:6379",
+        "redis-node2:6379",
+        "redis-node3:6379",
+    ]
 
     # Caching Settings
     CACHE_ENABLED: bool = True
-    CACHE_TTL_SHORT: int = 60           # 1 minute
-    CACHE_TTL_MEDIUM: int = 300         # 5 minutes
-    CACHE_TTL_LONG: int = 3600          # 1 hour
-    CACHE_TTL_VERY_LONG: int = 86400    # 24 hours
+    CACHE_TTL_SHORT: int = 60  # 1 minute
+    CACHE_TTL_MEDIUM: int = 300  # 5 minutes
+    CACHE_TTL_LONG: int = 3600  # 1 hour
+    CACHE_TTL_VERY_LONG: int = 86400  # 24 hours
 
     # Stripe Payment Processing
     STRIPE_API_KEY: Optional[str] = os.getenv("STRIPE_API_KEY")
@@ -171,13 +179,21 @@ class Settings(BaseSettings):
     # Subscription Price IDs for Stripe
     STRIPE_PRICE_IDS: Dict[str, Dict[str, str]] = {
         "premium": {
-            "monthly": os.getenv("STRIPE_PREMIUM_MONTHLY_PRICE_ID", "price_premium_monthly"),
-            "annually": os.getenv("STRIPE_PREMIUM_ANNUAL_PRICE_ID", "price_premium_annually"),
+            "monthly": os.getenv(
+                "STRIPE_PREMIUM_MONTHLY_PRICE_ID", "price_premium_monthly"
+            ),
+            "annually": os.getenv(
+                "STRIPE_PREMIUM_ANNUAL_PRICE_ID", "price_premium_annually"
+            ),
         },
         "family": {
-            "monthly": os.getenv("STRIPE_FAMILY_MONTHLY_PRICE_ID", "price_family_monthly"),
-            "annually": os.getenv("STRIPE_FAMILY_ANNUAL_PRICE_ID", "price_family_annually"),
-        }
+            "monthly": os.getenv(
+                "STRIPE_FAMILY_MONTHLY_PRICE_ID", "price_family_monthly"
+            ),
+            "annually": os.getenv(
+                "STRIPE_FAMILY_ANNUAL_PRICE_ID", "price_family_annually"
+            ),
+        },
     }
 
     # Frontend URL for redirects
@@ -233,11 +249,11 @@ class Settings(BaseSettings):
     # Age-based Permission Settings
     MINOR_AGE_RANGES: dict = {
         "children": {"min": 8, "max": 12},
-        "teens": {"min": 13, "max": 17}
+        "teens": {"min": 13, "max": 17},
     }
     MINOR_TRADE_LIMITS: dict = {
         "children": {"max_order_amount": 100.0, "requires_approval": True},
-        "teens": {"max_order_amount": 500.0, "requires_approval": True}
+        "teens": {"max_order_amount": 500.0, "requires_approval": True},
     }
 
     # Model Settings
@@ -256,7 +272,9 @@ class Settings(BaseSettings):
 
     # Circuit Breaker Settings
     MAX_DAILY_LOSS_PERCENT: float = float(os.getenv("MAX_DAILY_LOSS_PERCENT", "5.0"))
-    CIRCUIT_BREAKER_COOLDOWN_MINUTES: int = int(os.getenv("CIRCUIT_BREAKER_COOLDOWN_MINUTES", "30"))
+    CIRCUIT_BREAKER_COOLDOWN_MINUTES: int = int(
+        os.getenv("CIRCUIT_BREAKER_COOLDOWN_MINUTES", "30")
+    )
     CONSECUTIVE_LOSS_TRIGGER: int = 5  # Trigger after 5 consecutive losses
 
     # Volatility Thresholds

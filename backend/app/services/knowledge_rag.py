@@ -10,13 +10,14 @@ Supports all wealth tiers from $0 to $1B+ with domain-specific knowledge retriev
 
 import json
 import logging
+from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
-from enum import Enum
 
 try:
     import chromadb
     from chromadb.utils import embedding_functions
+
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class AdvisoryMode(str, Enum):
     """Advisory modes for specialized wealth management guidance."""
+
     GENERAL = "general"
     ESTATE_PLANNING = "estate_planning"
     INVESTMENT_ADVISORY = "investment_advisory"
@@ -50,11 +52,12 @@ class WealthTier(str, Enum):
     Traditional wealth management gatekeeps advice behind high AUM minimums -
     Elson breaks this barrier with same quality advice for everyone.
     """
-    FOUNDATION = "foundation"      # $0-10K - Full CFP access, financial literacy foundation
-    BUILDER = "builder"            # $10K-75K - ~1 year median US savings, achievable for most
-    GROWTH = "growth"              # $75K-500K - Earlier CFA access for middle-class families
-    AFFLUENT = "affluent"          # $500K-5M - Full team for growing wealth
-    HNW_UHNW = "hnw_uhnw"          # $5M+ - Family office, philanthropy, specialists
+
+    FOUNDATION = "foundation"  # $0-10K - Full CFP access, financial literacy foundation
+    BUILDER = "builder"  # $10K-75K - ~1 year median US savings, achievable for most
+    GROWTH = "growth"  # $75K-500K - Earlier CFA access for middle-class families
+    AFFLUENT = "affluent"  # $500K-5M - Full team for growing wealth
+    HNW_UHNW = "hnw_uhnw"  # $5M+ - Family office, philanthropy, specialists
 
 
 class DecisionAuthority(str, Enum):
@@ -63,10 +66,11 @@ class DecisionAuthority(str, Enum):
 
     Critical for implementation - not all 70+ roles are treated equally.
     """
-    BINDING = "binding"            # Deterministic rules, must be followed (compliance, legal)
-    SENIOR_ADVISORY = "senior"     # High-weight recommendations, near-binding
-    ADVISORY = "advisory"          # Standard recommendations, user decides
-    SUPPORT_ROLE = "support"       # Informational only, background context
+
+    BINDING = "binding"  # Deterministic rules, must be followed (compliance, legal)
+    SENIOR_ADVISORY = "senior"  # High-weight recommendations, near-binding
+    ADVISORY = "advisory"  # Standard recommendations, user decides
+    SUPPORT_ROLE = "support"  # Informational only, background context
 
 
 class WealthManagementRAG:
@@ -88,7 +92,7 @@ class WealthManagementRAG:
         self,
         persist_directory: str = "./chroma_db",
         collection_name: str = "wealth_management",
-        embedding_model: str = "all-MiniLM-L6-v2"
+        embedding_model: str = "all-MiniLM-L6-v2",
     ):
         """
         Initialize the RAG service.
@@ -106,7 +110,12 @@ class WealthManagementRAG:
         self._embedding_function = None
 
         # Knowledge base path
-        self.knowledge_base_path = Path(__file__).parent.parent / "knowledge_base" / "wealth_management" / "data"
+        self.knowledge_base_path = (
+            Path(__file__).parent.parent
+            / "knowledge_base"
+            / "wealth_management"
+            / "data"
+        )
 
         # Category to file mapping
         self.category_files = {
@@ -126,24 +135,63 @@ class WealthManagementRAG:
             "financial_literacy": "financial_literacy_basics.json",
             "retirement_planning": "retirement_planning.json",
             "college_planning": "college_planning.json",
-            "goal_tier_progression": "goal_tier_progression.json"
+            "goal_tier_progression": "goal_tier_progression.json",
         }
 
         # Advisory mode to relevant categories mapping
         self.mode_categories = {
             AdvisoryMode.GENERAL: list(self.category_files.keys()),
-            AdvisoryMode.ESTATE_PLANNING: ["estate_planning", "trust_administration", "generational_wealth"],
-            AdvisoryMode.INVESTMENT_ADVISORY: ["financial_advisors", "governance", "certifications"],
-            AdvisoryMode.TAX_OPTIMIZATION: ["estate_planning", "succession_planning", "compliance_operations", "retirement_planning"],
-            AdvisoryMode.SUCCESSION_PLANNING: ["succession_planning", "professional_roles", "family_office"],
-            AdvisoryMode.FAMILY_GOVERNANCE: ["governance", "family_office", "generational_wealth"],
-            AdvisoryMode.TRUST_ADMINISTRATION: ["trust_administration", "estate_planning", "professional_roles"],
+            AdvisoryMode.ESTATE_PLANNING: [
+                "estate_planning",
+                "trust_administration",
+                "generational_wealth",
+            ],
+            AdvisoryMode.INVESTMENT_ADVISORY: [
+                "financial_advisors",
+                "governance",
+                "certifications",
+            ],
+            AdvisoryMode.TAX_OPTIMIZATION: [
+                "estate_planning",
+                "succession_planning",
+                "compliance_operations",
+                "retirement_planning",
+            ],
+            AdvisoryMode.SUCCESSION_PLANNING: [
+                "succession_planning",
+                "professional_roles",
+                "family_office",
+            ],
+            AdvisoryMode.FAMILY_GOVERNANCE: [
+                "governance",
+                "family_office",
+                "generational_wealth",
+            ],
+            AdvisoryMode.TRUST_ADMINISTRATION: [
+                "trust_administration",
+                "estate_planning",
+                "professional_roles",
+            ],
             AdvisoryMode.CREDIT_FINANCING: ["credit_financing", "treasury_banking"],
             AdvisoryMode.COMPLIANCE_OPERATIONS: ["compliance_operations", "governance"],
             AdvisoryMode.FINANCIAL_LITERACY: ["financial_literacy"],
-            AdvisoryMode.RETIREMENT_PLANNING: ["retirement_planning", "financial_advisors", "certifications", "estate_planning"],
-            AdvisoryMode.COLLEGE_PLANNING: ["college_planning", "financial_literacy", "financial_advisors"],
-            AdvisoryMode.GOAL_PLANNING: ["goal_tier_progression", "financial_advisors", "certifications", "generational_wealth"]
+            AdvisoryMode.RETIREMENT_PLANNING: [
+                "retirement_planning",
+                "financial_advisors",
+                "certifications",
+                "estate_planning",
+            ],
+            AdvisoryMode.COLLEGE_PLANNING: [
+                "college_planning",
+                "financial_literacy",
+                "financial_advisors",
+            ],
+            AdvisoryMode.GOAL_PLANNING: [
+                "goal_tier_progression",
+                "financial_advisors",
+                "certifications",
+                "generational_wealth",
+            ],
         }
 
     @property
@@ -151,7 +199,9 @@ class WealthManagementRAG:
         """Lazy initialization of ChromaDB client."""
         if self._client is None:
             if not CHROMADB_AVAILABLE:
-                raise ImportError("chromadb is not installed. Install with: pip install chromadb")
+                raise ImportError(
+                    "chromadb is not installed. Install with: pip install chromadb"
+                )
             self._client = chromadb.PersistentClient(path=self.persist_directory)
         return self._client
 
@@ -161,8 +211,10 @@ class WealthManagementRAG:
         if self._embedding_function is None:
             if not CHROMADB_AVAILABLE:
                 raise ImportError("chromadb is not installed")
-            self._embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name=self.embedding_model
+            self._embedding_function = (
+                embedding_functions.SentenceTransformerEmbeddingFunction(
+                    model_name=self.embedding_model
+                )
             )
         return self._embedding_function
 
@@ -173,7 +225,7 @@ class WealthManagementRAG:
             self._collection = self.client.get_or_create_collection(
                 name=self.collection_name,
                 embedding_function=self.embedding_function,
-                metadata={"hnsw:space": "cosine"}
+                metadata={"hnsw:space": "cosine"},
             )
         return self._collection
 
@@ -183,7 +235,7 @@ class WealthManagementRAG:
         n_results: int = 5,
         advisory_mode: AdvisoryMode = AdvisoryMode.GENERAL,
         wealth_tier: Optional[WealthTier] = None,
-        include_metadata: bool = True
+        include_metadata: bool = True,
     ) -> list[dict]:
         """
         Retrieve relevant knowledge chunks for a question.
@@ -204,9 +256,7 @@ class WealthManagementRAG:
             relevant_categories = self.mode_categories.get(advisory_mode, [])
 
             if relevant_categories and advisory_mode != AdvisoryMode.GENERAL:
-                where_filter = {
-                    "category": {"$in": relevant_categories}
-                }
+                where_filter = {"category": {"$in": relevant_categories}}
 
             # Add wealth tier filter if specified
             if wealth_tier:
@@ -221,37 +271,53 @@ class WealthManagementRAG:
                 query_texts=[question],
                 n_results=n_results,
                 where=where_filter if where_filter else None,
-                include=["documents", "metadatas", "distances"] if include_metadata else ["documents"]
+                include=(
+                    ["documents", "metadatas", "distances"]
+                    if include_metadata
+                    else ["documents"]
+                ),
             )
 
             # Format results
             formatted_results = []
             if results and results.get("documents") and results["documents"][0]:
                 documents = results["documents"][0]
-                metadatas = results.get("metadatas", [[]])[0] if include_metadata else [{}] * len(documents)
-                distances = results.get("distances", [[]])[0] if include_metadata else [0] * len(documents)
+                metadatas = (
+                    results.get("metadatas", [[]])[0]
+                    if include_metadata
+                    else [{}] * len(documents)
+                )
+                distances = (
+                    results.get("distances", [[]])[0]
+                    if include_metadata
+                    else [0] * len(documents)
+                )
 
                 for doc, meta, dist in zip(documents, metadatas, distances):
-                    formatted_results.append({
-                        "content": doc,
-                        "metadata": meta or {},
-                        "relevance_score": 1 - dist if dist else 1.0,
-                        "source": meta.get("source", "unknown") if meta else "unknown",
-                        "category": meta.get("category", "general") if meta else "general"
-                    })
+                    formatted_results.append(
+                        {
+                            "content": doc,
+                            "metadata": meta or {},
+                            "relevance_score": 1 - dist if dist else 1.0,
+                            "source": (
+                                meta.get("source", "unknown") if meta else "unknown"
+                            ),
+                            "category": (
+                                meta.get("category", "general") if meta else "general"
+                            ),
+                        }
+                    )
 
-            logger.info(f"RAG query returned {len(formatted_results)} results for: {question[:50]}...")
+            logger.info(
+                f"RAG query returned {len(formatted_results)} results for: {question[:50]}..."
+            )
             return formatted_results
 
         except Exception as e:
             logger.error(f"Error querying RAG: {e}")
             return []
 
-    async def add_documents(
-        self,
-        documents: list[dict],
-        batch_size: int = 100
-    ) -> int:
+    async def add_documents(self, documents: list[dict], batch_size: int = 100) -> int:
         """
         Index documents into the vector store.
 
@@ -266,20 +332,18 @@ class WealthManagementRAG:
             total_added = 0
 
             for i in range(0, len(documents), batch_size):
-                batch = documents[i:i + batch_size]
+                batch = documents[i : i + batch_size]
 
                 ids = [doc["id"] for doc in batch]
                 contents = [doc["content"] for doc in batch]
                 metadatas = [doc.get("metadata", {}) for doc in batch]
 
-                self.collection.add(
-                    ids=ids,
-                    documents=contents,
-                    metadatas=metadatas
-                )
+                self.collection.add(ids=ids, documents=contents, metadatas=metadatas)
 
                 total_added += len(batch)
-                logger.info(f"Added batch of {len(batch)} documents (total: {total_added})")
+                logger.info(
+                    f"Added batch of {len(batch)} documents (total: {total_added})"
+                )
 
             return total_added
 
@@ -287,7 +351,9 @@ class WealthManagementRAG:
             logger.error(f"Error adding documents: {e}")
             return 0
 
-    async def ingest_knowledge_base(self, chunk_size: int = 500, chunk_overlap: int = 50) -> int:
+    async def ingest_knowledge_base(
+        self, chunk_size: int = 500, chunk_overlap: int = 50
+    ) -> int:
         """
         Ingest all knowledge base files into the vector store.
 
@@ -330,7 +396,7 @@ class WealthManagementRAG:
         category: str,
         chunk_size: int,
         chunk_overlap: int,
-        parent_key: str = ""
+        parent_key: str = "",
     ) -> list[dict]:
         """
         Extract text chunks from JSON data recursively.
@@ -377,26 +443,34 @@ class WealthManagementRAG:
 
         for key_path, value in flat_items:
             # Format as readable text
-            formatted = f"{key_path.replace('.', ' > ').replace('_', ' ').title()}: {value}"
+            formatted = (
+                f"{key_path.replace('.', ' > ').replace('_', ' ').title()}: {value}"
+            )
             item_size = len(formatted)
 
             if current_size + item_size > chunk_size and current_chunk:
                 # Save current chunk
                 chunk_text = "\n".join(current_chunk)
-                chunks.append({
-                    "id": f"{category}_{chunk_id}",
-                    "content": chunk_text,
-                    "metadata": {
-                        "category": category,
-                        "source": f"knowledge_base/{category}",
-                        "chunk_index": chunk_id,
-                        "wealth_tier": self._determine_wealth_tier(chunk_text, category)
+                chunks.append(
+                    {
+                        "id": f"{category}_{chunk_id}",
+                        "content": chunk_text,
+                        "metadata": {
+                            "category": category,
+                            "source": f"knowledge_base/{category}",
+                            "chunk_index": chunk_id,
+                            "wealth_tier": self._determine_wealth_tier(
+                                chunk_text, category
+                            ),
+                        },
                     }
-                })
+                )
                 chunk_id += 1
 
                 # Start new chunk with overlap
-                overlap_items = current_chunk[-2:] if len(current_chunk) > 2 else current_chunk
+                overlap_items = (
+                    current_chunk[-2:] if len(current_chunk) > 2 else current_chunk
+                )
                 current_chunk = overlap_items + [formatted]
                 current_size = sum(len(item) for item in current_chunk)
             else:
@@ -406,16 +480,20 @@ class WealthManagementRAG:
         # Don't forget the last chunk
         if current_chunk:
             chunk_text = "\n".join(current_chunk)
-            chunks.append({
-                "id": f"{category}_{chunk_id}",
-                "content": chunk_text,
-                "metadata": {
-                    "category": category,
-                    "source": f"knowledge_base/{category}",
-                    "chunk_index": chunk_id,
-                    "wealth_tier": self._determine_wealth_tier(chunk_text, category)
+            chunks.append(
+                {
+                    "id": f"{category}_{chunk_id}",
+                    "content": chunk_text,
+                    "metadata": {
+                        "category": category,
+                        "source": f"knowledge_base/{category}",
+                        "chunk_index": chunk_id,
+                        "wealth_tier": self._determine_wealth_tier(
+                            chunk_text, category
+                        ),
+                    },
                 }
-            })
+            )
 
         return chunks
 
@@ -445,41 +523,80 @@ class WealthManagementRAG:
 
         # HNW/UHNW indicators ($5M+)
         hnw_uhnw_keywords = [
-            "family office", "uhnw", "ultra-high", "dynasty", "multi-generational",
-            "$50m", "$100m", "private foundation", "family council", "hnw",
-            "trust protector", "complex estate", "private equity", "$5m", "$10m"
+            "family office",
+            "uhnw",
+            "ultra-high",
+            "dynasty",
+            "multi-generational",
+            "$50m",
+            "$100m",
+            "private foundation",
+            "family council",
+            "hnw",
+            "trust protector",
+            "complex estate",
+            "private equity",
+            "$5m",
+            "$10m",
         ]
         if any(kw in content_lower for kw in hnw_uhnw_keywords):
             return WealthTier.HNW_UHNW.value
 
         # Affluent indicators ($500K-5M)
         affluent_keywords = [
-            "trust structure", "multi-entity", "business succession", "family governance",
-            "investment policy", "comprehensive planning", "$500k", "$1m", "$2m"
+            "trust structure",
+            "multi-entity",
+            "business succession",
+            "family governance",
+            "investment policy",
+            "comprehensive planning",
+            "$500k",
+            "$1m",
+            "$2m",
         ]
         if any(kw in content_lower for kw in affluent_keywords):
             return WealthTier.AFFLUENT.value
 
         # Growth indicators ($75K-500K) - earlier CFA access
         growth_keywords = [
-            "portfolio construction", "cfa", "estate basics", "tax-loss harvesting",
-            "real estate", "investment portfolio", "$100k", "$250k", "$75k"
+            "portfolio construction",
+            "cfa",
+            "estate basics",
+            "tax-loss harvesting",
+            "real estate",
+            "investment portfolio",
+            "$100k",
+            "$250k",
+            "$75k",
         ]
         if any(kw in content_lower for kw in growth_keywords):
             return WealthTier.GROWTH.value
 
         # Builder indicators ($10K-75K) - achievable for most Americans
         builder_keywords = [
-            "401k", "ira", "roth", "tax optimization", "retirement account",
-            "insurance fundamentals", "first investment", "$10k", "$25k", "$50k"
+            "401k",
+            "ira",
+            "roth",
+            "tax optimization",
+            "retirement account",
+            "insurance fundamentals",
+            "first investment",
+            "$10k",
+            "$25k",
+            "$50k",
         ]
         if any(kw in content_lower for kw in builder_keywords):
             return WealthTier.BUILDER.value
 
         # Foundation tier keywords ($0-10K) - financial literacy foundation
         foundation_keywords = [
-            "budget", "emergency fund", "debt payoff", "credit building",
-            "savings automation", "financial literacy", "beginner"
+            "budget",
+            "emergency fund",
+            "debt payoff",
+            "credit building",
+            "savings automation",
+            "financial literacy",
+            "beginner",
         ]
         if any(kw in content_lower for kw in foundation_keywords):
             return WealthTier.FOUNDATION.value
@@ -494,17 +611,14 @@ class WealthManagementRAG:
                 "total_documents": count,
                 "collection_name": self.collection_name,
                 "embedding_model": self.embedding_model,
-                "persist_directory": self.persist_directory
+                "persist_directory": self.persist_directory,
             }
         except Exception as e:
             logger.error(f"Error getting collection stats: {e}")
             return {"error": str(e)}
 
     async def search_by_category(
-        self,
-        question: str,
-        categories: list[str],
-        n_results: int = 5
+        self, question: str, categories: list[str], n_results: int = 5
     ) -> list[dict]:
         """
         Search within specific categories.
@@ -522,7 +636,7 @@ class WealthManagementRAG:
                 query_texts=[question],
                 n_results=n_results,
                 where={"category": {"$in": categories}},
-                include=["documents", "metadatas", "distances"]
+                include=["documents", "metadatas", "distances"],
             )
 
             formatted_results = []
@@ -530,15 +644,17 @@ class WealthManagementRAG:
                 for doc, meta, dist in zip(
                     results["documents"][0],
                     results["metadatas"][0],
-                    results["distances"][0]
+                    results["distances"][0],
                 ):
-                    formatted_results.append({
-                        "content": doc,
-                        "metadata": meta,
-                        "relevance_score": 1 - dist,
-                        "source": meta.get("source", "unknown"),
-                        "category": meta.get("category", "general")
-                    })
+                    formatted_results.append(
+                        {
+                            "content": doc,
+                            "metadata": meta,
+                            "relevance_score": 1 - dist,
+                            "source": meta.get("source", "unknown"),
+                            "category": meta.get("category", "general"),
+                        }
+                    )
 
             return formatted_results
 
@@ -547,9 +663,7 @@ class WealthManagementRAG:
             return []
 
     async def get_professional_recommendations(
-        self,
-        situation: str,
-        wealth_tier: WealthTier
+        self, situation: str, wealth_tier: WealthTier
     ) -> list[dict]:
         """
         Get professional advisor recommendations based on situation.
@@ -565,12 +679,14 @@ class WealthManagementRAG:
         results = await self.search_by_category(
             situation,
             ["professional_roles", "certifications", "financial_advisors"],
-            n_results=10
+            n_results=10,
         )
 
         return results
 
-    async def get_succession_planning_guidance(self, business_details: str) -> list[dict]:
+    async def get_succession_planning_guidance(
+        self, business_details: str
+    ) -> list[dict]:
         """
         Get business succession planning guidance.
 
@@ -583,13 +699,11 @@ class WealthManagementRAG:
         return await self.search_by_category(
             business_details,
             ["succession_planning", "professional_roles", "estate_planning"],
-            n_results=8
+            n_results=8,
         )
 
     async def get_financial_literacy_content(
-        self,
-        topic: str,
-        level: str = "beginner"
+        self, topic: str, level: str = "beginner"
     ) -> list[dict]:
         """
         Get financial literacy educational content.
@@ -602,17 +716,10 @@ class WealthManagementRAG:
             Educational content chunks
         """
         query = f"{level} {topic} financial education basics"
-        return await self.search_by_category(
-            query,
-            ["financial_literacy"],
-            n_results=5
-        )
+        return await self.search_by_category(query, ["financial_literacy"], n_results=5)
 
     async def get_retirement_planning_content(
-        self,
-        age: int,
-        income: float,
-        topics: list[str] = None
+        self, age: int, income: float, topics: list[str] = None
     ) -> list[dict]:
         """
         Get retirement planning knowledge content.
@@ -635,13 +742,11 @@ class WealthManagementRAG:
         return await self.search_by_category(
             query,
             ["retirement_planning", "financial_advisors", "certifications"],
-            n_results=8
+            n_results=8,
         )
 
     async def get_college_planning_content(
-        self,
-        child_age: int,
-        school_type: str = "public_in_state"
+        self, child_age: int, school_type: str = "public_in_state"
     ) -> list[dict]:
         """
         Get college/education planning knowledge content.
@@ -657,16 +762,11 @@ class WealthManagementRAG:
         query = f"college planning {years_until} years {school_type} 529 financial aid"
 
         return await self.search_by_category(
-            query,
-            ["college_planning", "financial_literacy"],
-            n_results=8
+            query, ["college_planning", "financial_literacy"], n_results=8
         )
 
     async def get_goal_progression_content(
-        self,
-        current_tier: str,
-        target_tier: str,
-        income: float
+        self, current_tier: str, target_tier: str, income: float
     ) -> list[dict]:
         """
         Get goal-based tier progression knowledge content.
@@ -684,7 +784,7 @@ class WealthManagementRAG:
         return await self.search_by_category(
             query,
             ["goal_tier_progression", "generational_wealth", "financial_advisors"],
-            n_results=10
+            n_results=10,
         )
 
 

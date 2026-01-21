@@ -2,6 +2,9 @@
 
 // Polyfills for MSW v2 (MUST be before any MSW imports)
 // Using require to ensure these run before hoisted imports
+// Now safe to import MSW and testing utilities
+import '@testing-library/jest-dom';
+
 const { TextEncoder: UtilTextEncoder, TextDecoder: UtilTextDecoder } = require('util');
 global.TextEncoder = UtilTextEncoder;
 global.TextDecoder = UtilTextDecoder;
@@ -27,9 +30,6 @@ class BroadcastChannelPolyfill {
   dispatchEvent() { return true; }
 }
 global.BroadcastChannel = BroadcastChannelPolyfill as any;
-
-// Now safe to import MSW and testing utilities
-import '@testing-library/jest-dom';
 
 // react-router-dom v7 is mocked via moduleNameMapper in package.json
 // See src/__mocks__/react-router-dom.tsx for the mock implementation

@@ -81,8 +81,12 @@ class Trade(Base):
 
     # Basic trade information
     symbol = Column(String(20), nullable=False, index=True)
-    trade_type: Column[TradeType] = Column(Enum(TradeType), nullable=False)  # For backward compatibility
-    side: Column[TradeType] = Column(Enum(TradeType), nullable=False)  # TradeExecutor expects 'side'
+    trade_type: Column[TradeType] = Column(
+        Enum(TradeType), nullable=False
+    )  # For backward compatibility
+    side: Column[TradeType] = Column(
+        Enum(TradeType), nullable=False
+    )  # TradeExecutor expects 'side'
     order_type: Column[OrderType] = Column(Enum(OrderType), nullable=False)
 
     # Quantities and prices
@@ -130,8 +134,12 @@ class Trade(Base):
     )  # Whether to trade in extended hours
 
     # Micro-investing fields
-    investment_type: Column[InvestmentType] = Column(Enum(InvestmentType), default=InvestmentType.STANDARD)
-    trade_source: Column[TradeSource] = Column(Enum(TradeSource), default=TradeSource.MANUAL)
+    investment_type: Column[InvestmentType] = Column(
+        Enum(InvestmentType), default=InvestmentType.STANDARD
+    )
+    trade_source: Column[TradeSource] = Column(
+        Enum(TradeSource), default=TradeSource.MANUAL
+    )
     trade_metadata = Column(Text, nullable=True)  # JSON metadata for additional info
     total_amount = Column(Float, nullable=True)  # Total amount for fractional shares
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -154,13 +162,13 @@ class Trade(Base):
     def __init__(self, **kwargs):
         """Initialize Trade with proper defaults for TradeExecutor compatibility"""
         # Set side from trade_type if provided but side is not
-        if 'trade_type' in kwargs and 'side' not in kwargs:
-            kwargs['side'] = kwargs['trade_type']
-        elif 'side' in kwargs and 'trade_type' not in kwargs:
-            kwargs['trade_type'] = kwargs['side']
-            
+        if "trade_type" in kwargs and "side" not in kwargs:
+            kwargs["side"] = kwargs["trade_type"]
+        elif "side" in kwargs and "trade_type" not in kwargs:
+            kwargs["trade_type"] = kwargs["side"]
+
         super().__init__(**kwargs)
-        
+
         # Ensure both fields are set after initialization
         if hasattr(self, "trade_type") and not hasattr(self, "side"):
             self.side = self.trade_type

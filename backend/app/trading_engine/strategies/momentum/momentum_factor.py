@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
     description="Multi-factor momentum strategy with relative strength",
     default_parameters={
         "momentum_period": 12,  # 12-month momentum (for daily = ~252 days)
-        "skip_period": 1,       # Skip most recent month (21 days)
+        "skip_period": 1,  # Skip most recent month (21 days)
         "roc_periods": [21, 63, 126, 252],  # Multiple ROC periods
         "relative_strength_period": 63,
         "moving_average_filter": True,
@@ -101,8 +101,7 @@ class MomentumFactorStrategy(TradingStrategy):
 
             if df is None or len(df) < self.momentum_period + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate momentum indicators
@@ -117,8 +116,7 @@ class MomentumFactorStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in momentum factor strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -140,7 +138,9 @@ class MomentumFactorStrategy(TradingStrategy):
                 return None
 
             end_date = datetime.utcnow()
-            start_date = end_date - timedelta(days=400)  # Need enough for 252-day momentum
+            start_date = end_date - timedelta(
+                days=400
+            )  # Need enough for 252-day momentum
 
             data = await self.market_data_service.get_historical_data(
                 self.symbol, start_date.isoformat(), end_date.isoformat()
@@ -166,16 +166,18 @@ class MomentumFactorStrategy(TradingStrategy):
         for period in self.roc_periods:
             if len(df) > period:
                 df[f"roc_{period}"] = (
-                    (df["close"] - df["close"].shift(period)) /
-                    df["close"].shift(period)
+                    (df["close"] - df["close"].shift(period))
+                    / df["close"].shift(period)
                 ) * 100
 
         # Classic momentum (skip most recent period to avoid reversal)
         if len(df) > self.momentum_period:
             df["momentum_classic"] = (
-                (df["close"].shift(self.skip_period) -
-                 df["close"].shift(self.momentum_period)) /
-                df["close"].shift(self.momentum_period)
+                (
+                    df["close"].shift(self.skip_period)
+                    - df["close"].shift(self.momentum_period)
+                )
+                / df["close"].shift(self.momentum_period)
             ) * 100
 
         # Moving averages
@@ -303,9 +305,7 @@ class MomentumFactorStrategy(TradingStrategy):
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str
+        self, price: float, action: str
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit"""
         # Momentum strategies use wider stops

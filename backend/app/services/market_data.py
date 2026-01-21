@@ -1,18 +1,18 @@
 import asyncio
-import time
+import json
 import logging
-import yfinance as yf
-import pandas as pd
+import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union
 from enum import Enum
 from functools import wraps
-import json
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import aiohttp
+import pandas as pd
 import structlog
-from sqlalchemy.orm import Session
+import yfinance as yf
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.market_data import MarketData
@@ -77,7 +77,7 @@ def handle_errors(func):
             raise HTTPException(
                 status_code=500, detail=f"Unexpected market data error: {str(e)}"
             )
-    
+
     return wrapper
 
 
@@ -550,9 +550,9 @@ class MarketDataService:
                 ):
                     # Return stale data with warning flag
                     cached_result.data["is_stale"] = True
-                    cached_result.data[
-                        "stale_age_seconds"
-                    ] = cached_result.age_seconds()
+                    cached_result.data["stale_age_seconds"] = (
+                        cached_result.age_seconds()
+                    )
                     self.cache_hits += 1
                     return cached_result
                 else:

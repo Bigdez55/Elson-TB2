@@ -2,37 +2,39 @@
 
 from datetime import datetime
 from typing import List, Optional
+
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, func
 
 from app.models.education import (
+    ContentLevel,
+    ContentType,
     EducationalContent,
-    UserProgress,
     LearningPath,
     LearningPathItem,
     TradingPermission,
     UserPermission,
-    ContentLevel,
-    ContentType,
+    UserProgress,
 )
 from app.models.user import User
 from app.schemas.education import (
     EducationalContentCreate,
     EducationalContentUpdate,
-    UserProgressCreate,
-    UserProgressUpdate,
     LearningPathCreate,
     TradingPermissionCreate,
     UserPermissionCreate,
+    UserProgressCreate,
+    UserProgressUpdate,
 )
-
 
 # ==================== Educational Content Services ====================
 
 
 def get_content_by_id(db: Session, content_id: int) -> Optional[EducationalContent]:
     """Get educational content by ID."""
-    return db.query(EducationalContent).filter(EducationalContent.id == content_id).first()
+    return (
+        db.query(EducationalContent).filter(EducationalContent.id == content_id).first()
+    )
 
 
 def get_content_by_slug(db: Session, slug: str) -> Optional[EducationalContent]:
@@ -53,7 +55,9 @@ def list_content(
     query = db.query(EducationalContent)
 
     if content_type:
-        query = query.filter(EducationalContent.content_type == ContentType[content_type.upper()])
+        query = query.filter(
+            EducationalContent.content_type == ContentType[content_type.upper()]
+        )
 
     if level:
         query = query.filter(EducationalContent.level == ContentLevel[level.upper()])
@@ -74,10 +78,17 @@ def list_content(
             )
         )
 
-    return query.order_by(EducationalContent.importance_level.desc()).offset(skip).limit(limit).all()
+    return (
+        query.order_by(EducationalContent.importance_level.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def create_content(db: Session, content: EducationalContentCreate) -> EducationalContent:
+def create_content(
+    db: Session, content: EducationalContentCreate
+) -> EducationalContent:
     """Create new educational content."""
     db_content = EducationalContent(
         **content.model_dump(),
@@ -251,9 +262,7 @@ def create_learning_path(db: Session, path: LearningPathCreate) -> LearningPath:
     return db_path
 
 
-def get_learning_path_progress(
-    db: Session, user_id: int, path_id: int
-) -> dict:
+def get_learning_path_progress(db: Session, user_id: int, path_id: int) -> dict:
     """Calculate user's progress through a learning path."""
     path = get_learning_path(db, path_id)
     if not path:
@@ -298,7 +307,9 @@ def list_trading_permissions(db: Session) -> List[TradingPermission]:
     return db.query(TradingPermission).all()
 
 
-def get_trading_permission(db: Session, permission_id: int) -> Optional[TradingPermission]:
+def get_trading_permission(
+    db: Session, permission_id: int
+) -> Optional[TradingPermission]:
     """Get trading permission by ID."""
     return (
         db.query(TradingPermission)
@@ -380,9 +391,7 @@ def grant_permission(
     return db_user_permission
 
 
-def check_permission_eligibility(
-    db: Session, user_id: int, permission_id: int
-) -> dict:
+def check_permission_eligibility(db: Session, user_id: int, permission_id: int) -> dict:
     """Check if user is eligible for a permission."""
     permission = get_trading_permission(db, permission_id)
     if not permission:
@@ -422,7 +431,10 @@ def check_permission_eligibility(
         user_progress = get_user_progress(db, user_id, permission.required_content_id)
         if user_progress and user_progress.is_completed:
             if permission.required_score:
-                if user_progress.score and user_progress.score >= permission.required_score:
+                if (
+                    user_progress.score
+                    and user_progress.score >= permission.required_score
+                ):
                     completed_requirements.append(
                         f"Passed content with required score ({user_progress.score}%)"
                     )

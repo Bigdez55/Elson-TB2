@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +100,7 @@ class ADXTrendStrategy(TradingStrategy):
 
             if df is None or len(df) < self.adx_period * 2:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate ADX and DI
@@ -120,8 +119,7 @@ class ADXTrendStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating ADX signal: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -184,12 +182,12 @@ class ADXTrendStrategy(TradingStrategy):
         df["dm_plus"] = np.where(
             (df["high"] - df["high"].shift(1)) > (df["low"].shift(1) - df["low"]),
             np.maximum(df["high"] - df["high"].shift(1), 0),
-            0
+            0,
         )
         df["dm_minus"] = np.where(
             (df["low"].shift(1) - df["low"]) > (df["high"] - df["high"].shift(1)),
             np.maximum(df["low"].shift(1) - df["low"], 0),
-            0
+            0,
         )
 
         # Smoothed averages
@@ -202,7 +200,9 @@ class ADXTrendStrategy(TradingStrategy):
         df["di_minus"] = 100 * df["dm_minus_smooth"] / df["atr"]
 
         # DX and ADX
-        df["dx"] = 100 * abs(df["di_plus"] - df["di_minus"]) / (df["di_plus"] + df["di_minus"])
+        df["dx"] = (
+            100 * abs(df["di_plus"] - df["di_minus"]) / (df["di_plus"] + df["di_minus"])
+        )
         df["adx"] = df["dx"].rolling(window=self.adx_period).mean()
 
         return df
@@ -225,38 +225,40 @@ class ADXTrendStrategy(TradingStrategy):
         ep[0] = high[0]
 
         for i in range(1, n):
-            if trend[i-1] == 1:  # Uptrend
-                psar[i] = psar[i-1] + af * (ep[i-1] - psar[i-1])
-                psar[i] = min(psar[i], low[i-1], low[i-2] if i > 1 else low[i-1])
+            if trend[i - 1] == 1:  # Uptrend
+                psar[i] = psar[i - 1] + af * (ep[i - 1] - psar[i - 1])
+                psar[i] = min(psar[i], low[i - 1], low[i - 2] if i > 1 else low[i - 1])
 
                 if low[i] < psar[i]:
                     trend[i] = -1
-                    psar[i] = ep[i-1]
+                    psar[i] = ep[i - 1]
                     ep[i] = low[i]
                     af = self.sar_acceleration
                 else:
                     trend[i] = 1
-                    if high[i] > ep[i-1]:
+                    if high[i] > ep[i - 1]:
                         ep[i] = high[i]
                         af = min(af + self.sar_acceleration, self.sar_maximum)
                     else:
-                        ep[i] = ep[i-1]
+                        ep[i] = ep[i - 1]
             else:  # Downtrend
-                psar[i] = psar[i-1] + af * (ep[i-1] - psar[i-1])
-                psar[i] = max(psar[i], high[i-1], high[i-2] if i > 1 else high[i-1])
+                psar[i] = psar[i - 1] + af * (ep[i - 1] - psar[i - 1])
+                psar[i] = max(
+                    psar[i], high[i - 1], high[i - 2] if i > 1 else high[i - 1]
+                )
 
                 if high[i] > psar[i]:
                     trend[i] = 1
-                    psar[i] = ep[i-1]
+                    psar[i] = ep[i - 1]
                     ep[i] = high[i]
                     af = self.sar_acceleration
                 else:
                     trend[i] = -1
-                    if low[i] < ep[i-1]:
+                    if low[i] < ep[i - 1]:
                         ep[i] = low[i]
                         af = min(af + self.sar_acceleration, self.sar_maximum)
                     else:
-                        ep[i] = ep[i-1]
+                        ep[i] = ep[i - 1]
 
         df["psar"] = psar
         df["psar_trend"] = trend
@@ -276,8 +278,10 @@ class ADXTrendStrategy(TradingStrategy):
         prev_di_minus = float(prev_row["di_minus"])
 
         # Update state
-        self.trend_strength = "strong" if adx > self.strong_trend_threshold else (
-            "moderate" if adx > self.adx_threshold else "weak"
+        self.trend_strength = (
+            "strong"
+            if adx > self.strong_trend_threshold
+            else ("moderate" if adx > self.adx_threshold else "weak")
         )
         self.trend_direction = "bullish" if di_plus > di_minus else "bearish"
 
@@ -359,9 +363,9 @@ class ADXTrendStrategy(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, last_row
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(current_price, action, last_row)
+            )
 
         return signal
 

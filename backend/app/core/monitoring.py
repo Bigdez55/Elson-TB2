@@ -4,16 +4,18 @@ Lightweight monitoring system for personal trading platform.
 This module provides essential monitoring capabilities without the overhead
 of enterprise-grade systems like Prometheus or ELK stack.
 """
+
 import asyncio
 import json
-import time
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, Any, Optional
-from collections import defaultdict, deque
 import threading
-import structlog
+import time
+from collections import defaultdict, deque
+from datetime import datetime
 from functools import wraps
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import structlog
 
 logger = structlog.get_logger()
 

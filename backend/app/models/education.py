@@ -4,22 +4,23 @@ This module defines database models for educational content and user progress tr
 These models support the educational requirements feature for minor accounts.
 """
 
+import enum
+from datetime import datetime
+
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Text,
-    Float,
     Boolean,
-    ForeignKey,
+    Column,
     DateTime,
     Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
     Table,
+    Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
-import enum
 
 from app.db.base import Base
 

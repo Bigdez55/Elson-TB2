@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -132,8 +132,7 @@ class IcebergExecutionStrategy(TradingStrategy):
             # Check price limit
             if not self._check_price_limit(current_price):
                 return self._create_hold_signal(
-                    current_price,
-                    f"Price {current_price:.2f} beyond limit"
+                    current_price, f"Price {current_price:.2f} beyond limit"
                 )
 
             # Check if we need to refresh the display order
@@ -141,8 +140,7 @@ class IcebergExecutionStrategy(TradingStrategy):
 
             if not should_refresh:
                 return self._create_hold_signal(
-                    current_price,
-                    "Order active, waiting for fill"
+                    current_price, "Order active, waiting for fill"
                 )
 
             # Calculate display quantity for this slice
@@ -173,7 +171,8 @@ class IcebergExecutionStrategy(TradingStrategy):
             # Calculate metrics
             avg_price = (
                 self.executed_value / self.executed_quantity
-                if self.executed_quantity > 0 else current_price
+                if self.executed_quantity > 0
+                else current_price
             )
             progress = self.executed_quantity / self.total_quantity
 
@@ -213,8 +212,7 @@ class IcebergExecutionStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in iceberg execution: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -240,9 +238,7 @@ class IcebergExecutionStrategy(TradingStrategy):
         return time_since_refresh >= self.refresh_delay_seconds
 
     def _calculate_display_quantity(
-        self,
-        market_data: Dict[str, Any],
-        remaining: float
+        self, market_data: Dict[str, Any], remaining: float
     ) -> float:
         """Calculate the display quantity for next slice"""
         base_qty = self.display_quantity
@@ -266,7 +262,7 @@ class IcebergExecutionStrategy(TradingStrategy):
         # Apply randomization
         if self.randomize_display:
             variance = random.uniform(-self.display_variance, self.display_variance)
-            base_qty *= (1 + variance)
+            base_qty *= 1 + variance
 
         # Cap at remaining
         display_qty = min(base_qty, remaining)
@@ -312,7 +308,8 @@ class IcebergExecutionStrategy(TradingStrategy):
         """Get execution performance summary"""
         avg_price = (
             self.executed_value / self.executed_quantity
-            if self.executed_quantity > 0 else 0
+            if self.executed_quantity > 0
+            else 0
         )
 
         execution_time = None
@@ -329,8 +326,7 @@ class IcebergExecutionStrategy(TradingStrategy):
             "average_price": avg_price,
             "slice_count": self.slice_count,
             "average_slice_size": (
-                self.executed_quantity / self.slice_count
-                if self.slice_count > 0 else 0
+                self.executed_quantity / self.slice_count if self.slice_count > 0 else 0
             ),
             "execution_complete": self.execution_complete,
             "execution_time_seconds": execution_time,

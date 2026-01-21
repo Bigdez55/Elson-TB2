@@ -16,8 +16,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.metrics import metrics
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 
 # Import backend services and models
 from app.models.trade import OrderSide, OrderType, Trade, TradeStatus
@@ -30,10 +30,11 @@ logger = logging.getLogger(__name__)
 
 # Import real implementations from trading-engine
 try:
-    from app.trading_engine.timeframe.market_regime_detector import MarketRegimeDetector
     from app.trading_engine.engine.trade_executor import TradeExecutor
-    from app.trading_engine.strategies.moving_average import MovingAverageStrategy
     from app.trading_engine.ml_models.volatility_regime import VolatilityDetector
+    from app.trading_engine.strategies.moving_average import MovingAverageStrategy
+    from app.trading_engine.timeframe.market_regime_detector import MarketRegimeDetector
+
     TRADING_ENGINE_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Trading engine not fully available: {e}")
@@ -83,13 +84,19 @@ class MarketIntegrationService:
 
         if TRADING_ENGINE_AVAILABLE and TradeExecutor is not None:
             # Use real trade executor from trading-engine
-            self.trade_executor = TradeExecutor(
-                market_data_service=self.market_data,
-                strategy=None  # Strategy set per-trade
-            ) if MovingAverageStrategy else None
+            self.trade_executor = (
+                TradeExecutor(
+                    market_data_service=self.market_data,
+                    strategy=None,  # Strategy set per-trade
+                )
+                if MovingAverageStrategy
+                else None
+            )
         else:
             self.trade_executor = None
-            logger.warning("TradeExecutor not available - trading functionality limited")
+            logger.warning(
+                "TradeExecutor not available - trading functionality limited"
+            )
 
         # Initialize AI prediction models from trading-engine
         if TRADING_ENGINE_AVAILABLE and VolatilityDetector is not None:
@@ -103,7 +110,9 @@ class MarketIntegrationService:
             self.market_regime_detector = MarketRegimeDetector()
         else:
             self.market_regime_detector = None
-            logger.warning("MarketRegimeDetector not available - regime detection disabled")
+            logger.warning(
+                "MarketRegimeDetector not available - regime detection disabled"
+            )
 
         # Metrics and monitoring
         self.last_strategy_run = {}

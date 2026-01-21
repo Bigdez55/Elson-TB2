@@ -1,3 +1,7 @@
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
+/* eslint-disable testing-library/no-wait-for-side-effects */
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/no-container */
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -11,6 +15,17 @@ jest.mock('../../../utils/formatters', () => ({
 
 jest.mock('../../../utils/validators', () => ({
   isValidSymbol: (symbol: string) => /^[A-Z0-9/.-]+$/i.test(symbol) && symbol.length >= 1 && symbol.length <= 10
+}));
+
+// Mock logger to track calls
+const mockLoggerInfo = jest.fn();
+jest.mock('../../../utils/logger', () => ({
+  logger: {
+    info: (...args: any[]) => mockLoggerInfo(...args),
+    debug: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  }
 }));
 
 describe('Watchlist', () => {
@@ -143,15 +158,15 @@ describe('Watchlist', () => {
 
     it('requires non-empty symbol', async () => {
       render(<Watchlist />);
-      
+
+      // Wait for component to load
       await waitFor(() => {
-        const addButton = screen.getByRole('button', { name: /add/i });
-        fireEvent.click(addButton);
+        expect(screen.getByPlaceholderText('Add symbol (e.g., AAPL)')).toBeInTheDocument();
       }, { timeout: 2000 });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/please enter a symbol/i)).toBeInTheDocument();
-      });
+
+      // Button should be disabled when input is empty
+      const addButton = screen.getByRole('button', { name: /add/i });
+      expect(addButton).toBeDisabled();
     });
 
     it('allows adding symbol by pressing Enter', async () => {
@@ -223,18 +238,16 @@ describe('Watchlist', () => {
     });
 
     it('logs to console when no onSymbolSelect callback provided', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      
+      mockLoggerInfo.mockClear();
+
       render(<Watchlist />);
-      
+
       await waitFor(() => {
         const symbolRow = screen.getByText('AAPL').closest('tr');
         fireEvent.click(symbolRow!);
-        
-        expect(consoleSpy).toHaveBeenCalledWith('Selected symbol:', 'AAPL');
+
+        expect(mockLoggerInfo).toHaveBeenCalledWith('Selected symbol:', 'AAPL');
       }, { timeout: 2000 });
-      
-      consoleSpy.mockRestore();
     });
   });
 
@@ -339,25 +352,28 @@ describe('Watchlist', () => {
   describe('Error Handling', () => {
     it('clears error when typing in symbol input', async () => {
       render(<Watchlist />);
-      
+
+      // Wait for component to load
       await waitFor(() => {
-        const input = screen.getByPlaceholderText('Add symbol (e.g., AAPL)');
-        const addButton = screen.getByRole('button', { name: /add/i });
-        
-        // Trigger an error first
-        fireEvent.click(addButton);
+        expect(screen.getByPlaceholderText('Add symbol (e.g., AAPL)')).toBeInTheDocument();
       }, { timeout: 2000 });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/please enter a symbol/i)).toBeInTheDocument();
-      });
-      
-      // Type in input to clear error
+
       const input = screen.getByPlaceholderText('Add symbol (e.g., AAPL)');
-      fireEvent.change(input, { target: { value: 'AMZN' } });
-      
+      const addButton = screen.getByRole('button', { name: /add/i });
+
+      // Trigger an error by trying to add an invalid symbol
+      fireEvent.change(input, { target: { value: 'INVALID@SYMBOL' } });
+      fireEvent.click(addButton);
+
       await waitFor(() => {
-        expect(screen.queryByText(/please enter a symbol/i)).not.toBeInTheDocument();
+        expect(screen.getByText(/please enter a valid symbol/i)).toBeInTheDocument();
+      });
+
+      // Type valid symbol in input to clear error
+      fireEvent.change(input, { target: { value: 'AMZN' } });
+
+      await waitFor(() => {
+        expect(screen.queryByText(/please enter a valid symbol/i)).not.toBeInTheDocument();
       });
     });
   });

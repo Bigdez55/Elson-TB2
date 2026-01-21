@@ -20,51 +20,45 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.schemas.wealth_advisory import (
-    # Enums
-    AdvisoryMode,
-    WealthTier,
-    CredentialType,
-    ProfessionalRoleType,
-    # Request models
-    WealthAdvisoryRequest,
-    EstatePlanningRequest,
-    SuccessionPlanningRequest,
-    TeamCoordinationRequest,
-    FinancialLiteracyRequest,
-    RetirementPlanningRequest,
-    CollegePlanningRequest,
-    GoalPlanningRequest,
-    # Response models
-    WealthAdvisoryResponse,
-    EstatePlanningResponse,
-    SuccessionPlanningResponse,
-    TeamCoordinationResponse,
-    FinancialLiteracyResponse,
-    CredentialInfoResponse,
-    RoleInfoResponse,
-    KnowledgeBaseStatsResponse,
-    RetirementPlanningResponse,
-    CollegePlanningResponse,
-    GoalPlanningResponse,
-    # Supporting models
-    Citation,
-    ProfessionalRecommendation,
-    ActionItem,
-    RetirementMilestone,
-    RetirementAccountRecommendation,
-    CollegeCostProjection,
-    CollegeSavingsStrategy,
-    FinancialAidEstimate,
-    TierProgressionMilestone,
+from app.schemas.wealth_advisory import (  # Enums; Request models; Response models; Supporting models
     AccelerationStrategy,
+    ActionItem,
+    AdvisoryMode,
+    Citation,
+    CollegeCostProjection,
+    CollegePlanningRequest,
+    CollegePlanningResponse,
+    CollegeSavingsStrategy,
+    CredentialInfoResponse,
+    CredentialType,
+    EstatePlanningRequest,
+    EstatePlanningResponse,
+    FinancialAidEstimate,
+    FinancialLiteracyRequest,
+    FinancialLiteracyResponse,
+    GoalPlanningRequest,
+    GoalPlanningResponse,
+    KnowledgeBaseStatsResponse,
+    ProfessionalRecommendation,
+    ProfessionalRoleType,
+    RetirementAccountRecommendation,
+    RetirementMilestone,
+    RetirementPlanningRequest,
+    RetirementPlanningResponse,
+    RoleInfoResponse,
+    SuccessionPlanningRequest,
+    SuccessionPlanningResponse,
+    TeamCoordinationRequest,
+    TeamCoordinationResponse,
+    TierProgressionMilestone,
+    WealthAdvisoryRequest,
+    WealthAdvisoryResponse,
+    WealthTier,
 )
-from app.services.knowledge_rag import (
-    get_wealth_rag,
-    WealthManagementRAG,
-    AdvisoryMode as RAGAdvisoryMode,
-    WealthTier as RAGWealthTier,
-)
+from app.services.knowledge_rag import AdvisoryMode as RAGAdvisoryMode
+from app.services.knowledge_rag import WealthManagementRAG
+from app.services.knowledge_rag import WealthTier as RAGWealthTier
+from app.services.knowledge_rag import get_wealth_rag
 from app.trading_engine.ml_models.llm_models.prompts import (
     WealthManagementPromptBuilder,
     create_prompt_builder,
@@ -79,6 +73,7 @@ router = APIRouter()
 # DEPENDENCY INJECTION
 # =============================================================================
 
+
 def get_rag_service() -> WealthManagementRAG:
     """Get the RAG service instance."""
     return get_wealth_rag()
@@ -92,6 +87,7 @@ def get_prompt_builder() -> WealthManagementPromptBuilder:
 # =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
+
 
 def convert_advisory_mode(mode: AdvisoryMode) -> RAGAdvisoryMode:
     """Convert schema AdvisoryMode to RAG AdvisoryMode."""
@@ -109,7 +105,7 @@ def format_citations(rag_results: list[dict]) -> list[Citation]:
         Citation(
             source=result.get("source", "knowledge_base"),
             content=result.get("content", "")[:500],  # Truncate long content
-            relevance_score=result.get("relevance_score", 0.0)
+            relevance_score=result.get("relevance_score", 0.0),
         )
         for result in rag_results
     ]
@@ -120,7 +116,7 @@ async def generate_advisory_response(
     rag: WealthManagementRAG,
     advisory_mode: AdvisoryMode,
     wealth_tier: WealthTier | None = None,
-    n_results: int = 5
+    n_results: int = 5,
 ) -> tuple[list[dict], list[str]]:
     """
     Generate context from RAG for advisory response.
@@ -135,121 +131,145 @@ async def generate_advisory_response(
         question=query,
         n_results=n_results,
         advisory_mode=rag_mode,
-        wealth_tier=rag_tier
+        wealth_tier=rag_tier,
     )
 
     context = [r.get("content", "") for r in results if r.get("content")]
     return results, context
 
 
-def extract_professionals_from_context(context: list[str]) -> list[ProfessionalRecommendation]:
+def extract_professionals_from_context(
+    context: list[str],
+) -> list[ProfessionalRecommendation]:
     """Extract professional recommendations from context."""
     professionals = []
 
     # CFP recommendation for general planning
     if any("CFP" in c or "financial planner" in c.lower() for c in context):
-        professionals.append(ProfessionalRecommendation(
-            role="Certified Financial Planner (CFP®)",
-            credentials=["CFP®"],
-            responsibilities=["Comprehensive financial planning", "Team coordination"],
-            why_recommended="Serves as 'quarterback' for coordinating advisory team",
-            priority=1
-        ))
+        professionals.append(
+            ProfessionalRecommendation(
+                role="Certified Financial Planner (CFP®)",
+                credentials=["CFP®"],
+                responsibilities=[
+                    "Comprehensive financial planning",
+                    "Team coordination",
+                ],
+                why_recommended="Serves as 'quarterback' for coordinating advisory team",
+                priority=1,
+            )
+        )
 
     # Estate attorney for estate matters
     if any("estate" in c.lower() or "trust" in c.lower() for c in context):
-        professionals.append(ProfessionalRecommendation(
-            role="Estate Planning Attorney",
-            credentials=["Bar License", "Board Certified in Estate Planning preferred"],
-            responsibilities=["Wills", "Trusts", "Asset protection"],
-            why_recommended="Essential for legal estate planning documents",
-            priority=2
-        ))
+        professionals.append(
+            ProfessionalRecommendation(
+                role="Estate Planning Attorney",
+                credentials=[
+                    "Bar License",
+                    "Board Certified in Estate Planning preferred",
+                ],
+                responsibilities=["Wills", "Trusts", "Asset protection"],
+                why_recommended="Essential for legal estate planning documents",
+                priority=2,
+            )
+        )
 
     # CPA for tax matters
     if any("tax" in c.lower() or "cpa" in c.lower() for c in context):
-        professionals.append(ProfessionalRecommendation(
-            role="Certified Public Accountant (CPA)",
-            credentials=["CPA License"],
-            responsibilities=["Tax planning", "Financial statements", "Compliance"],
-            why_recommended="Critical for tax optimization and compliance",
-            priority=2
-        ))
+        professionals.append(
+            ProfessionalRecommendation(
+                role="Certified Public Accountant (CPA)",
+                credentials=["CPA License"],
+                responsibilities=["Tax planning", "Financial statements", "Compliance"],
+                why_recommended="Critical for tax optimization and compliance",
+                priority=2,
+            )
+        )
 
     return professionals
 
 
-def generate_next_steps(advisory_mode: AdvisoryMode, wealth_tier: WealthTier | None) -> list[ActionItem]:
+def generate_next_steps(
+    advisory_mode: AdvisoryMode, wealth_tier: WealthTier | None
+) -> list[ActionItem]:
     """Generate recommended next steps based on context."""
     steps = []
 
     if advisory_mode == AdvisoryMode.ESTATE_PLANNING:
-        steps.extend([
-            ActionItem(
-                action="Schedule consultation with estate planning attorney",
-                category="legal",
-                priority="high",
-                professional_needed="Estate Planning Attorney"
-            ),
-            ActionItem(
-                action="Gather inventory of all assets and liabilities",
-                category="preparation",
-                priority="high",
-                professional_needed=None
-            ),
-            ActionItem(
-                action="Review current beneficiary designations on all accounts",
-                category="review",
-                priority="medium",
-                professional_needed=None
-            )
-        ])
+        steps.extend(
+            [
+                ActionItem(
+                    action="Schedule consultation with estate planning attorney",
+                    category="legal",
+                    priority="high",
+                    professional_needed="Estate Planning Attorney",
+                ),
+                ActionItem(
+                    action="Gather inventory of all assets and liabilities",
+                    category="preparation",
+                    priority="high",
+                    professional_needed=None,
+                ),
+                ActionItem(
+                    action="Review current beneficiary designations on all accounts",
+                    category="review",
+                    priority="medium",
+                    professional_needed=None,
+                ),
+            ]
+        )
 
     elif advisory_mode == AdvisoryMode.SUCCESSION_PLANNING:
-        steps.extend([
-            ActionItem(
-                action="Obtain business valuation from qualified appraiser",
-                category="valuation",
-                priority="high",
-                professional_needed="Business Valuation Expert (ASA/CVA)"
-            ),
-            ActionItem(
-                action="Assemble 'Dream Team' of advisors",
-                category="team",
-                priority="high",
-                professional_needed="CFP® as coordinator"
-            ),
-            ActionItem(
-                action="Document key processes and reduce owner dependence",
-                category="preparation",
-                priority="medium",
-                professional_needed=None
-            )
-        ])
+        steps.extend(
+            [
+                ActionItem(
+                    action="Obtain business valuation from qualified appraiser",
+                    category="valuation",
+                    priority="high",
+                    professional_needed="Business Valuation Expert (ASA/CVA)",
+                ),
+                ActionItem(
+                    action="Assemble 'Dream Team' of advisors",
+                    category="team",
+                    priority="high",
+                    professional_needed="CFP® as coordinator",
+                ),
+                ActionItem(
+                    action="Document key processes and reduce owner dependence",
+                    category="preparation",
+                    priority="medium",
+                    professional_needed=None,
+                ),
+            ]
+        )
 
     elif advisory_mode == AdvisoryMode.FINANCIAL_LITERACY:
-        steps.extend([
-            ActionItem(
-                action="Create or review monthly budget",
-                category="budgeting",
-                priority="high",
-                professional_needed=None
-            ),
-            ActionItem(
-                action="Build emergency fund (3-6 months expenses)",
-                category="savings",
-                priority="high",
-                professional_needed=None
-            )
-        ])
+        steps.extend(
+            [
+                ActionItem(
+                    action="Create or review monthly budget",
+                    category="budgeting",
+                    priority="high",
+                    professional_needed=None,
+                ),
+                ActionItem(
+                    action="Build emergency fund (3-6 months expenses)",
+                    category="savings",
+                    priority="high",
+                    professional_needed=None,
+                ),
+            ]
+        )
 
     else:
-        steps.append(ActionItem(
-            action="Consult with qualified financial professional",
-            category="general",
-            priority="medium",
-            professional_needed="CFP® or appropriate specialist"
-        ))
+        steps.append(
+            ActionItem(
+                action="Consult with qualified financial professional",
+                category="general",
+                priority="medium",
+                professional_needed="CFP® or appropriate specialist",
+            )
+        )
 
     return steps
 
@@ -258,10 +278,10 @@ def generate_next_steps(advisory_mode: AdvisoryMode, wealth_tier: WealthTier | N
 # ADVISORY ENDPOINTS
 # =============================================================================
 
+
 @router.post("/advisory/query", response_model=WealthAdvisoryResponse)
 async def wealth_advisory_query(
-    request: WealthAdvisoryRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    request: WealthAdvisoryRequest, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> WealthAdvisoryResponse:
     """
     General wealth management advisory query.
@@ -278,15 +298,21 @@ async def wealth_advisory_query(
             rag=rag,
             advisory_mode=request.advisory_mode,
             wealth_tier=request.wealth_tier,
-            n_results=5
+            n_results=5,
         )
 
         # Generate response text
-        response_text = _generate_response_text(request.query, context, request.advisory_mode)
+        response_text = _generate_response_text(
+            request.query, context, request.advisory_mode
+        )
 
         # Build response
         citations = format_citations(rag_results) if request.include_citations else []
-        professionals = extract_professionals_from_context(context) if request.include_professionals else []
+        professionals = (
+            extract_professionals_from_context(context)
+            if request.include_professionals
+            else []
+        )
         next_steps = generate_next_steps(request.advisory_mode, request.wealth_tier)
 
         return WealthAdvisoryResponse(
@@ -296,21 +322,20 @@ async def wealth_advisory_query(
             citations=citations,
             recommended_professionals=professionals,
             next_steps=next_steps,
-            confidence=0.85 if rag_results else 0.6
+            confidence=0.85 if rag_results else 0.6,
         )
 
     except Exception as e:
         logger.error(f"Error in advisory query: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing advisory query: {str(e)}"
+            detail=f"Error processing advisory query: {str(e)}",
         )
 
 
 @router.post("/advisory/estate-planning", response_model=EstatePlanningResponse)
 async def estate_planning_advisory(
-    request: EstatePlanningRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    request: EstatePlanningRequest, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> EstatePlanningResponse:
     """
     Estate planning specific advisory.
@@ -332,7 +357,7 @@ async def estate_planning_advisory(
             query=query,
             rag=rag,
             advisory_mode=AdvisoryMode.ESTATE_PLANNING,
-            n_results=8
+            n_results=8,
         )
 
         # Generate structured recommendations
@@ -348,28 +373,30 @@ async def estate_planning_advisory(
             document_checklist=documents,
             professional_team=team,
             citations=format_citations(rag_results),
-            timeline_recommendation="Begin with attorney consultation within 30 days"
+            timeline_recommendation="Begin with attorney consultation within 30 days",
         )
 
     except Exception as e:
         logger.error(f"Error in estate planning: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing estate planning request: {str(e)}"
+            detail=f"Error processing estate planning request: {str(e)}",
         )
 
 
 @router.post("/advisory/succession", response_model=SuccessionPlanningResponse)
 async def succession_planning(
     request: SuccessionPlanningRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    rag: WealthManagementRAG = Depends(get_rag_service),
 ) -> SuccessionPlanningResponse:
     """
     Business succession planning advisory.
 
     Provides guidance on exit strategies, valuation, and Dream Team coordination.
     """
-    logger.info(f"Succession planning: {request.business_type}, value=${request.estimated_value}")
+    logger.info(
+        f"Succession planning: {request.business_type}, value=${request.estimated_value}"
+    )
 
     try:
         # Build query
@@ -384,7 +411,7 @@ async def succession_planning(
             query=query,
             rag=rag,
             advisory_mode=AdvisoryMode.SUCCESSION_PLANNING,
-            n_results=8
+            n_results=8,
         )
 
         # Generate recommendations
@@ -401,28 +428,30 @@ async def succession_planning(
             valuation_considerations=valuation_considerations,
             tax_strategies=tax_strategies,
             timeline_phases=timeline,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in succession planning: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing succession planning: {str(e)}"
+            detail=f"Error processing succession planning: {str(e)}",
         )
 
 
 @router.post("/advisory/team-coordination", response_model=TeamCoordinationResponse)
 async def team_coordination(
     request: TeamCoordinationRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    rag: WealthManagementRAG = Depends(get_rag_service),
 ) -> TeamCoordinationResponse:
     """
     Professional team coordination recommendations.
 
     Provides guidance on assembling and coordinating an advisory team.
     """
-    logger.info(f"Team coordination: {request.situation_type}, tier={request.wealth_tier}")
+    logger.info(
+        f"Team coordination: {request.situation_type}, tier={request.wealth_tier}"
+    )
 
     try:
         # Get RAG context
@@ -431,7 +460,7 @@ async def team_coordination(
             rag=rag,
             advisory_mode=AdvisoryMode.GENERAL,
             wealth_tier=request.wealth_tier,
-            n_results=6
+            n_results=6,
         )
 
         # Generate team recommendations
@@ -445,34 +474,35 @@ async def team_coordination(
             coordination_framework=framework,
             communication_protocol=protocol,
             quarterly_review_agenda=agenda,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in team coordination: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing team coordination: {str(e)}"
+            detail=f"Error processing team coordination: {str(e)}",
         )
 
 
 @router.post("/advisory/financial-literacy", response_model=FinancialLiteracyResponse)
 async def financial_literacy_content(
     request: FinancialLiteracyRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    rag: WealthManagementRAG = Depends(get_rag_service),
 ) -> FinancialLiteracyResponse:
     """
     Financial literacy educational content.
 
     Provides clear, accessible explanations of financial topics for learners.
     """
-    logger.info(f"Financial literacy: topic={request.topic}, level={request.current_knowledge_level}")
+    logger.info(
+        f"Financial literacy: topic={request.topic}, level={request.current_knowledge_level}"
+    )
 
     try:
         # Get RAG context from financial literacy category
         rag_results = await rag.get_financial_literacy_content(
-            topic=request.topic,
-            level=request.current_knowledge_level
+            topic=request.topic, level=request.current_knowledge_level
         )
 
         context = [r.get("content", "") for r in rag_results]
@@ -493,14 +523,14 @@ async def financial_literacy_content(
             common_mistakes=mistakes,
             resources=resources,
             next_topics=next_topics,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in financial literacy: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing financial literacy request: {str(e)}"
+            detail=f"Error processing financial literacy request: {str(e)}",
         )
 
 
@@ -508,10 +538,10 @@ async def financial_literacy_content(
 # KNOWLEDGE ENDPOINTS
 # =============================================================================
 
+
 @router.get("/knowledge/roles/{role_type}", response_model=RoleInfoResponse)
 async def get_role_info(
-    role_type: ProfessionalRoleType,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    role_type: ProfessionalRoleType, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> RoleInfoResponse:
     """
     Get information about a specific professional role.
@@ -525,7 +555,7 @@ async def get_role_info(
         rag_results = await rag.search_by_category(
             question=f"What are the responsibilities and credentials of a {role_type.value.replace('_', ' ')}?",
             categories=["professional_roles", "certifications"],
-            n_results=5
+            n_results=5,
         )
 
         role_info = _get_role_details(role_type)
@@ -539,21 +569,22 @@ async def get_role_info(
             reports_to=role_info.get("reports_to"),
             works_with=role_info.get("works_with", []),
             when_to_engage=role_info.get("when_to_engage", []),
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error getting role info: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving role information: {str(e)}"
+            detail=f"Error retrieving role information: {str(e)}",
         )
 
 
-@router.get("/knowledge/certifications/{cert_type}", response_model=CredentialInfoResponse)
+@router.get(
+    "/knowledge/certifications/{cert_type}", response_model=CredentialInfoResponse
+)
 async def get_certification_info(
-    cert_type: CredentialType,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    cert_type: CredentialType, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> CredentialInfoResponse:
     """
     Get information about a specific certification/credential.
@@ -567,7 +598,7 @@ async def get_certification_info(
         rag_results = await rag.search_by_category(
             question=f"What are the requirements and study materials for the {cert_type.value} certification?",
             categories=["certifications", "study_materials"],
-            n_results=5
+            n_results=5,
         )
 
         cert_info = _get_certification_details(cert_type)
@@ -581,20 +612,20 @@ async def get_certification_info(
             study_providers=cert_info.get("providers"),
             career_applications=cert_info["career_applications"],
             related_credentials=cert_info.get("related", []),
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error getting certification info: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving certification information: {str(e)}"
+            detail=f"Error retrieving certification information: {str(e)}",
         )
 
 
 @router.get("/knowledge/stats", response_model=KnowledgeBaseStatsResponse)
 async def get_knowledge_stats(
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    rag: WealthManagementRAG = Depends(get_rag_service),
 ) -> KnowledgeBaseStatsResponse:
     """
     Get knowledge base statistics.
@@ -609,20 +640,21 @@ async def get_knowledge_stats(
             collection_name=stats.get("collection_name", "unknown"),
             embedding_model=stats.get("embedding_model", "unknown"),
             categories=list(rag.category_files.keys()),
-            last_updated=None  # Could track this in metadata
+            last_updated=None,  # Could track this in metadata
         )
 
     except Exception as e:
         logger.error(f"Error getting knowledge stats: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving knowledge statistics: {str(e)}"
+            detail=f"Error retrieving knowledge statistics: {str(e)}",
         )
 
 
 # =============================================================================
 # HELPER FUNCTIONS FOR RESPONSE GENERATION
 # =============================================================================
+
 
 def _generate_response_text(query: str, context: list[str], mode: AdvisoryMode) -> str:
     """Generate response text from query and context."""
@@ -638,16 +670,26 @@ def _generate_estate_summary(request: EstatePlanningRequest, context: list[str])
     """Generate estate planning summary."""
     summary_parts = ["Estate Planning Recommendations:"]
 
-    if request.estimated_estate_value and request.estimated_estate_value > 12920000:  # 2023 exemption
-        summary_parts.append("- Your estate may be subject to federal estate tax. Advanced planning strategies recommended.")
+    if (
+        request.estimated_estate_value and request.estimated_estate_value > 12920000
+    ):  # 2023 exemption
+        summary_parts.append(
+            "- Your estate may be subject to federal estate tax. Advanced planning strategies recommended."
+        )
     else:
-        summary_parts.append("- Focus on asset protection, probate avoidance, and incapacity planning.")
+        summary_parts.append(
+            "- Focus on asset protection, probate avoidance, and incapacity planning."
+        )
 
     if request.has_business:
-        summary_parts.append("- Business succession planning should be integrated with overall estate plan.")
+        summary_parts.append(
+            "- Business succession planning should be integrated with overall estate plan."
+        )
 
     if request.charitable_intent:
-        summary_parts.append("- Consider charitable remainder trusts, donor-advised funds, or private foundation.")
+        summary_parts.append(
+            "- Consider charitable remainder trusts, donor-advised funds, or private foundation."
+        )
 
     return " ".join(summary_parts)
 
@@ -655,15 +697,35 @@ def _generate_estate_summary(request: EstatePlanningRequest, context: list[str])
 def _generate_estate_structures(request: EstatePlanningRequest) -> list[dict[str, Any]]:
     """Generate recommended estate structures."""
     structures = [
-        {"name": "Revocable Living Trust", "purpose": "Probate avoidance, incapacity planning", "recommended": True},
-        {"name": "Pour-Over Will", "purpose": "Catch-all for assets not in trust", "recommended": True}
+        {
+            "name": "Revocable Living Trust",
+            "purpose": "Probate avoidance, incapacity planning",
+            "recommended": True,
+        },
+        {
+            "name": "Pour-Over Will",
+            "purpose": "Catch-all for assets not in trust",
+            "recommended": True,
+        },
     ]
 
     if request.estimated_estate_value and request.estimated_estate_value > 1000000:
-        structures.append({"name": "Irrevocable Life Insurance Trust (ILIT)", "purpose": "Remove life insurance from taxable estate", "recommended": True})
+        structures.append(
+            {
+                "name": "Irrevocable Life Insurance Trust (ILIT)",
+                "purpose": "Remove life insurance from taxable estate",
+                "recommended": True,
+            }
+        )
 
     if request.charitable_intent:
-        structures.append({"name": "Charitable Remainder Trust (CRT)", "purpose": "Income stream with charitable benefit", "recommended": True})
+        structures.append(
+            {
+                "name": "Charitable Remainder Trust (CRT)",
+                "purpose": "Income stream with charitable benefit",
+                "recommended": True,
+            }
+        )
 
     return structures
 
@@ -673,11 +735,13 @@ def _generate_tax_strategies(request: EstatePlanningRequest) -> list[str]:
     strategies = ["Annual exclusion gifting ($18,000 per recipient in 2024)"]
 
     if request.estimated_estate_value and request.estimated_estate_value > 5000000:
-        strategies.extend([
-            "Consider Grantor Retained Annuity Trust (GRAT) for appreciation transfer",
-            "Evaluate Qualified Personal Residence Trust (QPRT) for residence",
-            "Review charitable lead/remainder trust options"
-        ])
+        strategies.extend(
+            [
+                "Consider Grantor Retained Annuity Trust (GRAT) for appreciation transfer",
+                "Evaluate Qualified Personal Residence Trust (QPRT) for residence",
+                "Review charitable lead/remainder trust options",
+            ]
+        )
 
     return strategies
 
@@ -690,7 +754,7 @@ def _generate_document_checklist(request: EstatePlanningRequest) -> list[str]:
         "Durable Power of Attorney (Financial)",
         "Healthcare Power of Attorney",
         "HIPAA Authorization",
-        "Living Will / Advance Directive"
+        "Living Will / Advance Directive",
     ]
 
     if request.has_business:
@@ -699,30 +763,44 @@ def _generate_document_checklist(request: EstatePlanningRequest) -> list[str]:
     return documents
 
 
-def _generate_estate_team(request: EstatePlanningRequest) -> list[ProfessionalRecommendation]:
+def _generate_estate_team(
+    request: EstatePlanningRequest,
+) -> list[ProfessionalRecommendation]:
     """Generate estate planning team recommendations."""
     return [
         ProfessionalRecommendation(
             role="Estate Planning Attorney",
             credentials=["Bar License", "Board Certified preferred"],
-            responsibilities=["Document drafting", "Legal strategy", "Trust administration guidance"],
+            responsibilities=[
+                "Document drafting",
+                "Legal strategy",
+                "Trust administration guidance",
+            ],
             why_recommended="Essential for legal document preparation and strategy",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="CPA with Estate Focus",
             credentials=["CPA License"],
-            responsibilities=["Tax planning", "Return preparation", "Asset valuation coordination"],
+            responsibilities=[
+                "Tax planning",
+                "Return preparation",
+                "Asset valuation coordination",
+            ],
             why_recommended="Critical for tax optimization and compliance",
-            priority=2
+            priority=2,
         ),
         ProfessionalRecommendation(
             role="CFP® Financial Planner",
             credentials=["CFP®"],
-            responsibilities=["Comprehensive planning", "Team coordination", "Goal alignment"],
+            responsibilities=[
+                "Comprehensive planning",
+                "Team coordination",
+                "Goal alignment",
+            ],
             why_recommended="Serves as 'quarterback' coordinating all advisors",
-            priority=2
-        )
+            priority=2,
+        ),
     ]
 
 
@@ -731,39 +809,71 @@ def _generate_exit_options(request: SuccessionPlanningRequest) -> list[dict[str,
     options = []
 
     if request.potential_successors and "family" in request.potential_successors:
-        options.append({
-            "option": "Family Transfer",
-            "description": "Transfer to next generation family members",
-            "pros": ["Preserves family legacy", "Flexible structuring", "Gradual transition possible"],
-            "cons": ["Potential family conflict", "May not maximize value", "Financing challenges"],
-            "suitable_for": "Families with capable, interested successors"
-        })
+        options.append(
+            {
+                "option": "Family Transfer",
+                "description": "Transfer to next generation family members",
+                "pros": [
+                    "Preserves family legacy",
+                    "Flexible structuring",
+                    "Gradual transition possible",
+                ],
+                "cons": [
+                    "Potential family conflict",
+                    "May not maximize value",
+                    "Financing challenges",
+                ],
+                "suitable_for": "Families with capable, interested successors",
+            }
+        )
 
     if request.potential_successors and "employee" in request.potential_successors:
-        options.append({
-            "option": "Management Buyout (MBO)",
-            "description": "Sale to existing management team",
-            "pros": ["Management knows business", "Smoother transition", "Preserves culture"],
-            "cons": ["Management may lack capital", "May require seller financing"],
-            "suitable_for": "Businesses with strong management team"
-        })
+        options.append(
+            {
+                "option": "Management Buyout (MBO)",
+                "description": "Sale to existing management team",
+                "pros": [
+                    "Management knows business",
+                    "Smoother transition",
+                    "Preserves culture",
+                ],
+                "cons": ["Management may lack capital", "May require seller financing"],
+                "suitable_for": "Businesses with strong management team",
+            }
+        )
 
-    options.append({
-        "option": "Third-Party Sale",
-        "description": "Sale to strategic or financial buyer",
-        "pros": ["Highest potential valuation", "Clean break", "Professional process"],
-        "cons": ["Loss of legacy", "Longer process", "Due diligence burden"],
-        "suitable_for": "Owners seeking maximum value and clean exit"
-    })
+    options.append(
+        {
+            "option": "Third-Party Sale",
+            "description": "Sale to strategic or financial buyer",
+            "pros": [
+                "Highest potential valuation",
+                "Clean break",
+                "Professional process",
+            ],
+            "cons": ["Loss of legacy", "Longer process", "Due diligence burden"],
+            "suitable_for": "Owners seeking maximum value and clean exit",
+        }
+    )
 
     if request.employee_count and request.employee_count >= 20:
-        options.append({
-            "option": "ESOP",
-            "description": "Employee Stock Ownership Plan",
-            "pros": ["Tax advantages (Section 1042)", "Employee ownership culture", "Legacy preservation"],
-            "cons": ["Complex and expensive", "Ongoing administration", "Repurchase obligation"],
-            "suitable_for": "Companies with $5M+ value and 20+ employees"
-        })
+        options.append(
+            {
+                "option": "ESOP",
+                "description": "Employee Stock Ownership Plan",
+                "pros": [
+                    "Tax advantages (Section 1042)",
+                    "Employee ownership culture",
+                    "Legacy preservation",
+                ],
+                "cons": [
+                    "Complex and expensive",
+                    "Ongoing administration",
+                    "Repurchase obligation",
+                ],
+                "suitable_for": "Companies with $5M+ value and 20+ employees",
+            }
+        )
 
     return options
 
@@ -774,45 +884,69 @@ def _generate_dream_team() -> list[ProfessionalRecommendation]:
         ProfessionalRecommendation(
             role="CFP® Financial Planner",
             credentials=["CFP®"],
-            responsibilities=["Define personal financial objectives", "Coordinate team", "Post-transaction planning"],
+            responsibilities=[
+                "Define personal financial objectives",
+                "Coordinate team",
+                "Post-transaction planning",
+            ],
             why_recommended="'Quarterback' ensuring all aspects align with owner's life goals",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="M&A Attorney",
             credentials=["Bar License", "M&A experience"],
-            responsibilities=["Transaction structure", "Purchase agreements", "Legal due diligence"],
+            responsibilities=[
+                "Transaction structure",
+                "Purchase agreements",
+                "Legal due diligence",
+            ],
             why_recommended="Essential for legal protection and deal structure",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="CPA with Transaction Experience",
             credentials=["CPA License"],
-            responsibilities=["Tax-efficient structuring", "Due diligence", "Post-transaction planning"],
+            responsibilities=[
+                "Tax-efficient structuring",
+                "Due diligence",
+                "Post-transaction planning",
+            ],
             why_recommended="Critical for minimizing tax implications",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="Business Valuation Expert",
             credentials=["ASA", "CVA"],
-            responsibilities=["Objective valuation", "Defensible pricing", "Tax challenge defense"],
+            responsibilities=[
+                "Objective valuation",
+                "Defensible pricing",
+                "Tax challenge defense",
+            ],
             why_recommended="Establishes fair market value for negotiations",
-            priority=2
+            priority=2,
         ),
         ProfessionalRecommendation(
             role="Estate Planning Attorney",
             credentials=["Bar License", "Estate specialization"],
-            responsibilities=["Estate plan updates", "Seller note structuring", "Trust adjustments"],
+            responsibilities=[
+                "Estate plan updates",
+                "Seller note structuring",
+                "Trust adjustments",
+            ],
             why_recommended="Ensures alignment with overall estate plan",
-            priority=2
+            priority=2,
         ),
         ProfessionalRecommendation(
             role="Wealth Manager",
             credentials=["CPWA®", "CFA®", "CFP®"],
-            responsibilities=["Post-transaction investment", "Tax optimization", "Retirement income"],
+            responsibilities=[
+                "Post-transaction investment",
+                "Tax optimization",
+                "Retirement income",
+            ],
             why_recommended="Manages proceeds for long-term financial security",
-            priority=2
-        )
+            priority=2,
+        ),
     ]
 
 
@@ -821,51 +955,79 @@ def _generate_valuation_considerations(request: SuccessionPlanningRequest) -> li
     considerations = [
         "Multiple valuation methodologies (DCF, comparable companies, comparable transactions)",
         "Consideration of control premiums or minority discounts",
-        "Lack of marketability discount for private company"
+        "Lack of marketability discount for private company",
     ]
 
     if request.business_type:
-        considerations.append(f"Industry-specific multiples for {request.business_type}")
+        considerations.append(
+            f"Industry-specific multiples for {request.business_type}"
+        )
 
-    considerations.extend([
-        "Normalized earnings (add-backs for owner compensation, one-time items)",
-        "Working capital requirements",
-        "Customer concentration risk assessment"
-    ])
+    considerations.extend(
+        [
+            "Normalized earnings (add-backs for owner compensation, one-time items)",
+            "Working capital requirements",
+            "Customer concentration risk assessment",
+        ]
+    )
 
     return considerations
 
 
-def _generate_succession_tax_strategies(request: SuccessionPlanningRequest) -> list[str]:
+def _generate_succession_tax_strategies(
+    request: SuccessionPlanningRequest,
+) -> list[str]:
     """Generate tax strategies for succession."""
     strategies = [
         "Installment sale to spread capital gains over multiple years (Section 453)",
-        "Qualified Small Business Stock exclusion if applicable (Section 1202)"
+        "Qualified Small Business Stock exclusion if applicable (Section 1202)",
     ]
 
     if request.estimated_value and request.estimated_value > 10000000:
-        strategies.extend([
-            "Consider charitable remainder trust for appreciated stock",
-            "Opportunity Zone investment for gain deferral",
-            "ESOP with Section 1042 rollover potential"
-        ])
+        strategies.extend(
+            [
+                "Consider charitable remainder trust for appreciated stock",
+                "Opportunity Zone investment for gain deferral",
+                "ESOP with Section 1042 rollover potential",
+            ]
+        )
 
     return strategies
 
 
-def _generate_succession_timeline(request: SuccessionPlanningRequest) -> list[dict[str, str]]:
+def _generate_succession_timeline(
+    request: SuccessionPlanningRequest,
+) -> list[dict[str, str]]:
     """Generate succession timeline phases."""
     years = request.years_until_exit or 3
 
     return [
-        {"phase": "Preparation", "duration": f"Years 1-{max(1, years - 2)}", "activities": "Assemble team, valuation, value enhancement"},
-        {"phase": "Marketing", "duration": "3-12 months", "activities": "Identify buyers, confidential outreach, evaluate offers"},
-        {"phase": "Transaction", "duration": "3-6 months", "activities": "Due diligence, negotiation, closing"},
-        {"phase": "Transition", "duration": "6-24 months post-close", "activities": "Knowledge transfer, earnout period"}
+        {
+            "phase": "Preparation",
+            "duration": f"Years 1-{max(1, years - 2)}",
+            "activities": "Assemble team, valuation, value enhancement",
+        },
+        {
+            "phase": "Marketing",
+            "duration": "3-12 months",
+            "activities": "Identify buyers, confidential outreach, evaluate offers",
+        },
+        {
+            "phase": "Transaction",
+            "duration": "3-6 months",
+            "activities": "Due diligence, negotiation, closing",
+        },
+        {
+            "phase": "Transition",
+            "duration": "6-24 months post-close",
+            "activities": "Knowledge transfer, earnout period",
+        },
     ]
 
 
-def _generate_succession_summary(request: SuccessionPlanningRequest, context: list[str]) -> str:
+def _generate_succession_summary(
+    request: SuccessionPlanningRequest, context: list[str]
+) -> str:
     """Generate succession planning summary."""
     parts = [f"Business Succession Plan for {request.business_type}:"]
 
@@ -880,7 +1042,9 @@ def _generate_succession_summary(request: SuccessionPlanningRequest, context: li
     return " ".join(parts)
 
 
-def _generate_coordinated_team(request: TeamCoordinationRequest) -> list[ProfessionalRecommendation]:
+def _generate_coordinated_team(
+    request: TeamCoordinationRequest,
+) -> list[ProfessionalRecommendation]:
     """Generate coordinated team recommendations."""
     team = [
         ProfessionalRecommendation(
@@ -888,18 +1052,24 @@ def _generate_coordinated_team(request: TeamCoordinationRequest) -> list[Profess
             credentials=["CFP®"],
             responsibilities=["Team coordination", "Comprehensive planning"],
             why_recommended="Central coordinator for advisory team",
-            priority=1
+            priority=1,
         )
     ]
 
     if request.wealth_tier == WealthTier.HNW_UHNW:
-        team.append(ProfessionalRecommendation(
-            role="CPWA® Private Wealth Advisor",
-            credentials=["CPWA®"],
-            responsibilities=["UHNW strategies", "Complex planning", "Family office coordination"],
-            why_recommended="Specialized in high-net-worth and ultra-high-net-worth needs",
-            priority=1
-        ))
+        team.append(
+            ProfessionalRecommendation(
+                role="CPWA® Private Wealth Advisor",
+                credentials=["CPWA®"],
+                responsibilities=[
+                    "UHNW strategies",
+                    "Complex planning",
+                    "Family office coordination",
+                ],
+                why_recommended="Specialized in high-net-worth and ultra-high-net-worth needs",
+                priority=1,
+            )
+        )
 
     return team
 
@@ -933,33 +1103,70 @@ def _generate_review_agenda(request: TeamCoordinationRequest) -> list[str]:
         "Risk management and insurance adequacy",
         "Goal progress assessment",
         "Regulatory and legislative updates",
-        "Action items for next quarter"
+        "Action items for next quarter",
     ]
 
 
-def _generate_literacy_explanation(request: FinancialLiteracyRequest, context: list[str]) -> str:
+def _generate_literacy_explanation(
+    request: FinancialLiteracyRequest, context: list[str]
+) -> str:
     """Generate financial literacy explanation."""
     if context:
-        return f"Here's what you need to know about {request.topic}: " + " ".join(context[:2])[:800]
-    return f"Understanding {request.topic} is an important step in your financial journey."
+        return (
+            f"Here's what you need to know about {request.topic}: "
+            + " ".join(context[:2])[:800]
+        )
+    return (
+        f"Understanding {request.topic} is an important step in your financial journey."
+    )
 
 
 def _extract_key_concepts(topic: str, context: list[str]) -> list[str]:
     """Extract key concepts from topic."""
     concepts = {
-        "budgeting": ["Income vs expenses", "Fixed vs variable costs", "Tracking spending", "Budget categories"],
-        "emergency fund": ["3-6 months expenses", "Liquid savings", "Financial safety net", "High-yield savings"],
-        "debt": ["Interest rates", "Principal vs interest", "Debt avalanche", "Debt snowball"],
-        "credit": ["Credit score factors", "Payment history", "Credit utilization", "Length of history"],
-        "investing": ["Compound interest", "Diversification", "Risk vs return", "Time horizon"],
-        "retirement": ["401(k)", "IRA types", "Employer match", "Compound growth"]
+        "budgeting": [
+            "Income vs expenses",
+            "Fixed vs variable costs",
+            "Tracking spending",
+            "Budget categories",
+        ],
+        "emergency fund": [
+            "3-6 months expenses",
+            "Liquid savings",
+            "Financial safety net",
+            "High-yield savings",
+        ],
+        "debt": [
+            "Interest rates",
+            "Principal vs interest",
+            "Debt avalanche",
+            "Debt snowball",
+        ],
+        "credit": [
+            "Credit score factors",
+            "Payment history",
+            "Credit utilization",
+            "Length of history",
+        ],
+        "investing": [
+            "Compound interest",
+            "Diversification",
+            "Risk vs return",
+            "Time horizon",
+        ],
+        "retirement": ["401(k)", "IRA types", "Employer match", "Compound growth"],
     }
 
     for key, values in concepts.items():
         if key in topic.lower():
             return values
 
-    return ["Understanding basics", "Building good habits", "Long-term thinking", "Consistent action"]
+    return [
+        "Understanding basics",
+        "Building good habits",
+        "Long-term thinking",
+        "Consistent action",
+    ]
 
 
 def _generate_practical_steps(topic: str) -> list[str]:
@@ -969,33 +1176,38 @@ def _generate_practical_steps(topic: str) -> list[str]:
             "Track all spending for one month",
             "Categorize expenses into needs, wants, savings",
             "Set spending limits for each category",
-            "Review and adjust weekly"
+            "Review and adjust weekly",
         ],
         "emergency fund": [
             "Calculate monthly essential expenses",
             "Set target of 3-6 months expenses",
             "Open high-yield savings account",
-            "Automate regular contributions"
+            "Automate regular contributions",
         ],
         "debt": [
             "List all debts with interest rates",
             "Choose strategy (avalanche or snowball)",
             "Make minimum payments on all debts",
-            "Put extra money toward target debt"
+            "Put extra money toward target debt",
         ],
         "credit": [
             "Check credit report for free annually",
             "Pay all bills on time",
             "Keep credit utilization under 30%",
-            "Avoid opening unnecessary accounts"
-        ]
+            "Avoid opening unnecessary accounts",
+        ],
     }
 
     for key, values in steps.items():
         if key in topic.lower():
             return values
 
-    return ["Start with small, consistent actions", "Track your progress", "Review regularly", "Seek guidance when needed"]
+    return [
+        "Start with small, consistent actions",
+        "Track your progress",
+        "Review regularly",
+        "Seek guidance when needed",
+    ]
 
 
 def _generate_common_mistakes(topic: str) -> list[str]:
@@ -1005,27 +1217,32 @@ def _generate_common_mistakes(topic: str) -> list[str]:
             "Not tracking small purchases",
             "Setting unrealistic limits",
             "Not adjusting for irregular expenses",
-            "Giving up after one mistake"
+            "Giving up after one mistake",
         ],
         "emergency fund": [
             "Keeping emergency fund too accessible",
             "Using it for non-emergencies",
             "Not replenishing after use",
-            "Stopping contributions too early"
+            "Stopping contributions too early",
         ],
         "debt": [
             "Only making minimum payments",
             "Adding new debt while paying off old",
             "Not addressing high-interest debt first",
-            "Ignoring the psychological aspect"
-        ]
+            "Ignoring the psychological aspect",
+        ],
     }
 
     for key, values in mistakes.items():
         if key in topic.lower():
             return values
 
-    return ["Starting too aggressively", "Not being consistent", "Comparing to others", "Expecting quick results"]
+    return [
+        "Starting too aggressively",
+        "Not being consistent",
+        "Comparing to others",
+        "Expecting quick results",
+    ]
 
 
 def _generate_learning_resources(topic: str) -> list[str]:
@@ -1034,7 +1251,7 @@ def _generate_learning_resources(topic: str) -> list[str]:
         "Consumer Financial Protection Bureau (CFPB) educational materials",
         "Federal Reserve educational resources",
         "Your local library financial literacy programs",
-        "Reputable personal finance books and podcasts"
+        "Reputable personal finance books and podcasts",
     ]
 
 
@@ -1042,10 +1259,18 @@ def _suggest_next_topics(topic: str) -> list[str]:
     """Suggest next topics to learn."""
     progression = {
         "budgeting": ["Emergency fund", "Debt management", "Saving strategies"],
-        "emergency fund": ["Debt payoff strategies", "Basic investing", "Insurance basics"],
+        "emergency fund": [
+            "Debt payoff strategies",
+            "Basic investing",
+            "Insurance basics",
+        ],
         "debt": ["Credit building", "Saving strategies", "Investment basics"],
         "credit": ["Loan basics", "Major purchases", "Building wealth"],
-        "investing": ["Retirement accounts", "Asset allocation", "Tax-advantaged investing"]
+        "investing": [
+            "Retirement accounts",
+            "Asset allocation",
+            "Tax-advantaged investing",
+        ],
     }
 
     for key, values in progression.items():
@@ -1061,40 +1286,69 @@ def _get_role_details(role_type: ProfessionalRoleType) -> dict[str, Any]:
         ProfessionalRoleType.ESTATE_PLANNING_ATTORNEY: {
             "title": "Estate Planning Attorney",
             "description": "Legal specialist in wills, trusts, and estate planning documents",
-            "credentials": ["Bar License", "Board Certified in Estate Planning preferred"],
-            "responsibilities": ["Draft wills and trusts", "Tax reduction strategies", "Asset protection", "Healthcare directives"],
+            "credentials": [
+                "Bar License",
+                "Board Certified in Estate Planning preferred",
+            ],
+            "responsibilities": [
+                "Draft wills and trusts",
+                "Tax reduction strategies",
+                "Asset protection",
+                "Healthcare directives",
+            ],
             "reports_to": "Family/Clients",
             "works_with": ["CPA", "CFP", "Trust Officers"],
-            "when_to_engage": ["Creating or updating estate plan", "Major life changes", "Business succession"]
+            "when_to_engage": [
+                "Creating or updating estate plan",
+                "Major life changes",
+                "Business succession",
+            ],
         },
         ProfessionalRoleType.FINANCIAL_PLANNER: {
             "title": "Certified Financial Planner (CFP®)",
             "description": "Comprehensive financial planning professional serving as 'quarterback'",
             "credentials": ["CFP® Certification"],
-            "responsibilities": ["Comprehensive planning", "Team coordination", "Investment advice", "Retirement planning"],
+            "responsibilities": [
+                "Comprehensive planning",
+                "Team coordination",
+                "Investment advice",
+                "Retirement planning",
+            ],
             "reports_to": "Clients",
             "works_with": ["CPA", "Attorney", "Insurance Advisor"],
-            "when_to_engage": ["Starting financial journey", "Life transitions", "Comprehensive planning needs"]
+            "when_to_engage": [
+                "Starting financial journey",
+                "Life transitions",
+                "Comprehensive planning needs",
+            ],
         },
         ProfessionalRoleType.TRUSTEE: {
             "title": "Trustee",
             "description": "Fiduciary responsible for managing trust assets for beneficiaries",
             "credentials": ["Individual or Corporate Trustee"],
-            "responsibilities": ["Asset management", "Distributions", "Tax filings", "Record-keeping"],
+            "responsibilities": [
+                "Asset management",
+                "Distributions",
+                "Tax filings",
+                "Record-keeping",
+            ],
             "reports_to": "Beneficiaries/Courts",
             "works_with": ["Trust Attorney", "CPA", "Investment Advisor"],
-            "when_to_engage": ["Trust administration", "Fiduciary services needed"]
-        }
+            "when_to_engage": ["Trust administration", "Fiduciary services needed"],
+        },
     }
 
-    return roles.get(role_type, {
-        "title": role_type.value.replace("_", " ").title(),
-        "description": f"Professional role in {role_type.value.replace('_', ' ')}",
-        "credentials": ["Relevant professional credentials"],
-        "responsibilities": ["Role-specific responsibilities"],
-        "works_with": ["Related professionals"],
-        "when_to_engage": ["When expertise in this area is needed"]
-    })
+    return roles.get(
+        role_type,
+        {
+            "title": role_type.value.replace("_", " ").title(),
+            "description": f"Professional role in {role_type.value.replace('_', ' ')}",
+            "credentials": ["Relevant professional credentials"],
+            "responsibilities": ["Role-specific responsibilities"],
+            "works_with": ["Related professionals"],
+            "when_to_engage": ["When expertise in this area is needed"],
+        },
+    )
 
 
 def _get_certification_details(cert_type: CredentialType) -> dict[str, Any]:
@@ -1107,19 +1361,26 @@ def _get_certification_details(cert_type: CredentialType) -> dict[str, Any]:
                 "education": "Bachelor's degree + CFP Board education requirements",
                 "examination": "Comprehensive 170-question exam",
                 "experience": "6,000 hours (3 years) or 4,000 hours (2 years apprenticeship)",
-                "ethics": "Background check and fiduciary commitment"
+                "ethics": "Background check and fiduciary commitment",
             },
             "study_details": {
                 "hours": "300+ hours",
                 "topics": "70+ integrated financial planning topics",
-                "cost": "$4,700 - $6,500"
+                "cost": "$4,700 - $6,500",
             },
             "providers": [
-                {"name": "Dalton Education", "features": ["Live review", "Practice exams"]},
-                {"name": "Kaplan", "features": ["Self-study", "Live online"]}
+                {
+                    "name": "Dalton Education",
+                    "features": ["Live review", "Practice exams"],
+                },
+                {"name": "Kaplan", "features": ["Self-study", "Live online"]},
             ],
-            "career_applications": ["Financial planner", "Wealth advisor", "Team coordinator"],
-            "related": ["ChFC", "CPWA"]
+            "career_applications": [
+                "Financial planner",
+                "Wealth advisor",
+                "Team coordinator",
+            ],
+            "related": ["ChFC", "CPWA"],
         },
         CredentialType.CFA: {
             "full_name": "Chartered Financial Analyst",
@@ -1128,19 +1389,22 @@ def _get_certification_details(cert_type: CredentialType) -> dict[str, Any]:
                 "education": "Bachelor's degree or final year of program",
                 "examination": "Three 6-hour exams (Level I, II, III)",
                 "experience": "4 years relevant work experience",
-                "ethics": "CFA Institute ethical standards"
+                "ethics": "CFA Institute ethical standards",
             },
             "study_details": {
                 "hours": "2,000+ total (700-950 per level)",
                 "levels": 3,
-                "duration": "18-36 months minimum"
+                "duration": "18-36 months minimum",
             },
             "providers": [
                 {"name": "Kaplan Schweser", "features": ["Study notes", "Mock exams"]},
-                {"name": "AnalystPrep", "features": ["Practice questions", "Video content"]}
+                {
+                    "name": "AnalystPrep",
+                    "features": ["Practice questions", "Video content"],
+                },
             ],
             "career_applications": ["Portfolio manager", "Investment analyst", "CIO"],
-            "related": ["CIMA", "FRM"]
+            "related": ["CIMA", "FRM"],
         },
         CredentialType.CPA: {
             "full_name": "Certified Public Accountant",
@@ -1149,40 +1413,50 @@ def _get_certification_details(cert_type: CredentialType) -> dict[str, Any]:
                 "education": "150 credit hours",
                 "examination": "Four sections (FAR, AUD, REG, BEC)",
                 "experience": "State-specific (typically 1-2 years)",
-                "ethics": "Ethics exam in most states"
+                "ethics": "Ethics exam in most states",
             },
             "study_details": {
                 "hours": "200-240 total",
                 "sections": "4 exam sections",
-                "cost": "$2,499 - $5,999"
+                "cost": "$2,499 - $5,999",
             },
             "providers": [
-                {"name": "Becker", "features": ["Comprehensive materials", "SkillMaster videos"]},
-                {"name": "Surgent", "features": ["Adaptive learning", "Shorter study time"]}
+                {
+                    "name": "Becker",
+                    "features": ["Comprehensive materials", "SkillMaster videos"],
+                },
+                {
+                    "name": "Surgent",
+                    "features": ["Adaptive learning", "Shorter study time"],
+                },
             ],
             "career_applications": ["Tax advisor", "Financial reporting", "Audit"],
-            "related": ["PFS", "CFP"]
-        }
+            "related": ["PFS", "CFP"],
+        },
     }
 
-    return certs.get(cert_type, {
-        "full_name": cert_type.value,
-        "organization": "Professional certifying body",
-        "requirements": {"general": "Varies by credential"},
-        "study_details": {"hours": "Varies"},
-        "career_applications": ["Relevant professional roles"],
-        "related": []
-    })
+    return certs.get(
+        cert_type,
+        {
+            "full_name": cert_type.value,
+            "organization": "Professional certifying body",
+            "requirements": {"general": "Varies by credential"},
+            "study_details": {"hours": "Varies"},
+            "career_applications": ["Relevant professional roles"],
+            "related": [],
+        },
+    )
 
 
 # =============================================================================
 # NEW PLANNING ENDPOINTS
 # =============================================================================
 
+
 @router.post("/advisory/retirement-planning", response_model=RetirementPlanningResponse)
 async def retirement_planning_advisory(
     request: RetirementPlanningRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    rag: WealthManagementRAG = Depends(get_rag_service),
 ) -> RetirementPlanningResponse:
     """
     Retirement planning advisory.
@@ -1194,7 +1468,9 @@ async def retirement_planning_advisory(
     - Withdrawal strategies (4% rule, bucket strategy, etc.)
     - Tax optimization for retirement
     """
-    logger.info(f"Retirement planning: age={request.current_age}, target={request.target_retirement_age}")
+    logger.info(
+        f"Retirement planning: age={request.current_age}, target={request.target_retirement_age}"
+    )
 
     try:
         # Build query for RAG
@@ -1207,7 +1483,7 @@ async def retirement_planning_advisory(
             query=query,
             rag=rag,
             advisory_mode=AdvisoryMode.RETIREMENT_PLANNING,
-            n_results=8
+            n_results=8,
         )
 
         # Calculate retirement projections
@@ -1253,21 +1529,20 @@ async def retirement_planning_advisory(
             tax_strategies=tax_strategies,
             risk_factors=risk_factors,
             recommended_professionals=professionals,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in retirement planning: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing retirement planning request: {str(e)}"
+            detail=f"Error processing retirement planning request: {str(e)}",
         )
 
 
 @router.post("/advisory/college-planning", response_model=CollegePlanningResponse)
 async def college_planning_advisory(
-    request: CollegePlanningRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    request: CollegePlanningRequest, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> CollegePlanningResponse:
     """
     College/education planning advisory.
@@ -1279,7 +1554,9 @@ async def college_planning_advisory(
     - Alternative education funding strategies
     - Tax benefits (AOTC, LLC, etc.)
     """
-    logger.info(f"College planning: child_age={request.child_current_age}, school_type={request.target_school_type}")
+    logger.info(
+        f"College planning: child_age={request.child_current_age}, school_type={request.target_school_type}"
+    )
 
     try:
         # Build query for RAG
@@ -1290,17 +1567,23 @@ async def college_planning_advisory(
             query=query,
             rag=rag,
             advisory_mode=AdvisoryMode.COLLEGE_PLANNING,
-            n_results=8
+            n_results=8,
         )
 
         # Calculate years until college
-        years_until_college = request.target_college_start_age - request.child_current_age
+        years_until_college = (
+            request.target_college_start_age - request.child_current_age
+        )
 
         # Generate cost projection
-        cost_projection = _generate_college_cost_projection(request, years_until_college)
+        cost_projection = _generate_college_cost_projection(
+            request, years_until_college
+        )
 
         # Calculate savings trajectory
-        savings_calcs = _calculate_college_savings(request, years_until_college, cost_projection)
+        savings_calcs = _calculate_college_savings(
+            request, years_until_college, cost_projection
+        )
 
         # Generate savings strategies
         savings_strategies = _generate_college_savings_strategies(request)
@@ -1338,21 +1621,20 @@ async def college_planning_advisory(
             tax_strategies=tax_strategies,
             timeline_actions=timeline_actions,
             recommended_professionals=professionals,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in college planning: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing college planning request: {str(e)}"
+            detail=f"Error processing college planning request: {str(e)}",
         )
 
 
 @router.post("/goals/create-plan", response_model=GoalPlanningResponse)
 async def create_goal_plan(
-    request: GoalPlanningRequest,
-    rag: WealthManagementRAG = Depends(get_rag_service)
+    request: GoalPlanningRequest, rag: WealthManagementRAG = Depends(get_rag_service)
 ) -> GoalPlanningResponse:
     """
     Goal-based tier progression planning.
@@ -1368,7 +1650,9 @@ async def create_goal_plan(
     - Acceleration strategies (career, business, tax optimization)
     - Professional advisor recommendations at each stage
     """
-    logger.info(f"Goal planning: age={request.current_age}, income=${request.annual_income:,.0f}, target={request.target_tier}")
+    logger.info(
+        f"Goal planning: age={request.current_age}, income=${request.annual_income:,.0f}, target={request.target_tier}"
+    )
 
     try:
         # Build query for RAG
@@ -1376,10 +1660,7 @@ async def create_goal_plan(
 
         # Get RAG context
         rag_results, context = await generate_advisory_response(
-            query=query,
-            rag=rag,
-            advisory_mode=AdvisoryMode.GOAL_PLANNING,
-            n_results=10
+            query=query, rag=rag, advisory_mode=AdvisoryMode.GOAL_PLANNING, n_results=10
         )
 
         # Determine current tier
@@ -1407,7 +1688,9 @@ async def create_goal_plan(
         risk_factors = _generate_goal_risk_factors(request)
 
         # Generate advisors by stage
-        advisors_by_stage = _generate_advisors_by_stage(current_tier, request.target_tier)
+        advisors_by_stage = _generate_advisors_by_stage(
+            current_tier, request.target_tier
+        )
 
         # Generate current professional recommendations
         professionals = _generate_goal_professionals(current_tier)
@@ -1433,14 +1716,14 @@ async def create_goal_plan(
             advisors_by_stage=advisors_by_stage,
             recommended_professionals=professionals,
             motivation_message=motivation,
-            citations=format_citations(rag_results)
+            citations=format_citations(rag_results),
         )
 
     except Exception as e:
         logger.error(f"Error in goal planning: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing goal planning request: {str(e)}"
+            detail=f"Error processing goal planning request: {str(e)}",
         )
 
 
@@ -1448,7 +1731,10 @@ async def create_goal_plan(
 # RETIREMENT PLANNING HELPERS
 # =============================================================================
 
-def _calculate_retirement_projections(request: RetirementPlanningRequest) -> dict[str, float]:
+
+def _calculate_retirement_projections(
+    request: RetirementPlanningRequest,
+) -> dict[str, float]:
     """Calculate retirement savings projections."""
     years = request.target_retirement_age - request.current_age
     current_savings = request.current_retirement_savings
@@ -1465,13 +1751,18 @@ def _calculate_retirement_projections(request: RetirementPlanningRequest) -> dic
 
     # Add employer match if provided
     if request.employer_401k_match:
-        match_contribution = min(request.annual_income * request.employer_401k_match, request.annual_income * 0.06)
+        match_contribution = min(
+            request.annual_income * request.employer_401k_match,
+            request.annual_income * 0.06,
+        )
         annual_contribution += match_contribution
 
     # Project future value
     projected_savings = current_savings * ((1 + growth_rate) ** years)
     for year in range(years):
-        projected_savings += annual_contribution * ((1 + growth_rate) ** (years - year - 1))
+        projected_savings += annual_contribution * (
+            (1 + growth_rate) ** (years - year - 1)
+        )
 
     # Calculate target (25x desired income or 80% current income)
     desired_income = request.desired_retirement_income or (request.annual_income * 0.80)
@@ -1483,7 +1774,9 @@ def _calculate_retirement_projections(request: RetirementPlanningRequest) -> dic
     # Calculate what's needed to close gap
     if savings_gap > 0 and years > 0:
         # PMT formula to find annual contribution needed
-        monthly_needed = (savings_gap / (((1 + growth_rate) ** years - 1) / growth_rate)) / 12
+        monthly_needed = (
+            savings_gap / (((1 + growth_rate) ** years - 1) / growth_rate)
+        ) / 12
         recommended_monthly = max(monthly_needed, annual_contribution / 12)
     else:
         recommended_monthly = annual_contribution / 12
@@ -1494,7 +1787,7 @@ def _calculate_retirement_projections(request: RetirementPlanningRequest) -> dic
         "savings_gap": savings_gap,
         "recommended_monthly": recommended_monthly,
         "current_annual_contribution": annual_contribution,
-        "desired_retirement_income": desired_income
+        "desired_retirement_income": desired_income,
     }
 
 
@@ -1508,53 +1801,68 @@ def _determine_retirement_trajectory(calcs: dict[str, float]) -> str:
         return "significant_gap"
 
 
-def _generate_retirement_account_recommendations(request: RetirementPlanningRequest) -> list[RetirementAccountRecommendation]:
+def _generate_retirement_account_recommendations(
+    request: RetirementPlanningRequest,
+) -> list[RetirementAccountRecommendation]:
     """Generate retirement account recommendations."""
     recommendations = []
 
     # 401k with match first
     if request.employer_401k_match:
-        match_amount = min(request.annual_income * request.employer_401k_match, request.annual_income * 0.06)
-        recommendations.append(RetirementAccountRecommendation(
-            account_type="401(k) - To Match",
-            recommended_contribution=match_amount / request.employer_401k_match,
-            tax_treatment="Pre-tax (or Roth if available)",
-            rationale="Capture full employer match - 100% immediate return on investment",
-            priority=1
-        ))
+        match_amount = min(
+            request.annual_income * request.employer_401k_match,
+            request.annual_income * 0.06,
+        )
+        recommendations.append(
+            RetirementAccountRecommendation(
+                account_type="401(k) - To Match",
+                recommended_contribution=match_amount / request.employer_401k_match,
+                tax_treatment="Pre-tax (or Roth if available)",
+                rationale="Capture full employer match - 100% immediate return on investment",
+                priority=1,
+            )
+        )
 
     # Roth IRA for younger savers or moderate income
     if request.current_age < 50 or request.annual_income < 150000:
-        recommendations.append(RetirementAccountRecommendation(
-            account_type="Roth IRA",
-            recommended_contribution=7000,  # 2024 limit
-            tax_treatment="After-tax contributions, tax-free growth",
-            rationale="Tax-free growth for decades, flexible withdrawal rules",
-            priority=2 if request.employer_401k_match else 1
-        ))
+        recommendations.append(
+            RetirementAccountRecommendation(
+                account_type="Roth IRA",
+                recommended_contribution=7000,  # 2024 limit
+                tax_treatment="After-tax contributions, tax-free growth",
+                rationale="Tax-free growth for decades, flexible withdrawal rules",
+                priority=2 if request.employer_401k_match else 1,
+            )
+        )
 
     # Max 401k
-    recommendations.append(RetirementAccountRecommendation(
-        account_type="401(k) - Max",
-        recommended_contribution=23000,  # 2024 limit
-        tax_treatment="Pre-tax (reduces current taxable income)",
-        rationale="Maximize tax-advantaged space, reduce current tax burden",
-        priority=3
-    ))
+    recommendations.append(
+        RetirementAccountRecommendation(
+            account_type="401(k) - Max",
+            recommended_contribution=23000,  # 2024 limit
+            tax_treatment="Pre-tax (reduces current taxable income)",
+            rationale="Maximize tax-advantaged space, reduce current tax burden",
+            priority=3,
+        )
+    )
 
     # HSA if applicable
-    recommendations.append(RetirementAccountRecommendation(
-        account_type="HSA",
-        recommended_contribution=4150,  # 2024 individual limit
-        tax_treatment="Triple tax advantage",
-        rationale="Only account with tax deduction, tax-free growth, AND tax-free withdrawals",
-        priority=2
-    ))
+    recommendations.append(
+        RetirementAccountRecommendation(
+            account_type="HSA",
+            recommended_contribution=4150,  # 2024 individual limit
+            tax_treatment="Triple tax advantage",
+            rationale="Only account with tax deduction, tax-free growth, AND tax-free withdrawals",
+            priority=2,
+        )
+    )
 
     return recommendations
 
 
-def _generate_retirement_milestones(request: RetirementPlanningRequest, calcs: dict[str, float]) -> list[RetirementMilestone]:
+def _generate_retirement_milestones(
+    request: RetirementPlanningRequest, calcs: dict[str, float]
+) -> list[RetirementMilestone]:
     """Generate retirement planning milestones."""
     milestones = []
     current_age = request.current_age
@@ -1577,28 +1885,46 @@ def _generate_retirement_milestones(request: RetirementPlanningRequest, calcs: d
     for age in milestone_ages:
         years_to = age - current_age
         # Simple projection
-        target = calcs["target_savings"] * (years_to / years) if years > 0 else calcs["target_savings"]
+        target = (
+            calcs["target_savings"] * (years_to / years)
+            if years > 0
+            else calcs["target_savings"]
+        )
 
         actions = []
         if age == 50:
-            actions = ["Eligible for catch-up contributions ($7,500 401k, $1,000 IRA)", "Review asset allocation"]
+            actions = [
+                "Eligible for catch-up contributions ($7,500 401k, $1,000 IRA)",
+                "Review asset allocation",
+            ]
         elif age == 55:
-            actions = ["Consider healthcare bridge costs", "Review pension options if applicable"]
+            actions = [
+                "Consider healthcare bridge costs",
+                "Review pension options if applicable",
+            ]
         elif age == 59:
-            actions = ["IRA penalty-free withdrawals available", "Review Roth conversion ladder"]
+            actions = [
+                "IRA penalty-free withdrawals available",
+                "Review Roth conversion ladder",
+            ]
         elif age >= 62:
-            actions = ["Review Social Security claiming strategy", "Consider Medicare enrollment (65)"]
+            actions = [
+                "Review Social Security claiming strategy",
+                "Consider Medicare enrollment (65)",
+            ]
         elif age == target_age:
             actions = ["Finalize withdrawal strategy", "Begin retirement income plan"]
         else:
             actions = ["Review portfolio allocation", "Maximize contributions"]
 
-        milestones.append(RetirementMilestone(
-            age=age,
-            milestone=f"Age {age} checkpoint",
-            target_savings=target,
-            actions=actions
-        ))
+        milestones.append(
+            RetirementMilestone(
+                age=age,
+                milestone=f"Age {age} checkpoint",
+                target_savings=target,
+                actions=actions,
+            )
+        )
 
     return milestones
 
@@ -1626,23 +1952,35 @@ def _generate_withdrawal_strategy(request: RetirementPlanningRequest) -> str:
         return "Hybrid approach: Income Floor (Social Security + pension covers essentials) + 4% rule for discretionary. Consider annuitizing portion of portfolio for guaranteed income baseline."
 
 
-def _generate_retirement_tax_strategies(request: RetirementPlanningRequest) -> list[str]:
+def _generate_retirement_tax_strategies(
+    request: RetirementPlanningRequest,
+) -> list[str]:
     """Generate retirement tax optimization strategies."""
     strategies = [
         "Tax-efficient withdrawal order: Taxable accounts first, then tax-deferred, then Roth",
-        "Manage tax brackets in retirement to minimize lifetime taxes"
+        "Manage tax brackets in retirement to minimize lifetime taxes",
     ]
 
     if request.current_age < 60:
-        strategies.append("Consider Roth conversion ladder in low-income years before Social Security starts")
+        strategies.append(
+            "Consider Roth conversion ladder in low-income years before Social Security starts"
+        )
         strategies.append("Front-load Roth contributions while in lower tax brackets")
 
     if request.annual_income > 150000:
-        strategies.append("Maximize 401(k) contributions to reduce current marginal rate")
-        strategies.append("Consider backdoor Roth IRA strategy if income exceeds direct contribution limits")
+        strategies.append(
+            "Maximize 401(k) contributions to reduce current marginal rate"
+        )
+        strategies.append(
+            "Consider backdoor Roth IRA strategy if income exceeds direct contribution limits"
+        )
 
-    strategies.append("Harvest capital gains in 0% bracket years during early retirement")
-    strategies.append("Coordinate with Social Security to minimize taxation of benefits")
+    strategies.append(
+        "Harvest capital gains in 0% bracket years during early retirement"
+    )
+    strategies.append(
+        "Coordinate with Social Security to minimize taxation of benefits"
+    )
 
     return strategies
 
@@ -1653,46 +1991,63 @@ def _generate_retirement_risk_factors(request: RetirementPlanningRequest) -> lis
         "Sequence of returns risk in early retirement years",
         "Healthcare costs (average couple needs $315,000+ for retirement healthcare)",
         "Inflation eroding purchasing power",
-        "Longevity risk - living longer than planned"
+        "Longevity risk - living longer than planned",
     ]
 
     if not request.has_pension:
         risks.append("No pension income increases reliance on portfolio withdrawals")
 
-    if request.current_age > 50 and request.current_retirement_savings < request.annual_income * 3:
-        risks.append("Late start requires higher savings rate or extended working years")
+    if (
+        request.current_age > 50
+        and request.current_retirement_savings < request.annual_income * 3
+    ):
+        risks.append(
+            "Late start requires higher savings rate or extended working years"
+        )
 
     return risks
 
 
-def _generate_retirement_professionals(request: RetirementPlanningRequest) -> list[ProfessionalRecommendation]:
+def _generate_retirement_professionals(
+    request: RetirementPlanningRequest,
+) -> list[ProfessionalRecommendation]:
     """Generate professional recommendations for retirement planning."""
     return [
         ProfessionalRecommendation(
             role="CFP® Financial Planner",
             credentials=["CFP®"],
-            responsibilities=["Retirement income planning", "Tax-efficient withdrawal strategies", "Social Security optimization"],
+            responsibilities=[
+                "Retirement income planning",
+                "Tax-efficient withdrawal strategies",
+                "Social Security optimization",
+            ],
             why_recommended="Comprehensive retirement planning with fiduciary duty",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="CPA with Retirement Focus",
             credentials=["CPA"],
-            responsibilities=["Tax projection", "Roth conversion analysis", "Required Minimum Distribution planning"],
+            responsibilities=[
+                "Tax projection",
+                "Roth conversion analysis",
+                "Required Minimum Distribution planning",
+            ],
             why_recommended="Critical for tax optimization in accumulation and distribution phases",
-            priority=2
-        )
+            priority=2,
+        ),
     ]
 
 
-def _generate_retirement_summary(request: RetirementPlanningRequest, calcs: dict[str, float], trajectory: str) -> str:
+def _generate_retirement_summary(
+    request: RetirementPlanningRequest, calcs: dict[str, float], trajectory: str
+) -> str:
     """Generate retirement planning summary."""
     years = request.target_retirement_age - request.current_age
 
     status_msg = {
         "on_track": "You're on track for a comfortable retirement!",
         "needs_adjustment": "Some adjustments needed to meet your retirement goals.",
-        "significant_gap": "Significant changes needed to reach retirement target."
+        "significant_gap": "Significant changes needed to reach retirement target.",
     }
 
     return f"""Retirement Planning Summary for {request.current_age}-year-old retiring at {request.target_retirement_age}:
@@ -1712,14 +2067,17 @@ Your desired retirement income of ${calcs['desired_retirement_income']:,.0f}/yea
 # COLLEGE PLANNING HELPERS
 # =============================================================================
 
-def _generate_college_cost_projection(request: CollegePlanningRequest, years: int) -> CollegeCostProjection:
+
+def _generate_college_cost_projection(
+    request: CollegePlanningRequest, years: int
+) -> CollegeCostProjection:
     """Generate college cost projection."""
     # 2024 average costs
     costs = {
         "public_in_state": {"current": 23250, "inflation": 0.05},
         "public_out_of_state": {"current": 40550, "inflation": 0.05},
         "private": {"current": 53430, "inflation": 0.04},
-        "elite_private": {"current": 85000, "inflation": 0.035}
+        "elite_private": {"current": 85000, "inflation": 0.035},
     }
 
     school = costs.get(request.target_school_type, costs["public_in_state"])
@@ -1735,11 +2093,13 @@ def _generate_college_cost_projection(request: CollegePlanningRequest, years: in
         current_annual_cost=current_cost,
         projected_annual_cost=projected_annual,
         total_4_year_cost=total_4_year,
-        inflation_rate_used=inflation
+        inflation_rate_used=inflation,
     )
 
 
-def _calculate_college_savings(request: CollegePlanningRequest, years: int, projection: CollegeCostProjection) -> dict[str, float]:
+def _calculate_college_savings(
+    request: CollegePlanningRequest, years: int, projection: CollegeCostProjection
+) -> dict[str, float]:
     """Calculate college savings projections."""
     current = request.current_529_balance
     monthly = request.monthly_contribution or 0
@@ -1762,13 +2122,17 @@ def _calculate_college_savings(request: CollegePlanningRequest, years: int, proj
         "projected_savings": projected,
         "funding_gap": gap,
         "needed_monthly": needed_monthly,
-        "total_cost": projection.total_4_year_cost
+        "total_cost": projection.total_4_year_cost,
     }
 
 
 def _determine_college_trajectory(calcs: dict[str, float]) -> str:
     """Determine college savings trajectory."""
-    coverage = calcs["projected_savings"] / calcs["total_cost"] if calcs["total_cost"] > 0 else 0
+    coverage = (
+        calcs["projected_savings"] / calcs["total_cost"]
+        if calcs["total_cost"] > 0
+        else 0
+    )
 
     if coverage >= 0.90:
         return "on_track"
@@ -1778,45 +2142,72 @@ def _determine_college_trajectory(calcs: dict[str, float]) -> str:
         return "significant_gap"
 
 
-def _generate_college_savings_strategies(request: CollegePlanningRequest) -> list[CollegeSavingsStrategy]:
+def _generate_college_savings_strategies(
+    request: CollegePlanningRequest,
+) -> list[CollegeSavingsStrategy]:
     """Generate college savings strategy recommendations."""
     strategies = []
 
     # 529 Plan
-    strategies.append(CollegeSavingsStrategy(
-        account_type="529 College Savings Plan",
-        recommended_monthly_contribution=500,
-        state_tax_benefit=f"Check {request.state_of_residence or 'your state'} for deduction",
-        investment_approach="Age-based allocation (aggressive when young, conservative near college)",
-        pros=["Tax-free growth", "High contribution limits", "State tax benefits", "SECURE 2.0 Roth IRA rollover option"],
-        cons=["Must use for education", "Limited investment choices", "Potential penalty for non-education use"]
-    ))
+    strategies.append(
+        CollegeSavingsStrategy(
+            account_type="529 College Savings Plan",
+            recommended_monthly_contribution=500,
+            state_tax_benefit=f"Check {request.state_of_residence or 'your state'} for deduction",
+            investment_approach="Age-based allocation (aggressive when young, conservative near college)",
+            pros=[
+                "Tax-free growth",
+                "High contribution limits",
+                "State tax benefits",
+                "SECURE 2.0 Roth IRA rollover option",
+            ],
+            cons=[
+                "Must use for education",
+                "Limited investment choices",
+                "Potential penalty for non-education use",
+            ],
+        )
+    )
 
     # Coverdell ESA if income eligible
     if request.household_income and request.household_income < 220000:
-        strategies.append(CollegeSavingsStrategy(
-            account_type="Coverdell ESA",
-            recommended_monthly_contribution=166,  # $2000/year max
-            state_tax_benefit=None,
-            investment_approach="Self-directed investments",
-            pros=["More investment flexibility", "Can use for K-12", "Tax-free growth"],
-            cons=["$2,000 annual limit", "Income limits", "Must use by age 30"]
-        ))
+        strategies.append(
+            CollegeSavingsStrategy(
+                account_type="Coverdell ESA",
+                recommended_monthly_contribution=166,  # $2000/year max
+                state_tax_benefit=None,
+                investment_approach="Self-directed investments",
+                pros=[
+                    "More investment flexibility",
+                    "Can use for K-12",
+                    "Tax-free growth",
+                ],
+                cons=["$2,000 annual limit", "Income limits", "Must use by age 30"],
+            )
+        )
 
     # UTMA/UGMA
-    strategies.append(CollegeSavingsStrategy(
-        account_type="UTMA/UGMA Custodial",
-        recommended_monthly_contribution=200,
-        state_tax_benefit="First $1,250 of gains tax-free for child",
-        investment_approach="Any investments allowed",
-        pros=["No contribution limits", "Flexible use", "Kiddie tax benefits"],
-        cons=["Counts heavily against financial aid", "Becomes child's money at majority", "No tax-free growth"]
-    ))
+    strategies.append(
+        CollegeSavingsStrategy(
+            account_type="UTMA/UGMA Custodial",
+            recommended_monthly_contribution=200,
+            state_tax_benefit="First $1,250 of gains tax-free for child",
+            investment_approach="Any investments allowed",
+            pros=["No contribution limits", "Flexible use", "Kiddie tax benefits"],
+            cons=[
+                "Counts heavily against financial aid",
+                "Becomes child's money at majority",
+                "No tax-free growth",
+            ],
+        )
+    )
 
     return strategies
 
 
-def _generate_financial_aid_estimate(request: CollegePlanningRequest, projection: CollegeCostProjection) -> FinancialAidEstimate:
+def _generate_financial_aid_estimate(
+    request: CollegePlanningRequest, projection: CollegeCostProjection
+) -> FinancialAidEstimate:
     """Generate financial aid estimate."""
     income = request.household_income or 100000
 
@@ -1843,14 +2234,14 @@ def _generate_financial_aid_estimate(request: CollegePlanningRequest, projection
         "Front-load income in early high school years, reduce in junior/senior year",
         "Minimize assets in student's name (counted at 20% vs 5.64% for parents)",
         "Maximize retirement contributions (not counted in FAFSA)",
-        "Consider timing of home equity (counted by CSS Profile schools)"
+        "Consider timing of home equity (counted by CSS Profile schools)",
     ]
 
     return FinancialAidEstimate(
         estimated_efc=efc,
         estimated_need=need,
         likely_aid_types=aid_types,
-        optimization_strategies=optimization
+        optimization_strategies=optimization,
     )
 
 
@@ -1864,7 +2255,7 @@ def _generate_college_alternatives() -> list[str]:
         "ROTC or military service for GI Bill benefits",
         "Trade schools and apprenticeships for non-degree careers",
         "Employer tuition assistance programs",
-        "Student loans as last resort (Federal before private)"
+        "Student loans as last resort (Federal before private)",
     ]
 
 
@@ -1876,36 +2267,85 @@ def _generate_college_tax_strategies(request: CollegePlanningRequest) -> list[st
         "Student loan interest deduction: Up to $2,500/year",
         "529 qualified expenses include room/board, computers, books",
         "SECURE 2.0: Unused 529 funds can roll to Roth IRA (after 15 years, up to $35,000)",
-        "Grandparent 529s no longer affect FAFSA (as of 2024-25)"
+        "Grandparent 529s no longer affect FAFSA (as of 2024-25)",
     ]
 
 
-def _generate_college_timeline(request: CollegePlanningRequest, years: int) -> list[dict[str, Any]]:
+def _generate_college_timeline(
+    request: CollegePlanningRequest, years: int
+) -> list[dict[str, Any]]:
     """Generate college planning timeline."""
     timeline = []
 
     if years > 10:
-        timeline.append({"years_out": "10+", "actions": ["Start 529 contributions", "Establish regular savings habit", "Research scholarship opportunities early"]})
+        timeline.append(
+            {
+                "years_out": "10+",
+                "actions": [
+                    "Start 529 contributions",
+                    "Establish regular savings habit",
+                    "Research scholarship opportunities early",
+                ],
+            }
+        )
     if years > 5:
-        timeline.append({"years_out": "5-10", "actions": ["Review 529 performance", "Research target schools", "Consider prepaid tuition plans"]})
+        timeline.append(
+            {
+                "years_out": "5-10",
+                "actions": [
+                    "Review 529 performance",
+                    "Research target schools",
+                    "Consider prepaid tuition plans",
+                ],
+            }
+        )
     if years > 3:
-        timeline.append({"years_out": "3-5", "actions": ["Shift 529 to conservative allocation", "Begin college visits", "Research financial aid policies"]})
+        timeline.append(
+            {
+                "years_out": "3-5",
+                "actions": [
+                    "Shift 529 to conservative allocation",
+                    "Begin college visits",
+                    "Research financial aid policies",
+                ],
+            }
+        )
     if years > 1:
-        timeline.append({"years_out": "1-3", "actions": ["Complete FAFSA (opens Oct 1)", "Apply for scholarships", "Compare financial aid offers"]})
+        timeline.append(
+            {
+                "years_out": "1-3",
+                "actions": [
+                    "Complete FAFSA (opens Oct 1)",
+                    "Apply for scholarships",
+                    "Compare financial aid offers",
+                ],
+            }
+        )
 
-    timeline.append({"years_out": "College years", "actions": ["Reapply FAFSA annually", "Seek work-study", "Apply for scholarships each year"]})
+    timeline.append(
+        {
+            "years_out": "College years",
+            "actions": [
+                "Reapply FAFSA annually",
+                "Seek work-study",
+                "Apply for scholarships each year",
+            ],
+        }
+    )
 
     return timeline
 
 
-def _generate_college_summary(request: CollegePlanningRequest, calcs: dict[str, float], trajectory: str) -> str:
+def _generate_college_summary(
+    request: CollegePlanningRequest, calcs: dict[str, float], trajectory: str
+) -> str:
     """Generate college planning summary."""
     years = request.target_college_start_age - request.child_current_age
 
     status = {
         "on_track": "Great progress toward college funding!",
         "needs_adjustment": "Some adjustments needed to meet college costs.",
-        "significant_gap": "Significant planning needed - consider alternatives and financial aid."
+        "significant_gap": "Significant planning needed - consider alternatives and financial aid.",
     }
 
     return f"""College Planning Summary for {request.child_current_age}-year-old ({years} years until college):
@@ -1926,23 +2366,32 @@ def _generate_college_professionals() -> list[ProfessionalRecommendation]:
         ProfessionalRecommendation(
             role="CFP® Financial Planner",
             credentials=["CFP®"],
-            responsibilities=["Education funding analysis", "529 plan selection", "Financial aid strategy"],
+            responsibilities=[
+                "Education funding analysis",
+                "529 plan selection",
+                "Financial aid strategy",
+            ],
             why_recommended="Integrates college planning with overall financial plan",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="College Planning Specialist",
             credentials=["College funding certifications"],
-            responsibilities=["FAFSA optimization", "Scholarship search", "College selection strategy"],
+            responsibilities=[
+                "FAFSA optimization",
+                "Scholarship search",
+                "College selection strategy",
+            ],
             why_recommended="Specialized knowledge of financial aid system",
-            priority=2
-        )
+            priority=2,
+        ),
     ]
 
 
 # =============================================================================
 # GOAL PLANNING HELPERS
 # =============================================================================
+
 
 def _determine_wealth_tier(assets: float) -> WealthTier:
     """Determine wealth tier from asset amount."""
@@ -1965,16 +2414,22 @@ def _get_tier_minimum(tier: WealthTier) -> float:
         WealthTier.BUILDER: 10000,
         WealthTier.GROWTH: 75000,
         WealthTier.AFFLUENT: 500000,
-        WealthTier.HNW_UHNW: 5000000
+        WealthTier.HNW_UHNW: 5000000,
     }
     return minimums.get(tier, 0)
 
 
-def _calculate_goal_projections(request: GoalPlanningRequest, target_assets: float) -> dict[str, Any]:
+def _calculate_goal_projections(
+    request: GoalPlanningRequest, target_assets: float
+) -> dict[str, Any]:
     """Calculate goal-based projections."""
     # Calculate current savings rate
     monthly_savings = request.monthly_savings or (request.annual_income * 0.10 / 12)
-    current_savings_rate = (monthly_savings * 12) / request.annual_income if request.annual_income > 0 else 0
+    current_savings_rate = (
+        (monthly_savings * 12) / request.annual_income
+        if request.annual_income > 0
+        else 0
+    )
 
     # Assume 8% growth, 3% income growth
     growth_rate = 0.08
@@ -1991,7 +2446,7 @@ def _calculate_goal_projections(request: GoalPlanningRequest, target_assets: flo
 
     for year in range(50):  # Max 50 years
         projected_assets = projected_assets * (1 + growth_rate) + annual_savings
-        projected_income *= (1 + income_growth)
+        projected_income *= 1 + income_growth
         annual_savings = projected_income * current_savings_rate
         years_needed = year + 1
 
@@ -2003,7 +2458,12 @@ def _calculate_goal_projections(request: GoalPlanningRequest, target_assets: flo
     if target_years < years_needed:
         # Need higher savings rate
         required_rate = _calculate_required_savings_rate(
-            current_assets, target_assets, request.annual_income, target_years, growth_rate, income_growth
+            current_assets,
+            target_assets,
+            request.annual_income,
+            target_years,
+            growth_rate,
+            income_growth,
         )
     else:
         required_rate = current_savings_rate
@@ -2013,7 +2473,7 @@ def _calculate_goal_projections(request: GoalPlanningRequest, target_assets: flo
     annual = request.annual_income * current_savings_rate
     for year in range(target_years):
         projected_at_end = projected_at_end * (1 + growth_rate) + annual
-        annual *= (1 + income_growth)
+        annual *= 1 + income_growth
 
     return {
         "current_savings_rate": current_savings_rate,
@@ -2021,11 +2481,18 @@ def _calculate_goal_projections(request: GoalPlanningRequest, target_assets: flo
         "savings_rate_gap": max(0, required_rate - current_savings_rate),
         "recommended_years": years_needed,
         "projected_assets": projected_at_end,
-        "target_years": target_years
+        "target_years": target_years,
     }
 
 
-def _calculate_required_savings_rate(current: float, target: float, income: float, years: int, growth: float, income_growth: float) -> float:
+def _calculate_required_savings_rate(
+    current: float,
+    target: float,
+    income: float,
+    years: int,
+    growth: float,
+    income_growth: float,
+) -> float:
     """Calculate required savings rate to reach target."""
     # Binary search for required rate
     low, high = 0.0, 1.0
@@ -2037,7 +2504,7 @@ def _calculate_required_savings_rate(current: float, target: float, income: floa
 
         for year in range(years):
             projected = projected * (1 + growth) + (annual_income * mid)
-            annual_income *= (1 + income_growth)
+            annual_income *= 1 + income_growth
 
         if projected >= target:
             high = mid
@@ -2047,7 +2514,9 @@ def _calculate_required_savings_rate(current: float, target: float, income: floa
     return high
 
 
-def _determine_goal_feasibility(request: GoalPlanningRequest, calcs: dict[str, Any]) -> str:
+def _determine_goal_feasibility(
+    request: GoalPlanningRequest, calcs: dict[str, Any]
+) -> str:
     """Determine goal feasibility."""
     required_rate = calcs["required_savings_rate"]
 
@@ -2061,7 +2530,9 @@ def _determine_goal_feasibility(request: GoalPlanningRequest, calcs: dict[str, A
         return "aggressive"
 
 
-def _generate_tier_roadmap(request: GoalPlanningRequest, current_tier: WealthTier, calcs: dict[str, Any]) -> list[TierProgressionMilestone]:
+def _generate_tier_roadmap(
+    request: GoalPlanningRequest, current_tier: WealthTier, calcs: dict[str, Any]
+) -> list[TierProgressionMilestone]:
     """Generate year-by-year tier progression roadmap."""
     roadmap = []
     years = calcs["target_years"]
@@ -2072,7 +2543,7 @@ def _generate_tier_roadmap(request: GoalPlanningRequest, current_tier: WealthTie
         (WealthTier.BUILDER, 10000, 75000),
         (WealthTier.GROWTH, 75000, 500000),
         (WealthTier.AFFLUENT, 500000, 5000000),
-        (WealthTier.HNW_UHNW, 5000000, float('inf'))
+        (WealthTier.HNW_UHNW, 5000000, float("inf")),
     ]
 
     # Generate milestones at tier transitions
@@ -2090,14 +2561,25 @@ def _generate_tier_roadmap(request: GoalPlanningRequest, current_tier: WealthTie
             temp_income = request.annual_income
             for year in range(years + 1):
                 if temp_assets >= min_amt:
-                    milestone_years.append((year, tier, temp_assets, temp_income * savings_rate / 12))
+                    milestone_years.append(
+                        (year, tier, temp_assets, temp_income * savings_rate / 12)
+                    )
                     break
-                temp_assets = temp_assets * (1 + growth_rate) + (temp_income * savings_rate)
-                temp_income *= (1 + income_growth)
+                temp_assets = temp_assets * (1 + growth_rate) + (
+                    temp_income * savings_rate
+                )
+                temp_income *= 1 + income_growth
 
     # Group into phases
     if not milestone_years:
-        milestone_years = [(years, request.target_tier, calcs["projected_assets"], income * savings_rate / 12)]
+        milestone_years = [
+            (
+                years,
+                request.target_tier,
+                calcs["projected_assets"],
+                income * savings_rate / 12,
+            )
+        ]
 
     prev_year = 0
     for i, (year, tier, assets_at_end, monthly) in enumerate(milestone_years):
@@ -2109,14 +2591,16 @@ def _generate_tier_roadmap(request: GoalPlanningRequest, current_tier: WealthTie
         actions = _get_tier_actions(tier)
         career = _get_career_guidance(tier, request.career_flexibility)
 
-        roadmap.append(TierProgressionMilestone(
-            year_range=year_range,
-            tier=tier,
-            expected_assets=assets_at_end,
-            monthly_savings_target=monthly,
-            actions=actions,
-            career_guidance=career
-        ))
+        roadmap.append(
+            TierProgressionMilestone(
+                year_range=year_range,
+                tier=tier,
+                expected_assets=assets_at_end,
+                monthly_savings_target=monthly,
+                actions=actions,
+                career_guidance=career,
+            )
+        )
         prev_year = year
 
     return roadmap
@@ -2130,36 +2614,36 @@ def _get_tier_actions(tier: WealthTier) -> list[str]:
             "Pay off high-interest debt",
             "Contribute to 401k up to employer match",
             "Open and fund Roth IRA",
-            "Automate savings"
+            "Automate savings",
         ],
         WealthTier.BUILDER: [
             "Max 401k contributions",
             "Continue maxing Roth IRA",
             "Open taxable brokerage account",
             "Start tax-loss harvesting",
-            "Review and optimize insurance"
+            "Review and optimize insurance",
         ],
         WealthTier.GROWTH: [
             "Maintain max retirement contributions",
             "Backdoor Roth if income exceeds limits",
             "Consider real estate investment",
             "Evaluate side business or consulting",
-            "Create basic estate plan"
+            "Create basic estate plan",
         ],
         WealthTier.AFFLUENT: [
             "Implement advanced tax strategies",
             "Consider business ownership or equity",
             "Diversify into alternative investments",
             "Establish irrevocable trusts",
-            "Begin charitable giving strategy"
+            "Begin charitable giving strategy",
         ],
         WealthTier.HNW_UHNW: [
             "Formalize family office structure",
             "Create investment committee",
             "Implement family governance",
             "Multi-generational estate plan",
-            "Philanthropic foundation or DAF"
-        ]
+            "Philanthropic foundation or DAF",
+        ],
     }
     return actions.get(tier, [])
 
@@ -2171,10 +2655,14 @@ def _get_career_guidance(tier: WealthTier, flexibility: str) -> str:
     elif flexibility == "medium":
         return "Seek advancement within current company, develop high-value skills, negotiate raises"
     else:
-        return "Focus on job stability while maximizing current compensation and benefits"
+        return (
+            "Focus on job stability while maximizing current compensation and benefits"
+        )
 
 
-def _generate_acceleration_strategies(request: GoalPlanningRequest) -> list[AccelerationStrategy]:
+def _generate_acceleration_strategies(
+    request: GoalPlanningRequest,
+) -> list[AccelerationStrategy]:
     """Generate wealth acceleration strategies."""
     strategies = [
         AccelerationStrategy(
@@ -2184,11 +2672,11 @@ def _generate_acceleration_strategies(request: GoalPlanningRequest) -> list[Acce
                 "Change jobs every 2-4 years for salary increases",
                 "Develop high-value skills (leadership, technical)",
                 "Negotiate aggressively at every opportunity",
-                "Consider management track or specialist track"
+                "Consider management track or specialist track",
             ],
             impact="Can double effective savings rate over 10 years",
             difficulty="medium",
-            time_to_implement="Ongoing"
+            time_to_implement="Ongoing",
         ),
         AccelerationStrategy(
             strategy_name="Business Ownership",
@@ -2197,11 +2685,11 @@ def _generate_acceleration_strategies(request: GoalPlanningRequest) -> list[Acce
                 "Start side business that can scale",
                 "Join startup with equity compensation",
                 "Buy existing business with SBA financing",
-                "Real estate investing for passive income"
+                "Real estate investing for passive income",
             ],
             impact="Primary wealth acceleration vehicle for most millionaires",
             difficulty="high",
-            time_to_implement="2-5 years to significant impact"
+            time_to_implement="2-5 years to significant impact",
         ),
         AccelerationStrategy(
             strategy_name="Tax Optimization",
@@ -2211,27 +2699,29 @@ def _generate_acceleration_strategies(request: GoalPlanningRequest) -> list[Acce
                 "Tax-loss harvesting",
                 "Roth conversions in low-income years",
                 "Business expense optimization",
-                "Charitable strategies (DAF bunching)"
+                "Charitable strategies (DAF bunching)",
             ],
             impact="Can increase effective savings by 15-25%",
             difficulty="low",
-            time_to_implement="Immediate"
-        )
+            time_to_implement="Immediate",
+        ),
     ]
 
     if request.geographic_flexibility:
-        strategies.append(AccelerationStrategy(
-            strategy_name="Geographic Arbitrage",
-            description="Relocate to lower cost area while maintaining income",
-            tactics=[
-                "Remote work from lower cost-of-living area",
-                "State income tax optimization (no-tax states)",
-                "Housing cost reduction through relocation"
-            ],
-            impact="Can increase savings rate by 10-20% of income",
-            difficulty="medium",
-            time_to_implement="3-12 months"
-        ))
+        strategies.append(
+            AccelerationStrategy(
+                strategy_name="Geographic Arbitrage",
+                description="Relocate to lower cost area while maintaining income",
+                tactics=[
+                    "Remote work from lower cost-of-living area",
+                    "State income tax optimization (no-tax states)",
+                    "Housing cost reduction through relocation",
+                ],
+                impact="Can increase savings rate by 10-20% of income",
+                difficulty="medium",
+                time_to_implement="3-12 months",
+            )
+        )
 
     return strategies
 
@@ -2241,27 +2731,23 @@ def _generate_key_milestones(current: WealthTier, target: WealthTier) -> list[st
     milestones = [
         "Emergency fund complete (3-6 months)",
         "Debt-free (except mortgage)",
-        "First $100K invested"
+        "First $100K invested",
     ]
 
     if target in [WealthTier.GROWTH, WealthTier.AFFLUENT, WealthTier.HNW_UHNW]:
-        milestones.extend([
-            "Maxing all retirement accounts",
-            "First $500K net worth"
-        ])
+        milestones.extend(["Maxing all retirement accounts", "First $500K net worth"])
 
     if target in [WealthTier.AFFLUENT, WealthTier.HNW_UHNW]:
-        milestones.extend([
-            "First million",
-            "Coast FI achieved",
-            "Financial independence number reached"
-        ])
+        milestones.extend(
+            [
+                "First million",
+                "Coast FI achieved",
+                "Financial independence number reached",
+            ]
+        )
 
     if target == WealthTier.HNW_UHNW:
-        milestones.extend([
-            "$5M liquid net worth",
-            "Family office threshold ($10M)"
-        ])
+        milestones.extend(["$5M liquid net worth", "Family office threshold ($10M)"])
 
     return milestones
 
@@ -2272,11 +2758,13 @@ def _generate_goal_risk_factors(request: GoalPlanningRequest) -> list[str]:
         "Market volatility affecting portfolio growth",
         "Job loss or income reduction",
         "Unexpected major expenses (health, family)",
-        "Inflation eroding purchasing power"
+        "Inflation eroding purchasing power",
     ]
 
     if request.target_tier == WealthTier.HNW_UHNW:
-        risks.append("Aggressive timeline may require business success or equity windfall")
+        risks.append(
+            "Aggressive timeline may require business success or equity windfall"
+        )
 
     if request.current_debt and request.current_debt > request.annual_income:
         risks.append("High debt-to-income ratio may slow progress")
@@ -2284,45 +2772,66 @@ def _generate_goal_risk_factors(request: GoalPlanningRequest) -> list[str]:
     return risks
 
 
-def _generate_advisors_by_stage(current: WealthTier, target: WealthTier) -> dict[str, list[str]]:
+def _generate_advisors_by_stage(
+    current: WealthTier, target: WealthTier
+) -> dict[str, list[str]]:
     """Generate recommended advisors at each stage."""
     advisors = {
         "foundation": ["CFP® (Fee-only financial planner)"],
         "builder": ["CFP®", "CPA for tax optimization"],
         "growth": ["CFP®", "CFA® (investment management)", "CPA"],
         "affluent": ["CFP®", "CFA®", "CPA", "Estate Planning Attorney"],
-        "hnw_uhnw": ["CPWA®", "CFA®", "CPA", "Estate Attorney", "Tax Attorney", "Family Governance Officer"]
+        "hnw_uhnw": [
+            "CPWA®",
+            "CFA®",
+            "CPA",
+            "Estate Attorney",
+            "Tax Attorney",
+            "Family Governance Officer",
+        ],
     }
 
     result = {}
 
-    tier_order = [WealthTier.FOUNDATION, WealthTier.BUILDER, WealthTier.GROWTH, WealthTier.AFFLUENT, WealthTier.HNW_UHNW]
+    tier_order = [
+        WealthTier.FOUNDATION,
+        WealthTier.BUILDER,
+        WealthTier.GROWTH,
+        WealthTier.AFFLUENT,
+        WealthTier.HNW_UHNW,
+    ]
     start_idx = tier_order.index(current)
     end_idx = tier_order.index(target)
 
-    for tier in tier_order[start_idx:end_idx + 1]:
+    for tier in tier_order[start_idx : end_idx + 1]:
         result[tier.value] = advisors.get(tier.value, ["CFP®"])
 
     return result
 
 
-def _generate_goal_professionals(current_tier: WealthTier) -> list[ProfessionalRecommendation]:
+def _generate_goal_professionals(
+    current_tier: WealthTier,
+) -> list[ProfessionalRecommendation]:
     """Generate current professional recommendations."""
     return [
         ProfessionalRecommendation(
             role="CFP® Financial Planner",
             credentials=["CFP®"],
-            responsibilities=["Goal planning", "Investment strategy", "Progress tracking"],
+            responsibilities=[
+                "Goal planning",
+                "Investment strategy",
+                "Progress tracking",
+            ],
             why_recommended="Essential guide for wealth building journey - fiduciary duty",
-            priority=1
+            priority=1,
         ),
         ProfessionalRecommendation(
             role="CPA",
             credentials=["CPA License"],
             responsibilities=["Tax optimization", "Entity structuring", "Compliance"],
             why_recommended="Tax efficiency accelerates wealth building significantly",
-            priority=2
-        )
+            priority=2,
+        ),
     ]
 
 
@@ -2332,12 +2841,17 @@ def _generate_motivation_message(request: GoalPlanningRequest, feasibility: str)
         "highly_achievable": f"Your goal is very achievable! With your income of ${request.annual_income:,.0f} and disciplined saving, you're on a clear path to {request.target_tier.value.replace('_', '/')} status. Stay consistent and you'll get there.",
         "achievable": f"Your goal is achievable with dedication. The path to {request.target_tier.value.replace('_', '/')} is clear - it will require focus on savings and smart decisions, but it's well within reach.",
         "stretch": f"This is an ambitious goal - reaching {request.target_tier.value.replace('_', '/')} will require significant commitment to high savings rates and potentially income growth strategies. Challenge yourself!",
-        "aggressive": f"This is an aggressive goal. Reaching {request.target_tier.value.replace('_', '/')} will likely require income acceleration through career advancement, business ownership, or equity compensation. It's possible with the right opportunities."
+        "aggressive": f"This is an aggressive goal. Reaching {request.target_tier.value.replace('_', '/')} will likely require income acceleration through career advancement, business ownership, or equity compensation. It's possible with the right opportunities.",
     }
-    return messages.get(feasibility, "Every financial journey starts with a single step. Stay committed to your goals.")
+    return messages.get(
+        feasibility,
+        "Every financial journey starts with a single step. Stay committed to your goals.",
+    )
 
 
-def _generate_goal_summary(request: GoalPlanningRequest, calcs: dict[str, Any], feasibility: str) -> str:
+def _generate_goal_summary(
+    request: GoalPlanningRequest, calcs: dict[str, Any], feasibility: str
+) -> str:
     """Generate goal planning summary."""
     return f"""Goal-Based Wealth Progression Plan
 

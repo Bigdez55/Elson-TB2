@@ -6,56 +6,41 @@ covering technical analysis, breakout, momentum, mean reversion, arbitrage,
 grid trading, and execution algorithms.
 """
 
+# Statistical Arbitrage Strategies
+from .arbitrage import PairsTradingStrategy
+
 # Base classes and registry
 from .base import TradingStrategy
-from .registry import StrategyRegistry, StrategyCategory
-
-# Technical Analysis Strategies
-from .technical import (
-    RSIStrategy,
-    BollingerBandsStrategy,
-    MACDStrategy,
-    IchimokuCloudStrategy,
-    ADXTrendStrategy,
-    StochasticStrategy,
-    CandlestickPatternStrategy,
-)
 
 # Breakout Strategies
-from .breakout import (
-    SupportResistanceBreakout,
-    OpeningRangeBreakout,
-    DonchianBreakout,
-)
-
-# Mean Reversion Strategies
-from .mean_reversion import (
-    StatisticalMeanReversion,
-    RSIMeanReversion,
-)
-
-# Momentum Strategies
-from .momentum import (
-    MomentumFactorStrategy,
-    TrendFollowingStrategy,
-)
-
-# Statistical Arbitrage Strategies
-from .arbitrage import (
-    PairsTradingStrategy,
-)
-
-# Grid and DCA Strategies
-from .grid import (
-    GridTradingStrategy,
-    DCAStrategy,
-)
+from .breakout import DonchianBreakout, OpeningRangeBreakout, SupportResistanceBreakout
 
 # Execution Algorithms
 from .execution import (
-    VWAPExecutionStrategy,
-    TWAPExecutionStrategy,
     IcebergExecutionStrategy,
+    TWAPExecutionStrategy,
+    VWAPExecutionStrategy,
+)
+
+# Grid and DCA Strategies
+from .grid import DCAStrategy, GridTradingStrategy
+
+# Mean Reversion Strategies
+from .mean_reversion import RSIMeanReversion, StatisticalMeanReversion
+
+# Momentum Strategies
+from .momentum import MomentumFactorStrategy, TrendFollowingStrategy
+from .registry import StrategyCategory, StrategyRegistry
+
+# Technical Analysis Strategies
+from .technical import (
+    ADXTrendStrategy,
+    BollingerBandsStrategy,
+    CandlestickPatternStrategy,
+    IchimokuCloudStrategy,
+    MACDStrategy,
+    RSIStrategy,
+    StochasticStrategy,
 )
 
 __all__ = [

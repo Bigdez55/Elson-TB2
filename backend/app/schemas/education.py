@@ -2,14 +2,15 @@
 
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field
 
+from pydantic import BaseModel, Field
 
 # ==================== Educational Content Schemas ====================
 
 
 class EducationalContentBase(BaseModel):
     """Base schema for educational content."""
+
     title: str = Field(..., min_length=1, max_length=255)
     slug: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
@@ -27,11 +28,13 @@ class EducationalContentBase(BaseModel):
 
 class EducationalContentCreate(EducationalContentBase):
     """Schema for creating educational content."""
+
     pass
 
 
 class EducationalContentUpdate(BaseModel):
     """Schema for updating educational content."""
+
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     content_path: Optional[str] = None
@@ -41,6 +44,7 @@ class EducationalContentUpdate(BaseModel):
 
 class EducationalContentResponse(EducationalContentBase):
     """Schema for educational content response."""
+
     id: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -54,6 +58,7 @@ class EducationalContentResponse(EducationalContentBase):
 
 class UserProgressBase(BaseModel):
     """Base schema for user progress."""
+
     content_id: int
     is_started: bool = False
     is_completed: bool = False
@@ -66,11 +71,13 @@ class UserProgressBase(BaseModel):
 
 class UserProgressCreate(BaseModel):
     """Schema for creating user progress (user_id from token)."""
+
     content_id: int
 
 
 class UserProgressUpdate(BaseModel):
     """Schema for updating user progress."""
+
     is_started: Optional[bool] = None
     is_completed: Optional[bool] = None
     progress_percent: Optional[float] = Field(None, ge=0, le=100)
@@ -82,6 +89,7 @@ class UserProgressUpdate(BaseModel):
 
 class UserProgressResponse(UserProgressBase):
     """Schema for user progress response."""
+
     id: int
     user_id: int
     last_accessed: Optional[datetime] = None
@@ -98,6 +106,7 @@ class UserProgressResponse(UserProgressBase):
 
 class LearningPathItemBase(BaseModel):
     """Base schema for learning path item."""
+
     content_id: int
     order: int
     is_required: bool = True
@@ -105,6 +114,7 @@ class LearningPathItemBase(BaseModel):
 
 class LearningPathItemResponse(LearningPathItemBase):
     """Schema for learning path item response."""
+
     id: int
     learning_path_id: int
 
@@ -114,6 +124,7 @@ class LearningPathItemResponse(LearningPathItemBase):
 
 class LearningPathBase(BaseModel):
     """Base schema for learning path."""
+
     title: str = Field(..., min_length=1, max_length=255)
     slug: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
@@ -123,11 +134,13 @@ class LearningPathBase(BaseModel):
 
 class LearningPathCreate(LearningPathBase):
     """Schema for creating a learning path."""
+
     items: List[LearningPathItemBase] = []
 
 
 class LearningPathResponse(LearningPathBase):
     """Schema for learning path response."""
+
     id: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -142,6 +155,7 @@ class LearningPathResponse(LearningPathBase):
 
 class TradingPermissionBase(BaseModel):
     """Base schema for trading permission."""
+
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     permission_type: str  # e.g., 'trade_stocks', 'trade_options', 'margin'
@@ -154,11 +168,13 @@ class TradingPermissionBase(BaseModel):
 
 class TradingPermissionCreate(TradingPermissionBase):
     """Schema for creating a trading permission."""
+
     pass
 
 
 class TradingPermissionResponse(TradingPermissionBase):
     """Schema for trading permission response."""
+
     id: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -172,6 +188,7 @@ class TradingPermissionResponse(TradingPermissionBase):
 
 class UserPermissionBase(BaseModel):
     """Base schema for user permission."""
+
     permission_id: int
     is_granted: bool = False
     override_reason: Optional[str] = None
@@ -179,6 +196,7 @@ class UserPermissionBase(BaseModel):
 
 class UserPermissionCreate(BaseModel):
     """Schema for granting a permission (user_id from token)."""
+
     permission_id: int
     is_granted: bool = True
     override_reason: Optional[str] = None
@@ -186,6 +204,7 @@ class UserPermissionCreate(BaseModel):
 
 class UserPermissionResponse(UserPermissionBase):
     """Schema for user permission response."""
+
     id: int
     user_id: int
     granted_by_user_id: Optional[int] = None
@@ -202,11 +221,13 @@ class UserPermissionResponse(UserPermissionBase):
 
 class ContentWithProgress(EducationalContentResponse):
     """Educational content with user progress."""
+
     user_progress: Optional[UserProgressResponse] = None
 
 
 class LearningPathWithProgress(LearningPathResponse):
     """Learning path with user progress."""
+
     completion_percent: float = 0.0
     items_completed: int = 0
     total_items: int = 0
@@ -214,6 +235,7 @@ class LearningPathWithProgress(LearningPathResponse):
 
 class PermissionCheckResponse(BaseModel):
     """Response for permission eligibility check."""
+
     is_granted: bool
     is_eligible: bool
     permission: TradingPermissionResponse

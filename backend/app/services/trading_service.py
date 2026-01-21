@@ -23,8 +23,8 @@ from app.core.exception_handlers import (
 )
 from app.core.metrics import metrics
 from app.models.account import Account, AccountType
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 from app.models.trade import (
     InvestmentType,
     OrderSide,
@@ -208,9 +208,9 @@ class TradingService:
                 "symbol": trade.symbol,
                 "quantity": float(trade.quantity) if trade.quantity else None,
                 "price": float(trade.price) if trade.price else None,
-                "investment_amount": float(trade.investment_amount)
-                if trade.investment_amount
-                else None,
+                "investment_amount": (
+                    float(trade.investment_amount) if trade.investment_amount else None
+                ),
                 "trade_type": trade.trade_type,
                 "order_type": trade.order_type.value,
                 "status": trade.status.value,
@@ -325,29 +325,31 @@ class TradingService:
                     "id": trade.id,
                     "symbol": trade.symbol,
                     "quantity": float(trade.quantity) if trade.quantity else None,
-                    "filled_quantity": float(trade.filled_quantity)
-                    if trade.filled_quantity
-                    else None,
+                    "filled_quantity": (
+                        float(trade.filled_quantity) if trade.filled_quantity else None
+                    ),
                     "price": float(trade.price) if trade.price else None,
-                    "average_price": float(trade.average_price)
-                    if trade.average_price
-                    else None,
+                    "average_price": (
+                        float(trade.average_price) if trade.average_price else None
+                    ),
                     "trade_type": trade.trade_type,
                     "order_type": trade.order_type.value,
                     "status": trade.status.value,
                     "created_at": trade.created_at.isoformat(),
-                    "executed_at": trade.executed_at.isoformat()
-                    if trade.executed_at
-                    else None,
+                    "executed_at": (
+                        trade.executed_at.isoformat() if trade.executed_at else None
+                    ),
                     "commission": float(trade.commission) if trade.commission else None,
-                    "total_amount": float(trade.total_amount)
-                    if trade.total_amount
-                    else None,
+                    "total_amount": (
+                        float(trade.total_amount) if trade.total_amount else None
+                    ),
                     "is_fractional": trade.is_fractional,
                     "broker_order_id": trade.broker_order_id,
-                    "settlement_date": trade.settlement_date.isoformat()
-                    if trade.settlement_date
-                    else None,
+                    "settlement_date": (
+                        trade.settlement_date.isoformat()
+                        if trade.settlement_date
+                        else None
+                    ),
                 }
 
             except BrokerError as e:

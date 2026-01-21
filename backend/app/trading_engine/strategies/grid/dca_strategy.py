@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +129,7 @@ class DCAStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in DCA strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -166,15 +165,14 @@ class DCAStrategy(TradingStrategy):
             "recent_high": self.recent_high,
         }
 
-    def _calculate_value_averaging_amount(
-        self,
-        current_price: float
-    ) -> float:
+    def _calculate_value_averaging_amount(self, current_price: float) -> float:
         """Calculate investment amount for Value Averaging"""
         # Target value after this period
-        target_value = self.investment_amount * (self.period_count + 1) * (
-            1 + self.target_growth_rate
-        ) ** (self.period_count + 1)
+        target_value = (
+            self.investment_amount
+            * (self.period_count + 1)
+            * (1 + self.target_growth_rate) ** (self.period_count + 1)
+        )
 
         # Current value
         current_value = self.total_shares * current_price
@@ -192,7 +190,7 @@ class DCAStrategy(TradingStrategy):
         current_price: float,
         current_time: datetime,
         time_for_dca: bool,
-        dip_info: Dict[str, Any]
+        dip_info: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Generate the DCA trading signal"""
         action = "hold"
@@ -231,7 +229,9 @@ class DCAStrategy(TradingStrategy):
                 reasons.append(f"Dip buying ({drop_pct:.1%} from high)")
 
         # Calculate shares to buy
-        shares_to_buy = buy_amount / current_price if buy_amount > 0 and current_price > 0 else 0
+        shares_to_buy = (
+            buy_amount / current_price if buy_amount > 0 and current_price > 0 else 0
+        )
 
         # Update tracking if we're buying
         if action == "buy" and buy_amount > 0:
@@ -240,7 +240,8 @@ class DCAStrategy(TradingStrategy):
             projected_total_shares = self.total_shares + shares_to_buy
             projected_avg_cost = (
                 projected_total_invested / projected_total_shares
-                if projected_total_shares > 0 else current_price
+                if projected_total_shares > 0
+                else current_price
             )
         else:
             projected_avg_cost = self.average_cost
@@ -249,7 +250,9 @@ class DCAStrategy(TradingStrategy):
         if self.average_cost > 0 and self.total_shares > 0:
             current_value = self.total_shares * current_price
             unrealized_pnl = current_value - self.total_invested
-            unrealized_pnl_pct = unrealized_pnl / self.total_invested if self.total_invested > 0 else 0
+            unrealized_pnl_pct = (
+                unrealized_pnl / self.total_invested if self.total_invested > 0 else 0
+            )
             reasons.append(f"Current P/L: {unrealized_pnl_pct:.1%}")
 
         signal = {
@@ -290,16 +293,13 @@ class DCAStrategy(TradingStrategy):
 
         return max(0, time_until.total_seconds() / 3600)
 
-    def record_buy(
-        self,
-        shares: float,
-        price: float,
-        amount: float
-    ) -> None:
+    def record_buy(self, shares: float, price: float, amount: float) -> None:
         """Record a completed buy (call after order fills)"""
         self.total_shares += shares
         self.total_invested += amount
-        self.average_cost = self.total_invested / self.total_shares if self.total_shares > 0 else price
+        self.average_cost = (
+            self.total_invested / self.total_shares if self.total_shares > 0 else price
+        )
         self.period_count += 1
         self.last_buy_time = datetime.utcnow()
 
@@ -316,7 +316,9 @@ class DCAStrategy(TradingStrategy):
             "total_shares": self.total_shares,
             "average_cost": self.average_cost,
             "period_count": self.period_count,
-            "last_buy_time": self.last_buy_time.isoformat() if self.last_buy_time else None,
+            "last_buy_time": (
+                self.last_buy_time.isoformat() if self.last_buy_time else None
+            ),
         }
 
     def _create_hold_signal(self, price: float, reason: str) -> Dict[str, Any]:

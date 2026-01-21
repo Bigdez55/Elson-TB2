@@ -1,18 +1,19 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Boolean,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Float,
-    Text,
-    JSON,
-)
-from sqlalchemy.orm import relationship
 import enum
 from datetime import datetime
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship
 
 from app.db.base import Base
 
@@ -67,7 +68,9 @@ class Subscription(Base):
 
     # Payment tracking
     payment_method_id = Column(String, nullable=True)
-    payment_method_type: Column[PaymentMethod] = Column(Enum(PaymentMethod), nullable=True)
+    payment_method_type: Column[PaymentMethod] = Column(
+        Enum(PaymentMethod), nullable=True
+    )
     encrypted_payment_details = Column(Text, nullable=True)  # AES-256 encrypted
 
     # PayPal specific fields (added in migration 20250401_add_paypal_support)

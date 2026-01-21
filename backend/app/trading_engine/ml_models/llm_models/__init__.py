@@ -16,10 +16,10 @@ created using SLERP, TIES, and DARE techniques from:
 Copyright (c) 2024 Elson Wealth. All rights reserved.
 """
 
+from .elson_finance_ensemble import ElsonFinanceEnsemble
 from .inference.base_client import BaseInferenceClient, InferenceResponse
 from .inference.ollama_client import OllamaInferenceClient
 from .inference.vllm_client import VLLMInferenceClient
-from .elson_finance_ensemble import ElsonFinanceEnsemble
 from .prompts.trading_prompts import TradingPromptBuilder
 
 __all__ = [

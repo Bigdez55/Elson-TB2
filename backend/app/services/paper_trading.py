@@ -1,18 +1,18 @@
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-from enum import Enum
-import logging
 import asyncio
+import logging
 import random
 import uuid
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.trade import Trade, TradeType, OrderType, TradeStatus
-from app.models.portfolio import Portfolio
 from app.models.holding import Holding
+from app.models.portfolio import Portfolio
+from app.models.trade import OrderType, Trade, TradeStatus, TradeType
 from app.services.market_data import MarketDataService
 
 logger = logging.getLogger(__name__)
@@ -105,7 +105,9 @@ class PaperTradingService:
             if not self._is_market_open():
                 # Update trade status to pending with note about market hours
                 trade.status = TradeStatus.PENDING
-                trade.notes = (trade.notes or "") + "\nQueued: Market closed - will execute when market opens"
+                trade.notes = (
+                    trade.notes or ""
+                ) + "\nQueued: Market closed - will execute when market opens"
                 self.db.commit()
                 return self._create_queued_result(trade, "Market closed - order queued")
 
@@ -133,7 +135,9 @@ class PaperTradingService:
                     # Revert trade status if updates fail
                     logger.error(f"Failed to complete trade {trade.id}: {update_error}")
                     trade.status = TradeStatus.REJECTED
-                    trade.notes = (trade.notes or "") + f"\nExecution failed: {str(update_error)}"
+                    trade.notes = (
+                        trade.notes or ""
+                    ) + f"\nExecution failed: {str(update_error)}"
                     self.db.commit()
                     return self._create_error_result(trade, str(update_error))
 
@@ -206,7 +210,7 @@ class PaperTradingService:
         # Handle dollar-based trades where quantity may be None
         if trade.quantity is not None:
             quantity_float = float(trade.quantity)
-        elif hasattr(trade, 'investment_amount') and trade.investment_amount:
+        elif hasattr(trade, "investment_amount") and trade.investment_amount:
             # Dollar-based trade: calculate quantity from investment amount
             quantity_float = float(trade.investment_amount) / execution_price
         else:
@@ -230,9 +234,9 @@ class PaperTradingService:
         )
 
         return {
-            "status": "filled"
-            if filled_quantity == quantity_float
-            else "partially_filled",
+            "status": (
+                "filled" if filled_quantity == quantity_float else "partially_filled"
+            ),
             "execution_price": execution_price,
             "filled_quantity": filled_quantity,
             "remaining_quantity": quantity_float - filled_quantity,
@@ -306,9 +310,9 @@ class PaperTradingService:
         )
 
         return {
-            "status": "filled"
-            if filled_quantity == trade.quantity
-            else "partially_filled",
+            "status": (
+                "filled" if filled_quantity == trade.quantity else "partially_filled"
+            ),
             "execution_price": execution_price,
             "filled_quantity": filled_quantity,
             "remaining_quantity": trade.quantity - filled_quantity,
@@ -506,9 +510,7 @@ class PaperTradingService:
             trade.executed_at = execution_result.get("execution_time")
             trade.filled_at = execution_result.get("execution_time")
             trade.total_cost = (
-                filled_quantity * execution_price
-                + trade.commission
-                + trade.fees
+                filled_quantity * execution_price + trade.commission + trade.fees
             )
 
             # Add execution notes

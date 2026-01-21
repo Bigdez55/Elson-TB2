@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 # Import canonical enums from models
-from app.models.security import AlertSeverity as AlertSeverityEnum, DeviceStatus as DeviceStatusEnum
-
+from app.models.security import AlertSeverity as AlertSeverityEnum
+from app.models.security import DeviceStatus as DeviceStatusEnum
 
 # Keep only non-model enums here
 
@@ -92,12 +92,19 @@ class SessionListResponse(BaseModel):
 
 
 class TerminateSessionsRequest(BaseModel):
-    session_ids: Optional[List[int]] = Field(None, description="Specific session IDs to terminate. If empty, terminates all except current.")
-    terminate_all: bool = Field(False, description="Terminate all sessions including current")
+    session_ids: Optional[List[int]] = Field(
+        None,
+        description="Specific session IDs to terminate. If empty, terminates all except current.",
+    )
+    terminate_all: bool = Field(
+        False, description="Terminate all sessions including current"
+    )
 
 
 class ExtendSessionRequest(BaseModel):
-    extend_minutes: int = Field(60, ge=1, le=1440, description="Minutes to extend session")
+    extend_minutes: int = Field(
+        60, ge=1, le=1440, description="Minutes to extend session"
+    )
 
 
 # Two-factor authentication schemas
@@ -300,7 +307,9 @@ class WebAuthnCredentialListResponse(BaseModel):
 
 
 class WebAuthnRegistrationStartRequest(BaseModel):
-    credential_name: Optional[str] = Field(None, description="Friendly name for the credential (e.g., 'MacBook Touch ID')")
+    credential_name: Optional[str] = Field(
+        None, description="Friendly name for the credential (e.g., 'MacBook Touch ID')"
+    )
 
 
 class WebAuthnRegistrationStartResponse(BaseModel):
@@ -319,9 +328,13 @@ class WebAuthnRegistrationStartResponse(BaseModel):
 class WebAuthnRegistrationCompleteRequest(BaseModel):
     credential_id: str = Field(..., description="Base64url encoded credential ID")
     client_data_json: str = Field(..., description="Base64url encoded client data JSON")
-    attestation_object: str = Field(..., description="Base64url encoded attestation object")
+    attestation_object: str = Field(
+        ..., description="Base64url encoded attestation object"
+    )
     credential_name: Optional[str] = None
-    authenticator_type: Optional[str] = Field(None, description="'platform' or 'cross-platform'")
+    authenticator_type: Optional[str] = Field(
+        None, description="'platform' or 'cross-platform'"
+    )
 
 
 class WebAuthnRegistrationCompleteResponse(BaseModel):
@@ -331,7 +344,9 @@ class WebAuthnRegistrationCompleteResponse(BaseModel):
 
 
 class WebAuthnAuthenticationStartRequest(BaseModel):
-    username: Optional[str] = Field(None, description="Optional username for authentication")
+    username: Optional[str] = Field(
+        None, description="Optional username for authentication"
+    )
 
 
 class WebAuthnAuthenticationStartResponse(BaseModel):
@@ -345,9 +360,13 @@ class WebAuthnAuthenticationStartResponse(BaseModel):
 class WebAuthnAuthenticationCompleteRequest(BaseModel):
     credential_id: str = Field(..., description="Base64url encoded credential ID")
     client_data_json: str = Field(..., description="Base64url encoded client data JSON")
-    authenticator_data: str = Field(..., description="Base64url encoded authenticator data")
+    authenticator_data: str = Field(
+        ..., description="Base64url encoded authenticator data"
+    )
     signature: str = Field(..., description="Base64url encoded signature")
-    user_handle: Optional[str] = Field(None, description="Base64url encoded user handle")
+    user_handle: Optional[str] = Field(
+        None, description="Base64url encoded user handle"
+    )
 
 
 class WebAuthnAuthenticationCompleteResponse(BaseModel):

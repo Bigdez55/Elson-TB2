@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +100,7 @@ class IchimokuCloudStrategy(TradingStrategy):
 
             if df is None or len(df) < self.senkou_b_period + self.displacement + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate all Ichimoku components
@@ -121,8 +120,7 @@ class IchimokuCloudStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating Ichimoku signal: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -177,23 +175,28 @@ class IchimokuCloudStrategy(TradingStrategy):
 
         # Tenkan-sen (Conversion Line): (9-period high + 9-period low) / 2
         df["tenkan_sen"] = (
-            df["high"].rolling(window=self.tenkan_period).max() +
-            df["low"].rolling(window=self.tenkan_period).min()
+            df["high"].rolling(window=self.tenkan_period).max()
+            + df["low"].rolling(window=self.tenkan_period).min()
         ) / 2
 
         # Kijun-sen (Base Line): (26-period high + 26-period low) / 2
         df["kijun_sen"] = (
-            df["high"].rolling(window=self.kijun_period).max() +
-            df["low"].rolling(window=self.kijun_period).min()
+            df["high"].rolling(window=self.kijun_period).max()
+            + df["low"].rolling(window=self.kijun_period).min()
         ) / 2
 
         # Senkou Span A (Leading Span A): (Tenkan + Kijun) / 2, displaced forward
-        df["senkou_span_a"] = ((df["tenkan_sen"] + df["kijun_sen"]) / 2).shift(self.displacement)
+        df["senkou_span_a"] = ((df["tenkan_sen"] + df["kijun_sen"]) / 2).shift(
+            self.displacement
+        )
 
         # Senkou Span B (Leading Span B): 52-period midpoint, displaced forward
         df["senkou_span_b"] = (
-            (df["high"].rolling(window=self.senkou_b_period).max() +
-             df["low"].rolling(window=self.senkou_b_period).min()) / 2
+            (
+                df["high"].rolling(window=self.senkou_b_period).max()
+                + df["low"].rolling(window=self.senkou_b_period).min()
+            )
+            / 2
         ).shift(self.displacement)
 
         # Chikou Span (Lagging Span): Close displaced backward
@@ -258,8 +261,15 @@ class IchimokuCloudStrategy(TradingStrategy):
                 reasons.append("Warning: Price above cloud")
 
         return self._create_signal(
-            action, confidence, current_price, reasons,
-            tenkan, kijun, cloud_top, cloud_bottom, last_row
+            action,
+            confidence,
+            current_price,
+            reasons,
+            tenkan,
+            kijun,
+            cloud_top,
+            cloud_bottom,
+            last_row,
         )
 
     def _kumo_breakout_signal(self, df: pd.DataFrame) -> Dict[str, Any]:
@@ -314,8 +324,15 @@ class IchimokuCloudStrategy(TradingStrategy):
             self.price_vs_cloud = "inside"
 
         return self._create_signal(
-            action, confidence, current_price, reasons,
-            tenkan, kijun, cloud_top, cloud_bottom, last_row
+            action,
+            confidence,
+            current_price,
+            reasons,
+            tenkan,
+            kijun,
+            cloud_top,
+            cloud_bottom,
+            last_row,
         )
 
     def _combined_signal(self, df: pd.DataFrame) -> Dict[str, Any]:
@@ -392,8 +409,15 @@ class IchimokuCloudStrategy(TradingStrategy):
         self.cloud_color = "bullish" if cloud_bullish else "bearish"
 
         return self._create_signal(
-            action, confidence, current_price, reasons,
-            tenkan, kijun, cloud_top, cloud_bottom, last_row
+            action,
+            confidence,
+            current_price,
+            reasons,
+            tenkan,
+            kijun,
+            cloud_top,
+            cloud_bottom,
+            last_row,
         )
 
     def _create_signal(
@@ -428,9 +452,11 @@ class IchimokuCloudStrategy(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                price, action, kijun, cloud_top, cloud_bottom
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(
+                    price, action, kijun, cloud_top, cloud_bottom
+                )
+            )
 
         return signal
 

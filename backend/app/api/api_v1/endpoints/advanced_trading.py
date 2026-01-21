@@ -465,9 +465,11 @@ async def get_ai_models_status(
                 "is_trained": models["is_trained"],
                 "last_prediction": models["last_prediction"],
                 "prediction_confidence": models["prediction_confidence"],
-                "training_summary": quantum_model.get_training_summary()
-                if models["is_trained"]
-                else None,
+                "training_summary": (
+                    quantum_model.get_training_summary()
+                    if models["is_trained"]
+                    else None
+                ),
             }
 
         return {

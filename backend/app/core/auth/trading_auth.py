@@ -4,6 +4,7 @@ This module provides trading-specific permission checks and exceptions.
 """
 
 from typing import Optional
+
 from fastapi import HTTPException, status
 
 
@@ -24,7 +25,7 @@ class TradingPermissionError(HTTPException):
 
 def check_trading_enabled(user) -> bool:
     """Check if user has trading enabled."""
-    if not hasattr(user, 'trading_enabled'):
+    if not hasattr(user, "trading_enabled"):
         return True  # Default to allowed if attribute doesn't exist
     return user.trading_enabled
 
@@ -46,7 +47,7 @@ def require_trading_permission(user, permission: str = "trade") -> None:
         )
 
     # Check specific permissions if user has a permissions attribute
-    if hasattr(user, 'trading_permissions'):
+    if hasattr(user, "trading_permissions"):
         if permission not in user.trading_permissions:
             raise TradingPermissionError(
                 detail=f"Permission '{permission}' not granted",

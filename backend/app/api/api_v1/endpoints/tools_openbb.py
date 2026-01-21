@@ -10,32 +10,32 @@ Tool-First Architecture:
 - Redis caching reduces API calls and improves latency
 """
 
-from datetime import datetime, date, timedelta
-from decimal import Decimal
-from typing import Optional, List
-import logging
-import time
 import hashlib
 import json
+import logging
+import time
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from app.schemas.tool_schemas import (
-    QuoteRequest,
-    QuoteResponse,
-    OHLCVRequest,
-    OHLCVBar,
-    OHLCVResponse,
     FundamentalsRequest,
     FundamentalsResponse,
-    NewsRequest,
-    NewsItem,
-    NewsResponse,
-    MacroRequest,
     MacroDataPoint,
+    MacroRequest,
     MacroResponse,
     MacroSeriesEnum,
+    NewsItem,
+    NewsRequest,
+    NewsResponse,
+    OHLCVBar,
+    OHLCVRequest,
+    OHLCVResponse,
+    QuoteRequest,
+    QuoteResponse,
     TimeframeEnum,
     ToolResponse,
 )
@@ -53,11 +53,11 @@ router = APIRouter(prefix="/tools/openbb", tags=["Tools - OpenBB"])
 _cache: dict = {}
 
 CACHE_TTL = {
-    "quote": 60,           # 1 minute
-    "ohlcv": 300,          # 5 minutes
-    "fundamentals": 86400, # 24 hours
-    "news": 900,           # 15 minutes
-    "macro": 3600,         # 1 hour
+    "quote": 60,  # 1 minute
+    "ohlcv": 300,  # 5 minutes
+    "fundamentals": 86400,  # 24 hours
+    "news": 900,  # 15 minutes
+    "macro": 3600,  # 1 hour
 }
 
 
@@ -79,15 +79,13 @@ def _get_cached(key: str) -> Optional[dict]:
 
 def _set_cached(key: str, data: dict, ttl: int):
     """Set value in cache with TTL"""
-    _cache[key] = {
-        "data": data,
-        "expires": datetime.utcnow() + timedelta(seconds=ttl)
-    }
+    _cache[key] = {"data": data, "expires": datetime.utcnow() + timedelta(seconds=ttl)}
 
 
 # =============================================================================
 # OPENBB SDK WRAPPER
 # =============================================================================
+
 
 def _get_openbb():
     """
@@ -98,6 +96,7 @@ def _get_openbb():
     """
     try:
         from openbb import obb
+
         return obb
     except ImportError:
         logger.warning("OpenBB SDK not installed - returning mock data")
@@ -107,6 +106,7 @@ def _get_openbb():
 # =============================================================================
 # ENDPOINTS
 # =============================================================================
+
 
 @router.get("/quote/{symbol}", response_model=ToolResponse)
 async def get_quote(
@@ -137,9 +137,11 @@ async def get_quote(
             request_params={"symbol": symbol},
             response=cached,
             cached=True,
-            cache_ttl_remaining=int((datetime.utcnow() - _cache[cache_key]["expires"]).total_seconds()),
+            cache_ttl_remaining=int(
+                (datetime.utcnow() - _cache[cache_key]["expires"]).total_seconds()
+            ),
             latency_ms=latency_ms,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     obb = _get_openbb()
@@ -161,13 +163,31 @@ async def get_quote(
                 "change_percent": Decimal(str(data.get("change_percent", 0))),
                 "bid": Decimal(str(data.get("bid", 0))) if data.get("bid") else None,
                 "ask": Decimal(str(data.get("ask", 0))) if data.get("ask") else None,
-                "market_cap": Decimal(str(data.get("market_cap", 0))) if data.get("market_cap") else None,
-                "pe_ratio": Decimal(str(data.get("pe_ratio", 0))) if data.get("pe_ratio") else None,
-                "fifty_two_week_high": Decimal(str(data.get("year_high", 0))) if data.get("year_high") else None,
-                "fifty_two_week_low": Decimal(str(data.get("year_low", 0))) if data.get("year_low") else None,
-                "avg_volume": int(data.get("avg_volume", 0)) if data.get("avg_volume") else None,
+                "market_cap": (
+                    Decimal(str(data.get("market_cap", 0)))
+                    if data.get("market_cap")
+                    else None
+                ),
+                "pe_ratio": (
+                    Decimal(str(data.get("pe_ratio", 0)))
+                    if data.get("pe_ratio")
+                    else None
+                ),
+                "fifty_two_week_high": (
+                    Decimal(str(data.get("year_high", 0)))
+                    if data.get("year_high")
+                    else None
+                ),
+                "fifty_two_week_low": (
+                    Decimal(str(data.get("year_low", 0)))
+                    if data.get("year_low")
+                    else None
+                ),
+                "avg_volume": (
+                    int(data.get("avg_volume", 0)) if data.get("avg_volume") else None
+                ),
                 "timestamp": datetime.utcnow().isoformat(),
-                "source": "openbb"
+                "source": "openbb",
             }
         except Exception as e:
             logger.error(f"OpenBB quote error for {symbol}: {e}")
@@ -192,13 +212,12 @@ async def get_quote(
             "fifty_two_week_low": Decimal("120.00"),
             "avg_volume": 50000000,
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "openbb_mock"
+            "source": "openbb_mock",
         }
 
     # Convert Decimals to strings for JSON serialization
     quote_data_serializable = {
-        k: str(v) if isinstance(v, Decimal) else v
-        for k, v in quote_data.items()
+        k: str(v) if isinstance(v, Decimal) else v for k, v in quote_data.items()
     }
 
     _set_cached(cache_key, quote_data_serializable, CACHE_TTL["quote"])
@@ -211,7 +230,7 @@ async def get_quote(
         response=quote_data_serializable,
         cached=False,
         latency_ms=latency_ms,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
@@ -244,24 +263,31 @@ async def get_ohlcv(
     if not start_date:
         start_date = end_date - timedelta(days=365)
 
-    cache_key = _cache_key("ohlcv", {
-        "symbol": symbol,
-        "start_date": str(start_date),
-        "end_date": str(end_date),
-        "timeframe": timeframe.value,
-        "limit": limit
-    })
+    cache_key = _cache_key(
+        "ohlcv",
+        {
+            "symbol": symbol,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+            "timeframe": timeframe.value,
+            "limit": limit,
+        },
+    )
     cached = _get_cached(cache_key)
 
     if cached:
         latency_ms = int((time.time() - start_time) * 1000)
         return ToolResponse(
             tool="openbb_ohlcv",
-            request_params={"symbol": symbol, "start_date": str(start_date), "end_date": str(end_date)},
+            request_params={
+                "symbol": symbol,
+                "start_date": str(start_date),
+                "end_date": str(end_date),
+            },
             response=cached,
             cached=True,
             latency_ms=latency_ms,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     obb = _get_openbb()
@@ -272,22 +298,28 @@ async def get_ohlcv(
                 symbol=symbol,
                 start_date=start_date,
                 end_date=end_date,
-                provider="yfinance"
+                provider="yfinance",
             )
             df = result.to_df() if result else None
 
             bars = []
             if df is not None and not df.empty:
                 for idx, row in df.tail(limit).iterrows():
-                    bars.append({
-                        "timestamp": idx.isoformat() if hasattr(idx, 'isoformat') else str(idx),
-                        "open": str(row.get("open", 0)),
-                        "high": str(row.get("high", 0)),
-                        "low": str(row.get("low", 0)),
-                        "close": str(row.get("close", 0)),
-                        "volume": int(row.get("volume", 0)),
-                        "vwap": str(row.get("vwap")) if row.get("vwap") else None
-                    })
+                    bars.append(
+                        {
+                            "timestamp": (
+                                idx.isoformat()
+                                if hasattr(idx, "isoformat")
+                                else str(idx)
+                            ),
+                            "open": str(row.get("open", 0)),
+                            "high": str(row.get("high", 0)),
+                            "low": str(row.get("low", 0)),
+                            "close": str(row.get("close", 0)),
+                            "volume": int(row.get("volume", 0)),
+                            "vwap": str(row.get("vwap")) if row.get("vwap") else None,
+                        }
+                    )
 
             ohlcv_data = {
                 "symbol": symbol,
@@ -296,7 +328,7 @@ async def get_ohlcv(
                 "start_date": str(start_date),
                 "end_date": str(end_date),
                 "total_bars": len(bars),
-                "source": "openbb"
+                "source": "openbb",
             }
         except Exception as e:
             logger.error(f"OpenBB OHLCV error for {symbol}: {e}")
@@ -307,15 +339,19 @@ async def get_ohlcv(
         current_date = start_date
         base_price = 150.0
         while current_date <= end_date and len(bars) < limit:
-            bars.append({
-                "timestamp": datetime.combine(current_date, datetime.min.time()).isoformat(),
-                "open": str(round(base_price + (len(bars) % 10) * 0.5, 2)),
-                "high": str(round(base_price + (len(bars) % 10) * 0.5 + 2, 2)),
-                "low": str(round(base_price + (len(bars) % 10) * 0.5 - 1, 2)),
-                "close": str(round(base_price + (len(bars) % 10) * 0.5 + 1, 2)),
-                "volume": 50000000 + len(bars) * 100000,
-                "vwap": None
-            })
+            bars.append(
+                {
+                    "timestamp": datetime.combine(
+                        current_date, datetime.min.time()
+                    ).isoformat(),
+                    "open": str(round(base_price + (len(bars) % 10) * 0.5, 2)),
+                    "high": str(round(base_price + (len(bars) % 10) * 0.5 + 2, 2)),
+                    "low": str(round(base_price + (len(bars) % 10) * 0.5 - 1, 2)),
+                    "close": str(round(base_price + (len(bars) % 10) * 0.5 + 1, 2)),
+                    "volume": 50000000 + len(bars) * 100000,
+                    "vwap": None,
+                }
+            )
             current_date += timedelta(days=1)
 
         ohlcv_data = {
@@ -325,7 +361,7 @@ async def get_ohlcv(
             "start_date": str(start_date),
             "end_date": str(end_date),
             "total_bars": len(bars),
-            "source": "openbb_mock"
+            "source": "openbb_mock",
         }
 
     _set_cached(cache_key, ohlcv_data, CACHE_TTL["ohlcv"])
@@ -334,11 +370,15 @@ async def get_ohlcv(
 
     return ToolResponse(
         tool="openbb_ohlcv",
-        request_params={"symbol": symbol, "start_date": str(start_date), "end_date": str(end_date)},
+        request_params={
+            "symbol": symbol,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+        },
         response=ohlcv_data,
         cached=False,
         latency_ms=latency_ms,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
@@ -373,7 +413,7 @@ async def get_fundamentals(
             response=cached,
             cached=True,
             latency_ms=latency_ms,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     obb = _get_openbb()
@@ -393,34 +433,92 @@ async def get_fundamentals(
                 "employees": data.get("full_time_employees"),
                 "headquarters": data.get("address"),
                 "website": data.get("website"),
-                "market_cap": str(data.get("market_cap")) if data.get("market_cap") else None,
-                "enterprise_value": str(data.get("enterprise_value")) if data.get("enterprise_value") else None,
+                "market_cap": (
+                    str(data.get("market_cap")) if data.get("market_cap") else None
+                ),
+                "enterprise_value": (
+                    str(data.get("enterprise_value"))
+                    if data.get("enterprise_value")
+                    else None
+                ),
                 "pe_ratio": str(data.get("pe_ratio")) if data.get("pe_ratio") else None,
-                "forward_pe": str(data.get("forward_pe")) if data.get("forward_pe") else None,
-                "peg_ratio": str(data.get("peg_ratio")) if data.get("peg_ratio") else None,
-                "price_to_book": str(data.get("price_to_book")) if data.get("price_to_book") else None,
-                "price_to_sales": str(data.get("price_to_sales")) if data.get("price_to_sales") else None,
-                "ev_to_ebitda": str(data.get("ev_to_ebitda")) if data.get("ev_to_ebitda") else None,
-                "revenue_ttm": str(data.get("revenue")) if data.get("revenue") else None,
-                "gross_profit_ttm": str(data.get("gross_profit")) if data.get("gross_profit") else None,
+                "forward_pe": (
+                    str(data.get("forward_pe")) if data.get("forward_pe") else None
+                ),
+                "peg_ratio": (
+                    str(data.get("peg_ratio")) if data.get("peg_ratio") else None
+                ),
+                "price_to_book": (
+                    str(data.get("price_to_book"))
+                    if data.get("price_to_book")
+                    else None
+                ),
+                "price_to_sales": (
+                    str(data.get("price_to_sales"))
+                    if data.get("price_to_sales")
+                    else None
+                ),
+                "ev_to_ebitda": (
+                    str(data.get("ev_to_ebitda")) if data.get("ev_to_ebitda") else None
+                ),
+                "revenue_ttm": (
+                    str(data.get("revenue")) if data.get("revenue") else None
+                ),
+                "gross_profit_ttm": (
+                    str(data.get("gross_profit")) if data.get("gross_profit") else None
+                ),
                 "ebitda_ttm": str(data.get("ebitda")) if data.get("ebitda") else None,
-                "net_income_ttm": str(data.get("net_income")) if data.get("net_income") else None,
+                "net_income_ttm": (
+                    str(data.get("net_income")) if data.get("net_income") else None
+                ),
                 "eps_ttm": str(data.get("eps")) if data.get("eps") else None,
-                "profit_margin": str(data.get("profit_margin")) if data.get("profit_margin") else None,
-                "operating_margin": str(data.get("operating_margin")) if data.get("operating_margin") else None,
-                "gross_margin": str(data.get("gross_margin")) if data.get("gross_margin") else None,
-                "dividend_yield": str(data.get("dividend_yield")) if data.get("dividend_yield") else None,
-                "dividend_per_share": str(data.get("dividend_per_share")) if data.get("dividend_per_share") else None,
-                "total_cash": str(data.get("total_cash")) if data.get("total_cash") else None,
-                "total_debt": str(data.get("total_debt")) if data.get("total_debt") else None,
-                "debt_to_equity": str(data.get("debt_to_equity")) if data.get("debt_to_equity") else None,
-                "current_ratio": str(data.get("current_ratio")) if data.get("current_ratio") else None,
+                "profit_margin": (
+                    str(data.get("profit_margin"))
+                    if data.get("profit_margin")
+                    else None
+                ),
+                "operating_margin": (
+                    str(data.get("operating_margin"))
+                    if data.get("operating_margin")
+                    else None
+                ),
+                "gross_margin": (
+                    str(data.get("gross_margin")) if data.get("gross_margin") else None
+                ),
+                "dividend_yield": (
+                    str(data.get("dividend_yield"))
+                    if data.get("dividend_yield")
+                    else None
+                ),
+                "dividend_per_share": (
+                    str(data.get("dividend_per_share"))
+                    if data.get("dividend_per_share")
+                    else None
+                ),
+                "total_cash": (
+                    str(data.get("total_cash")) if data.get("total_cash") else None
+                ),
+                "total_debt": (
+                    str(data.get("total_debt")) if data.get("total_debt") else None
+                ),
+                "debt_to_equity": (
+                    str(data.get("debt_to_equity"))
+                    if data.get("debt_to_equity")
+                    else None
+                ),
+                "current_ratio": (
+                    str(data.get("current_ratio"))
+                    if data.get("current_ratio")
+                    else None
+                ),
                 "last_updated": datetime.utcnow().isoformat(),
-                "source": "openbb"
+                "source": "openbb",
             }
         except Exception as e:
             logger.error(f"OpenBB fundamentals error for {symbol}: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to fetch fundamentals: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to fetch fundamentals: {e}"
+            )
     else:
         # Mock data
         fundamentals_data = {
@@ -456,7 +554,7 @@ async def get_fundamentals(
             "debt_to_equity": "1.5",
             "current_ratio": "1.1",
             "last_updated": datetime.utcnow().isoformat(),
-            "source": "openbb_mock"
+            "source": "openbb_mock",
         }
 
     _set_cached(cache_key, fundamentals_data, CACHE_TTL["fundamentals"])
@@ -469,7 +567,7 @@ async def get_fundamentals(
         response=fundamentals_data,
         cached=False,
         latency_ms=latency_ms,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
@@ -503,7 +601,7 @@ async def get_news(
             response=cached,
             cached=True,
             latency_ms=latency_ms,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     obb = _get_openbb()
@@ -515,20 +613,28 @@ async def get_news(
 
             headlines = []
             for item in data[:limit]:
-                headlines.append({
-                    "title": item.get("title", ""),
-                    "url": item.get("url", ""),
-                    "source": item.get("source", ""),
-                    "published_at": item.get("date", datetime.utcnow()).isoformat() if item.get("date") else datetime.utcnow().isoformat(),
-                    "summary": item.get("text", "")[:500] if item.get("text") else None,
-                    "sentiment": None  # Would need sentiment analysis
-                })
+                headlines.append(
+                    {
+                        "title": item.get("title", ""),
+                        "url": item.get("url", ""),
+                        "source": item.get("source", ""),
+                        "published_at": (
+                            item.get("date", datetime.utcnow()).isoformat()
+                            if item.get("date")
+                            else datetime.utcnow().isoformat()
+                        ),
+                        "summary": (
+                            item.get("text", "")[:500] if item.get("text") else None
+                        ),
+                        "sentiment": None,  # Would need sentiment analysis
+                    }
+                )
 
             news_data = {
                 "symbol": symbol,
                 "headlines": headlines,
                 "total_results": len(headlines),
-                "source": "openbb"
+                "source": "openbb",
             }
         except Exception as e:
             logger.error(f"OpenBB news error for {symbol}: {e}")
@@ -537,20 +643,24 @@ async def get_news(
         # Mock data
         headlines = []
         for i in range(min(limit, 5)):
-            headlines.append({
-                "title": f"Mock headline {i+1} for {symbol}",
-                "url": f"https://example.com/news/{symbol.lower()}/{i+1}",
-                "source": "MockNews",
-                "published_at": (datetime.utcnow() - timedelta(hours=i*2)).isoformat(),
-                "summary": f"This is a mock news summary for {symbol} headline {i+1}.",
-                "sentiment": ["positive", "negative", "neutral"][i % 3]
-            })
+            headlines.append(
+                {
+                    "title": f"Mock headline {i+1} for {symbol}",
+                    "url": f"https://example.com/news/{symbol.lower()}/{i+1}",
+                    "source": "MockNews",
+                    "published_at": (
+                        datetime.utcnow() - timedelta(hours=i * 2)
+                    ).isoformat(),
+                    "summary": f"This is a mock news summary for {symbol} headline {i+1}.",
+                    "sentiment": ["positive", "negative", "neutral"][i % 3],
+                }
+            )
 
         news_data = {
             "symbol": symbol,
             "headlines": headlines,
             "total_results": len(headlines),
-            "source": "openbb_mock"
+            "source": "openbb_mock",
         }
 
     _set_cached(cache_key, news_data, CACHE_TTL["news"])
@@ -563,7 +673,7 @@ async def get_news(
         response=news_data,
         cached=False,
         latency_ms=latency_ms,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
@@ -591,14 +701,17 @@ async def get_macro(
     if not end_date:
         end_date = date.today()
     if not start_date:
-        start_date = end_date - timedelta(days=365*5)  # 5 years default
+        start_date = end_date - timedelta(days=365 * 5)  # 5 years default
 
-    cache_key = _cache_key("macro", {
-        "series": series.value,
-        "start_date": str(start_date),
-        "end_date": str(end_date),
-        "country": country
-    })
+    cache_key = _cache_key(
+        "macro",
+        {
+            "series": series.value,
+            "start_date": str(start_date),
+            "end_date": str(end_date),
+            "country": country,
+        },
+    )
     cached = _get_cached(cache_key)
 
     if cached:
@@ -609,7 +722,7 @@ async def get_macro(
             response=cached,
             cached=True,
             latency_ms=latency_ms,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     # Series mapping to OpenBB functions
@@ -621,7 +734,10 @@ async def get_macro(
         MacroSeriesEnum.CONSUMER_SENTIMENT: {"unit": "index", "frequency": "monthly"},
         MacroSeriesEnum.HOUSING_STARTS: {"unit": "thousands", "frequency": "monthly"},
         MacroSeriesEnum.RETAIL_SALES: {"unit": "billions USD", "frequency": "monthly"},
-        MacroSeriesEnum.INDUSTRIAL_PRODUCTION: {"unit": "index", "frequency": "monthly"},
+        MacroSeriesEnum.INDUSTRIAL_PRODUCTION: {
+            "unit": "index",
+            "frequency": "monthly",
+        },
     }
 
     config = series_config.get(series, {"unit": "unknown", "frequency": "unknown"})
@@ -632,13 +748,30 @@ async def get_macro(
         try:
             # Map series to OpenBB economy functions
             if series == MacroSeriesEnum.GDP:
-                result = obb.economy.gdp.nominal(country=country, start_date=start_date, end_date=end_date, provider="oecd")
+                result = obb.economy.gdp.nominal(
+                    country=country,
+                    start_date=start_date,
+                    end_date=end_date,
+                    provider="oecd",
+                )
             elif series == MacroSeriesEnum.INFLATION:
-                result = obb.economy.cpi(country=country, start_date=start_date, end_date=end_date, provider="fred")
+                result = obb.economy.cpi(
+                    country=country,
+                    start_date=start_date,
+                    end_date=end_date,
+                    provider="fred",
+                )
             elif series == MacroSeriesEnum.UNEMPLOYMENT:
-                result = obb.economy.unemployment(country=country, start_date=start_date, end_date=end_date, provider="oecd")
+                result = obb.economy.unemployment(
+                    country=country,
+                    start_date=start_date,
+                    end_date=end_date,
+                    provider="oecd",
+                )
             elif series == MacroSeriesEnum.INTEREST_RATES:
-                result = obb.economy.fred_series(symbol="FEDFUNDS", start_date=start_date, end_date=end_date)
+                result = obb.economy.fred_series(
+                    symbol="FEDFUNDS", start_date=start_date, end_date=end_date
+                )
             else:
                 result = None
 
@@ -646,11 +779,17 @@ async def get_macro(
             if result:
                 df = result.to_df()
                 for idx, row in df.iterrows():
-                    data_points.append({
-                        "date": idx.strftime("%Y-%m-%d") if hasattr(idx, 'strftime') else str(idx),
-                        "value": str(row.iloc[0]) if len(row) > 0 else "0",
-                        "period": None
-                    })
+                    data_points.append(
+                        {
+                            "date": (
+                                idx.strftime("%Y-%m-%d")
+                                if hasattr(idx, "strftime")
+                                else str(idx)
+                            ),
+                            "value": str(row.iloc[0]) if len(row) > 0 else "0",
+                            "period": None,
+                        }
+                    )
 
             macro_data = {
                 "series": series.value,
@@ -659,22 +798,26 @@ async def get_macro(
                 "frequency": config["frequency"],
                 "data": data_points[-100:],  # Limit to last 100 points
                 "last_updated": datetime.utcnow().isoformat(),
-                "source": "openbb"
+                "source": "openbb",
             }
         except Exception as e:
             logger.error(f"OpenBB macro error for {series.value}: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to fetch macro data: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to fetch macro data: {e}"
+            )
     else:
         # Mock data
         data_points = []
         current_date = start_date
         base_value = 100.0
         while current_date <= end_date and len(data_points) < 60:
-            data_points.append({
-                "date": current_date.strftime("%Y-%m-%d"),
-                "value": str(round(base_value + len(data_points) * 0.5, 2)),
-                "period": f"Q{(current_date.month - 1) // 3 + 1} {current_date.year}"
-            })
+            data_points.append(
+                {
+                    "date": current_date.strftime("%Y-%m-%d"),
+                    "value": str(round(base_value + len(data_points) * 0.5, 2)),
+                    "period": f"Q{(current_date.month - 1) // 3 + 1} {current_date.year}",
+                }
+            )
             current_date += timedelta(days=30)
 
         macro_data = {
@@ -684,7 +827,7 @@ async def get_macro(
             "frequency": config["frequency"],
             "data": data_points,
             "last_updated": datetime.utcnow().isoformat(),
-            "source": "openbb_mock"
+            "source": "openbb_mock",
         }
 
     _set_cached(cache_key, macro_data, CACHE_TTL["macro"])
@@ -697,13 +840,14 @@ async def get_macro(
         response=macro_data,
         cached=False,
         latency_ms=latency_ms,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
 # =============================================================================
 # HEALTH CHECK
 # =============================================================================
+
 
 @router.get("/health")
 async def health_check():
@@ -713,5 +857,5 @@ async def health_check():
         "status": "healthy",
         "openbb_available": obb is not None,
         "cache_entries": len(_cache),
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }

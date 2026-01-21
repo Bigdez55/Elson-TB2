@@ -1,4 +1,5 @@
 import enum
+
 from sqlalchemy import (
     Boolean,
     Column,

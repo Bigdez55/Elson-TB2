@@ -42,9 +42,9 @@ class BrokerHealth:
 
         # Initialize all broker types with unknown health
         for broker_type in BrokerType:
-            self._health_status[
-                broker_type
-            ] = True  # Assume healthy until proven otherwise
+            self._health_status[broker_type] = (
+                True  # Assume healthy until proven otherwise
+            )
             self._consecutive_failures[broker_type] = 0
             self._last_checked[broker_type] = time.time()
 

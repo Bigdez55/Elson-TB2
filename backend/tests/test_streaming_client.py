@@ -9,8 +9,9 @@ subscribe to real-time market data.
 import asyncio
 import json
 import logging
-import websockets
 from typing import List
+
+import websockets
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

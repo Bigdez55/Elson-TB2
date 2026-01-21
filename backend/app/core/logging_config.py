@@ -4,16 +4,18 @@ Enhanced logging configuration for personal trading platform.
 This provides structured logging with trading-specific improvements without 
 the complexity of enterprise systems like ELK stack.
 """
-import structlog
+
 import logging
 import sys
+import threading
 import traceback
-from pathlib import Path
+from collections import defaultdict, deque
 from datetime import datetime
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
-from typing import Dict, Any, Optional, Union, Callable
-import threading
-from collections import defaultdict, deque
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Union
+
+import structlog
 
 # Trading-specific log levels
 TRADE_EXECUTION = 25  # Between INFO (20) and WARNING (30)
@@ -72,7 +74,9 @@ class PerformanceLogFilter(logging.Filter):
 class TradingJSONFormatter(structlog.processors.JSONRenderer):
     """Enhanced JSON formatter with trading-specific fields."""
 
-    def __call__(self, logger: Any, method_name: str, event_dict: Union[Dict[str, Any], Any]) -> Union[str, bytes]:
+    def __call__(
+        self, logger: Any, method_name: str, event_dict: Union[Dict[str, Any], Any]
+    ) -> Union[str, bytes]:
         # Add standard trading fields
         if "trade_id" in event_dict:
             event_dict["log_type"] = "trade_execution"
@@ -170,7 +174,9 @@ def configure_logging(log_level: str = "INFO", log_dir: str = "logs") -> None:
     )
     trade_handler.setLevel(TRADE_EXECUTION)
     trade_handler.setFormatter(logging.Formatter("%(message)s"))
-    trade_filter: Callable[[logging.LogRecord], bool] = lambda record: "trade_id" in getattr(record, "msg", "{}")
+    trade_filter: Callable[[logging.LogRecord], bool] = (
+        lambda record: "trade_id" in getattr(record, "msg", "{}")
+    )
     trade_handler.addFilter(trade_filter)
     root_logger.addHandler(trade_handler)
 
@@ -207,7 +213,10 @@ def configure_logging(log_level: str = "INFO", log_dir: str = "logs") -> None:
     perf_handler.setLevel(logging.INFO)
     perf_handler.setFormatter(logging.Formatter("%(message)s"))
     perf_handler.addFilter(perf_filter)
-    perf_filter_func: Callable[[logging.LogRecord], bool] = lambda record: hasattr(record, "duration") or "performance" in str(record.msg).lower()
+    perf_filter_func: Callable[[logging.LogRecord], bool] = (
+        lambda record: hasattr(record, "duration")
+        or "performance" in str(record.msg).lower()
+    )
     perf_handler.addFilter(perf_filter_func)
     root_logger.addHandler(perf_handler)
 
@@ -501,12 +510,17 @@ class LogOperationContext:
         self.context = context
         self.start_time: Optional[datetime] = None
 
-    def __enter__(self) -> 'LogOperationContext':
+    def __enter__(self) -> "LogOperationContext":
         self.start_time = datetime.now()
         self.logger.debug(f"Starting operation: {self.operation}", **self.context)
         return self
 
-    def __exit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[type],
+        exc_val: Optional[Exception],
+        exc_tb: Optional[Any],
+    ) -> None:
         if self.start_time is None:
             return
         duration = (datetime.now() - self.start_time).total_seconds()
@@ -528,7 +542,9 @@ class LogOperationContext:
             )
             if exc_val is not None:
                 log_system_error(
-                    error=exc_val, context=f"Operation: {self.operation}", **self.context
+                    error=exc_val,
+                    context=f"Operation: {self.operation}",
+                    **self.context,
                 )
 
 
@@ -538,11 +554,11 @@ def set_session_context(
 ) -> None:
     """Set session context for current thread."""
     thread = threading.current_thread()
-    setattr(thread, 'session_id', session_id)
+    setattr(thread, "session_id", session_id)
     if user_id:
-        setattr(thread, 'user_id', user_id)
+        setattr(thread, "user_id", user_id)
     if request_id:
-        setattr(thread, 'request_id', request_id)
+        setattr(thread, "request_id", request_id)
 
 
 def clear_session_context() -> None:

@@ -9,13 +9,14 @@ Supports multiple backends:
 - AWS Secrets Manager (cloud-native secret storage)
 """
 
-import os
 import logging
-from typing import Dict, Optional, Any, Union
+import os
 from enum import Enum
+from typing import Any, Dict, Optional, Union
 
 try:
     import hvac
+
     HVAC_AVAILABLE = True
 except ImportError:
     HVAC_AVAILABLE = False
@@ -23,6 +24,7 @@ except ImportError:
 try:
     import boto3
     from botocore.exceptions import ClientError
+
     BOTO3_AVAILABLE = True
 except ImportError:
     BOTO3_AVAILABLE = False
@@ -97,7 +99,7 @@ class SecretManager:
                 return
 
             self._aws_client = boto3.client(
-                'secretsmanager',
+                "secretsmanager",
                 region_name=aws_region,
                 aws_access_key_id=aws_access_key,
                 aws_secret_access_key=aws_secret_key,
@@ -107,7 +109,9 @@ class SecretManager:
             # Fall back to environment variables
             self.backend = SecretBackend.ENV
 
-    def get_secret(self, key: str, default: Optional[Any] = None) -> Union[str, Dict, None]:
+    def get_secret(
+        self, key: str, default: Optional[Any] = None
+    ) -> Union[str, Dict, None]:
         """Get a secret from the configured backend."""
         if self.backend == SecretBackend.VAULT and self._vault_client:
             return self._get_vault_secret(key, default)
@@ -117,46 +121,58 @@ class SecretManager:
             # Fallback to environment variables
             return os.environ.get(key, default)
 
-    def _get_vault_secret(self, key: str, default: Optional[Any] = None) -> Union[str, Dict, None]:
+    def _get_vault_secret(
+        self, key: str, default: Optional[Any] = None
+    ) -> Union[str, Dict, None]:
         """Get a secret from HashiCorp Vault."""
         try:
-            path_parts = key.split('/')
+            path_parts = key.split("/")
 
             # Handle either direct key or path/key format
             if len(path_parts) > 1:
-                path = '/'.join(path_parts[:-1])
+                path = "/".join(path_parts[:-1])
                 secret_key = path_parts[-1]
                 secret_data = self._vault_client.secrets.kv.v2.read_secret_version(
                     path=path
                 )
 
-                if secret_data and 'data' in secret_data and 'data' in secret_data['data']:
-                    return secret_data['data']['data'].get(secret_key, default)
+                if (
+                    secret_data
+                    and "data" in secret_data
+                    and "data" in secret_data["data"]
+                ):
+                    return secret_data["data"]["data"].get(secret_key, default)
             else:
                 # Direct key lookup in the default path
-                vault_path = getattr(settings, "VAULT_SECRET_PATH", "secret/data/trading")
+                vault_path = getattr(
+                    settings, "VAULT_SECRET_PATH", "secret/data/trading"
+                )
                 secret_data = self._vault_client.secrets.kv.v2.read_secret_version(
                     path=vault_path
                 )
 
-                if secret_data and 'data' in secret_data and 'data' in secret_data['data']:
-                    return secret_data['data']['data'].get(key, default)
+                if (
+                    secret_data
+                    and "data" in secret_data
+                    and "data" in secret_data["data"]
+                ):
+                    return secret_data["data"]["data"].get(key, default)
 
             return default
         except Exception as e:
             logger.error(f"Failed to retrieve secret from Vault: {e}")
             return default
 
-    def _get_aws_secret(self, key: str, default: Optional[Any] = None) -> Union[str, Dict, None]:
+    def _get_aws_secret(
+        self, key: str, default: Optional[Any] = None
+    ) -> Union[str, Dict, None]:
         """Get a secret from AWS Secrets Manager."""
         try:
-            response = self._aws_client.get_secret_value(
-                SecretId=key
-            )
+            response = self._aws_client.get_secret_value(SecretId=key)
 
             # Return the secret value or default
-            if 'SecretString' in response:
-                return response['SecretString']
+            if "SecretString" in response:
+                return response["SecretString"]
             return default
         except ClientError as e:
             logger.error(f"Failed to retrieve secret from AWS Secrets Manager: {e}")
@@ -176,21 +192,25 @@ class SecretManager:
     def _set_vault_secret(self, key: str, value: Union[str, Dict]) -> bool:
         """Set a secret in HashiCorp Vault."""
         try:
-            path_parts = key.split('/')
+            path_parts = key.split("/")
 
             # Handle either direct key or path/key format
             if len(path_parts) > 1:
-                path = '/'.join(path_parts[:-1])
+                path = "/".join(path_parts[:-1])
                 secret_key = path_parts[-1]
 
                 # First read existing data
                 try:
-                    existing_data = self._vault_client.secrets.kv.v2.read_secret_version(
-                        path=path
+                    existing_data = (
+                        self._vault_client.secrets.kv.v2.read_secret_version(path=path)
                     )
-                    if existing_data and 'data' in existing_data and 'data' in existing_data['data']:
+                    if (
+                        existing_data
+                        and "data" in existing_data
+                        and "data" in existing_data["data"]
+                    ):
                         # Update existing data
-                        secret_data = existing_data['data']['data']
+                        secret_data = existing_data["data"]["data"]
                         secret_data[secret_key] = value
                     else:
                         # Create new data
@@ -201,20 +221,27 @@ class SecretManager:
 
                 # Write data back
                 self._vault_client.secrets.kv.v2.create_or_update_secret(
-                    path=path,
-                    secret=secret_data
+                    path=path, secret=secret_data
                 )
             else:
                 # Direct key in default path
-                vault_path = getattr(settings, "VAULT_SECRET_PATH", "secret/data/trading")
+                vault_path = getattr(
+                    settings, "VAULT_SECRET_PATH", "secret/data/trading"
+                )
                 # First read existing data
                 try:
-                    existing_data = self._vault_client.secrets.kv.v2.read_secret_version(
-                        path=vault_path
+                    existing_data = (
+                        self._vault_client.secrets.kv.v2.read_secret_version(
+                            path=vault_path
+                        )
                     )
-                    if existing_data and 'data' in existing_data and 'data' in existing_data['data']:
+                    if (
+                        existing_data
+                        and "data" in existing_data
+                        and "data" in existing_data["data"]
+                    ):
                         # Update existing data
-                        secret_data = existing_data['data']['data']
+                        secret_data = existing_data["data"]["data"]
                         secret_data[key] = value
                     else:
                         # Create new data
@@ -225,8 +252,7 @@ class SecretManager:
 
                 # Write data back
                 self._vault_client.secrets.kv.v2.create_or_update_secret(
-                    path=vault_path,
-                    secret=secret_data
+                    path=vault_path, secret=secret_data
                 )
 
             return True
@@ -238,23 +264,31 @@ class SecretManager:
         """Set a secret in AWS Secrets Manager."""
         try:
             import json
+
             self._aws_client.create_secret(
                 Name=key,
-                SecretString=str(value) if isinstance(value, str) else json.dumps(value)
+                SecretString=(
+                    str(value) if isinstance(value, str) else json.dumps(value)
+                ),
             )
             return True
         except ClientError as e:
             # If the secret already exists, update it
-            if e.response['Error']['Code'] == 'ResourceExistsException':
+            if e.response["Error"]["Code"] == "ResourceExistsException":
                 try:
                     import json
+
                     self._aws_client.update_secret(
                         SecretId=key,
-                        SecretString=str(value) if isinstance(value, str) else json.dumps(value)
+                        SecretString=(
+                            str(value) if isinstance(value, str) else json.dumps(value)
+                        ),
                     )
                     return True
                 except Exception as update_error:
-                    logger.error(f"Failed to update secret in AWS Secrets Manager: {update_error}")
+                    logger.error(
+                        f"Failed to update secret in AWS Secrets Manager: {update_error}"
+                    )
                     return False
             else:
                 logger.error(f"Failed to create secret in AWS Secrets Manager: {e}")
@@ -264,6 +298,7 @@ class SecretManager:
 # ============================================================================
 # Legacy functions for backward compatibility
 # ============================================================================
+
 
 def get_secret(key: str) -> Optional[str]:
     """Get secret from settings/environment with fallback.
@@ -340,7 +375,7 @@ def mask_secret(secret: Optional[str], visible_chars: int = 4) -> str:
 
 # Determine backend from settings
 _backend = SecretBackend.ENV
-if hasattr(settings, 'SECRET_BACKEND'):
+if hasattr(settings, "SECRET_BACKEND"):
     try:
         _backend = SecretBackend(settings.SECRET_BACKEND)
     except ValueError:

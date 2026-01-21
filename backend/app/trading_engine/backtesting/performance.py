@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PerformanceMetrics:
     """Container for performance metrics"""
+
     # Returns
     total_return: float = 0.0
     annualized_return: float = 0.0
@@ -122,13 +123,13 @@ class PerformanceAnalyzer:
             risk_free_rate: Annual risk-free rate for Sharpe calculation
         """
         self.risk_free_rate = risk_free_rate
-        self.daily_risk_free = (1 + risk_free_rate) ** (1/252) - 1
+        self.daily_risk_free = (1 + risk_free_rate) ** (1 / 252) - 1
 
     def analyze(
         self,
         equity_curve: List[Dict[str, Any]],
         trades: List[Dict[str, Any]],
-        initial_capital: float
+        initial_capital: float,
     ) -> PerformanceMetrics:
         """
         Perform comprehensive performance analysis.
@@ -165,8 +166,8 @@ class PerformanceAnalyzer:
 
         years = (df["timestamp"].iloc[-1] - df["timestamp"].iloc[0]).days / 365.25
         if years > 0:
-            metrics.annualized_return = (1 + metrics.total_return) ** (1/years) - 1
-            metrics.monthly_return = (1 + metrics.annualized_return) ** (1/12) - 1
+            metrics.annualized_return = (1 + metrics.total_return) ** (1 / years) - 1
+            metrics.monthly_return = (1 + metrics.annualized_return) ** (1 / 12) - 1
 
         # Calculate risk metrics
         returns = df["returns"].dropna()
@@ -181,13 +182,11 @@ class PerformanceAnalyzer:
 
         # Calculate risk-adjusted metrics
         metrics.sharpe_ratio = self._calculate_sharpe_ratio(
-            metrics.annualized_return,
-            metrics.annualized_volatility
+            metrics.annualized_return, metrics.annualized_volatility
         )
 
         metrics.sortino_ratio = self._calculate_sortino_ratio(
-            metrics.annualized_return,
-            metrics.downside_volatility
+            metrics.annualized_return, metrics.downside_volatility
         )
 
         # Calculate drawdown metrics
@@ -197,8 +196,7 @@ class PerformanceAnalyzer:
         metrics.avg_drawdown = dd_info["avg_drawdown"]
 
         metrics.calmar_ratio = self._calculate_calmar_ratio(
-            metrics.annualized_return,
-            metrics.max_drawdown
+            metrics.annualized_return, metrics.max_drawdown
         )
 
         # Calculate trade statistics
@@ -224,9 +222,7 @@ class PerformanceAnalyzer:
         return metrics
 
     def _calculate_sharpe_ratio(
-        self,
-        annualized_return: float,
-        annualized_volatility: float
+        self, annualized_return: float, annualized_volatility: float
     ) -> float:
         """Calculate Sharpe ratio"""
         if annualized_volatility == 0:
@@ -234,9 +230,7 @@ class PerformanceAnalyzer:
         return (annualized_return - self.risk_free_rate) / annualized_volatility
 
     def _calculate_sortino_ratio(
-        self,
-        annualized_return: float,
-        downside_volatility: float
+        self, annualized_return: float, downside_volatility: float
     ) -> float:
         """Calculate Sortino ratio"""
         if downside_volatility == 0:
@@ -244,9 +238,7 @@ class PerformanceAnalyzer:
         return (annualized_return - self.risk_free_rate) / downside_volatility
 
     def _calculate_calmar_ratio(
-        self,
-        annualized_return: float,
-        max_drawdown: float
+        self, annualized_return: float, max_drawdown: float
     ) -> float:
         """Calculate Calmar ratio"""
         if max_drawdown == 0:
@@ -323,7 +315,11 @@ class PerformanceAnalyzer:
         gross_loss = abs(sum(losses)) if losses else 0
 
         win_rate = winning_trades / total_trades if total_trades > 0 else 0
-        profit_factor = gross_profit / gross_loss if gross_loss > 0 else float("inf") if gross_profit > 0 else 0
+        profit_factor = (
+            gross_profit / gross_loss
+            if gross_loss > 0
+            else float("inf") if gross_profit > 0 else 0
+        )
 
         avg_win = np.mean(wins) if wins else 0
         avg_loss = np.mean(losses) if losses else 0
@@ -348,9 +344,7 @@ class PerformanceAnalyzer:
         }
 
     def generate_report(
-        self,
-        metrics: PerformanceMetrics,
-        include_charts: bool = False
+        self, metrics: PerformanceMetrics, include_charts: bool = False
     ) -> str:
         """Generate a text report of performance"""
         report = []
@@ -378,7 +372,9 @@ class PerformanceAnalyzer:
         # Risk
         report.append("RISK METRICS")
         report.append("-" * 40)
-        report.append(f"Volatility (Ann): {metrics.annualized_volatility * 100:>10.2f}%")
+        report.append(
+            f"Volatility (Ann): {metrics.annualized_volatility * 100:>10.2f}%"
+        )
         report.append(f"Downside Vol:     {metrics.downside_volatility * 100:>10.2f}%")
         report.append(f"Max Drawdown:     {metrics.max_drawdown * 100:>10.2f}%")
         report.append(f"Max DD Duration:  {metrics.max_drawdown_duration:>10d} days")
@@ -412,8 +408,7 @@ class PerformanceAnalyzer:
         return "\n".join(report)
 
     def compare_strategies(
-        self,
-        results: Dict[str, PerformanceMetrics]
+        self, results: Dict[str, PerformanceMetrics]
     ) -> pd.DataFrame:
         """
         Compare multiple strategy results.
@@ -427,18 +422,20 @@ class PerformanceAnalyzer:
         comparison = []
 
         for name, metrics in results.items():
-            comparison.append({
-                "Strategy": name,
-                "Total Return %": metrics.total_return * 100,
-                "Ann. Return %": metrics.annualized_return * 100,
-                "Volatility %": metrics.annualized_volatility * 100,
-                "Sharpe": metrics.sharpe_ratio,
-                "Sortino": metrics.sortino_ratio,
-                "Max DD %": metrics.max_drawdown * 100,
-                "Win Rate %": metrics.win_rate * 100,
-                "Profit Factor": metrics.profit_factor,
-                "Trades": metrics.total_trades,
-            })
+            comparison.append(
+                {
+                    "Strategy": name,
+                    "Total Return %": metrics.total_return * 100,
+                    "Ann. Return %": metrics.annualized_return * 100,
+                    "Volatility %": metrics.annualized_volatility * 100,
+                    "Sharpe": metrics.sharpe_ratio,
+                    "Sortino": metrics.sortino_ratio,
+                    "Max DD %": metrics.max_drawdown * 100,
+                    "Win Rate %": metrics.win_rate * 100,
+                    "Profit Factor": metrics.profit_factor,
+                    "Trades": metrics.total_trades,
+                }
+            )
 
         df = pd.DataFrame(comparison)
         df = df.set_index("Strategy")

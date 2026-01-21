@@ -6,14 +6,14 @@ N minutes of the trading session.
 """
 
 import logging
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -101,8 +101,7 @@ class OpeningRangeBreakout(TradingStrategy):
 
             if df is None or len(df) < 5:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient intraday data"
+                    market_data.get("price", 0.0), "Insufficient intraday data"
                 )
 
             # Check if new session
@@ -114,8 +113,7 @@ class OpeningRangeBreakout(TradingStrategy):
 
             if not self.range_defined:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Opening range not yet defined"
+                    market_data.get("price", 0.0), "Opening range not yet defined"
                 )
 
             # Check for breakout
@@ -127,8 +125,7 @@ class OpeningRangeBreakout(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in ORB strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -157,7 +154,7 @@ class OpeningRangeBreakout(TradingStrategy):
                 self.symbol,
                 start_date.isoformat(),
                 end_date.isoformat(),
-                interval="5m"  # 5-minute bars
+                interval="5m",  # 5-minute bars
             )
 
             if not data:
@@ -215,8 +212,8 @@ class OpeningRangeBreakout(TradingStrategy):
 
         # Filter data within opening range period
         opening_data = today_data[
-            (today_data["timestamp"] >= market_open) &
-            (today_data["timestamp"] <= range_end)
+            (today_data["timestamp"] >= market_open)
+            & (today_data["timestamp"] <= range_end)
         ]
 
         if len(opening_data) < 3:  # Need at least a few bars
@@ -245,12 +242,12 @@ class OpeningRangeBreakout(TradingStrategy):
             return
 
         self.range_defined = True
-        logger.info(f"Opening range defined: {self.range_low:.2f} - {self.range_high:.2f}")
+        logger.info(
+            f"Opening range defined: {self.range_low:.2f} - {self.range_high:.2f}"
+        )
 
     def _check_breakout(
-        self,
-        df: pd.DataFrame,
-        market_data: Dict[str, Any]
+        self, df: pd.DataFrame, market_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Check for opening range breakout"""
         last_row = df.iloc[-1]
@@ -278,13 +275,15 @@ class OpeningRangeBreakout(TradingStrategy):
                 prev_day_data = df[df["timestamp"].dt.date < today]
                 if len(prev_day_data) > 0:
                     prev_day_close = float(prev_day_data.iloc[-1]["close"])
-                    today_open = float(df[df["timestamp"].dt.date == today].iloc[0]["open"])
+                    today_open = float(
+                        df[df["timestamp"].dt.date == today].iloc[0]["open"]
+                    )
                     gap_pct = abs(today_open - prev_day_close) / prev_day_close
 
                     if gap_pct > self.max_gap_pct:
                         return self._create_hold_signal(
                             current_price,
-                            f"Gap too large ({gap_pct:.1%}), skipping ORB"
+                            f"Gap too large ({gap_pct:.1%}), skipping ORB",
                         )
 
         # Breakout above range high
@@ -341,17 +340,14 @@ class OpeningRangeBreakout(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, range_size
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(current_price, action, range_size)
+            )
 
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        range_size: float
+        self, price: float, action: str, range_size: float
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit"""
         if action == "buy":

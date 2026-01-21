@@ -4,8 +4,8 @@ from fastapi import Depends, HTTPException, status
 
 from app.core.security import (
     get_current_active_user as security_get_current_active_user,
-    redis_client,
 )
+from app.core.security import redis_client
 from app.db.base import get_db as db_get_db
 from app.models.user import User
 

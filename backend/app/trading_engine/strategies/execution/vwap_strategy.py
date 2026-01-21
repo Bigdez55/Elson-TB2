@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class VWAPExecutionStrategy(TradingStrategy):
             if not self._check_price_limit(current_price):
                 return self._create_hold_signal(
                     current_price,
-                    f"Price {current_price:.2f} beyond limit {self.price_limit:.2f}"
+                    f"Price {current_price:.2f} beyond limit {self.price_limit:.2f}",
                 )
 
             # Determine current slice
@@ -143,8 +143,7 @@ class VWAPExecutionStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in VWAP execution: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -160,9 +159,7 @@ class VWAPExecutionStrategy(TradingStrategy):
             return False
 
     async def _initialize_execution(
-        self,
-        current_time: datetime,
-        market_data: Dict[str, Any]
+        self, current_time: datetime, market_data: Dict[str, Any]
     ) -> None:
         """Initialize execution schedule"""
         self.start_time = current_time
@@ -201,10 +198,7 @@ class VWAPExecutionStrategy(TradingStrategy):
             start_date = end_date - timedelta(days=20)
 
             historical = await self.market_data_service.get_historical_data(
-                self.symbol,
-                start_date.isoformat(),
-                end_date.isoformat(),
-                interval="5m"
+                self.symbol, start_date.isoformat(), end_date.isoformat(), interval="5m"
             )
 
             if not historical:
@@ -251,7 +245,9 @@ class VWAPExecutionStrategy(TradingStrategy):
 
     def _create_slice_schedule(self, start_time: datetime) -> None:
         """Create execution schedule based on volume profile"""
-        slice_duration = timedelta(minutes=self.execution_window_minutes / self.num_slices)
+        slice_duration = timedelta(
+            minutes=self.execution_window_minutes / self.num_slices
+        )
         remaining_quantity = self.total_quantity
 
         self.slice_schedule = []
@@ -274,14 +270,16 @@ class VWAPExecutionStrategy(TradingStrategy):
             # Ensure minimum slice size
             adjusted_quantity = max(adjusted_quantity, self.min_slice_size)
 
-            self.slice_schedule.append({
-                "index": i,
-                "start_time": start_time + (i * slice_duration),
-                "end_time": start_time + ((i + 1) * slice_duration),
-                "target_quantity": adjusted_quantity,
-                "executed_quantity": 0.0,
-                "status": "pending",
-            })
+            self.slice_schedule.append(
+                {
+                    "index": i,
+                    "start_time": start_time + (i * slice_duration),
+                    "end_time": start_time + ((i + 1) * slice_duration),
+                    "target_quantity": adjusted_quantity,
+                    "executed_quantity": 0.0,
+                    "status": "pending",
+                }
+            )
 
         # Normalize to total quantity
         total_scheduled = sum(s["target_quantity"] for s in self.slice_schedule)
@@ -300,10 +298,7 @@ class VWAPExecutionStrategy(TradingStrategy):
             return current_price >= self.price_limit
 
     def _generate_execution_signal(
-        self,
-        current_price: float,
-        current_volume: float,
-        current_time: datetime
+        self, current_price: float, current_volume: float, current_time: datetime
     ) -> Dict[str, Any]:
         """Generate execution signal for current time"""
         # Find current slice
@@ -318,7 +313,9 @@ class VWAPExecutionStrategy(TradingStrategy):
             if current_time >= self.slice_schedule[-1]["end_time"]:
                 self.execution_complete = True
                 return self._create_completion_signal(current_price)
-            return self._create_hold_signal(current_price, "Waiting for execution window")
+            return self._create_hold_signal(
+                current_price, "Waiting for execution window"
+            )
 
         # Calculate remaining for this slice
         remaining_slice = (
@@ -344,7 +341,11 @@ class VWAPExecutionStrategy(TradingStrategy):
         # Calculate execution metrics
         time_elapsed = (current_time - self.start_time).total_seconds() / 60
         time_progress = time_elapsed / self.execution_window_minutes
-        quantity_progress = self.executed_quantity / self.total_quantity if self.total_quantity > 0 else 0
+        quantity_progress = (
+            self.executed_quantity / self.total_quantity
+            if self.total_quantity > 0
+            else 0
+        )
 
         # Determine if we're ahead or behind schedule
         schedule_status = "on_track"
@@ -358,7 +359,8 @@ class VWAPExecutionStrategy(TradingStrategy):
         # Calculate current VWAP
         current_vwap = (
             self.executed_value / self.executed_quantity
-            if self.executed_quantity > 0 else current_price
+            if self.executed_quantity > 0
+            else current_price
         )
 
         # Determine action
@@ -366,7 +368,9 @@ class VWAPExecutionStrategy(TradingStrategy):
         confidence = 0.8
 
         # Adjust confidence based on price vs VWAP
-        price_vs_vwap = (current_price - current_vwap) / current_vwap if current_vwap > 0 else 0
+        price_vs_vwap = (
+            (current_price - current_vwap) / current_vwap if current_vwap > 0 else 0
+        )
 
         if self.side == "buy":
             if price_vs_vwap < -0.001:  # Price below VWAP - good for buying
@@ -411,10 +415,7 @@ class VWAPExecutionStrategy(TradingStrategy):
         return signal
 
     def record_execution(
-        self,
-        quantity: float,
-        price: float,
-        slice_index: Optional[int] = None
+        self, quantity: float, price: float, slice_index: Optional[int] = None
     ) -> None:
         """Record completed execution"""
         self.executed_quantity += quantity
@@ -436,7 +437,8 @@ class VWAPExecutionStrategy(TradingStrategy):
         """Get execution performance summary"""
         avg_price = (
             self.executed_value / self.executed_quantity
-            if self.executed_quantity > 0 else 0
+            if self.executed_quantity > 0
+            else 0
         )
 
         return {
@@ -449,7 +451,8 @@ class VWAPExecutionStrategy(TradingStrategy):
             "average_price": avg_price,
             "execution_complete": self.execution_complete,
             "slices_completed": sum(
-                1 for s in self.slice_schedule
+                1
+                for s in self.slice_schedule
                 if s["executed_quantity"] >= s["target_quantity"] * 0.95
             ),
             "total_slices": len(self.slice_schedule),

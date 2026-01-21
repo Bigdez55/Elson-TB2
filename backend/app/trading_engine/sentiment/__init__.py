@@ -20,10 +20,8 @@ try:
         TransformerSentimentAnalyzer,
         find_market_moving_news,
     )
-    from .sentiment_aggregator import (
-        SentimentAggregator,
-        aggregate_sentiment,
-    )
+    from .sentiment_aggregator import SentimentAggregator, aggregate_sentiment
+
     SENTIMENT_ML_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Sentiment ML models not available (missing dependencies): {e}")
@@ -31,22 +29,28 @@ except ImportError as e:
     # Provide stub implementations
     class TextPreprocessor:
         """Stub for text preprocessing when ML dependencies unavailable."""
+
         def __init__(self, **kwargs):
             pass
+
         def preprocess(self, text: str) -> str:
             return text
 
     class TransformerSentimentAnalyzer:
         """Stub for transformer sentiment when ML dependencies unavailable."""
+
         def __init__(self, **kwargs):
             pass
+
         def analyze(self, text: str) -> dict:
             return {"sentiment": "neutral", "confidence": 0.5}
 
     class SentimentAggregator:
         """Stub for sentiment aggregation when ML dependencies unavailable."""
+
         def __init__(self, **kwargs):
             pass
+
         def get_aggregated_sentiment(self, symbol: str) -> dict:
             return {"symbol": symbol, "sentiment": 0.0, "confidence": 0.5}
 
@@ -58,9 +62,11 @@ except ImportError as e:
         """Stub for sentiment aggregation."""
         return {"sentiment": 0.0, "confidence": 0.5}
 
+
 # Try to import sentiment sources
 try:
     from .sentiment_sources import *
+
     SENTIMENT_SOURCES_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Sentiment sources not available: {e}")

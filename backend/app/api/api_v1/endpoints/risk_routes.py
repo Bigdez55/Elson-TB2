@@ -11,8 +11,8 @@ from app.core.security import get_current_active_user, get_current_admin_user
 
 logger = logging.getLogger(__name__)
 from app.db.base import get_db
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 from app.models.user import User
 from app.services.risk_management import RiskManagementService, RiskMetrics
 
@@ -24,6 +24,7 @@ RiskManager = RiskManagementService
 
 class UserRiskProfile:
     """User risk profile placeholder."""
+
     def __init__(self, level: str = "moderate"):
         self.level = level
 
@@ -47,33 +48,38 @@ def get_risk_profile_report(user_id: int, db):
         "recommendations": [],
     }
 
+
 # Import real implementations from trading-engine
 try:
     from app.trading_engine.engine.circuit_breaker import (
         CircuitBreaker,
-        CircuitBreakerType,
         CircuitBreakerStatus,
+        CircuitBreakerType,
         get_circuit_breaker,
     )
     from app.trading_engine.engine.risk_config import (
-        RiskProfile,
         RiskConfig,
+        RiskProfile,
         get_risk_config,
     )
+
     TRADING_ENGINE_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Trading engine not available: {e}")
     TRADING_ENGINE_AVAILABLE = False
     # Define fallback types for when trading-engine is not installed
     from enum import Enum
+
     class RiskProfile(str, Enum):
         CONSERVATIVE = "conservative"
         MODERATE = "moderate"
         AGGRESSIVE = "aggressive"
+
     class CircuitBreakerType(str, Enum):
         SYSTEM = "system"
         VOLATILITY = "volatility"
         DAILY_LOSS = "daily_loss"
+
     CircuitBreaker = None
     RiskConfig = None
     get_circuit_breaker = None
@@ -424,36 +430,36 @@ async def get_user_risk_profile(
             ]:
                 profile_params[category] = {}
                 if category == "position_sizing":
-                    profile_params[category][
-                        "max_position_size"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.max_position_size"
+                    profile_params[category]["max_position_size"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.max_position_size"
+                        )
                     )
-                    profile_params[category][
-                        "max_sector_exposure"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.max_sector_exposure"
+                    profile_params[category]["max_sector_exposure"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.max_sector_exposure"
+                        )
                     )
-                    profile_params[category][
-                        "base_quantity_percent"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.base_quantity_percent"
+                    profile_params[category]["base_quantity_percent"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.base_quantity_percent"
+                        )
                     )
                 elif category == "trade_limitations":
-                    profile_params[category][
-                        "max_trades_per_day"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.max_trades_per_day"
+                    profile_params[category]["max_trades_per_day"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.max_trades_per_day"
+                        )
                     )
-                    profile_params[category][
-                        "min_holding_period_days"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.min_holding_period_days"
+                    profile_params[category]["min_holding_period_days"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.min_holding_period_days"
+                        )
                     )
-                    profile_params[category][
-                        "restricted_assets"
-                    ] = risk_manager.get_profile_param(
-                        current_user, f"{category}.restricted_assets"
+                    profile_params[category]["restricted_assets"] = (
+                        risk_manager.get_profile_param(
+                            current_user, f"{category}.restricted_assets"
+                        )
                     )
 
         return {
@@ -540,22 +546,22 @@ async def get_risk_dashboard(
             user_profile_params[category] = {}
             # Only fetching key parameters to avoid excessive nesting
             if category == "position_sizing":
-                user_profile_params[category][
-                    "max_position_size"
-                ] = risk_manager.get_profile_param(
-                    current_user, f"{category}.max_position_size"
+                user_profile_params[category]["max_position_size"] = (
+                    risk_manager.get_profile_param(
+                        current_user, f"{category}.max_position_size"
+                    )
                 )
             elif category == "volatility_limits":
-                user_profile_params[category][
-                    "max_portfolio_volatility"
-                ] = risk_manager.get_profile_param(
-                    current_user, f"{category}.max_portfolio_volatility"
+                user_profile_params[category]["max_portfolio_volatility"] = (
+                    risk_manager.get_profile_param(
+                        current_user, f"{category}.max_portfolio_volatility"
+                    )
                 )
             elif category == "drawdown_limits":
-                user_profile_params[category][
-                    "max_total_drawdown"
-                ] = risk_manager.get_profile_param(
-                    current_user, f"{category}.max_total_drawdown"
+                user_profile_params[category]["max_total_drawdown"] = (
+                    risk_manager.get_profile_param(
+                        current_user, f"{category}.max_total_drawdown"
+                    )
                 )
 
         # Get circuit breakers (if trading engine available)
@@ -592,11 +598,15 @@ async def get_risk_dashboard(
                 "quantity": float(position.quantity),
                 "current_price": float(position.current_price),
                 "value": float(position.quantity * position.current_price),
-                "weight": float(
-                    position.quantity * position.current_price / portfolio.total_value
-                )
-                if portfolio.total_value
-                else 0,
+                "weight": (
+                    float(
+                        position.quantity
+                        * position.current_price
+                        / portfolio.total_value
+                    )
+                    if portfolio.total_value
+                    else 0
+                ),
                 "unrealized_pl": float(position.unrealized_pl),
             }
             dashboard["positions"].append(position_data)
@@ -629,8 +639,7 @@ async def get_risk_audit_log(
 
         # Define audit log file path
         audit_log_file = os.path.join(
-            os.path.dirname(__file__),
-            "..", "..", "..", "..", "logs", "risk_audit.log"
+            os.path.dirname(__file__), "..", "..", "..", "..", "logs", "risk_audit.log"
         )
 
         # Read from audit log file

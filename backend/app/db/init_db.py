@@ -4,23 +4,23 @@ Database initialization module.
 Handles table creation and initial data seeding for Cloud SQL.
 """
 
-from sqlalchemy.orm import Session
-from sqlalchemy import text
 import structlog
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.db.base import Base, engine, is_using_fallback_database
 
 # Import all models to ensure they're registered with Base.metadata
 # Each model import registers its tables with Base.metadata
 from app.models import (  # noqa: F401
-    user,
-    portfolio,
-    trade,
-    notification,
-    subscription,
-    user_settings,
     account,
     education,
+    notification,
+    portfolio,
+    subscription,
+    trade,
+    user,
+    user_settings,
 )
 
 logger = structlog.get_logger()

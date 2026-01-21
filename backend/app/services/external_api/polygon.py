@@ -72,22 +72,26 @@ class PolygonClient(BaseApiClient):
             "low": day.get("l", 0),  # Low price
             "volume": day.get("v", 0),  # Volume
             "previous_close": prev_day.get("c", 0),  # Previous close
-            "change": trade.get("p", 0) - prev_day.get("c", 0)
-            if trade.get("p") and prev_day.get("c")
-            else 0,
+            "change": (
+                trade.get("p", 0) - prev_day.get("c", 0)
+                if trade.get("p") and prev_day.get("c")
+                else 0
+            ),
             "change_percent": (
-                (trade.get("p", 0) - prev_day.get("c", 0)) / prev_day.get("c", 1)
-            )
-            * 100
-            if trade.get("p") and prev_day.get("c") and prev_day.get("c") != 0
-            else 0,
+                ((trade.get("p", 0) - prev_day.get("c", 0)) / prev_day.get("c", 1))
+                * 100
+                if trade.get("p") and prev_day.get("c") and prev_day.get("c") != 0
+                else 0
+            ),
             "bid": quote.get("b", 0),  # Bid price
             "ask": quote.get("a", 0),  # Ask price
             "bid_size": quote.get("bs", 0),  # Bid size
             "ask_size": quote.get("as", 0),  # Ask size
-            "timestamp": datetime.fromtimestamp(quote.get("t", 0) / 1000).isoformat()
-            if quote.get("t")
-            else datetime.now().isoformat(),
+            "timestamp": (
+                datetime.fromtimestamp(quote.get("t", 0) / 1000).isoformat()
+                if quote.get("t")
+                else datetime.now().isoformat()
+            ),
         }
 
     async def get_historical_data(
@@ -247,9 +251,11 @@ class PolygonClient(BaseApiClient):
             "type": ticker_data.get("type"),
             "currency": ticker_data.get("currency_name"),
             "outstanding_shares": ticker_data.get("share_class_shares_outstanding"),
-            "pe_ratio": financial_data.get("ratios", {}).get("pe")
-            if financial_data.get("ratios")
-            else None,
+            "pe_ratio": (
+                financial_data.get("ratios", {}).get("pe")
+                if financial_data.get("ratios")
+                else None
+            ),
             "dividend_yield": None,  # Would need another request to a dividends endpoint
             # Add provider info for metrics tracking
             "provider": self.provider_name,

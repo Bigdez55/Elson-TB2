@@ -1,17 +1,18 @@
 from datetime import datetime
 from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_active_user, get_db
-from app.models.user import User
 from app.models.trade import TradeType
+from app.models.user import User
 from app.services.risk_management import (
-    RiskManagementService,
-    TradeRiskAssessment,
-    RiskMetrics,
     PositionRisk,
+    RiskManagementService,
+    RiskMetrics,
+    TradeRiskAssessment,
 )
 
 router = APIRouter()
@@ -182,7 +183,9 @@ async def get_portfolio_risk_metrics(
     try:
         risk_service = RiskManagementService(db)
 
-        metrics = await risk_service.calculate_portfolio_risk_metrics(int(current_user.id))
+        metrics = await risk_service.calculate_portfolio_risk_metrics(
+            int(current_user.id)
+        )
 
         return RiskMetricsResponse.from_metrics(metrics)
 
@@ -212,7 +215,9 @@ async def get_position_risk_analysis(
     try:
         risk_service = RiskManagementService(db)
 
-        position_risks = await risk_service.get_position_risk_analysis(int(current_user.id))
+        position_risks = await risk_service.get_position_risk_analysis(
+            int(current_user.id)
+        )
 
         return [PositionRiskResponse.from_position_risk(pr) for pr in position_risks]
 
@@ -333,12 +338,17 @@ async def get_symbol_risk_score(
     """
     try:
         import pandas as pd
+
         from app.services.market_data import market_data_service
 
         # Import trading-engine volatility detector
         try:
-            from app.trading_engine.ml_models.volatility_regime import VolatilityDetector, VolatilityRegime
             from app.trading_engine.engine.risk_config import get_risk_config
+            from app.trading_engine.ml_models.volatility_regime import (
+                VolatilityDetector,
+                VolatilityRegime,
+            )
+
             TRADING_ENGINE_AVAILABLE = True
         except ImportError:
             TRADING_ENGINE_AVAILABLE = False
@@ -349,7 +359,9 @@ async def get_symbol_risk_score(
         quote = await market_data_service.get_quote(symbol)
         historical_data = await market_data_service.get_historical_data(
             symbol,
-            start_date=(datetime.utcnow() - __import__('datetime').timedelta(days=60)).isoformat(),
+            start_date=(
+                datetime.utcnow() - __import__("datetime").timedelta(days=60)
+            ).isoformat(),
             end_date=datetime.utcnow().isoformat(),
         )
 
@@ -364,10 +376,10 @@ async def get_symbol_risk_score(
             try:
                 # Convert to DataFrame for volatility detector
                 df = pd.DataFrame(historical_data)
-                if 'close' not in df.columns and 'price' in df.columns:
-                    df['close'] = df['price']
+                if "close" not in df.columns and "price" in df.columns:
+                    df["close"] = df["price"]
 
-                if 'close' in df.columns and len(df) >= 5:
+                if "close" in df.columns and len(df) >= 5:
                     detector = VolatilityDetector(lookback_periods=20)
                     detected_regime, detected_volatility = detector.detect_regime(df)
 
@@ -385,10 +397,15 @@ async def get_symbol_risk_score(
                     # Get risk config for position sizing
                     risk_config = get_risk_config()
                     volatility_regime_str = regime.lower()
-                    optimal_position_size_pct = risk_config.get_param("position_sizing.max_position_size") or 0.05
+                    optimal_position_size_pct = (
+                        risk_config.get_param("position_sizing.max_position_size")
+                        or 0.05
+                    )
 
                     # Adjust position size based on volatility
-                    vol_multiplier = risk_config.get_param(f"volatility_adjustments.{volatility_regime_str}_vol_multiplier")
+                    vol_multiplier = risk_config.get_param(
+                        f"volatility_adjustments.{volatility_regime_str}_vol_multiplier"
+                    )
                     if vol_multiplier:
                         optimal_position_size_pct *= vol_multiplier
 
@@ -399,12 +416,17 @@ async def get_symbol_risk_score(
                         VolatilityRegime.HIGH: "High risk - consider reduced position size",
                         VolatilityRegime.EXTREME: "Extreme risk - proceed with caution, circuit breaker may activate",
                     }
-                    recommendation = regime_recommendations.get(detected_regime, recommendation)
+                    recommendation = regime_recommendations.get(
+                        detected_regime, recommendation
+                    )
 
             except Exception as calc_error:
                 # Log error but continue with default values
                 import logging
-                logging.getLogger(__name__).warning(f"Risk calculation error for {symbol}: {calc_error}")
+
+                logging.getLogger(__name__).warning(
+                    f"Risk calculation error for {symbol}: {calc_error}"
+                )
 
         # Determine risk factors based on volatility regime
         risk_factors = []
@@ -460,7 +482,9 @@ async def validate_portfolio_risk(
         risk_service = RiskManagementService(db)
 
         # Get portfolio metrics
-        metrics = await risk_service.calculate_portfolio_risk_metrics(int(current_user.id))
+        metrics = await risk_service.calculate_portfolio_risk_metrics(
+            int(current_user.id)
+        )
 
         # Validate against limits
         violations = []
@@ -498,19 +522,19 @@ async def validate_portfolio_risk(
         validation_result = {
             "user_id": int(current_user.id),
             "portfolio_value": metrics.portfolio_value,
-            "overall_risk_level": "high"
-            if violations
-            else "medium"
-            if warnings
-            else "low",
+            "overall_risk_level": (
+                "high" if violations else "medium" if warnings else "low"
+            ),
             "compliance_status": "non_compliant" if violations else "compliant",
             "violations": violations,
             "warnings": warnings,
             "recommendations": recommendations,
             "risk_metrics_summary": {
-                "daily_var_pct": metrics.daily_var / metrics.portfolio_value
-                if metrics.portfolio_value > 0
-                else 0,
+                "daily_var_pct": (
+                    metrics.daily_var / metrics.portfolio_value
+                    if metrics.portfolio_value > 0
+                    else 0
+                ),
                 "concentration_risk": metrics.concentration_risk,
                 "largest_position_pct": metrics.largest_position_pct,
                 "cash_percentage": metrics.cash_percentage,

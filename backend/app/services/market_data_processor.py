@@ -8,6 +8,7 @@ Handles processing and analysis of market data for AI/ML models with advanced fe
 - Market regime detection
 - Caching with TTL
 """
+
 import hashlib
 import json
 import logging
@@ -31,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class DataQualityIssue(Exception):
     """Exception raised for data quality issues."""
+
     pass
 
 
@@ -44,7 +46,7 @@ class CorporateAction:
         ex_date: datetime,
         ratio: Optional[float] = None,
         amount: Optional[float] = None,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.symbol = symbol
         self.action_type = action_type  # split, dividend, merger, etc.
@@ -65,7 +67,7 @@ class MarketDataProcessor:
         db: Optional[Session] = None,
         market_data_service: Optional[MarketDataService] = None,
         max_cache_size: int = 1000,
-        cache_ttl: int = 300  # 5 minutes in seconds
+        cache_ttl: int = 300,  # 5 minutes in seconds
     ):
         """Initialize with market data service and caching."""
         self.db = db
@@ -79,16 +81,18 @@ class MarketDataProcessor:
         self._corporate_actions_cache = {}
 
         # Data quality thresholds
-        self.max_price_change_pct = float(getattr(settings, 'MAX_PRICE_CHANGE_PCT', 10.0))
-        self.min_valid_price = float(getattr(settings, 'MIN_VALID_PRICE', 0.01))
-        self.max_valid_price = float(getattr(settings, 'MAX_VALID_PRICE', 1000000))
+        self.max_price_change_pct = float(
+            getattr(settings, "MAX_PRICE_CHANGE_PCT", 10.0)
+        )
+        self.min_valid_price = float(getattr(settings, "MIN_VALID_PRICE", 0.01))
+        self.max_valid_price = float(getattr(settings, "MAX_VALID_PRICE", 1000000))
 
         # Fallback data sources priority
         self.data_sources = [
-            "primary",    # Main data source
+            "primary",  # Main data source
             "secondary",  # Secondary source
-            "tertiary",   # Tertiary source
-            "historical", # Historical/cached data
+            "tertiary",  # Tertiary source
+            "historical",  # Historical/cached data
         ]
 
         # Known corporate actions database
@@ -141,7 +145,7 @@ class MarketDataProcessor:
             historical = await self.market_data_service.get_historical_data(
                 symbol,
                 start_date=datetime.utcnow() - timedelta(days=5),
-                end_date=datetime.utcnow()
+                end_date=datetime.utcnow(),
             )
 
             if historical:
@@ -152,7 +156,7 @@ class MarketDataProcessor:
                     "volume": last_price.get("volume"),
                     "timestamp": last_price.get("timestamp"),
                     "source": "historical_fallback",
-                    "is_fallback": True
+                    "is_fallback": True,
                 }
                 return result
         except Exception as e:
@@ -160,7 +164,7 @@ class MarketDataProcessor:
 
         raise HTTPException(
             status_code=503,
-            detail=f"Unable to retrieve price data for {symbol} from any source"
+            detail=f"Unable to retrieve price data for {symbol} from any source",
         )
 
     async def get_processed_historical_data(
@@ -170,7 +174,7 @@ class MarketDataProcessor:
         end_date: datetime,
         features: Optional[List[str]] = None,
         normalize: bool = True,
-        adjust_for_corporate_actions: bool = True
+        adjust_for_corporate_actions: bool = True,
     ) -> pd.DataFrame:
         """Get processed historical data with technical indicators and features."""
         try:
@@ -201,7 +205,9 @@ class MarketDataProcessor:
             if adjust_for_corporate_actions:
                 for symbol in symbols:
                     symbol_df = processed_df[processed_df["symbol"] == symbol].copy()
-                    adjusted_df = self._adjust_for_corporate_actions_df(symbol, symbol_df)
+                    adjusted_df = self._adjust_for_corporate_actions_df(
+                        symbol, symbol_df
+                    )
                     processed_df.loc[processed_df["symbol"] == symbol] = adjusted_df
 
             # Add features if specified
@@ -307,7 +313,9 @@ class MarketDataProcessor:
     # Data Quality Validation
     # ============================================================================
 
-    def _validate_price_data(self, symbol: str, price_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _validate_price_data(
+        self, symbol: str, price_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Validate price data quality."""
         price = price_data.get("price")
         if price is None:
@@ -334,10 +342,7 @@ class MarketDataProcessor:
     # ============================================================================
 
     async def get_corporate_actions(
-        self,
-        symbol: str,
-        start_date: datetime,
-        end_date: Optional[datetime] = None
+        self, symbol: str, start_date: datetime, end_date: Optional[datetime] = None
     ) -> List[CorporateAction]:
         """Get corporate actions for a symbol in a date range."""
         end_date = end_date or datetime.utcnow()
@@ -350,7 +355,8 @@ class MarketDataProcessor:
 
         # Filter corporate actions
         actions = [
-            action for action in self.corporate_actions
+            action
+            for action in self.corporate_actions
             if action.symbol == symbol and start_date <= action.ex_date <= end_date
         ]
 
@@ -366,25 +372,38 @@ class MarketDataProcessor:
         logger.info(f"Added corporate action: {corporate_action}")
         return True
 
-    def _adjust_for_corporate_actions_df(self, symbol: str, df: pd.DataFrame) -> pd.DataFrame:
+    def _adjust_for_corporate_actions_df(
+        self, symbol: str, df: pd.DataFrame
+    ) -> pd.DataFrame:
         """Adjust historical data for corporate actions."""
         df = df.copy()
 
         # Get corporate actions for this period
-        start_date = df.index.min() if isinstance(df.index, pd.DatetimeIndex) else df["timestamp"].min()
-        end_date = df.index.max() if isinstance(df.index, pd.DatetimeIndex) else df["timestamp"].max()
+        start_date = (
+            df.index.min()
+            if isinstance(df.index, pd.DatetimeIndex)
+            else df["timestamp"].min()
+        )
+        end_date = (
+            df.index.max()
+            if isinstance(df.index, pd.DatetimeIndex)
+            else df["timestamp"].max()
+        )
 
         actions = []
         for action in self.corporate_actions:
-            if (action.symbol == symbol and
-                start_date <= action.ex_date <= end_date):
+            if action.symbol == symbol and start_date <= action.ex_date <= end_date:
                 actions.append(action)
 
         # Apply adjustments
         for action in actions:
             if action.action_type == "split" and action.ratio:
                 # Apply split adjustment
-                mask = df.index < action.ex_date if isinstance(df.index, pd.DatetimeIndex) else df["timestamp"] < action.ex_date
+                mask = (
+                    df.index < action.ex_date
+                    if isinstance(df.index, pd.DatetimeIndex)
+                    else df["timestamp"] < action.ex_date
+                )
                 df.loc[mask, ["open", "high", "low", "close"]] *= action.ratio
                 df.loc[mask, "volume"] /= action.ratio
 
@@ -565,10 +584,7 @@ class MarketDataProcessor:
 
     def _add_to_cache(self, key: str, data: Any) -> None:
         """Add data to cache with timestamp."""
-        entry = {
-            "data": data,
-            "timestamp": time.time()
-        }
+        entry = {"data": data, "timestamp": time.time()}
 
         # Add to appropriate cache based on key prefix
         if key.startswith("price_"):
@@ -588,14 +604,15 @@ class MarketDataProcessor:
         if len(cache) > self.max_cache_size:
             # Remove oldest entries
             sorted_keys = sorted(cache.keys(), key=lambda k: cache[k]["timestamp"])
-            keys_to_remove = sorted_keys[:len(cache) - self.max_cache_size]
+            keys_to_remove = sorted_keys[: len(cache) - self.max_cache_size]
             for k in keys_to_remove:
                 del cache[k]
 
     def _invalidate_corporate_action_cache(self, symbol: str) -> None:
         """Invalidate cache entries for a symbol when corporate actions change."""
         keys_to_remove = [
-            key for key in self._corporate_actions_cache
+            key
+            for key in self._corporate_actions_cache
             if key.startswith(f"corp_{symbol}")
         ]
         for key in keys_to_remove:
@@ -603,8 +620,7 @@ class MarketDataProcessor:
 
         # Clear hist_ cache entries that might be affected
         keys_to_remove = [
-            key for key in self._historical_cache
-            if key.startswith(f"hist_{symbol}")
+            key for key in self._historical_cache if key.startswith(f"hist_{symbol}")
         ]
         for key in keys_to_remove:
             del self._historical_cache[key]
@@ -615,11 +631,12 @@ class MarketDataProcessor:
             # Clear only for specific symbol
             keys_to_remove = []
 
-            for cache in [self._price_cache, self._historical_cache, self._corporate_actions_cache]:
-                keys_to_remove.extend([
-                    key for key in cache
-                    if symbol in key
-                ])
+            for cache in [
+                self._price_cache,
+                self._historical_cache,
+                self._corporate_actions_cache,
+            ]:
+                keys_to_remove.extend([key for key in cache if symbol in key])
 
             for key in keys_to_remove:
                 if key in self._price_cache:

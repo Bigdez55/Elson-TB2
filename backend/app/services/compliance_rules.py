@@ -18,7 +18,7 @@ Decision Authority Levels:
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Any, Callable, Optional
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class RuleAuthority(str, Enum):
     """Authority responsible for the compliance rule."""
+
     CCO = "CCO"  # Chief Compliance Officer
     TAX_MANAGER = "TAX_MANAGER"
     GENERAL_COUNSEL = "GENERAL_COUNSEL"
@@ -38,6 +39,7 @@ class RuleAuthority(str, Enum):
 
 class RuleAction(str, Enum):
     """Actions to take when a rule is triggered."""
+
     BLOCK_RESPONSE = "block_response"  # Stop and require human review
     REQUIRE_DISCLOSURE = "require_disclosure"  # Add mandatory disclosure
     REQUIRE_FILING = "require_filing"  # Require regulatory filing
@@ -48,6 +50,7 @@ class RuleAction(str, Enum):
 
 class RuleSeverity(str, Enum):
     """Severity level of the rule."""
+
     CRITICAL = "critical"  # Must block/escalate
     HIGH = "high"  # Serious compliance concern
     MEDIUM = "medium"  # Standard compliance requirement
@@ -57,6 +60,7 @@ class RuleSeverity(str, Enum):
 @dataclass
 class RuleResult:
     """Result of a rule check."""
+
     rule_id: str
     rule_name: str
     triggered: bool
@@ -71,6 +75,7 @@ class RuleResult:
 @dataclass
 class ValidationResult:
     """Result of response validation."""
+
     is_valid: bool
     violations: list[RuleResult] = field(default_factory=list)
     warnings: list[RuleResult] = field(default_factory=list)
@@ -81,6 +86,7 @@ class ValidationResult:
 @dataclass
 class TransactionContext:
     """Context for transaction-related rule checks."""
+
     amount: Decimal = Decimal("0")
     transaction_type: str = ""
     currency: str = "USD"
@@ -94,6 +100,7 @@ class TransactionContext:
 @dataclass
 class GiftContext:
     """Context for gift/transfer-related rule checks."""
+
     amount: Decimal = Decimal("0")
     recipient: str = ""
     relationship: str = ""  # spouse, child, grandchild, unrelated
@@ -105,6 +112,7 @@ class GiftContext:
 @dataclass
 class InvestmentContext:
     """Context for investment-related rule checks."""
+
     asset_class: str = ""
     allocation_percentage: Decimal = Decimal("0")
     is_concentrated: bool = False
@@ -171,7 +179,6 @@ class ComplianceRulesEngine:
                 "description": "Enhanced due diligence required for PEPs",
                 "action": RuleAction.REQUIRE_DISCLOSURE,
             },
-
             # Tax Compliance Rules (Tax Manager Authority)
             "TAX_GIFT_ANNUAL_EXCLUSION": {
                 "name": "Gift Tax Annual Exclusion",
@@ -203,7 +210,6 @@ class ComplianceRulesEngine:
                 "description": "Trust tax returns due April 15 (or extended deadline)",
                 "action": RuleAction.REQUIRE_DISCLOSURE,
             },
-
             # Fiduciary Duty Rules (General Counsel Authority)
             "FIDUCIARY_DUTY_OF_CARE": {
                 "name": "Fiduciary Duty of Care",
@@ -233,7 +239,6 @@ class ComplianceRulesEngine:
                 "description": "Balance interests of current and remainder beneficiaries",
                 "action": RuleAction.ADD_WARNING,
             },
-
             # Investment Policy Rules (CIO Authority)
             "IPS_COMPLIANCE": {
                 "name": "Investment Policy Statement Compliance",
@@ -256,7 +261,6 @@ class ComplianceRulesEngine:
                 "description": "Certain investments prohibited by policy",
                 "action": RuleAction.BLOCK_RESPONSE,
             },
-
             # Privacy/Security Rules (CCO Authority)
             "PRIVACY_PII_PROTECTION": {
                 "name": "PII Protection",
@@ -289,48 +293,64 @@ class ComplianceRulesEngine:
         # AML Cash Reporting Threshold
         if context.is_cash and context.amount >= self.AML_CASH_REPORTING_THRESHOLD:
             rule = self.rules["AML_CASH_REPORTING"]
-            results.append(RuleResult(
-                rule_id="AML_CASH_REPORTING",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message=f"Cash transaction of ${context.amount:,.2f} requires Currency Transaction Report (CTR) filing with FinCEN within 15 days.",
-                details={"amount": str(context.amount), "threshold": str(self.AML_CASH_REPORTING_THRESHOLD)},
-                required_disclosures=[
-                    "This transaction requires filing a Currency Transaction Report (CTR) with FinCEN.",
-                    "Financial institutions must file CTR within 15 days of the transaction."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="AML_CASH_REPORTING",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message=f"Cash transaction of ${context.amount:,.2f} requires Currency Transaction Report (CTR) filing with FinCEN within 15 days.",
+                    details={
+                        "amount": str(context.amount),
+                        "threshold": str(self.AML_CASH_REPORTING_THRESHOLD),
+                    },
+                    required_disclosures=[
+                        "This transaction requires filing a Currency Transaction Report (CTR) with FinCEN.",
+                        "Financial institutions must file CTR within 15 days of the transaction.",
+                    ],
+                )
+            )
 
         # SAR Threshold for suspicious activity
         if context.amount >= self.SAR_THRESHOLD:
             # Check for suspicious patterns
             suspicious_indicators = []
             if context.is_international and not context.source_of_funds:
-                suspicious_indicators.append("International transaction without documented source of funds")
+                suspicious_indicators.append(
+                    "International transaction without documented source of funds"
+                )
             if context.amount == Decimal("9999") or context.amount == Decimal("9900"):
-                suspicious_indicators.append("Amount appears structured to avoid reporting threshold")
+                suspicious_indicators.append(
+                    "Amount appears structured to avoid reporting threshold"
+                )
 
             if suspicious_indicators:
                 rule = self.rules["AML_SAR_THRESHOLD"]
-                results.append(RuleResult(
-                    rule_id="AML_SAR_THRESHOLD",
-                    rule_name=rule["name"],
-                    triggered=True,
-                    action=rule["action"],
-                    severity=rule["severity"],
-                    authority=rule["authority"],
-                    message="Transaction exhibits suspicious indicators. Consider Suspicious Activity Report (SAR) filing.",
-                    details={"indicators": suspicious_indicators, "amount": str(context.amount)},
-                    required_disclosures=[
-                        "This transaction may require a Suspicious Activity Report (SAR) to be filed.",
-                        "Please consult with the Chief Compliance Officer before proceeding."
-                    ]
-                ))
+                results.append(
+                    RuleResult(
+                        rule_id="AML_SAR_THRESHOLD",
+                        rule_name=rule["name"],
+                        triggered=True,
+                        action=rule["action"],
+                        severity=rule["severity"],
+                        authority=rule["authority"],
+                        message="Transaction exhibits suspicious indicators. Consider Suspicious Activity Report (SAR) filing.",
+                        details={
+                            "indicators": suspicious_indicators,
+                            "amount": str(context.amount),
+                        },
+                        required_disclosures=[
+                            "This transaction may require a Suspicious Activity Report (SAR) to be filed.",
+                            "Please consult with the Chief Compliance Officer before proceeding.",
+                        ],
+                    )
+                )
 
-        logger.info(f"Transaction check: {len(results)} rules triggered for ${context.amount:,.2f}")
+        logger.info(
+            f"Transaction check: {len(results)} rules triggered for ${context.amount:,.2f}"
+        )
         return results
 
     def check_gift(self, context: GiftContext) -> list[RuleResult]:
@@ -353,26 +373,28 @@ class ComplianceRulesEngine:
         if context.amount > annual_limit:
             rule = self.rules["TAX_GIFT_ANNUAL_EXCLUSION"]
             excess = context.amount - annual_limit
-            results.append(RuleResult(
-                rule_id="TAX_GIFT_ANNUAL_EXCLUSION",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message=f"Gift of ${context.amount:,.2f} exceeds {context.year} annual exclusion of ${annual_limit:,.2f}. Form 709 (Gift Tax Return) required.",
-                details={
-                    "gift_amount": str(context.amount),
-                    "annual_exclusion": str(annual_limit),
-                    "excess_amount": str(excess),
-                    "split_gift": context.is_split_gift
-                },
-                required_disclosures=[
-                    f"A gift tax return (Form 709) is required for gifts exceeding the ${annual_limit:,.0f} annual exclusion.",
-                    f"The excess of ${excess:,.2f} will be applied against the lifetime gift tax exemption.",
-                    "Form 709 is due April 15 of the year following the gift."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="TAX_GIFT_ANNUAL_EXCLUSION",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message=f"Gift of ${context.amount:,.2f} exceeds {context.year} annual exclusion of ${annual_limit:,.2f}. Form 709 (Gift Tax Return) required.",
+                    details={
+                        "gift_amount": str(context.amount),
+                        "annual_exclusion": str(annual_limit),
+                        "excess_amount": str(excess),
+                        "split_gift": context.is_split_gift,
+                    },
+                    required_disclosures=[
+                        f"A gift tax return (Form 709) is required for gifts exceeding the ${annual_limit:,.0f} annual exclusion.",
+                        f"The excess of ${excess:,.2f} will be applied against the lifetime gift tax exemption.",
+                        "Form 709 is due April 15 of the year following the gift.",
+                    ],
+                )
+            )
 
         # Spouse exception (unlimited marital deduction)
         if context.relationship == "spouse" and context.amount > annual_limit:
@@ -384,7 +406,9 @@ class ComplianceRulesEngine:
                         "Gifts to US citizen spouses qualify for unlimited marital deduction - no gift tax return required."
                     )
 
-        logger.info(f"Gift check: {len(results)} rules triggered for ${context.amount:,.2f} gift")
+        logger.info(
+            f"Gift check: {len(results)} rules triggered for ${context.amount:,.2f} gift"
+        )
         return results
 
     def check_investment(self, context: InvestmentContext) -> list[RuleResult]:
@@ -402,56 +426,68 @@ class ComplianceRulesEngine:
         # IPS Compliance
         if context.conflicts_with_ips:
             rule = self.rules["IPS_COMPLIANCE"]
-            results.append(RuleResult(
-                rule_id="IPS_COMPLIANCE",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message="This investment recommendation conflicts with the client's Investment Policy Statement (IPS).",
-                details={"asset_class": context.asset_class, "conflicts_with_ips": True},
-                required_disclosures=[
-                    "This recommendation does not comply with the established Investment Policy Statement.",
-                    "Please review the IPS before proceeding or seek committee approval for deviation."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="IPS_COMPLIANCE",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message="This investment recommendation conflicts with the client's Investment Policy Statement (IPS).",
+                    details={
+                        "asset_class": context.asset_class,
+                        "conflicts_with_ips": True,
+                    },
+                    required_disclosures=[
+                        "This recommendation does not comply with the established Investment Policy Statement.",
+                        "Please review the IPS before proceeding or seek committee approval for deviation.",
+                    ],
+                )
+            )
 
         # Concentration Limit (typically 10-15% single position)
         if context.is_concentrated or context.allocation_percentage > Decimal("15"):
             rule = self.rules["IPS_CONCENTRATION_LIMIT"]
-            results.append(RuleResult(
-                rule_id="IPS_CONCENTRATION_LIMIT",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message=f"Position concentration of {context.allocation_percentage}% exceeds typical policy limits.",
-                details={"allocation": str(context.allocation_percentage), "asset_class": context.asset_class},
-                required_disclosures=[
-                    "Concentrated positions increase portfolio risk.",
-                    "Consider diversification strategies or document the rationale for deviation."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="IPS_CONCENTRATION_LIMIT",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message=f"Position concentration of {context.allocation_percentage}% exceeds typical policy limits.",
+                    details={
+                        "allocation": str(context.allocation_percentage),
+                        "asset_class": context.asset_class,
+                    },
+                    required_disclosures=[
+                        "Concentrated positions increase portfolio risk.",
+                        "Consider diversification strategies or document the rationale for deviation.",
+                    ],
+                )
+            )
 
         # Prohibited Investments
         if context.is_prohibited_investment:
             rule = self.rules["IPS_PROHIBITED_INVESTMENTS"]
-            results.append(RuleResult(
-                rule_id="IPS_PROHIBITED_INVESTMENTS",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message=f"Investment in {context.asset_class} is prohibited by policy.",
-                details={"asset_class": context.asset_class, "prohibited": True},
-                required_disclosures=[
-                    "This investment type is prohibited under the current Investment Policy Statement.",
-                    "This recommendation cannot proceed without policy amendment."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="IPS_PROHIBITED_INVESTMENTS",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message=f"Investment in {context.asset_class} is prohibited by policy.",
+                    details={"asset_class": context.asset_class, "prohibited": True},
+                    required_disclosures=[
+                        "This investment type is prohibited under the current Investment Policy Statement.",
+                        "This recommendation cannot proceed without policy amendment.",
+                    ],
+                )
+            )
 
         logger.info(f"Investment check: {len(results)} rules triggered")
         return results
@@ -461,7 +497,7 @@ class ComplianceRulesEngine:
         action_description: str,
         beneficiary_impact: str,
         has_conflict: bool = False,
-        favors_current_beneficiary: Optional[bool] = None
+        favors_current_beneficiary: Optional[bool] = None,
     ) -> list[RuleResult]:
         """
         Check fiduciary duty compliance.
@@ -480,44 +516,48 @@ class ComplianceRulesEngine:
         # Conflict of Interest
         if has_conflict:
             rule = self.rules["FIDUCIARY_CONFLICT_OF_INTEREST"]
-            results.append(RuleResult(
-                rule_id="FIDUCIARY_CONFLICT_OF_INTEREST",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message="A potential conflict of interest has been identified. This matter must be escalated for review.",
-                details={"action": action_description, "has_conflict": True},
-                required_disclosures=[
-                    "A conflict of interest has been identified.",
-                    "This matter requires review by the General Counsel or Trust Protector.",
-                    "The fiduciary must recuse themselves from this decision if the conflict cannot be resolved."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="FIDUCIARY_CONFLICT_OF_INTEREST",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message="A potential conflict of interest has been identified. This matter must be escalated for review.",
+                    details={"action": action_description, "has_conflict": True},
+                    required_disclosures=[
+                        "A conflict of interest has been identified.",
+                        "This matter requires review by the General Counsel or Trust Protector.",
+                        "The fiduciary must recuse themselves from this decision if the conflict cannot be resolved.",
+                    ],
+                )
+            )
 
         # Duty of Impartiality (current vs remainder beneficiaries)
         if favors_current_beneficiary is not None:
             rule = self.rules["FIDUCIARY_IMPARTIALITY"]
             direction = "current" if favors_current_beneficiary else "remainder"
-            results.append(RuleResult(
-                rule_id="FIDUCIARY_IMPARTIALITY",
-                rule_name=rule["name"],
-                triggered=True,
-                action=rule["action"],
-                severity=rule["severity"],
-                authority=rule["authority"],
-                message=f"This action may disproportionately favor {direction} beneficiaries. Balance of interests required.",
-                details={
-                    "action": action_description,
-                    "favors": direction,
-                    "beneficiary_impact": beneficiary_impact
-                },
-                required_disclosures=[
-                    "Trustees must balance the interests of current income beneficiaries and remainder beneficiaries.",
-                    "Document the rationale for any distribution decisions that may affect this balance."
-                ]
-            ))
+            results.append(
+                RuleResult(
+                    rule_id="FIDUCIARY_IMPARTIALITY",
+                    rule_name=rule["name"],
+                    triggered=True,
+                    action=rule["action"],
+                    severity=rule["severity"],
+                    authority=rule["authority"],
+                    message=f"This action may disproportionately favor {direction} beneficiaries. Balance of interests required.",
+                    details={
+                        "action": action_description,
+                        "favors": direction,
+                        "beneficiary_impact": beneficiary_impact,
+                    },
+                    required_disclosures=[
+                        "Trustees must balance the interests of current income beneficiaries and remainder beneficiaries.",
+                        "Document the rationale for any distribution decisions that may affect this balance.",
+                    ],
+                )
+            )
 
         logger.info(f"Fiduciary check: {len(results)} rules triggered")
         return results
@@ -560,7 +600,7 @@ class ComplianceRulesEngine:
             RuleSeverity.CRITICAL: 0,
             RuleSeverity.HIGH: 1,
             RuleSeverity.MEDIUM: 2,
-            RuleSeverity.LOW: 3
+            RuleSeverity.LOW: 3,
         }
         results.sort(key=lambda r: severity_order.get(r.severity, 99))
 
@@ -568,10 +608,7 @@ class ComplianceRulesEngine:
         return results
 
     def validate_response(
-        self,
-        response: str,
-        context: dict,
-        include_disclosures: bool = True
+        self, response: str, context: dict, include_disclosures: bool = True
     ) -> ValidationResult:
         """
         Post-generation validation of LLM response.
@@ -611,7 +648,7 @@ class ComplianceRulesEngine:
             violations=violations,
             warnings=warnings,
             required_disclosures=all_disclosures,
-            modified_response=modified_response if all_disclosures else None
+            modified_response=modified_response if all_disclosures else None,
         )
 
     def should_block_response(self, rule_results: list[RuleResult]) -> bool:
@@ -631,7 +668,9 @@ class ComplianceRulesEngine:
                 return True
         return False
 
-    def get_escalation_contacts(self, rule_results: list[RuleResult]) -> dict[str, list[str]]:
+    def get_escalation_contacts(
+        self, rule_results: list[RuleResult]
+    ) -> dict[str, list[str]]:
         """
         Get contact information for escalation based on triggered rules.
 
@@ -643,7 +682,10 @@ class ComplianceRulesEngine:
         """
         escalations = {}
         for result in rule_results:
-            if result.triggered and result.action in [RuleAction.ESCALATE, RuleAction.BLOCK_RESPONSE]:
+            if result.triggered and result.action in [
+                RuleAction.ESCALATE,
+                RuleAction.BLOCK_RESPONSE,
+            ]:
                 authority = result.authority.value
                 if authority not in escalations:
                     escalations[authority] = []

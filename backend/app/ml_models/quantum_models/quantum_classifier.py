@@ -7,8 +7,8 @@ if quantum computing libraries are not available.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
 import warnings
+from typing import Any, Dict, List, Optional, Union
 
 # Suppress sklearn warnings for type checking
 warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
@@ -63,7 +63,9 @@ class QuantumInspiredClassifier:
         # Model parameters
         self.weights: Optional[np.ndarray] = None
         self.bias: float = 0.0
-        self.scaler: Optional[StandardScaler] = StandardScaler() if StandardScaler else None
+        self.scaler: Optional[StandardScaler] = (
+            StandardScaler() if StandardScaler else None
+        )
         self.is_trained: bool = False
 
         # Quantum-inspired components
@@ -71,7 +73,11 @@ class QuantumInspiredClassifier:
         self.quantum_weights: Optional[np.ndarray] = None
 
         # Performance tracking
-        self.training_history: Dict[str, Union[List[float], int]] = {"loss": [], "accuracy": [], "quantum_features_used": 0}
+        self.training_history: Dict[str, Union[List[float], int]] = {
+            "loss": [],
+            "accuracy": [],
+            "quantum_features_used": 0,
+        }
 
         logger.info(f"Initialized QuantumInspiredClassifier with {n_qubits} qubits")
 
@@ -203,7 +209,11 @@ class QuantumInspiredClassifier:
 
             self.is_trained = True
             accuracy_list = self.training_history["accuracy"]
-            final_accuracy = accuracy_list[-1] if isinstance(accuracy_list, list) and accuracy_list else 0.0
+            final_accuracy = (
+                accuracy_list[-1]
+                if isinstance(accuracy_list, list) and accuracy_list
+                else 0.0
+            )
             logger.info(f"Training completed. Final accuracy: {final_accuracy:.4f}")
 
             return self
@@ -366,12 +376,16 @@ class QuantumInspiredClassifier:
 
         return {
             "status": "Trained",
-            "final_accuracy": self.training_history["accuracy"][-1]
-            if self.training_history["accuracy"]
-            else 0,
-            "final_loss": self.training_history["loss"][-1]
-            if self.training_history["loss"]
-            else 0,
+            "final_accuracy": (
+                self.training_history["accuracy"][-1]
+                if self.training_history["accuracy"]
+                else 0
+            ),
+            "final_loss": (
+                self.training_history["loss"][-1]
+                if self.training_history["loss"]
+                else 0
+            ),
             "training_iterations": len(self.training_history["accuracy"]),
             "quantum_features_created": self.training_history["quantum_features_used"],
             "classical_features": self.n_features,

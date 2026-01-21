@@ -12,16 +12,17 @@ This test suite validates:
 
 import asyncio
 import time
-import pytest
-from unittest.mock import AsyncMock, Mock, patch
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, Mock, patch
 
 import aiohttp
+import pytest
+
 from app.services.enhanced_market_data import (
-    EnhancedMarketDataService,
-    YFinanceProvider,
     AlphaVantageProviderEnhanced,
+    EnhancedMarketDataService,
     MarketDataCache,
+    YFinanceProvider,
 )
 
 

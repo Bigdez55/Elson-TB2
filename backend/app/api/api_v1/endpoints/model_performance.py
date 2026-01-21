@@ -133,15 +133,21 @@ async def get_performance_by_regime(
             },
             "by_regime": {
                 regime: {
-                    "win_rate": round(0.72 + (i * 0.02), 2)
-                    if i < 2
-                    else round(0.72 - (i * 0.02), 2),
-                    "avg_return": round(1.5 + (i * 0.2), 2)
-                    if i < 2
-                    else round(1.5 - (i * 0.05), 2),
-                    "sharpe_ratio": round(1.8 + (i * 0.1), 2)
-                    if i < 2
-                    else round(1.8 - (i * 0.1), 2),
+                    "win_rate": (
+                        round(0.72 + (i * 0.02), 2)
+                        if i < 2
+                        else round(0.72 - (i * 0.02), 2)
+                    ),
+                    "avg_return": (
+                        round(1.5 + (i * 0.2), 2)
+                        if i < 2
+                        else round(1.5 - (i * 0.05), 2)
+                    ),
+                    "sharpe_ratio": (
+                        round(1.8 + (i * 0.1), 2)
+                        if i < 2
+                        else round(1.8 - (i * 0.1), 2)
+                    ),
                     "trade_count": 300 - (i * 50),
                     "volatility": 10 + (i * 10),
                 }

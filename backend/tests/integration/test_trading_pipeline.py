@@ -11,19 +11,19 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from app.trading_engine.engine.circuit_breaker import CircuitBreaker
-from app.trading_engine.engine.trade_executor import TradeExecutor
 
 from app.db.database import get_db
 from app.main import app
 from app.models.account import Account, AccountStatus, AccountType
-from app.models.portfolio import Portfolio
-from app.models.portfolio import RiskProfile
-from app.models.trade import Trade, OrderSide as TradeSide, TradeStatus, TradeType
+from app.models.portfolio import Portfolio, RiskProfile
+from app.models.trade import OrderSide as TradeSide
+from app.models.trade import Trade, TradeStatus, TradeType
 from app.models.user import User, UserRole
 from app.services.market_data import MarketDataService
 from app.services.risk_management import RiskManagementService
 from app.services.trading import TradingService
+from app.trading_engine.engine.circuit_breaker import CircuitBreaker
+from app.trading_engine.engine.trade_executor import TradeExecutor
 
 
 @pytest.fixture

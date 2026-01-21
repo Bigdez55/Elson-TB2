@@ -9,15 +9,15 @@ Supports:
 """
 
 import os
-from typing import Optional, Generator
 from contextlib import contextmanager
+from typing import Generator, Optional
 
-import structlog
 import redis
+import structlog
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker, Session, declarative_base
-from sqlalchemy.pool import StaticPool, QueuePool
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.pool import QueuePool, StaticPool
 
 from app.core.config import settings
 
@@ -115,7 +115,10 @@ def _create_engine_with_fallback() -> Engine:
         }
 
     try:
-        logger.info("Connecting to database", url=db_url.split("@")[-1] if "@" in db_url else db_url)
+        logger.info(
+            "Connecting to database",
+            url=db_url.split("@")[-1] if "@" in db_url else db_url,
+        )
         engine = create_engine(db_url, **engine_args)
 
         # Test the connection
@@ -123,14 +126,17 @@ def _create_engine_with_fallback() -> Engine:
             conn.execute(text("SELECT 1"))
             conn.commit()
 
-        logger.info("Database connection successful", type="postgresql" if not is_sqlite else "sqlite")
+        logger.info(
+            "Database connection successful",
+            type="postgresql" if not is_sqlite else "sqlite",
+        )
         return engine
 
     except Exception as e:
         logger.warning(
             "Primary database connection failed, falling back to in-memory SQLite",
             error=str(e),
-            original_url=db_url.split("@")[-1] if "@" in db_url else db_url
+            original_url=db_url.split("@")[-1] if "@" in db_url else db_url,
         )
 
         if is_production:
@@ -208,7 +214,7 @@ def get_redis() -> Optional[redis.Redis]:
 
     _redis_connection_attempted = True
 
-    redis_url = os.getenv("REDIS_URL", getattr(settings, 'REDIS_URL', None))
+    redis_url = os.getenv("REDIS_URL", getattr(settings, "REDIS_URL", None))
 
     if not redis_url:
         logger.debug("Redis URL not configured, caching disabled")
@@ -264,19 +270,15 @@ def update_db_connection_settings(host: str, port: int) -> None:
     # Parse and rebuild the URL with new host:port
     # Format: postgresql://user:pass@host:port/dbname
     import re
-    pattern = r'(@)([^:]+):(\d+)(/)'
-    new_url = re.sub(pattern, rf'\g<1>{host}:{port}\g<4>', current_url)
+
+    pattern = r"(@)([^:]+):(\d+)(/)"
+    new_url = re.sub(pattern, rf"\g<1>{host}:{port}\g<4>", current_url)
 
     # Dispose old engine connections
     engine.dispose()
 
     # Create new engine with updated URL
-    engine = create_engine(
-        new_url,
-        pool_pre_ping=True,
-        pool_size=5,
-        max_overflow=10
-    )
+    engine = create_engine(new_url, pool_pre_ping=True, pool_size=5, max_overflow=10)
 
     # Update SessionLocal to use new engine
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

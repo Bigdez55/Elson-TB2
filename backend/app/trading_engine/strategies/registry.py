@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class StrategyCategory(str, Enum):
     """Categories for organizing trading strategies"""
+
     TECHNICAL = "technical"
     MOMENTUM = "momentum"
     MEAN_REVERSION = "mean_reversion"
@@ -93,6 +94,7 @@ class StrategyRegistry:
             class RSIStrategy(TradingStrategy):
                 ...
         """
+
         def decorator(strategy_class: Type[TradingStrategy]) -> Type[TradingStrategy]:
             cls._strategies[name] = StrategyInfo(
                 name=name,
@@ -106,15 +108,12 @@ class StrategyRegistry:
             )
             logger.info(f"Registered strategy: {name} in category: {category}")
             return strategy_class
+
         return decorator
 
     @classmethod
     def create(
-        cls,
-        name: str,
-        symbol: str,
-        market_data_service: Any = None,
-        **kwargs
+        cls, name: str, symbol: str, market_data_service: Any = None, **kwargs
     ) -> Optional[TradingStrategy]:
         """
         Create an instance of a registered strategy.
@@ -139,9 +138,7 @@ class StrategyRegistry:
 
         try:
             strategy = info.strategy_class(
-                symbol=symbol,
-                market_data_service=market_data_service,
-                **parameters
+                symbol=symbol, market_data_service=market_data_service, **parameters
             )
             logger.info(f"Created strategy instance: {name} for {symbol}")
             return strategy
@@ -160,8 +157,7 @@ class StrategyRegistry:
         if category is None:
             return list(cls._strategies.keys())
         return [
-            name for name, info in cls._strategies.items()
-            if info.category == category
+            name for name, info in cls._strategies.items() if info.category == category
         ]
 
     @classmethod
@@ -189,7 +185,8 @@ class StrategyRegistry:
     def get_strategies_by_risk(cls, risk_level: str) -> List[str]:
         """Get strategies filtered by risk level"""
         return [
-            name for name, info in cls._strategies.items()
+            name
+            for name, info in cls._strategies.items()
             if info.risk_level == risk_level
         ]
 
@@ -202,10 +199,7 @@ class StrategyRegistry:
 
 # Convenience function for creating strategies
 def create_strategy(
-    name: str,
-    symbol: str,
-    market_data_service: Any = None,
-    **kwargs
+    name: str, symbol: str, market_data_service: Any = None, **kwargs
 ) -> Optional[TradingStrategy]:
     """Convenience function to create a strategy instance"""
     return StrategyRegistry.create(name, symbol, market_data_service, **kwargs)

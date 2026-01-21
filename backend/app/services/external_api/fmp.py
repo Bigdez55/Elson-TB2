@@ -145,9 +145,11 @@ class FMPClient(BaseApiClient):
                 "low": float(data_point.get("low", 0)),
                 "close": float(data_point.get("close", 0)),
                 "volume": int(float(data_point.get("volume", 0))),
-                "adjusted_close": float(data_point.get("adjClose", 0))
-                if "adjClose" in data_point
-                else None,
+                "adjusted_close": (
+                    float(data_point.get("adjClose", 0))
+                    if "adjClose" in data_point
+                    else None
+                ),
             }
             normalized_data.append(normalized_point)
 
@@ -185,35 +187,45 @@ class FMPClient(BaseApiClient):
             "sector": profile_data.get("sector"),
             "industry": profile_data.get("industry"),
             "market_cap": float(profile_data.get("mktCap", 0)),
-            "pe_ratio": float(profile_data.get("pe", 0))
-            if profile_data.get("pe")
-            else None,
-            "dividend_yield": float(profile_data.get("lastDiv", 0))
-            if profile_data.get("lastDiv")
-            else None,
-            "beta": float(profile_data.get("beta", 0))
-            if profile_data.get("beta")
-            else None,
-            "52_week_high": float(profile_data.get("range", "0-0").split("-")[1])
-            if "-" in profile_data.get("range", "")
-            else None,
-            "52_week_low": float(profile_data.get("range", "0-0").split("-")[0])
-            if "-" in profile_data.get("range", "")
-            else None,
+            "pe_ratio": (
+                float(profile_data.get("pe", 0)) if profile_data.get("pe") else None
+            ),
+            "dividend_yield": (
+                float(profile_data.get("lastDiv", 0))
+                if profile_data.get("lastDiv")
+                else None
+            ),
+            "beta": (
+                float(profile_data.get("beta", 0)) if profile_data.get("beta") else None
+            ),
+            "52_week_high": (
+                float(profile_data.get("range", "0-0").split("-")[1])
+                if "-" in profile_data.get("range", "")
+                else None
+            ),
+            "52_week_low": (
+                float(profile_data.get("range", "0-0").split("-")[0])
+                if "-" in profile_data.get("range", "")
+                else None
+            ),
             "country": profile_data.get("country"),
-            "employees": int(profile_data.get("fullTimeEmployees", 0))
-            if profile_data.get("fullTimeEmployees")
-            else None,
+            "employees": (
+                int(profile_data.get("fullTimeEmployees", 0))
+                if profile_data.get("fullTimeEmployees")
+                else None
+            ),
             "ceo": profile_data.get("ceo"),
             "website": profile_data.get("website"),
             "image": profile_data.get("image"),
             "price": float(profile_data.get("price", 0)),
             "change_percent": float(profile_data.get("changes", 0)),
-            "change": float(
-                profile_data.get("changes", 0) * profile_data.get("price", 0) / 100
-            )
-            if profile_data.get("price")
-            else 0,
+            "change": (
+                float(
+                    profile_data.get("changes", 0) * profile_data.get("price", 0) / 100
+                )
+                if profile_data.get("price")
+                else 0
+            ),
             "isin": profile_data.get("isin"),
             "cusip": profile_data.get("cusip"),
             # Add provider info for metrics tracking

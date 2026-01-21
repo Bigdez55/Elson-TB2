@@ -19,12 +19,12 @@ Philosophy: Same quality advice for everyone - only complexity differs by tier.
 """
 
 import logging
-from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, field
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from .wealth_model_loader import WealthModelLoader, ModelConfig, ModelSource
+from .wealth_model_loader import ModelConfig, ModelSource, WealthModelLoader
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # ENUMS AND CONSTANTS
 # =============================================================================
+
 
 class ServiceTier(Enum):
     """
@@ -41,15 +42,17 @@ class ServiceTier(Enum):
     Traditional wealth management gatekeeps advice behind high AUM minimums -
     Elson breaks this barrier with same quality advice for everyone.
     """
-    FOUNDATION = "foundation"      # $0-10K: Full CFP access, financial literacy foundation
-    BUILDER = "builder"            # $10K-75K: ~1 year median US savings, achievable for most
-    GROWTH = "growth"              # $75K-500K: Earlier CFA access for middle-class families
-    AFFLUENT = "affluent"          # $500K-5M: Full team, trust structures
-    HNW_UHNW = "hnw_uhnw"          # $5M+: Family office, philanthropy, specialists
+
+    FOUNDATION = "foundation"  # $0-10K: Full CFP access, financial literacy foundation
+    BUILDER = "builder"  # $10K-75K: ~1 year median US savings, achievable for most
+    GROWTH = "growth"  # $75K-500K: Earlier CFA access for middle-class families
+    AFFLUENT = "affluent"  # $500K-5M: Full team, trust structures
+    HNW_UHNW = "hnw_uhnw"  # $5M+: Family office, philanthropy, specialists
 
 
 class AdvisoryMode(Enum):
     """Query routing modes for different advisory needs."""
+
     PORTFOLIO_ANALYSIS = "portfolio_analysis"
     RISK_ASSESSMENT = "risk_assessment"
     TAX_OPTIMIZATION = "tax_optimization"
@@ -64,13 +67,15 @@ class AdvisoryMode(Enum):
 
 class DecisionAuthority(Enum):
     """Decision authority levels for compliance."""
-    BINDING = "binding"      # Must be followed (regulatory)
-    ADVISORY = "advisory"    # Recommended but optional
-    SUPPORT = "support"      # Informational only
+
+    BINDING = "binding"  # Must be followed (regulatory)
+    ADVISORY = "advisory"  # Recommended but optional
+    SUPPORT = "support"  # Informational only
 
 
 class ComplianceCategory(Enum):
     """Compliance rule categories."""
+
     FIDUCIARY_DUTY = "fiduciary_duty"
     SUITABILITY = "suitability"
     CONCENTRATION_LIMITS = "concentration_limits"
@@ -92,11 +97,11 @@ class ComplianceCategory(Enum):
 
 # Democratized service tier thresholds (aligned with $66,622 US average salary)
 TIER_THRESHOLDS = {
-    ServiceTier.FOUNDATION: (0, 10_000),            # $0-10K
-    ServiceTier.BUILDER: (10_000, 75_000),          # $10K-75K (~1 year median US savings)
-    ServiceTier.GROWTH: (75_000, 500_000),          # $75K-500K (earlier CFA access)
-    ServiceTier.AFFLUENT: (500_000, 5_000_000),     # $500K-5M (full team)
-    ServiceTier.HNW_UHNW: (5_000_000, float('inf')),  # $5M+ (family office)
+    ServiceTier.FOUNDATION: (0, 10_000),  # $0-10K
+    ServiceTier.BUILDER: (10_000, 75_000),  # $10K-75K (~1 year median US savings)
+    ServiceTier.GROWTH: (75_000, 500_000),  # $75K-500K (earlier CFA access)
+    ServiceTier.AFFLUENT: (500_000, 5_000_000),  # $500K-5M (full team)
+    ServiceTier.HNW_UHNW: (5_000_000, float("inf")),  # $5M+ (family office)
 }
 
 
@@ -104,9 +109,11 @@ TIER_THRESHOLDS = {
 # DATA CLASSES
 # =============================================================================
 
+
 @dataclass
 class UserProfile:
     """User profile for personalized advice."""
+
     user_id: str
     portfolio_value: float
     risk_tolerance: str = "moderate"  # conservative, moderate, aggressive
@@ -129,6 +136,7 @@ class UserProfile:
 @dataclass
 class ComplianceResult:
     """Result of compliance check."""
+
     passed: bool
     category: ComplianceCategory
     authority: DecisionAuthority
@@ -140,6 +148,7 @@ class ComplianceResult:
 @dataclass
 class QueryContext:
     """Context for a wealth management query."""
+
     query: str
     user_profile: UserProfile
     advisory_mode: AdvisoryMode
@@ -151,6 +160,7 @@ class QueryContext:
 @dataclass
 class AdvisoryResponse:
     """Structured response from the wealth LLM service."""
+
     response: str
     advisory_mode: AdvisoryMode
     service_tier: ServiceTier
@@ -166,6 +176,7 @@ class AdvisoryResponse:
 # 5-LAYER ARCHITECTURE COMPONENTS
 # =============================================================================
 
+
 class QueryRouter:
     """
     Layer 1: Query Router
@@ -175,31 +186,61 @@ class QueryRouter:
     # Keywords for routing
     MODE_KEYWORDS = {
         AdvisoryMode.PORTFOLIO_ANALYSIS: [
-            "portfolio", "holdings", "positions", "allocation", "performance"
+            "portfolio",
+            "holdings",
+            "positions",
+            "allocation",
+            "performance",
         ],
         AdvisoryMode.RISK_ASSESSMENT: [
-            "risk", "volatility", "downside", "exposure", "hedge"
+            "risk",
+            "volatility",
+            "downside",
+            "exposure",
+            "hedge",
         ],
         AdvisoryMode.TAX_OPTIMIZATION: [
-            "tax", "capital gains", "loss harvest", "deduction", "bracket"
+            "tax",
+            "capital gains",
+            "loss harvest",
+            "deduction",
+            "bracket",
         ],
         AdvisoryMode.RETIREMENT_PLANNING: [
-            "retirement", "401k", "ira", "pension", "social security"
+            "retirement",
+            "401k",
+            "ira",
+            "pension",
+            "social security",
         ],
         AdvisoryMode.ESTATE_PLANNING: [
-            "estate", "inheritance", "trust", "will", "beneficiary"
+            "estate",
+            "inheritance",
+            "trust",
+            "will",
+            "beneficiary",
         ],
         AdvisoryMode.INVESTMENT_EDUCATION: [
-            "what is", "explain", "how does", "learn", "understand"
+            "what is",
+            "explain",
+            "how does",
+            "learn",
+            "understand",
         ],
         AdvisoryMode.MARKET_ANALYSIS: [
-            "market", "sector", "trend", "outlook", "forecast"
+            "market",
+            "sector",
+            "trend",
+            "outlook",
+            "forecast",
         ],
-        AdvisoryMode.REBALANCING: [
-            "rebalance", "drift", "target allocation", "adjust"
-        ],
+        AdvisoryMode.REBALANCING: ["rebalance", "drift", "target allocation", "adjust"],
         AdvisoryMode.ASSET_ALLOCATION: [
-            "allocation", "diversify", "mix", "split", "distribute"
+            "allocation",
+            "diversify",
+            "mix",
+            "split",
+            "distribute",
         ],
     }
 
@@ -230,11 +271,7 @@ class RAGLayer:
         self.knowledge_base = {}  # Placeholder for vector store
 
     def retrieve(
-        self,
-        query: str,
-        mode: AdvisoryMode,
-        tier: ServiceTier,
-        top_k: int = 3
+        self, query: str, mode: AdvisoryMode, tier: ServiceTier, top_k: int = 3
     ) -> List[Dict[str, Any]]:
         """
         Retrieve relevant documents for the query.
@@ -245,16 +282,17 @@ class RAGLayer:
         # like Pinecone, Weaviate, or ChromaDB
 
         # Return tier-appropriate context
-        base_context = [{
-            "type": "disclaimer",
-            "content": self._get_tier_disclaimer(tier)
-        }]
+        base_context = [
+            {"type": "disclaimer", "content": self._get_tier_disclaimer(tier)}
+        ]
 
         if mode == AdvisoryMode.TAX_OPTIMIZATION:
-            base_context.append({
-                "type": "reference",
-                "content": "Tax optimization strategies should be reviewed with a qualified tax professional."
-            })
+            base_context.append(
+                {
+                    "type": "reference",
+                    "content": "Tax optimization strategies should be reviewed with a qualified tax professional.",
+                }
+            )
 
         return base_context
 
@@ -303,50 +341,47 @@ class ComplianceEngine:
                 "category": ComplianceCategory.FIDUCIARY_DUTY,
                 "authority": DecisionAuthority.BINDING,
                 "description": "Must act in client's best interest",
-                "check": self._check_fiduciary_duty
+                "check": self._check_fiduciary_duty,
             },
             "SUITABLE_001": {
                 "category": ComplianceCategory.SUITABILITY,
                 "authority": DecisionAuthority.BINDING,
                 "description": "Recommendations must be suitable for client profile",
-                "check": self._check_suitability
+                "check": self._check_suitability,
             },
             "CONC_001": {
                 "category": ComplianceCategory.CONCENTRATION_LIMITS,
                 "authority": DecisionAuthority.ADVISORY,
                 "description": "Warn on position concentration > 10%",
-                "check": self._check_concentration
+                "check": self._check_concentration,
             },
             "RISK_001": {
                 "category": ComplianceCategory.RISK_TOLERANCE,
                 "authority": DecisionAuthority.ADVISORY,
                 "description": "Align recommendations with risk tolerance",
-                "check": self._check_risk_alignment
+                "check": self._check_risk_alignment,
             },
             "ACCRED_001": {
                 "category": ComplianceCategory.ACCREDITED_INVESTOR,
                 "authority": DecisionAuthority.BINDING,
                 "description": "Verify accredited status for certain investments",
-                "check": self._check_accredited_requirements
+                "check": self._check_accredited_requirements,
             },
             "DISC_001": {
                 "category": ComplianceCategory.DISCLOSURE,
                 "authority": DecisionAuthority.BINDING,
                 "description": "Include required disclosures",
-                "check": self._check_disclosures
+                "check": self._check_disclosures,
             },
             "PDT_001": {
                 "category": ComplianceCategory.PATTERN_DAY_TRADING,
                 "authority": DecisionAuthority.BINDING,
                 "description": "PDT rules for accounts < $25K",
-                "check": self._check_pdt_rules
+                "check": self._check_pdt_rules,
             },
         }
 
-    def validate_query(
-        self,
-        context: QueryContext
-    ) -> List[ComplianceResult]:
+    def validate_query(self, context: QueryContext) -> List[ComplianceResult]:
         """Validate query against compliance rules."""
         results = []
 
@@ -354,20 +389,20 @@ class ComplianceEngine:
             check_fn = rule["check"]
             passed, message = check_fn(context, is_query=True)
 
-            results.append(ComplianceResult(
-                passed=passed,
-                category=rule["category"],
-                authority=rule["authority"],
-                message=message,
-                rule_id=rule_id
-            ))
+            results.append(
+                ComplianceResult(
+                    passed=passed,
+                    category=rule["category"],
+                    authority=rule["authority"],
+                    message=message,
+                    rule_id=rule_id,
+                )
+            )
 
         return results
 
     def validate_response(
-        self,
-        response: str,
-        context: QueryContext
+        self, response: str, context: QueryContext
     ) -> List[ComplianceResult]:
         """Validate generated response against compliance rules."""
         results = []
@@ -376,13 +411,15 @@ class ComplianceEngine:
             check_fn = rule["check"]
             passed, message = check_fn(context, response=response, is_query=False)
 
-            results.append(ComplianceResult(
-                passed=passed,
-                category=rule["category"],
-                authority=rule["authority"],
-                message=message,
-                rule_id=rule_id
-            ))
+            results.append(
+                ComplianceResult(
+                    passed=passed,
+                    category=rule["category"],
+                    authority=rule["authority"],
+                    message=message,
+                    rule_id=rule_id,
+                )
+            )
 
         return results
 
@@ -417,9 +454,15 @@ class ComplianceEngine:
         mode = context.advisory_mode
 
         # For certain strategies, check accredited status
-        if "alternative" in context.query.lower() or "hedge fund" in context.query.lower():
+        if (
+            "alternative" in context.query.lower()
+            or "hedge fund" in context.query.lower()
+        ):
             if not profile.is_accredited:
-                return False, "Accredited investor status required for this investment type"
+                return (
+                    False,
+                    "Accredited investor status required for this investment type",
+                )
 
         return True, "Accredited investor check passed"
 
@@ -468,7 +511,7 @@ class ValidationLayer:
         self,
         response: str,
         context: QueryContext,
-        compliance_results: List[ComplianceResult]
+        compliance_results: List[ComplianceResult],
     ) -> AdvisoryResponse:
         """Validate and format the response."""
         # Check for compliance failures
@@ -477,8 +520,7 @@ class ValidationLayer:
         if failed_checks:
             # Handle binding failures
             binding_failures = [
-                r for r in failed_checks
-                if r.authority == DecisionAuthority.BINDING
+                r for r in failed_checks if r.authority == DecisionAuthority.BINDING
             ]
             if binding_failures:
                 response = self._handle_binding_failure(response, binding_failures)
@@ -499,13 +541,11 @@ class ValidationLayer:
             compliance_checks=compliance_results,
             confidence=confidence,
             disclaimers=disclaimers,
-            follow_up_questions=follow_ups
+            follow_up_questions=follow_ups,
         )
 
     def _handle_binding_failure(
-        self,
-        response: str,
-        failures: List[ComplianceResult]
+        self, response: str, failures: List[ComplianceResult]
     ) -> str:
         """Modify response to handle binding compliance failures."""
         failure_messages = [f.message for f in failures]
@@ -525,7 +565,7 @@ class ValidationLayer:
         if context.advisory_mode in [
             AdvisoryMode.PORTFOLIO_ANALYSIS,
             AdvisoryMode.ASSET_ALLOCATION,
-            AdvisoryMode.REBALANCING
+            AdvisoryMode.REBALANCING,
         ]:
             disclaimers.append(self.disclaimers["investment"])
 
@@ -539,31 +579,32 @@ class ValidationLayer:
         follow_ups = {
             AdvisoryMode.PORTFOLIO_ANALYSIS: [
                 "Would you like a detailed breakdown by sector?",
-                "Should I analyze your portfolio's risk metrics?"
+                "Should I analyze your portfolio's risk metrics?",
             ],
             AdvisoryMode.RISK_ASSESSMENT: [
                 "Would you like suggestions to reduce portfolio risk?",
-                "Should I show historical volatility analysis?"
+                "Should I show historical volatility analysis?",
             ],
             AdvisoryMode.TAX_OPTIMIZATION: [
                 "Would you like to explore tax-loss harvesting opportunities?",
-                "Should I analyze your tax-efficient fund placement?"
+                "Should I analyze your tax-efficient fund placement?",
             ],
             AdvisoryMode.RETIREMENT_PLANNING: [
                 "Would you like a retirement income projection?",
-                "Should I compare Roth vs Traditional contributions?"
+                "Should I compare Roth vs Traditional contributions?",
             ],
         }
 
-        return follow_ups.get(context.advisory_mode, [
-            "Would you like more details on any aspect?",
-            "Do you have any follow-up questions?"
-        ])
+        return follow_ups.get(
+            context.advisory_mode,
+            [
+                "Would you like more details on any aspect?",
+                "Do you have any follow-up questions?",
+            ],
+        )
 
     def _calculate_confidence(
-        self,
-        response: str,
-        compliance_results: List[ComplianceResult]
+        self, response: str, compliance_results: List[ComplianceResult]
     ) -> float:
         """Calculate confidence score for the response."""
         # Start with base confidence
@@ -584,6 +625,7 @@ class ValidationLayer:
 # MAIN SERVICE
 # =============================================================================
 
+
 class WealthLLMService:
     """
     Main service implementing the 5-layer hybrid architecture.
@@ -595,7 +637,7 @@ class WealthLLMService:
     def __init__(
         self,
         model_loader: Optional[WealthModelLoader] = None,
-        quantization: str = "4bit"
+        quantization: str = "4bit",
     ):
         """
         Initialize the wealth LLM service.
@@ -626,10 +668,7 @@ class WealthLLMService:
         logger.info("WealthLLMService model loaded")
 
     def _build_prompt(
-        self,
-        query: str,
-        context: QueryContext,
-        rag_context: List[Dict[str, Any]]
+        self, query: str, context: QueryContext, rag_context: List[Dict[str, Any]]
     ) -> str:
         """Build the prompt for the LLM."""
         tier = context.user_profile.service_tier
@@ -671,10 +710,7 @@ Response:"""
         return prompt
 
     def query(
-        self,
-        query: str,
-        user_profile: UserProfile,
-        session_id: Optional[str] = None
+        self, query: str, user_profile: UserProfile, session_id: Optional[str] = None
     ) -> AdvisoryResponse:
         """
         Process a wealth management query through the 5-layer architecture.
@@ -700,13 +736,14 @@ Response:"""
             query=query,
             user_profile=user_profile,
             advisory_mode=advisory_mode,
-            session_id=session_id
+            session_id=session_id,
         )
 
         # Layer 3: Pre-query compliance check
         pre_compliance = self.compliance_engine.validate_query(context)
         binding_failures = [
-            r for r in pre_compliance
+            r
+            for r in pre_compliance
             if not r.passed and r.authority == DecisionAuthority.BINDING
         ]
 
@@ -715,14 +752,12 @@ Response:"""
             return self.validation_layer.validate(
                 "Unable to process this query due to compliance restrictions.",
                 context,
-                pre_compliance
+                pre_compliance,
             )
 
         # Layer 2: Retrieve relevant context
         rag_context = self.rag_layer.retrieve(
-            query,
-            advisory_mode,
-            user_profile.service_tier
+            query, advisory_mode, user_profile.service_tier
         )
 
         # Build prompt
@@ -730,9 +765,7 @@ Response:"""
 
         # Layer 4: Generate response with LLM
         response = self.model_loader.generate(
-            prompt,
-            max_new_tokens=512,
-            temperature=0.7
+            prompt, max_new_tokens=512, temperature=0.7
         )
 
         # Layer 3: Post-response compliance check
@@ -740,9 +773,7 @@ Response:"""
 
         # Layer 5: Validate and format response
         final_response = self.validation_layer.validate(
-            response,
-            context,
-            pre_compliance + post_compliance
+            response, context, pre_compliance + post_compliance
         )
 
         return final_response
@@ -755,7 +786,7 @@ Response:"""
                     "tier": tier.value,
                     "tier_name": tier.name,
                     "portfolio_range": f"${min_val:,.0f} - ${max_val:,.0f}",
-                    "features": self._get_tier_features(tier)
+                    "features": self._get_tier_features(tier),
                 }
         return {"tier": "foundation", "tier_name": "FOUNDATION"}
 
@@ -768,7 +799,7 @@ Response:"""
                 "Debt payoff strategy",
                 "Credit building guidance",
                 "Savings automation",
-                "Basic investment education"
+                "Basic investment education",
             ],
             ServiceTier.BUILDER: [
                 "All Foundation features",
@@ -776,7 +807,7 @@ Response:"""
                 "Tax optimization fundamentals",
                 "Retirement account selection (401k/IRA)",
                 "Insurance fundamentals",
-                "First investment portfolio construction"
+                "First investment portfolio construction",
             ],
             ServiceTier.GROWTH: [
                 "All Builder features",
@@ -784,7 +815,7 @@ Response:"""
                 "Strategic portfolio construction",
                 "Estate planning basics",
                 "Tax-loss harvesting strategies",
-                "Real estate investment considerations"
+                "Real estate investment considerations",
             ],
             ServiceTier.AFFLUENT: [
                 "All Growth features",
@@ -792,7 +823,7 @@ Response:"""
                 "Trust structures and planning",
                 "Multi-entity tax planning",
                 "Business succession planning",
-                "Family governance fundamentals"
+                "Family governance fundamentals",
             ],
             ServiceTier.HNW_UHNW: [
                 "All Affluent features",
@@ -801,7 +832,7 @@ Response:"""
                 "Multi-generational wealth planning",
                 "Philanthropic planning (DAFs, foundations)",
                 "Alternative investments (PE, hedge funds)",
-                "International tax planning"
+                "International tax planning",
             ],
         }
         return features.get(tier, features[ServiceTier.FOUNDATION])
@@ -811,15 +842,14 @@ Response:"""
 # CONVENIENCE FUNCTIONS
 # =============================================================================
 
+
 def create_wealth_service(quantization: str = "4bit") -> WealthLLMService:
     """Create a wealth LLM service instance."""
     return WealthLLMService(quantization=quantization)
 
 
 def quick_wealth_query(
-    query: str,
-    portfolio_value: float = 50000,
-    risk_tolerance: str = "moderate"
+    query: str, portfolio_value: float = 50000, risk_tolerance: str = "moderate"
 ) -> AdvisoryResponse:
     """
     Quick wealth management query without full setup.
@@ -836,6 +866,6 @@ def quick_wealth_query(
     profile = UserProfile(
         user_id="quick_query",
         portfolio_value=portfolio_value,
-        risk_tolerance=risk_tolerance
+        risk_tolerance=risk_tolerance,
     )
     return service.query(query, profile)

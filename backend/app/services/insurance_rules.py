@@ -11,20 +11,21 @@ These rules ensure the AI:
 4. Blocks prohibited language (guaranteed returns, etc.)
 """
 
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import List, Optional, Dict, Any
-import re
-
+from typing import Any, Dict, List, Optional
 
 # =============================================================================
 # AUTHORITY LEVELS
 # =============================================================================
 
+
 class InsuranceAuthority(str, Enum):
     """Decision authority for insurance compliance"""
+
     COMPLIANCE_OFFICER = "compliance_officer"  # Binding decisions
     LICENSED_AGENT = "licensed_agent"  # Advisory
     GENERAL_COUNSEL = "general_counsel"  # Legal matters
@@ -33,6 +34,7 @@ class InsuranceAuthority(str, Enum):
 
 class RuleAction(str, Enum):
     """Actions to take when a rule triggers"""
+
     BLOCK_RESPONSE = "block_response"
     REQUIRE_DISCLOSURE = "require_disclosure"
     ADD_WARNING = "add_warning"
@@ -43,6 +45,7 @@ class RuleAction(str, Enum):
 
 class RuleSeverity(str, Enum):
     """Severity of rule violation"""
+
     CRITICAL = "critical"  # Must block
     HIGH = "high"  # Must escalate or add strong warning
     MEDIUM = "medium"  # Add warning
@@ -53,9 +56,11 @@ class RuleSeverity(str, Enum):
 # CONTEXT OBJECTS
 # =============================================================================
 
+
 @dataclass
 class InsuranceClientContext:
     """Client context for suitability rules"""
+
     age: int
     annual_income: Decimal
     net_worth: Decimal
@@ -71,6 +76,7 @@ class InsuranceClientContext:
 @dataclass
 class InsuranceProductContext:
     """Product context for suitability rules"""
+
     product_type: str
     carrier: str
     annual_premium: Decimal
@@ -85,6 +91,7 @@ class InsuranceProductContext:
 @dataclass
 class InsuranceResponseContext:
     """Context for checking AI response content"""
+
     response_text: str
     intent: str  # quote, comparison, recommendation, education
     product_mentioned: Optional[str] = None
@@ -95,9 +102,11 @@ class InsuranceResponseContext:
 # COMPLIANCE RULES
 # =============================================================================
 
+
 @dataclass
 class InsuranceRule:
     """Definition of an insurance compliance rule"""
+
     rule_id: str
     name: str
     description: str
@@ -121,7 +130,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="suitability",
-        check_function="check_senior_annuity_suitability"
+        check_function="check_senior_annuity_suitability",
     ),
     InsuranceRule(
         rule_id="INS_SUIT_002",
@@ -131,7 +140,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.MEDIUM,
         action=RuleAction.ADD_WARNING,
         category="suitability",
-        check_function="check_premium_affordability"
+        check_function="check_premium_affordability",
     ),
     InsuranceRule(
         rule_id="INS_SUIT_003",
@@ -141,7 +150,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.ADD_WARNING,
         category="suitability",
-        check_function="check_surrender_period_suitability"
+        check_function="check_surrender_period_suitability",
     ),
     InsuranceRule(
         rule_id="INS_SUIT_004",
@@ -151,9 +160,8 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.MEDIUM,
         action=RuleAction.ADD_WARNING,
         category="suitability",
-        check_function="check_risk_tolerance_alignment"
+        check_function="check_risk_tolerance_alignment",
     ),
-
     # ==========================================================================
     # REPLACEMENT RULES (NAIC Model Regulation)
     # ==========================================================================
@@ -165,7 +173,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.CRITICAL,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="replacement",
-        check_function="check_replacement_disclosure"
+        check_function="check_replacement_disclosure",
     ),
     InsuranceRule(
         rule_id="INS_REPL_002",
@@ -175,7 +183,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="replacement",
-        check_function="check_replacement_comparison"
+        check_function="check_replacement_comparison",
     ),
     InsuranceRule(
         rule_id="INS_REPL_003",
@@ -185,9 +193,8 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.ADD_WARNING,
         category="replacement",
-        check_function="check_surrender_charge_warning"
+        check_function="check_surrender_charge_warning",
     ),
-
     # ==========================================================================
     # PROHIBITED CONTENT RULES
     # ==========================================================================
@@ -199,7 +206,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.CRITICAL,
         action=RuleAction.BLOCK_RESPONSE,
         category="prohibited_content",
-        check_function="check_no_guaranteed_returns"
+        check_function="check_no_guaranteed_returns",
     ),
     InsuranceRule(
         rule_id="INS_PROH_002",
@@ -209,7 +216,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.MEDIUM,
         action=RuleAction.MODIFY_RESPONSE,
         category="prohibited_content",
-        check_function="check_no_investment_language"
+        check_function="check_no_investment_language",
     ),
     InsuranceRule(
         rule_id="INS_PROH_003",
@@ -219,7 +226,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.MODIFY_RESPONSE,
         category="prohibited_content",
-        check_function="check_no_carrier_recommendations"
+        check_function="check_no_carrier_recommendations",
     ),
     InsuranceRule(
         rule_id="INS_PROH_004",
@@ -229,9 +236,8 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.CRITICAL,
         action=RuleAction.BLOCK_RESPONSE,
         category="prohibited_content",
-        check_function="check_no_medical_advice"
+        check_function="check_no_medical_advice",
     ),
-
     # ==========================================================================
     # DISCLOSURE RULES
     # ==========================================================================
@@ -243,7 +249,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.CRITICAL,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="disclosure",
-        check_function="check_illustration_disclaimer"
+        check_function="check_illustration_disclaimer",
     ),
     InsuranceRule(
         rule_id="INS_DISC_002",
@@ -253,7 +259,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="disclosure",
-        check_function="check_recommendation_disclaimer"
+        check_function="check_recommendation_disclaimer",
     ),
     InsuranceRule(
         rule_id="INS_DISC_003",
@@ -263,9 +269,8 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.MEDIUM,
         action=RuleAction.ADD_WARNING,
         category="disclosure",
-        check_function="check_tax_disclosure"
+        check_function="check_tax_disclosure",
     ),
-
     # ==========================================================================
     # STATE-SPECIFIC RULES
     # ==========================================================================
@@ -277,7 +282,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.ADD_WARNING,
         category="state_specific",
-        check_function="check_california_annuity_rules"
+        check_function="check_california_annuity_rules",
     ),
     InsuranceRule(
         rule_id="INS_STATE_002",
@@ -287,7 +292,7 @@ INSURANCE_RULES: List[InsuranceRule] = [
         severity=RuleSeverity.HIGH,
         action=RuleAction.REQUIRE_DISCLOSURE,
         category="state_specific",
-        check_function="check_new_york_best_interest"
+        check_function="check_new_york_best_interest",
     ),
 ]
 
@@ -296,9 +301,9 @@ INSURANCE_RULES: List[InsuranceRule] = [
 # RULE CHECK FUNCTIONS
 # =============================================================================
 
+
 def check_senior_annuity_suitability(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Check suitability of annuity products for seniors"""
     if client.age < 65:
@@ -328,8 +333,7 @@ def check_senior_annuity_suitability(
 
 
 def check_premium_affordability(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Check if premium is affordable relative to income"""
     if not product:
@@ -353,8 +357,7 @@ def check_premium_affordability(
 
 
 def check_surrender_period_suitability(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Check if surrender period is appropriate for client"""
     if not product or not product.surrender_period_years:
@@ -382,8 +385,7 @@ def check_surrender_period_suitability(
 
 
 def check_risk_tolerance_alignment(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Check if product risk matches client tolerance"""
     if not product:
@@ -400,8 +402,7 @@ def check_risk_tolerance_alignment(
 
 
 def check_replacement_disclosure(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Check if replacement disclosures are needed"""
     if not product or not product.is_replacement:
@@ -419,8 +420,7 @@ def check_replacement_disclosure(
 
 
 def check_replacement_comparison(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Ensure replacement includes proper comparison"""
     if not product or not product.is_replacement:
@@ -443,8 +443,7 @@ def check_replacement_comparison(
 
 
 def check_surrender_charge_warning(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """Warn about surrender charges on replacement"""
     if not product or not product.is_replacement:
@@ -460,9 +459,7 @@ def check_surrender_charge_warning(
     )
 
 
-def check_no_guaranteed_returns(
-    response: InsuranceResponseContext
-) -> tuple[bool, str]:
+def check_no_guaranteed_returns(response: InsuranceResponseContext) -> tuple[bool, str]:
     """Block responses that guarantee returns"""
     prohibited_patterns = [
         r"guarantee[ds]?\s+(a\s+)?return",
@@ -485,7 +482,7 @@ def check_no_guaranteed_returns(
 
 
 def check_no_investment_language(
-    response: InsuranceResponseContext
+    response: InsuranceResponseContext,
 ) -> tuple[bool, str]:
     """Avoid treating insurance as investment"""
     investment_terms = [
@@ -508,7 +505,7 @@ def check_no_investment_language(
 
 
 def check_no_carrier_recommendations(
-    response: InsuranceResponseContext
+    response: InsuranceResponseContext,
 ) -> tuple[bool, str]:
     """Don't recommend specific carriers"""
     recommendation_patterns = [
@@ -528,9 +525,7 @@ def check_no_carrier_recommendations(
     return True, ""
 
 
-def check_no_medical_advice(
-    response: InsuranceResponseContext
-) -> tuple[bool, str]:
+def check_no_medical_advice(response: InsuranceResponseContext) -> tuple[bool, str]:
     """Block medical advice for underwriting"""
     medical_advice_patterns = [
         r"(don't|do not)\s+(disclose|mention|tell them about)",
@@ -550,7 +545,7 @@ def check_no_medical_advice(
 
 
 def check_illustration_disclaimer(
-    response: InsuranceResponseContext
+    response: InsuranceResponseContext,
 ) -> tuple[bool, str]:
     """Require disclaimer for projections"""
     if not response.includes_projection:
@@ -565,8 +560,7 @@ def check_illustration_disclaimer(
     ]
 
     needs_disclaimer = any(
-        ind in response.response_text.lower()
-        for ind in projection_indicators
+        ind in response.response_text.lower() for ind in projection_indicators
     )
 
     if needs_disclaimer:
@@ -581,7 +575,7 @@ def check_illustration_disclaimer(
 
 
 def check_recommendation_disclaimer(
-    response: InsuranceResponseContext
+    response: InsuranceResponseContext,
 ) -> tuple[bool, str]:
     """Ensure educational disclaimer is present"""
     if response.intent in ["recommendation", "comparison", "quote"]:
@@ -593,8 +587,7 @@ def check_recommendation_disclaimer(
         ]
 
         has_disclaimer = any(
-            phrase in response.response_text.lower()
-            for phrase in disclaimer_phrases
+            phrase in response.response_text.lower() for phrase in disclaimer_phrases
         )
 
         if not has_disclaimer:
@@ -608,9 +601,7 @@ def check_recommendation_disclaimer(
     return True, ""
 
 
-def check_tax_disclosure(
-    response: InsuranceResponseContext
-) -> tuple[bool, str]:
+def check_tax_disclosure(response: InsuranceResponseContext) -> tuple[bool, str]:
     """Add tax implications when relevant"""
     tax_relevant_terms = [
         "cash value",
@@ -640,8 +631,7 @@ def check_tax_disclosure(
 
 
 def check_california_annuity_rules(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """California-specific annuity rules"""
     if client.state != "CA":
@@ -661,8 +651,7 @@ def check_california_annuity_rules(
 
 
 def check_new_york_best_interest(
-    client: InsuranceClientContext,
-    product: Optional[InsuranceProductContext] = None
+    client: InsuranceClientContext, product: Optional[InsuranceProductContext] = None
 ) -> tuple[bool, str]:
     """New York Regulation 187 best interest standard"""
     if client.state != "NY":
@@ -680,6 +669,7 @@ def check_new_york_best_interest(
 # =============================================================================
 # MAIN COMPLIANCE CHECK FUNCTION
 # =============================================================================
+
 
 class InsuranceComplianceResult:
     """Result of compliance check"""
@@ -761,7 +751,10 @@ def check_insurance_compliance(
                     result.block(rule.rule_id, message)
                 elif rule.action == RuleAction.REQUIRE_DISCLOSURE:
                     result.add_disclosure(rule.rule_id, message)
-                elif rule.action in [RuleAction.ADD_WARNING, RuleAction.MODIFY_RESPONSE]:
+                elif rule.action in [
+                    RuleAction.ADD_WARNING,
+                    RuleAction.MODIFY_RESPONSE,
+                ]:
                     if message:
                         result.add_warning(rule.rule_id, message)
 

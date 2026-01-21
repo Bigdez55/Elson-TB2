@@ -300,32 +300,46 @@ class AlphaVantageClient(BaseApiClient):
             "sector": overview.get("Sector"),
             "industry": overview.get("Industry"),
             "market_cap": float(overview.get("MarketCapitalization", 0)),
-            "pe_ratio": float(overview.get("PERatio", 0))
-            if overview.get("PERatio")
-            else None,
-            "dividend_yield": float(overview.get("DividendYield", 0))
-            if overview.get("DividendYield")
-            else None,
-            "dividend_per_share": float(overview.get("DividendPerShare", 0))
-            if overview.get("DividendPerShare")
-            else None,
+            "pe_ratio": (
+                float(overview.get("PERatio", 0)) if overview.get("PERatio") else None
+            ),
+            "dividend_yield": (
+                float(overview.get("DividendYield", 0))
+                if overview.get("DividendYield")
+                else None
+            ),
+            "dividend_per_share": (
+                float(overview.get("DividendPerShare", 0))
+                if overview.get("DividendPerShare")
+                else None
+            ),
             "beta": float(overview.get("Beta", 0)) if overview.get("Beta") else None,
-            "52_week_high": float(overview.get("52WeekHigh", 0))
-            if overview.get("52WeekHigh")
-            else None,
-            "52_week_low": float(overview.get("52WeekLow", 0))
-            if overview.get("52WeekLow")
-            else None,
-            "50_day_moving_avg": float(overview.get("50DayMovingAverage", 0))
-            if overview.get("50DayMovingAverage")
-            else None,
-            "200_day_moving_avg": float(overview.get("200DayMovingAverage", 0))
-            if overview.get("200DayMovingAverage")
-            else None,
+            "52_week_high": (
+                float(overview.get("52WeekHigh", 0))
+                if overview.get("52WeekHigh")
+                else None
+            ),
+            "52_week_low": (
+                float(overview.get("52WeekLow", 0))
+                if overview.get("52WeekLow")
+                else None
+            ),
+            "50_day_moving_avg": (
+                float(overview.get("50DayMovingAverage", 0))
+                if overview.get("50DayMovingAverage")
+                else None
+            ),
+            "200_day_moving_avg": (
+                float(overview.get("200DayMovingAverage", 0))
+                if overview.get("200DayMovingAverage")
+                else None
+            ),
             "country": overview.get("Country"),
-            "employees": int(overview.get("FullTimeEmployees", 0))
-            if overview.get("FullTimeEmployees")
-            else None,
+            "employees": (
+                int(overview.get("FullTimeEmployees", 0))
+                if overview.get("FullTimeEmployees")
+                else None
+            ),
             "ceo": overview.get("CEO"),
             "website": overview.get("Website"),
             "fiscal_year_end": overview.get("FiscalYearEnd"),

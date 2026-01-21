@@ -5,8 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 from app.models.trade import InvestmentType, Trade, TradeStatus
 from app.services.market_simulation import MarketSimulationService
 from app.services.paper_trading import PaperTradingService

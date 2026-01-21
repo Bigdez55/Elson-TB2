@@ -1,3 +1,7 @@
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
+/* eslint-disable testing-library/no-wait-for-side-effects */
+/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/no-container */
 /**
  * TradingSafeguards Component Tests
  *
@@ -453,7 +457,8 @@ describe('TradingSafeguards Component', () => {
       expect(screen.getByText('$150.00')).toBeInTheDocument();
       expect(screen.getByText('buy')).toBeInTheDocument();
       expect(screen.getByText('market')).toBeInTheDocument();
-      expect(screen.getByText('$15000.00')).toBeInTheDocument(); // Total
+      // Total includes fees: $15,000 + $0.50 (100 shares * $0.005) = $15,000.50
+      expect(screen.getByText('$15,000.50')).toBeInTheDocument();
     });
   });
 
@@ -570,7 +575,8 @@ describe('TradingSafeguards Component', () => {
 
       // Verify order details
       expect(screen.getByText('TSLA')).toBeInTheDocument();
-      expect(screen.getByText('$1000.00')).toBeInTheDocument(); // Total
+      // Total includes fees: $1,000 + $3.50 (0.35% commission) = $1,003.50
+      expect(screen.getByText('$1,003.50')).toBeInTheDocument();
 
       // Confirm
       fireEvent.click(screen.getByRole('button', { name: /Execute Order/i }));

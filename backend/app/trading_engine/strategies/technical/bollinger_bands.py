@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +100,7 @@ class BollingerBandsStrategy(TradingStrategy):
 
             if df is None or len(df) < self.period + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate Bollinger Bands
@@ -125,8 +124,7 @@ class BollingerBandsStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating Bollinger Bands signal: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -191,14 +189,18 @@ class BollingerBandsStrategy(TradingStrategy):
         df["bb_lower"] = df["bb_middle"] - (df["bb_std"] * self.std_dev)
 
         # Calculate %B (relative position within bands)
-        df["percent_b"] = (df["close"] - df["bb_lower"]) / (df["bb_upper"] - df["bb_lower"])
+        df["percent_b"] = (df["close"] - df["bb_lower"]) / (
+            df["bb_upper"] - df["bb_lower"]
+        )
 
         # Calculate Bollinger Band Width (BBW)
         df["bb_width"] = (df["bb_upper"] - df["bb_lower"]) / df["bb_middle"]
 
         # Calculate bandwidth percentile (for squeeze detection)
-        df["bbw_percentile"] = df["bb_width"].rolling(window=100).apply(
-            lambda x: pd.Series(x).rank(pct=True).iloc[-1]
+        df["bbw_percentile"] = (
+            df["bb_width"]
+            .rolling(window=100)
+            .apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1])
         )
 
         return df
@@ -281,9 +283,11 @@ class BollingerBandsStrategy(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, bb_middle, bb_upper, bb_lower
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(
+                    current_price, action, bb_middle, bb_upper, bb_lower
+                )
+            )
 
         return signal
 
@@ -345,9 +349,9 @@ class BollingerBandsStrategy(TradingStrategy):
 
         if action in ["buy", "sell"]:
             # For breakouts, use wider stops
-            signal.update(self._calculate_breakout_stops(
-                current_price, action, bb_width
-            ))
+            signal.update(
+                self._calculate_breakout_stops(current_price, action, bb_width)
+            )
 
         return signal
 

@@ -15,8 +15,8 @@ from sqlalchemy.orm import Session
 
 from app.core.alerts_manager import alert_manager
 from app.core.metrics import metrics
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 from app.models.trade import Trade, TradeStatus
 from app.services.broker.factory import BrokerType, get_resilient_broker
 from app.services.notifications import NotificationService

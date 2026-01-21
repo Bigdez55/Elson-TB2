@@ -289,9 +289,11 @@ class AnomalyDetector:
                         "entity_id": symbol,
                         "type": anomaly_type,
                         "severity": severity,
-                        "timestamp": timestamps[i]
-                        if timestamps and i < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[i]
+                            if timestamps and i < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": prices[i],
                         "previous_value": prices[i - 1],
                         "change": returns[i],
@@ -420,9 +422,11 @@ class AnomalyDetector:
                         "entity_id": symbol,
                         "type": AnomalyType.VOLUME_SPIKE,
                         "severity": severity,
-                        "timestamp": timestamps[i]
-                        if timestamps and i < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[i]
+                            if timestamps and i < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": volumes[i],
                         "previous_value": volumes[i - 1],
                         "change_factor": volume_change,
@@ -578,9 +582,11 @@ class AnomalyDetector:
                         "entity_id": symbol,
                         "type": AnomalyType.VOLATILITY_CHANGE,
                         "severity": severity,
-                        "timestamp": timestamps[ts_index]
-                        if timestamps and ts_index < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[ts_index]
+                            if timestamps and ts_index < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": volatilities[i],
                         "previous_value": volatilities[i - 1],
                         "change_factor": volatility_change,
@@ -718,9 +724,11 @@ class AnomalyDetector:
                         "entity_id": metric_name,
                         "type": AnomalyType.SYSTEM_RESOURCE,
                         "severity": severity,
-                        "timestamp": timestamps[i]
-                        if timestamps and i < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[i]
+                            if timestamps and i < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": value,
                         "mean_value": mean_value,
                         "zscore": zscores[i],
@@ -862,9 +870,11 @@ class AnomalyDetector:
                         "entity_id": api_name,
                         "type": AnomalyType.API_LATENCY,
                         "severity": severity,
-                        "timestamp": timestamps[i]
-                        if timestamps and i < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[i]
+                            if timestamps and i < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": latency,
                         "mean_value": np.exp(mean_log),  # Convert back to milliseconds
                         "zscore": zscore,
@@ -1003,9 +1013,11 @@ class AnomalyDetector:
                         "entity_id": service_name,
                         "type": AnomalyType.ERROR_RATE,
                         "severity": severity,
-                        "timestamp": timestamps[i]
-                        if timestamps and i < len(timestamps)
-                        else datetime.utcnow().isoformat(),
+                        "timestamp": (
+                            timestamps[i]
+                            if timestamps and i < len(timestamps)
+                            else datetime.utcnow().isoformat()
+                        ),
                         "value": error_rate,
                         "mean_value": 1
                         / (1 + np.exp(-mean_logit)),  # Convert back to rate
@@ -1116,9 +1128,11 @@ class AnomalyDetector:
                             "entity_id": f"{data_source}:{metric}",
                             "type": AnomalyType.DATA_QUALITY,
                             "severity": severity,
-                            "timestamp": timestamps[i]
-                            if timestamps and i < len(timestamps)
-                            else datetime.utcnow().isoformat(),
+                            "timestamp": (
+                                timestamps[i]
+                                if timestamps and i < len(timestamps)
+                                else datetime.utcnow().isoformat()
+                            ),
                             "value": value,
                             "threshold": threshold,
                             "metric": metric,

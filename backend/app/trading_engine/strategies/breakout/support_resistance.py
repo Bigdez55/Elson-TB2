@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -96,8 +96,7 @@ class SupportResistanceBreakout(TradingStrategy):
 
             if df is None or len(df) < self.lookback_period * 2:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Identify S/R levels
@@ -115,8 +114,7 @@ class SupportResistanceBreakout(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in S/R breakout strategy: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -175,17 +173,21 @@ class SupportResistanceBreakout(TradingStrategy):
 
         for i in range(2, len(df) - 2):
             # Swing high: higher than 2 bars on each side
-            if (df.iloc[i]["high"] > df.iloc[i-1]["high"] and
-                df.iloc[i]["high"] > df.iloc[i-2]["high"] and
-                df.iloc[i]["high"] > df.iloc[i+1]["high"] and
-                df.iloc[i]["high"] > df.iloc[i+2]["high"]):
+            if (
+                df.iloc[i]["high"] > df.iloc[i - 1]["high"]
+                and df.iloc[i]["high"] > df.iloc[i - 2]["high"]
+                and df.iloc[i]["high"] > df.iloc[i + 1]["high"]
+                and df.iloc[i]["high"] > df.iloc[i + 2]["high"]
+            ):
                 swing_highs.append(float(df.iloc[i]["high"]))
 
             # Swing low: lower than 2 bars on each side
-            if (df.iloc[i]["low"] < df.iloc[i-1]["low"] and
-                df.iloc[i]["low"] < df.iloc[i-2]["low"] and
-                df.iloc[i]["low"] < df.iloc[i+1]["low"] and
-                df.iloc[i]["low"] < df.iloc[i+2]["low"]):
+            if (
+                df.iloc[i]["low"] < df.iloc[i - 1]["low"]
+                and df.iloc[i]["low"] < df.iloc[i - 2]["low"]
+                and df.iloc[i]["low"] < df.iloc[i + 1]["low"]
+                and df.iloc[i]["low"] < df.iloc[i + 2]["low"]
+            ):
                 swing_lows.append(float(df.iloc[i]["low"]))
 
         # Cluster nearby levels
@@ -243,7 +245,9 @@ class SupportResistanceBreakout(TradingStrategy):
         # Check resistance breakout
         for resistance in self.resistance_levels:
             # Price broke above resistance
-            if prev_close < resistance and current_high > resistance * (1 + self.breakout_threshold):
+            if prev_close < resistance and current_high > resistance * (
+                1 + self.breakout_threshold
+            ):
                 action = "buy"
                 confidence = 0.6
                 reasons.append(f"Broke resistance at {resistance:.2f}")
@@ -269,7 +273,9 @@ class SupportResistanceBreakout(TradingStrategy):
         # Check support breakout (breakdown)
         if action == "hold":
             for support in self.support_levels:
-                if prev_close > support and current_low < support * (1 - self.breakout_threshold):
+                if prev_close > support and current_low < support * (
+                    1 - self.breakout_threshold
+                ):
                     action = "sell"
                     confidence = 0.6
                     reasons.append(f"Broke support at {support:.2f}")
@@ -290,8 +296,14 @@ class SupportResistanceBreakout(TradingStrategy):
                     break
 
         # Find nearest levels for stop calculation
-        nearest_support = max([s for s in self.support_levels if s < current_price], default=current_price * 0.95)
-        nearest_resistance = min([r for r in self.resistance_levels if r > current_price], default=current_price * 1.05)
+        nearest_support = max(
+            [s for s in self.support_levels if s < current_price],
+            default=current_price * 0.95,
+        )
+        nearest_resistance = min(
+            [r for r in self.resistance_levels if r > current_price],
+            default=current_price * 1.05,
+        )
 
         signal = {
             "action": action,
@@ -300,8 +312,12 @@ class SupportResistanceBreakout(TradingStrategy):
             "timestamp": datetime.utcnow().isoformat(),
             "reason": "; ".join(reasons) if reasons else "No breakout detected",
             "indicators": {
-                "support_levels": self.support_levels[-3:] if self.support_levels else [],
-                "resistance_levels": self.resistance_levels[-3:] if self.resistance_levels else [],
+                "support_levels": (
+                    self.support_levels[-3:] if self.support_levels else []
+                ),
+                "resistance_levels": (
+                    self.resistance_levels[-3:] if self.resistance_levels else []
+                ),
                 "nearest_support": nearest_support,
                 "nearest_resistance": nearest_resistance,
                 "volume_ratio": volume_ratio,
@@ -309,17 +325,16 @@ class SupportResistanceBreakout(TradingStrategy):
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, nearest_support, nearest_resistance
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(
+                    current_price, action, nearest_support, nearest_resistance
+                )
+            )
 
         return signal
 
     def _is_retest_entry(
-        self,
-        data: pd.DataFrame,
-        level: float,
-        level_type: str
+        self, data: pd.DataFrame, level: float, level_type: str
     ) -> bool:
         """Check if current price action represents a retest entry"""
         if len(data) < 5:
@@ -340,11 +355,7 @@ class SupportResistanceBreakout(TradingStrategy):
             return broke_below and pulled_back and bouncing
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        support: float,
-        resistance: float
+        self, price: float, action: str, support: float, resistance: float
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit using S/R levels"""
         if action == "buy":

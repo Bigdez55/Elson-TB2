@@ -144,9 +144,11 @@ def process_recurring_investments(self, date: Optional[str] = None) -> Dict[str,
                     # Add a month (approximately)
                     next_date = process_date.replace(
                         month=process_date.month + 1 if process_date.month < 12 else 1,
-                        year=process_date.year
-                        if process_date.month < 12
-                        else process_date.year + 1,
+                        year=(
+                            process_date.year
+                            if process_date.month < 12
+                            else process_date.year + 1
+                        ),
                     )
                 elif investment.frequency == "BIWEEKLY":
                     next_date = process_date + timedelta(weeks=2)
@@ -495,7 +497,9 @@ def check_trade_status(self, trade_id: int) -> Dict[str, Any]:
         logger.error(f"Error checking status for trade {trade_id}: {e}")
 
         # Record metrics
-        metrics.increment("trade.status_check_error", labels={"trade_id": str(trade_id)})
+        metrics.increment(
+            "trade.status_check_error", labels={"trade_id": str(trade_id)}
+        )
 
         # Raise for retry if not the final attempt
         if self.request.retries < self.max_retries:

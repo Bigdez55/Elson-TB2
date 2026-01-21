@@ -41,9 +41,9 @@ class ApiClientHealth:
 
         # Initialize all providers with unknown health
         for provider in ApiProvider:
-            self._health_status[
-                provider
-            ] = True  # Assume healthy until proven otherwise
+            self._health_status[provider] = (
+                True  # Assume healthy until proven otherwise
+            )
             self._consecutive_failures[provider] = 0
             self._last_checked[provider] = time.time()
 

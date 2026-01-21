@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
-import uuid
-import redis
 import hashlib
+import uuid
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
 
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import jwt
+import redis
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -68,9 +68,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         try:
             redis_client.setex(
                 f"token:{jti}",
-                int(expires_delta.total_seconds())
-                if expires_delta
-                else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                (
+                    int(expires_delta.total_seconds())
+                    if expires_delta
+                    else settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+                ),
                 "valid",
             )
         except (redis.ConnectionError, redis.TimeoutError):
@@ -206,10 +208,9 @@ def get_current_admin_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
     """Get current admin user - raises exception if not admin"""
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
+    if not hasattr(current_user, "role") or current_user.role != "admin":
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )
     return current_user
 

@@ -5,19 +5,19 @@ These 7 core schemas define the structured outputs the model should produce
 for downstream tools, compliance checking, and institutional-grade documentation.
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Literal
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from .base import BaseSchema
 
-
 # =============================================================================
 # ENUMS
 # =============================================================================
+
 
 class RiskToleranceEnum(str, Enum):
     CONSERVATIVE = "conservative"
@@ -86,8 +86,10 @@ class ComplianceStatusEnum(str, Enum):
 # SCHEMA 1: FINANCIAL PLAN
 # =============================================================================
 
+
 class FinancialGoal(BaseSchema):
     """Individual financial goal"""
+
     goal_id: str
     name: str
     target_amount: Decimal
@@ -101,6 +103,7 @@ class FinancialGoal(BaseSchema):
 
 class CashFlowProjection(BaseSchema):
     """Monthly cash flow breakdown"""
+
     gross_income: Decimal
     taxes: Decimal
     net_income: Decimal
@@ -113,17 +116,23 @@ class CashFlowProjection(BaseSchema):
 
 class DebtItem(BaseSchema):
     """Individual debt item"""
+
     name: str
     balance: Decimal
     interest_rate: Decimal
     minimum_payment: Decimal
-    debt_type: Literal["mortgage", "auto", "student", "credit_card", "personal", "other"]
+    debt_type: Literal[
+        "mortgage", "auto", "student", "credit_card", "personal", "other"
+    ]
     payoff_date: Optional[date] = None
 
 
 class InsuranceCoverage(BaseSchema):
     """Insurance coverage summary"""
-    coverage_type: Literal["life", "disability", "health", "auto", "home", "umbrella", "ltc"]
+
+    coverage_type: Literal[
+        "life", "disability", "health", "auto", "home", "umbrella", "ltc"
+    ]
     provider: Optional[str] = None
     coverage_amount: Optional[Decimal] = None
     premium_annual: Decimal
@@ -138,6 +147,7 @@ class FinancialPlan(BaseSchema):
     Used for: Generating complete financial plans for clients
     Compliance: Must include disclaimers, no guaranteed returns
     """
+
     # Metadata
     plan_id: str
     client_id: str
@@ -186,7 +196,7 @@ class FinancialPlan(BaseSchema):
             "This plan is for educational purposes and does not constitute financial advice.",
             "Past performance does not guarantee future results.",
             "Consult a qualified financial professional before making investment decisions.",
-            "Projections are estimates and actual results may vary significantly."
+            "Projections are estimates and actual results may vary significantly.",
         ]
     )
 
@@ -195,8 +205,10 @@ class FinancialPlan(BaseSchema):
 # SCHEMA 2: PORTFOLIO POLICY STATEMENT (IPS)
 # =============================================================================
 
+
 class AssetAllocation(BaseSchema):
     """Target allocation for an asset class"""
+
     asset_class: AssetClassEnum
     target_percent: Decimal = Field(..., ge=0, le=100)
     min_percent: Decimal = Field(..., ge=0, le=100)
@@ -207,6 +219,7 @@ class AssetAllocation(BaseSchema):
 
 class InvestmentRestriction(BaseSchema):
     """Investment restriction or prohibition"""
+
     restriction_type: Literal["prohibited", "limited", "esg_exclusion", "concentration"]
     description: str
     applies_to: List[str]  # Tickers, sectors, or asset classes
@@ -220,6 +233,7 @@ class PortfolioPolicyStatement(BaseSchema):
     Used for: Documenting investment guidelines and constraints
     Compliance: Must be reviewed by compliance before trading
     """
+
     # Metadata
     ips_id: str
     client_id: str
@@ -241,7 +255,9 @@ class PortfolioPolicyStatement(BaseSchema):
 
     # Asset Allocation
     strategic_allocation: List[AssetAllocation]
-    rebalancing_frequency: Literal["monthly", "quarterly", "semi_annual", "annual", "threshold_only"]
+    rebalancing_frequency: Literal[
+        "monthly", "quarterly", "semi_annual", "annual", "threshold_only"
+    ]
     tax_loss_harvesting_enabled: bool
 
     # Restrictions
@@ -268,8 +284,10 @@ class PortfolioPolicyStatement(BaseSchema):
 # SCHEMA 3: TRADE PLAN
 # =============================================================================
 
+
 class TradeOrder(BaseSchema):
     """Individual trade order"""
+
     order_id: str
     symbol: str
     action: Literal["buy", "sell", "sell_short", "buy_to_cover"]
@@ -291,6 +309,7 @@ class TradePlan(BaseSchema):
     Used for: Documenting and executing trade decisions
     Compliance: Cannot include "buy" or "sell" recommendations without context
     """
+
     # Metadata
     plan_id: str
     client_id: str
@@ -342,7 +361,7 @@ class TradePlan(BaseSchema):
         default=[
             "This trade plan is based on current market conditions which may change.",
             "Past performance does not guarantee future results.",
-            "Consult your financial advisor before executing trades."
+            "Consult your financial advisor before executing trades.",
         ]
     )
 
@@ -351,8 +370,10 @@ class TradePlan(BaseSchema):
 # SCHEMA 4: TAX SCENARIO SUMMARY
 # =============================================================================
 
+
 class TaxBracketImpact(BaseSchema):
     """Impact on tax brackets"""
+
     bracket_rate: Decimal
     income_in_bracket: Decimal
     tax_in_bracket: Decimal
@@ -360,6 +381,7 @@ class TaxBracketImpact(BaseSchema):
 
 class TaxScenario(BaseSchema):
     """Single tax scenario for comparison"""
+
     scenario_name: str
     description: str
     # Income
@@ -395,6 +417,7 @@ class TaxScenarioSummary(BaseSchema):
     Used for: Comparing tax optimization strategies
     Compliance: Cannot provide specific tax filing instructions
     """
+
     # Metadata
     analysis_id: str
     client_id: str
@@ -426,7 +449,7 @@ class TaxScenarioSummary(BaseSchema):
             "This analysis is for educational purposes only and does not constitute tax advice.",
             "Consult a qualified tax professional (CPA or EA) before making tax decisions.",
             "Tax laws change frequently; verify current rates and rules.",
-            "State tax implications vary; this analysis may not cover all state-specific rules."
+            "State tax implications vary; this analysis may not cover all state-specific rules.",
         ]
     )
 
@@ -435,8 +458,10 @@ class TaxScenarioSummary(BaseSchema):
 # SCHEMA 5: COMPLIANCE CHECKLIST
 # =============================================================================
 
+
 class ComplianceCheckItem(BaseSchema):
     """Individual compliance check"""
+
     check_id: str
     category: str
     description: str
@@ -455,9 +480,12 @@ class ComplianceChecklist(BaseSchema):
     Used for: Ensuring regulatory compliance before actions
     Compliance: This IS the compliance check
     """
+
     # Metadata
     checklist_id: str
-    context_type: Literal["transaction", "account_opening", "trade", "gift", "fiduciary"]
+    context_type: Literal[
+        "transaction", "account_opening", "trade", "gift", "fiduciary"
+    ]
     context_id: str
     created_at: datetime
 
@@ -490,12 +518,14 @@ class ComplianceChecklist(BaseSchema):
 # SCHEMA 6: MARKET DATA REQUEST (Tool Call Schema)
 # =============================================================================
 
+
 class MarketDataRequest(BaseSchema):
     """
     Schema 6: Structured Market Data Request
 
     Used for: Model requesting data from OpenBB
     """
+
     request_id: str
     request_type: Literal["quote", "ohlcv", "fundamentals", "news", "macro"]
     symbols: List[str]
@@ -517,8 +547,10 @@ class MarketDataRequest(BaseSchema):
 # SCHEMA 7: FUNDAMENTAL ANALYSIS REPORT
 # =============================================================================
 
+
 class ValuationAssessment(BaseSchema):
     """Valuation analysis"""
+
     metric: str
     current_value: Decimal
     historical_avg: Optional[Decimal] = None
@@ -529,6 +561,7 @@ class ValuationAssessment(BaseSchema):
 
 class FinancialHealthIndicator(BaseSchema):
     """Financial health metric"""
+
     indicator: str
     value: Decimal
     trend: Literal["improving", "stable", "declining"]
@@ -542,6 +575,7 @@ class FundamentalAnalysisReport(BaseSchema):
     Used for: Comprehensive company analysis grounded in tool data
     Compliance: Must cite data sources, no price targets
     """
+
     # Metadata
     report_id: str
     symbol: str
@@ -575,7 +609,9 @@ class FundamentalAnalysisReport(BaseSchema):
     market_share_trend: Optional[Literal["gaining", "stable", "losing"]] = None
 
     # Management assessment
-    management_quality: Optional[Literal["excellent", "good", "adequate", "poor"]] = None
+    management_quality: Optional[Literal["excellent", "good", "adequate", "poor"]] = (
+        None
+    )
     capital_allocation_history: Optional[str] = None
 
     # Catalysts
@@ -593,6 +629,6 @@ class FundamentalAnalysisReport(BaseSchema):
             "This analysis is for educational purposes only.",
             "All data sourced from third-party providers; verify independently.",
             "This does not constitute a buy, sell, or hold recommendation.",
-            "Past performance does not guarantee future results."
+            "Past performance does not guarantee future results.",
         ]
     )

@@ -1,31 +1,31 @@
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
-import time
-from decimal import Decimal, InvalidOperation
 import re
+import time
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
+from typing import Any, Dict, List, Optional, Union
 
 import structlog
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.monitoring import track_trade, performance_tracker, update_portfolio
 from app.core.logging_config import (
-    log_trade_execution,
-    log_risk_event,
-    log_portfolio_update,
-    log_system_error,
     LogOperationContext,
+    log_portfolio_update,
+    log_risk_event,
+    log_system_error,
+    log_trade_execution,
 )
-from app.models.portfolio import Portfolio
+from app.core.monitoring import performance_tracker, track_trade, update_portfolio
 from app.models.holding import Holding
+from app.models.portfolio import Portfolio
 from app.models.trade import OrderType, Trade, TradeExecution, TradeStatus, TradeType
 from app.models.user import User
 from app.services.market_data import market_data_service
 from app.trading_engine.engine.circuit_breaker import (
-    get_circuit_breaker,
-    CircuitBreakerType,
     CircuitBreakerStatus,
+    CircuitBreakerType,
+    get_circuit_breaker,
 )
 
 logger = structlog.get_logger()
@@ -413,9 +413,11 @@ class TradingService:
                     stop_price=trade_data.get("stop_price"),
                     portfolio_id=portfolio.id,
                     strategy=trade_data.get("strategy", "manual"),
-                    notes=trade_data.get("notes", "")[:500]
-                    if trade_data.get("notes")
-                    else None,  # Limit notes length
+                    notes=(
+                        trade_data.get("notes", "")[:500]
+                        if trade_data.get("notes")
+                        else None
+                    ),  # Limit notes length
                     is_paper_trade=True,  # Always start with paper trading for safety
                     status=TradeStatus.PENDING,
                 )

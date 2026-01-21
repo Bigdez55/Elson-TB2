@@ -11,8 +11,8 @@ require the backend app to be installed for full functionality.
 # Core engine components (standalone - no app dependencies)
 from .engine.circuit_breaker import (
     CircuitBreaker,
-    CircuitBreakerType,
     CircuitBreakerStatus,
+    CircuitBreakerType,
     VolatilityLevel,
     get_circuit_breaker,
 )
@@ -25,8 +25,8 @@ except ImportError:
     TradeExecutor = None  # Available when app is installed
 
 try:
-    from .engine.risk_manager import RiskManager
     from .engine.performance_monitor import PerformanceMonitor
+    from .engine.risk_manager import RiskManager
     from .engine.strategy_optimizer import StrategyOptimizer
 except ImportError:
     RiskManager = None
@@ -35,7 +35,7 @@ except ImportError:
 
 # Strategies (standalone)
 from .strategies.base import TradingStrategy
-from .strategies.registry import StrategyRegistry, StrategyCategory
+from .strategies.registry import StrategyCategory, StrategyRegistry
 
 # Optional strategy imports
 try:

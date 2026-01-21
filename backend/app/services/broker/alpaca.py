@@ -259,9 +259,11 @@ class AlpacaBroker(ApiBaseBroker):
             "broker_order_id": broker_order_id,
             "status": self._map_broker_status(response.get("status", "unknown")),
             "filled_quantity": float(response.get("filled_qty", 0)),
-            "filled_price": float(response.get("filled_avg_price", 0))
-            if response.get("filled_avg_price")
-            else None,
+            "filled_price": (
+                float(response.get("filled_avg_price", 0))
+                if response.get("filled_avg_price")
+                else None
+            ),
             "filled_at": response.get("filled_at"),
             "message": "",
             "broker_response": response,
@@ -311,9 +313,11 @@ class AlpacaBroker(ApiBaseBroker):
                     "status": self._map_broker_status(order.get("status")),
                     "submitted_at": order.get("created_at"),
                     "filled_at": order.get("filled_at"),
-                    "filled_price": float(order.get("filled_avg_price", 0))
-                    if order.get("filled_avg_price")
-                    else None,
+                    "filled_price": (
+                        float(order.get("filled_avg_price", 0))
+                        if order.get("filled_avg_price")
+                        else None
+                    ),
                     "filled_quantity": float(order.get("filled_qty", 0)),
                 }
             )
@@ -348,9 +352,11 @@ class AlpacaBroker(ApiBaseBroker):
                 "broker_order_id": broker_order_id,
                 "status": self._map_broker_status(response.get("status", "unknown")),
                 "filled_quantity": float(response.get("filled_qty", 0)),
-                "average_price": float(response.get("filled_avg_price", 0))
-                if response.get("filled_avg_price")
-                else None,
+                "average_price": (
+                    float(response.get("filled_avg_price", 0))
+                    if response.get("filled_avg_price")
+                    else None
+                ),
                 "executions": [],
             }
 
@@ -406,9 +412,11 @@ class AlpacaBroker(ApiBaseBroker):
         order_data["take_profit"] = {"limit_price": str(take_profit_price)}
         order_data["stop_loss"] = {
             "stop_price": str(stop_loss_price),
-            "limit_price": str(stop_loss_price * 0.99)
-            if trade.side == OrderSide.BUY
-            else str(stop_loss_price * 1.01),
+            "limit_price": (
+                str(stop_loss_price * 0.99)
+                if trade.side == OrderSide.BUY
+                else str(stop_loss_price * 1.01)
+            ),
         }
 
         # Submit order to Alpaca API
@@ -421,12 +429,16 @@ class AlpacaBroker(ApiBaseBroker):
             "broker_order_id": response.get("id"),
             "status": self._map_broker_status(response.get("status", "new")),
             "submitted_at": response.get("created_at"),
-            "take_profit_id": response.get("legs", [{}])[0].get("id")
-            if response.get("legs")
-            else None,
-            "stop_loss_id": response.get("legs", [{}])[1].get("id")
-            if response.get("legs") and len(response.get("legs")) > 1
-            else None,
+            "take_profit_id": (
+                response.get("legs", [{}])[0].get("id")
+                if response.get("legs")
+                else None
+            ),
+            "stop_loss_id": (
+                response.get("legs", [{}])[1].get("id")
+                if response.get("legs") and len(response.get("legs")) > 1
+                else None
+            ),
             "broker_response": response,
         }
 

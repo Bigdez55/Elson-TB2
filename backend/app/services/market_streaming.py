@@ -11,8 +11,8 @@ import json
 import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Set, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional, Set
 
 import websockets
 from fastapi import WebSocket, WebSocketDisconnect

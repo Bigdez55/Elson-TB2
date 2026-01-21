@@ -1,4 +1,5 @@
 """Two-factor authentication implementation."""
+
 import secrets
 from typing import List
 

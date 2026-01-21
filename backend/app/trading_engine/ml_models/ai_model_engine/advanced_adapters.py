@@ -24,9 +24,10 @@ Usage:
 """
 
 import logging
-from enum import Enum
-from typing import Optional, Dict, Any, List, Union, Tuple
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 # Check for required libraries
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -43,14 +45,16 @@ try:
     from peft import (
         LoraConfig,
         PeftModel,
-        get_peft_model,
         TaskType,
-        prepare_model_for_kbit_training
+        get_peft_model,
+        prepare_model_for_kbit_training,
     )
+
     PEFT_AVAILABLE = True
     PEFT_VERSION = None
     try:
         import peft
+
         PEFT_VERSION = peft.__version__
     except:
         pass
@@ -64,9 +68,10 @@ try:
         AutoModelForCausalLM,
         AutoTokenizer,
         BitsAndBytesConfig,
+        Trainer,
         TrainingArguments,
-        Trainer
     )
+
     TRANSFORMERS_AVAILABLE = True
 except ImportError:
     TRANSFORMERS_AVAILABLE = False
@@ -84,16 +89,18 @@ class AdapterType(Enum):
     4. QLORA - Good memory savings
     5. LORA - Classic baseline
     """
-    LORA = "lora"           # Classic LoRA
-    QLORA = "qlora"         # Quantized LoRA (4-bit)
-    DORA = "dora"           # Weight-Decomposed LoRA
-    QDORA = "qdora"         # Quantized DoRA (best of both)
-    DVORA = "dvora"         # DoRA + VeRA (most efficient)
+
+    LORA = "lora"  # Classic LoRA
+    QLORA = "qlora"  # Quantized LoRA (4-bit)
+    DORA = "dora"  # Weight-Decomposed LoRA
+    QDORA = "qdora"  # Quantized DoRA (best of both)
+    DVORA = "dvora"  # DoRA + VeRA (most efficient)
 
 
 @dataclass
 class AdapterConfig:
     """Configuration for PEFT adapters."""
+
     adapter_type: AdapterType
     rank: int = 16
     alpha: int = 32
@@ -107,8 +114,13 @@ class AdapterConfig:
         if self.target_modules is None:
             # Default target modules for LLaMA-style models
             self.target_modules = [
-                "q_proj", "k_proj", "v_proj", "o_proj",
-                "gate_proj", "up_proj", "down_proj"
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+                "gate_proj",
+                "up_proj",
+                "down_proj",
             ]
 
 
@@ -120,6 +132,7 @@ def check_dora_support() -> bool:
     try:
         # DoRA was added in PEFT 0.7.0
         from packaging import version
+
         if PEFT_VERSION and version.parse(PEFT_VERSION) >= version.parse("0.7.0"):
             return True
     except:
@@ -128,8 +141,9 @@ def check_dora_support() -> bool:
     # Try to check if use_dora parameter exists
     try:
         import inspect
+
         sig = inspect.signature(LoraConfig)
-        return 'use_dora' in sig.parameters
+        return "use_dora" in sig.parameters
     except:
         return False
 
@@ -139,8 +153,8 @@ def create_adapter_config(
     rank: int = 16,
     alpha: int = 32,
     dropout: float = 0.05,
-    target_modules: List[str] = None
-) -> 'LoraConfig':
+    target_modules: List[str] = None,
+) -> "LoraConfig":
     """
     Create a PEFT adapter configuration.
 
@@ -159,12 +173,19 @@ def create_adapter_config(
         >>> model = get_peft_model(base_model, config)
     """
     if not PEFT_AVAILABLE:
-        raise ImportError("PEFT library required. Install with: pip install peft>=0.7.0")
+        raise ImportError(
+            "PEFT library required. Install with: pip install peft>=0.7.0"
+        )
 
     if target_modules is None:
         target_modules = [
-            "q_proj", "k_proj", "v_proj", "o_proj",
-            "gate_proj", "up_proj", "down_proj"
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj",
         ]
 
     # Check DoRA support
@@ -198,20 +219,23 @@ def create_adapter_config(
     if adapter_type == AdapterType.DVORA:
         config_kwargs["r"] = max(4, rank // 4)  # Lower rank for DVoRA
         config_kwargs["lora_alpha"] = alpha // 2
-        logger.info(f"DVoRA: Using reduced rank {config_kwargs['r']} for parameter efficiency")
+        logger.info(
+            f"DVoRA: Using reduced rank {config_kwargs['r']} for parameter efficiency"
+        )
 
     config = LoraConfig(**config_kwargs)
 
-    logger.info(f"Created {adapter_type.value.upper()} config: rank={config_kwargs['r']}, "
-                f"alpha={config_kwargs['lora_alpha']}, use_dora={use_dora}")
+    logger.info(
+        f"Created {adapter_type.value.upper()} config: rank={config_kwargs['r']}, "
+        f"alpha={config_kwargs['lora_alpha']}, use_dora={use_dora}"
+    )
 
     return config
 
 
 def create_quantization_config(
-    adapter_type: AdapterType,
-    bits: int = 4
-) -> Optional['BitsAndBytesConfig']:
+    adapter_type: AdapterType, bits: int = 4
+) -> Optional["BitsAndBytesConfig"]:
     """
     Create quantization config for QLoRA/QDoRA.
 
@@ -236,19 +260,17 @@ def create_quantization_config(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True  # Double quantization for more savings
+            bnb_4bit_use_double_quant=True,  # Double quantization for more savings
         )
     elif bits == 8:
-        return BitsAndBytesConfig(
-            load_in_8bit=True
-        )
+        return BitsAndBytesConfig(load_in_8bit=True)
     else:
         logger.warning(f"Unsupported quantization bits: {bits}. Using 4-bit.")
         return BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True
+            bnb_4bit_use_double_quant=True,
         )
 
 
@@ -275,15 +297,15 @@ class AdvancedFinancialAnalyzer:
     """
 
     SENTIMENT_LABELS = {
-        'positive': 1.0,
-        'negative': -1.0,
-        'neutral': 0.0,
-        'strongly positive': 1.0,
-        'strongly negative': -1.0,
-        'mildly positive': 0.5,
-        'mildly negative': -0.5,
-        'bullish': 1.0,
-        'bearish': -1.0
+        "positive": 1.0,
+        "negative": -1.0,
+        "neutral": 0.0,
+        "strongly positive": 1.0,
+        "strongly negative": -1.0,
+        "mildly positive": 0.5,
+        "mildly negative": -0.5,
+        "bullish": 1.0,
+        "bearish": -1.0,
     }
 
     def __init__(
@@ -293,7 +315,7 @@ class AdvancedFinancialAnalyzer:
         lora_weights: str = "FinGPT/fingpt-sentiment_llama2-7b_lora",
         rank: int = 16,
         max_length: int = 512,
-        device_map: str = "auto"
+        device_map: str = "auto",
     ):
         """
         Initialize the advanced financial analyzer.
@@ -333,9 +355,8 @@ class AdvancedFinancialAnalyzer:
             logger.warning(f"Missing dependencies: {missing}")
 
     def load_model(
-        self,
-        use_pretrained_lora: bool = True
-    ) -> 'AdvancedFinancialAnalyzer':
+        self, use_pretrained_lora: bool = True
+    ) -> "AdvancedFinancialAnalyzer":
         """
         Load the model with specified adapter configuration.
 
@@ -358,8 +379,7 @@ class AdvancedFinancialAnalyzer:
             # Load tokenizer
             logger.info("Loading tokenizer...")
             self.tokenizer = AutoTokenizer.from_pretrained(
-                self.base_model,
-                trust_remote_code=True
+                self.base_model, trust_remote_code=True
             )
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -371,7 +391,7 @@ class AdvancedFinancialAnalyzer:
                 quantization_config=quant_config,
                 device_map=self.device_map,
                 trust_remote_code=True,
-                torch_dtype=torch.float16
+                torch_dtype=torch.float16,
             )
 
             # Prepare for k-bit training if quantized
@@ -382,15 +402,12 @@ class AdvancedFinancialAnalyzer:
             if use_pretrained_lora and self.lora_weights:
                 logger.info(f"Loading pre-trained LoRA: {self.lora_weights}")
                 self.model = PeftModel.from_pretrained(
-                    base_model,
-                    self.lora_weights,
-                    torch_dtype=torch.float16
+                    base_model, self.lora_weights, torch_dtype=torch.float16
                 )
             else:
                 # Create new adapter config
                 self.adapter_config = create_adapter_config(
-                    self.adapter_type,
-                    rank=self.rank
+                    self.adapter_type, rank=self.rank
                 )
                 logger.info("Creating new adapter (for training)")
                 self.model = get_peft_model(base_model, self.adapter_config)
@@ -398,11 +415,14 @@ class AdvancedFinancialAnalyzer:
             self.model.eval()
             self._log_model_info()
 
-            logger.info(f"Model loaded successfully with {self.adapter_type.value.upper()}")
+            logger.info(
+                f"Model loaded successfully with {self.adapter_type.value.upper()}"
+            )
 
         except Exception as e:
             logger.error(f"Error loading model: {str(e)}")
             import traceback
+
             traceback.print_exc()
             self.model = None
 
@@ -415,10 +435,14 @@ class AdvancedFinancialAnalyzer:
 
         try:
             # Count parameters
-            trainable = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+            trainable = sum(
+                p.numel() for p in self.model.parameters() if p.requires_grad
+            )
             total = sum(p.numel() for p in self.model.parameters())
 
-            logger.info(f"Trainable parameters: {trainable:,} ({100*trainable/total:.2f}%)")
+            logger.info(
+                f"Trainable parameters: {trainable:,} ({100*trainable/total:.2f}%)"
+            )
             logger.info(f"Total parameters: {total:,}")
 
             # Memory usage
@@ -463,18 +487,18 @@ class AdvancedFinancialAnalyzer:
             if label in response:
                 return label, score
 
-        if 'positive' in response or 'up' in response:
-            return 'positive', 1.0
-        elif 'negative' in response or 'down' in response:
-            return 'negative', -1.0
+        if "positive" in response or "up" in response:
+            return "positive", 1.0
+        elif "negative" in response or "down" in response:
+            return "negative", -1.0
         else:
-            return 'neutral', 0.0
+            return "neutral", 0.0
 
     def analyze(
         self,
         texts: Union[str, List[str]],
         task: str = "sentiment",
-        detailed: bool = False
+        detailed: bool = False,
     ) -> List[Dict[str, Any]]:
         """
         Analyze financial text(s).
@@ -509,7 +533,7 @@ class AdvancedFinancialAnalyzer:
                     return_tensors="pt",
                     max_length=self.max_length,
                     truncation=True,
-                    padding=True
+                    padding=True,
                 )
 
                 if torch.cuda.is_available():
@@ -521,35 +545,38 @@ class AdvancedFinancialAnalyzer:
                         max_new_tokens=32,
                         do_sample=False,
                         temperature=0.1,
-                        pad_token_id=self.tokenizer.pad_token_id
+                        pad_token_id=self.tokenizer.pad_token_id,
                     )
 
                 response = self.tokenizer.decode(
-                    outputs[0][inputs['input_ids'].shape[1]:],
-                    skip_special_tokens=True
+                    outputs[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
                 ).strip()
 
                 sentiment, score = self._parse_sentiment(response)
 
-                results.append({
-                    'text': text[:200] + '...' if len(text) > 200 else text,
-                    'sentiment': sentiment,
-                    'score': score,
-                    'raw_response': response,
-                    'adapter_type': self.adapter_type.value,
-                    'model': 'advanced_financial_analyzer'
-                })
+                results.append(
+                    {
+                        "text": text[:200] + "..." if len(text) > 200 else text,
+                        "sentiment": sentiment,
+                        "score": score,
+                        "raw_response": response,
+                        "adapter_type": self.adapter_type.value,
+                        "model": "advanced_financial_analyzer",
+                    }
+                )
 
             except Exception as e:
                 logger.error(f"Error analyzing text: {str(e)}")
-                results.append({
-                    'text': text[:200] + '...' if len(text) > 200 else text,
-                    'sentiment': 'neutral',
-                    'score': 0.0,
-                    'error': str(e),
-                    'adapter_type': self.adapter_type.value,
-                    'model': 'advanced_financial_analyzer'
-                })
+                results.append(
+                    {
+                        "text": text[:200] + "..." if len(text) > 200 else text,
+                        "sentiment": "neutral",
+                        "score": 0.0,
+                        "error": str(e),
+                        "adapter_type": self.adapter_type.value,
+                        "model": "advanced_financial_analyzer",
+                    }
+                )
 
         return results
 
@@ -561,8 +588,28 @@ class AdvancedFinancialAnalyzer:
             texts = [texts]
 
         results = []
-        positive_words = {'beat', 'exceed', 'record', 'growth', 'profit', 'gain', 'up', 'high', 'strong'}
-        negative_words = {'miss', 'decline', 'loss', 'fall', 'drop', 'down', 'weak', 'fail', 'cut'}
+        positive_words = {
+            "beat",
+            "exceed",
+            "record",
+            "growth",
+            "profit",
+            "gain",
+            "up",
+            "high",
+            "strong",
+        }
+        negative_words = {
+            "miss",
+            "decline",
+            "loss",
+            "fall",
+            "drop",
+            "down",
+            "weak",
+            "fail",
+            "cut",
+        }
 
         for text in texts:
             words = set(text.lower().split())
@@ -570,19 +617,21 @@ class AdvancedFinancialAnalyzer:
             neg_count = len(words & negative_words)
 
             if pos_count > neg_count:
-                sentiment, score = 'positive', 0.6
+                sentiment, score = "positive", 0.6
             elif neg_count > pos_count:
-                sentiment, score = 'negative', -0.6
+                sentiment, score = "negative", -0.6
             else:
-                sentiment, score = 'neutral', 0.0
+                sentiment, score = "neutral", 0.0
 
-            results.append({
-                'text': text[:200] + '...' if len(text) > 200 else text,
-                'sentiment': sentiment,
-                'score': score,
-                'adapter_type': 'fallback',
-                'model': 'rule_based'
-            })
+            results.append(
+                {
+                    "text": text[:200] + "..." if len(text) > 200 else text,
+                    "sentiment": sentiment,
+                    "score": score,
+                    "adapter_type": "fallback",
+                    "model": "rule_based",
+                }
+            )
 
         return results
 
@@ -601,7 +650,7 @@ def get_adapter_comparison() -> Dict[str, Dict[str, Any]]:
             "memory_7b": "~8GB",
             "trainable_params": "~0.1%",
             "inference_speed": "Fast",
-            "best_for": "General fine-tuning, limited VRAM"
+            "best_for": "General fine-tuning, limited VRAM",
         },
         "QLORA": {
             "description": "Quantized LoRA (4-bit)",
@@ -609,7 +658,7 @@ def get_adapter_comparison() -> Dict[str, Dict[str, Any]]:
             "memory_7b": "~5GB",
             "trainable_params": "~0.1%",
             "inference_speed": "Fast",
-            "best_for": "Memory-constrained environments"
+            "best_for": "Memory-constrained environments",
         },
         "DORA": {
             "description": "Weight-Decomposed LoRA (ICML 2024)",
@@ -617,7 +666,7 @@ def get_adapter_comparison() -> Dict[str, Dict[str, Any]]:
             "memory_7b": "~10GB",
             "trainable_params": "~0.15%",
             "inference_speed": "Moderate",
-            "best_for": "Best accuracy, sufficient VRAM"
+            "best_for": "Best accuracy, sufficient VRAM",
         },
         "QDORA": {
             "description": "Quantized DoRA - Best of both worlds",
@@ -625,7 +674,7 @@ def get_adapter_comparison() -> Dict[str, Dict[str, Any]]:
             "memory_7b": "~5GB",
             "trainable_params": "~0.15%",
             "inference_speed": "Moderate",
-            "best_for": "Production deployment (RECOMMENDED)"
+            "best_for": "Production deployment (RECOMMENDED)",
         },
         "DVORA": {
             "description": "DoRA + VeRA (most parameter efficient)",
@@ -633,41 +682,37 @@ def get_adapter_comparison() -> Dict[str, Dict[str, Any]]:
             "memory_7b": "~4GB",
             "trainable_params": "~0.05%",
             "inference_speed": "Fast",
-            "best_for": "Extreme memory constraints, edge deployment"
-        }
+            "best_for": "Extreme memory constraints, edge deployment",
+        },
     }
 
 
 # Convenience functions
 def create_qdora_analyzer(
     base_model: str = "meta-llama/Llama-2-7b-hf",
-    lora_weights: str = "FinGPT/fingpt-sentiment_llama2-7b_lora"
+    lora_weights: str = "FinGPT/fingpt-sentiment_llama2-7b_lora",
 ) -> AdvancedFinancialAnalyzer:
     """Create a QDoRA-based financial analyzer (recommended)."""
     return AdvancedFinancialAnalyzer(
-        adapter_type=AdapterType.QDORA,
-        base_model=base_model,
-        lora_weights=lora_weights
+        adapter_type=AdapterType.QDORA, base_model=base_model, lora_weights=lora_weights
     )
 
 
 def create_dvora_analyzer(
     base_model: str = "meta-llama/Llama-2-7b-hf",
-    lora_weights: str = "FinGPT/fingpt-sentiment_llama2-7b_lora"
+    lora_weights: str = "FinGPT/fingpt-sentiment_llama2-7b_lora",
 ) -> AdvancedFinancialAnalyzer:
     """Create a DVoRA-based financial analyzer (most efficient)."""
     return AdvancedFinancialAnalyzer(
-        adapter_type=AdapterType.DVORA,
-        base_model=base_model,
-        lora_weights=lora_weights
+        adapter_type=AdapterType.DVORA, base_model=base_model, lora_weights=lora_weights
     )
 
 
 if __name__ == "__main__":
     # Print adapter comparison
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PEFT Adapter Comparison for Financial Sentiment Analysis")
-    print("="*70)
+    print("=" * 70)
 
     comparison = get_adapter_comparison()
     for name, info in comparison.items():
@@ -675,6 +720,6 @@ if __name__ == "__main__":
         for key, value in info.items():
             print(f"  {key}: {value}")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Recommendation: Use QDORA for best accuracy/memory balance")
-    print("="*70)
+    print("=" * 70)

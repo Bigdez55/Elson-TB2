@@ -2,6 +2,7 @@
 Neural Network Service
 Provides neural network functionality for trading AI models
 """
+
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -163,9 +164,9 @@ class NeuralNetworkService:
 
             result = {
                 "success": True,
-                "prediction": prediction.tolist()
-                if len(prediction) > 1
-                else prediction[0],
+                "prediction": (
+                    prediction.tolist() if len(prediction) > 1 else prediction[0]
+                ),
                 "model_key": model_key,
                 "timestamp": datetime.utcnow().isoformat(),
             }
@@ -182,12 +183,12 @@ class NeuralNetworkService:
                 std_dev = np.std(predictions_all, axis=0)
 
                 result["confidence"] = {
-                    "lower_bound": lower_bound.tolist()
-                    if len(lower_bound) > 1
-                    else lower_bound[0],
-                    "upper_bound": upper_bound.tolist()
-                    if len(upper_bound) > 1
-                    else upper_bound[0],
+                    "lower_bound": (
+                        lower_bound.tolist() if len(lower_bound) > 1 else lower_bound[0]
+                    ),
+                    "upper_bound": (
+                        upper_bound.tolist() if len(upper_bound) > 1 else upper_bound[0]
+                    ),
                     "std_dev": std_dev.tolist() if len(std_dev) > 1 else std_dev[0],
                 }
 

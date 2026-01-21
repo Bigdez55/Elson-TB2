@@ -20,37 +20,30 @@ from app.services.market_data import MarketDataService
 from app.trading_engine.engine.circuit_breaker import get_circuit_breaker
 from app.trading_engine.engine.risk_config import RiskProfile, get_risk_config
 from app.trading_engine.engine.trade_executor import TradeExecutor
-from app.trading_engine.strategies import (
-    StrategyRegistry,
-    StrategyCategory,
-    TradingStrategy,
-    # Technical Analysis
-    RSIStrategy,
-    BollingerBandsStrategy,
-    MACDStrategy,
-    IchimokuCloudStrategy,
+from app.trading_engine.strategies import (  # Technical Analysis; Breakout; Mean Reversion; Momentum; Arbitrage; Grid/DCA; Execution
     ADXTrendStrategy,
-    StochasticStrategy,
+    BollingerBandsStrategy,
     CandlestickPatternStrategy,
-    # Breakout
-    SupportResistanceBreakout,
-    OpeningRangeBreakout,
-    DonchianBreakout,
-    # Mean Reversion
-    StatisticalMeanReversion,
-    RSIMeanReversion,
-    # Momentum
-    MomentumFactorStrategy,
-    TrendFollowingStrategy,
-    # Arbitrage
-    PairsTradingStrategy,
-    # Grid/DCA
-    GridTradingStrategy,
     DCAStrategy,
-    # Execution
-    VWAPExecutionStrategy,
-    TWAPExecutionStrategy,
+    DonchianBreakout,
+    GridTradingStrategy,
     IcebergExecutionStrategy,
+    IchimokuCloudStrategy,
+    MACDStrategy,
+    MomentumFactorStrategy,
+    OpeningRangeBreakout,
+    PairsTradingStrategy,
+    RSIMeanReversion,
+    RSIStrategy,
+    StatisticalMeanReversion,
+    StochasticStrategy,
+    StrategyCategory,
+    StrategyRegistry,
+    SupportResistanceBreakout,
+    TradingStrategy,
+    TrendFollowingStrategy,
+    TWAPExecutionStrategy,
+    VWAPExecutionStrategy,
 )
 from app.trading_engine.strategies.moving_average import MovingAverageStrategy
 
@@ -180,9 +173,7 @@ class AdvancedTradingService:
         )
 
     async def initialize_strategies(
-        self,
-        symbols: List[str],
-        strategy_types: Optional[List[str]] = None
+        self, symbols: List[str], strategy_types: Optional[List[str]] = None
     ) -> None:
         """
         Initialize trading strategies for given symbols
@@ -201,15 +192,19 @@ class AdvancedTradingService:
                 for strategy_type in strategy_types:
                     strategy = self._create_strategy(symbol, strategy_type)
                     if strategy:
-                        symbol_strategies.append({
-                            "type": strategy_type,
-                            "strategy": strategy,
-                            "executor": TradeExecutor(
-                                market_data_service=self.market_data_service,
-                                strategy=strategy
-                            ),
-                        })
-                        logger.info(f"Initialized {strategy_type} strategy for {symbol}")
+                        symbol_strategies.append(
+                            {
+                                "type": strategy_type,
+                                "strategy": strategy,
+                                "executor": TradeExecutor(
+                                    market_data_service=self.market_data_service,
+                                    strategy=strategy,
+                                ),
+                            }
+                        )
+                        logger.info(
+                            f"Initialized {strategy_type} strategy for {symbol}"
+                        )
 
                 if symbol_strategies:
                     self.strategies[symbol] = symbol_strategies
@@ -227,7 +222,7 @@ class AdvancedTradingService:
         self,
         symbol: str,
         strategy_type: str,
-        custom_params: Optional[Dict[str, Any]] = None
+        custom_params: Optional[Dict[str, Any]] = None,
     ) -> Optional[TradingStrategy]:
         """
         Create a strategy instance by type
@@ -253,9 +248,7 @@ class AdvancedTradingService:
 
         try:
             return strategy_class(
-                symbol=symbol,
-                market_data_service=self.market_data_service,
-                **params
+                symbol=symbol, market_data_service=self.market_data_service, **params
             )
         except Exception as e:
             logger.error(f"Error creating {strategy_type} strategy: {str(e)}")
@@ -270,17 +263,18 @@ class AdvancedTradingService:
         """
         return {
             name: {
-                "description": config["class"].__doc__.split("\n")[0] if config["class"].__doc__ else name,
+                "description": (
+                    config["class"].__doc__.split("\n")[0]
+                    if config["class"].__doc__
+                    else name
+                ),
                 "default_params": config["params"],
             }
             for name, config in STRATEGY_CONFIGS.items()
         }
 
     async def add_strategy_to_symbol(
-        self,
-        symbol: str,
-        strategy_type: str,
-        params: Optional[Dict[str, Any]] = None
+        self, symbol: str, strategy_type: str, params: Optional[Dict[str, Any]] = None
     ) -> bool:
         """
         Add a new strategy to an existing symbol
@@ -301,14 +295,15 @@ class AdvancedTradingService:
             if symbol not in self.strategies:
                 self.strategies[symbol] = []
 
-            self.strategies[symbol].append({
-                "type": strategy_type,
-                "strategy": strategy,
-                "executor": TradeExecutor(
-                    market_data_service=self.market_data_service,
-                    strategy=strategy
-                ),
-            })
+            self.strategies[symbol].append(
+                {
+                    "type": strategy_type,
+                    "strategy": strategy,
+                    "executor": TradeExecutor(
+                        market_data_service=self.market_data_service, strategy=strategy
+                    ),
+                }
+            )
 
             logger.info(f"Added {strategy_type} strategy to {symbol}")
             return True
@@ -318,9 +313,7 @@ class AdvancedTradingService:
             return False
 
     async def remove_strategy_from_symbol(
-        self,
-        symbol: str,
-        strategy_type: str
+        self, symbol: str, strategy_type: str
     ) -> bool:
         """
         Remove a strategy from a symbol
@@ -337,8 +330,7 @@ class AdvancedTradingService:
                 return False
 
             self.strategies[symbol] = [
-                s for s in self.strategies[symbol]
-                if s["type"] != strategy_type
+                s for s in self.strategies[symbol] if s["type"] != strategy_type
             ]
 
             logger.info(f"Removed {strategy_type} strategy from {symbol}")
@@ -514,9 +506,7 @@ class AdvancedTradingService:
         return exp1 - exp2
 
     async def generate_trading_signals(
-        self,
-        portfolio: Portfolio,
-        combine_signals: bool = True
+        self, portfolio: Portfolio, combine_signals: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Generate trading signals for all active strategies
@@ -580,21 +570,28 @@ class AdvancedTradingService:
                                 symbol, market_data
                             )
                             if ai_prediction:
-                                combined_signal["ai_confidence"] = ai_prediction["confidence"]
-                                combined_signal["ai_prediction"] = ai_prediction["prediction"]
+                                combined_signal["ai_confidence"] = ai_prediction[
+                                    "confidence"
+                                ]
+                                combined_signal["ai_prediction"] = ai_prediction[
+                                    "prediction"
+                                ]
                                 combined_signal["combined_confidence"] = (
-                                    combined_signal["confidence"] + ai_prediction["confidence"]
+                                    combined_signal["confidence"]
+                                    + ai_prediction["confidence"]
                                 ) / 2
 
-                            signals.append({
-                                "symbol": symbol,
-                                "signal": combined_signal,
-                                "strategy_name": "combined",
-                                "contributing_strategies": [
-                                    s["strategy_type"] for s in symbol_signals
-                                ],
-                                "timestamp": datetime.utcnow().isoformat(),
-                            })
+                            signals.append(
+                                {
+                                    "symbol": symbol,
+                                    "signal": combined_signal,
+                                    "strategy_name": "combined",
+                                    "contributing_strategies": [
+                                        s["strategy_type"] for s in symbol_signals
+                                    ],
+                                    "timestamp": datetime.utcnow().isoformat(),
+                                }
+                            )
                     else:
                         # Add individual signals
                         for signal in symbol_signals:
@@ -611,12 +608,14 @@ class AdvancedTradingService:
                                     signal["confidence"] + ai_prediction["confidence"]
                                 ) / 2
 
-                            signals.append({
-                                "symbol": symbol,
-                                "signal": signal,
-                                "strategy_name": strategy_type,
-                                "timestamp": datetime.utcnow().isoformat(),
-                            })
+                            signals.append(
+                                {
+                                    "symbol": symbol,
+                                    "signal": signal,
+                                    "strategy_name": strategy_type,
+                                    "timestamp": datetime.utcnow().isoformat(),
+                                }
+                            )
 
                 except Exception as e:
                     logger.error(f"Error generating signals for {symbol}: {str(e)}")
@@ -630,8 +629,7 @@ class AdvancedTradingService:
             return signals
 
     def _combine_signals(
-        self,
-        signals: List[Dict[str, Any]]
+        self, signals: List[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
         """
         Combine multiple strategy signals into a consensus signal
@@ -677,7 +675,8 @@ class AdvancedTradingService:
         agreement_ratio = action_votes[winning_action] / len(signals)
         avg_confidence = (
             total_confidence[winning_action] / action_votes[winning_action]
-            if action_votes[winning_action] > 0 else 0
+            if action_votes[winning_action] > 0
+            else 0
         )
         combined_confidence = agreement_ratio * avg_confidence
 

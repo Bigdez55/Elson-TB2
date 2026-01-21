@@ -5,15 +5,16 @@ Provides REST API for managing automated trading strategies.
 """
 
 from typing import Dict, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
 
-from app.api.deps import get_db, get_current_active_user
-from app.models.user import User
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from app.api.deps import get_current_active_user, get_db
 from app.models.portfolio import Portfolio
+from app.models.user import User
 from app.services.auto_trading_service import AutoTradingService
-from app.trading_engine.strategies.registry import StrategyRegistry, StrategyCategory
+from app.trading_engine.strategies.registry import StrategyCategory, StrategyRegistry
 
 router = APIRouter()
 

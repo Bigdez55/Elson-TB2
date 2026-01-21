@@ -1,18 +1,19 @@
+import enum
+from datetime import datetime
+
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
-    Integer,
-    String,
     DateTime,
-    ForeignKey,
     Enum,
+    ForeignKey,
+    Integer,
     Numeric,
+    String,
     Text,
-    JSON,
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
-import enum
 
 from app.db.base import Base
 
@@ -24,6 +25,7 @@ class AccountType(enum.Enum):
 
 class AccountStatus(str, enum.Enum):
     """Account status options."""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     SUSPENDED = "suspended"
@@ -86,7 +88,9 @@ class RecurringInvestment(Base):
     investment_amount = Column(Numeric(precision=16, scale=2), nullable=False)
 
     # Schedule
-    frequency: Column[RecurringFrequency] = Column(Enum(RecurringFrequency), nullable=False)
+    frequency: Column[RecurringFrequency] = Column(
+        Enum(RecurringFrequency), nullable=False
+    )
     start_date = Column(DateTime, nullable=False, default=datetime.utcnow)
     end_date = Column(DateTime, nullable=True)
     next_investment_date = Column(DateTime, nullable=False)

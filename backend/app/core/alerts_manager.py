@@ -5,16 +5,17 @@ trading activities and system health.
 """
 
 import logging
+from collections import deque
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from collections import deque
 
 logger = logging.getLogger(__name__)
 
 
 class AlertSeverity(Enum):
     """Alert severity levels."""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -23,6 +24,7 @@ class AlertSeverity(Enum):
 
 class AlertType(Enum):
     """Types of alerts."""
+
     TRADE = "trade"
     RISK = "risk"
     SYSTEM = "system"
@@ -39,7 +41,7 @@ class Alert:
         message: str,
         severity: AlertSeverity = AlertSeverity.INFO,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.id = id(self)
         self.message = message
@@ -74,7 +76,7 @@ class AlertsManager:
         message: str,
         severity: AlertSeverity = AlertSeverity.INFO,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add a new alert."""
         alert = Alert(message, severity, alert_type, details)
@@ -104,7 +106,7 @@ class AlertsManager:
         self,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add an info-level alert."""
         return self.add_alert(message, AlertSeverity.INFO, alert_type, details)
@@ -113,18 +115,16 @@ class AlertsManager:
         self,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add a warning-level alert."""
-        return self.add_alert(
-            message, AlertSeverity.WARNING, alert_type, details
-        )
+        return self.add_alert(message, AlertSeverity.WARNING, alert_type, details)
 
     def error(
         self,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add an error-level alert."""
         return self.add_alert(message, AlertSeverity.ERROR, alert_type, details)
@@ -133,18 +133,16 @@ class AlertsManager:
         self,
         message: str,
         alert_type: AlertType = AlertType.SYSTEM,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> Alert:
         """Add a critical-level alert."""
-        return self.add_alert(
-            message, AlertSeverity.CRITICAL, alert_type, details
-        )
+        return self.add_alert(message, AlertSeverity.CRITICAL, alert_type, details)
 
     def get_alerts(
         self,
         severity: Optional[AlertSeverity] = None,
         alert_type: Optional[AlertType] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[Dict[str, Any]]:
         """Get recent alerts with optional filtering."""
         alerts = list(self._alerts)

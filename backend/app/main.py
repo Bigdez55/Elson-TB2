@@ -1,24 +1,23 @@
 import os
+import uuid
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.logging_config import (
+    clear_session_context,
     configure_logging,
     set_session_context,
-    clear_session_context,
 )
-import uuid
-from fastapi import Request
 from app.db.init_db import init_db
-from app.services.market_streaming import personal_market_streaming
 
 # WebSocket route imports
 from app.routes.websocket import market_feed, trading_updates
+from app.services.market_streaming import personal_market_streaming
 
 # Configure logging
 configure_logging(

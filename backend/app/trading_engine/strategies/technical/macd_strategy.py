@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -94,8 +94,7 @@ class MACDStrategy(TradingStrategy):
 
             if df is None or len(df) < self.slow_period + self.signal_period + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             # Calculate MACD
@@ -115,8 +114,7 @@ class MACDStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating MACD signal for {self.symbol}: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -204,7 +202,7 @@ class MACDStrategy(TradingStrategy):
                 return None
 
             recent = df.tail(lookback)
-            prev = df.iloc[-lookback*2:-lookback]
+            prev = df.iloc[-lookback * 2 : -lookback]
 
             # Get highs and lows
             recent_price_high = recent["close"].max()
@@ -222,7 +220,10 @@ class MACDStrategy(TradingStrategy):
                 return "bullish_divergence"
 
             # Bearish divergence
-            if recent_price_high > prev_price_high and recent_hist_high < prev_hist_high:
+            if (
+                recent_price_high > prev_price_high
+                and recent_hist_high < prev_hist_high
+            ):
                 return "bearish_divergence"
 
             return None
@@ -232,9 +233,7 @@ class MACDStrategy(TradingStrategy):
             return None
 
     def _generate_trading_decision(
-        self,
-        df: pd.DataFrame,
-        divergence: Optional[str]
+        self, df: pd.DataFrame, divergence: Optional[str]
     ) -> Dict[str, Any]:
         """Generate trading decision based on MACD signals"""
         last_row = df.iloc[-1]
@@ -304,11 +303,19 @@ class MACDStrategy(TradingStrategy):
 
         # Histogram reversal (early signal)
         if action == "hold":
-            if prev_histogram < 0 and histogram > prev_histogram and histogram_slope > 0:
+            if (
+                prev_histogram < 0
+                and histogram > prev_histogram
+                and histogram_slope > 0
+            ):
                 action = "buy"
                 confidence = 0.5
                 reasons.append("Histogram reversal - bullish")
-            elif prev_histogram > 0 and histogram < prev_histogram and histogram_slope < 0:
+            elif (
+                prev_histogram > 0
+                and histogram < prev_histogram
+                and histogram_slope < 0
+            ):
                 action = "sell"
                 confidence = 0.5
                 reasons.append("Histogram reversal - bearish")
@@ -350,9 +357,7 @@ class MACDStrategy(TradingStrategy):
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str
+        self, price: float, action: str
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit levels"""
         stop_pct = 0.025  # 2.5% stop loss

@@ -164,7 +164,7 @@ class TestPaperTrading:
     async def test_paper_trading_execution(self, paper_trading, sample_trade):
         """Test paper trading execution."""
         # Mock market hours to be open for testing
-        with patch.object(paper_trading, '_is_market_open', return_value=True):
+        with patch.object(paper_trading, "_is_market_open", return_value=True):
             # Execute the trade
             result = await paper_trading.execute_paper_trade(sample_trade)
 
@@ -184,7 +184,7 @@ class TestPaperTrading:
     async def test_dollar_based_paper_trading(self, paper_trading, dollar_based_trade):
         """Test dollar-based paper trading."""
         # Mock market hours to be open for testing
-        with patch.object(paper_trading, '_is_market_open', return_value=True):
+        with patch.object(paper_trading, "_is_market_open", return_value=True):
             # Execute the trade
             result = await paper_trading.execute_paper_trade(dollar_based_trade)
 

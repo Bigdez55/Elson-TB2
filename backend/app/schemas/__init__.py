@@ -4,168 +4,141 @@ Elson Financial AI - API Schemas
 Pydantic models for request/response validation across all API endpoints.
 """
 
+# Accounting Workflow Schemas
+from .accounting_schemas import AccountBalance
+from .accounting_schemas import (
+    AccountTypeEnum as AcctAccountTypeEnum,  # Enums (note: AccountTypeEnum is redefined for accounting); Schema 1: Ledger Import; Schema 2: Monthly Close; Schema 3: Cash Flow Forecast; Schema 4: Budget Plan; Schema 5: Business KPIs; GnuCash Import
+)
+from .accounting_schemas import (
+    BudgetCategoryEnum,
+    BudgetLineItem,
+    BudgetPlan,
+    BudgetSummary,
+    BusinessKPIs,
+    CashFlowForecast,
+    CashFlowItem,
+    CashFlowPeriod,
+    CategorySuggestion,
+    CloseCheckItem,
+    FrequencyEnum,
+    GnuCashAccount,
+    GnuCashImportResult,
+    KPIMetric,
+    LedgerImport,
+    MonthlyCloseChecklist,
+    Transaction,
+    TransactionStatusEnum,
+)
+
+# Insurance Workflow Schemas
+from .insurance_schemas import (  # Enums; Schema 1: Policy Comparison; Schema 2: Suitability Assessment; Schema 3: Needs Analysis; Schema 4: Premium Illustration; Schema 5: Claims Scenario
+    ClaimsScenarioChecklist,
+    ClaimStep,
+    ClientInsuranceProfile,
+    CoverageGap,
+    IllustrationYear,
+    IncomeReplacementCalculation,
+    InsurancePurposeEnum,
+    InsuranceTypeEnum,
+    NeedsAnalysis,
+    PolicyComparison,
+    PolicyFeature,
+    PremiumComparison,
+    PremiumIllustrationSummary,
+    RiskClassEnum,
+    SuitabilityAssessment,
+    SuitabilityFactor,
+    SuitabilityStatusEnum,
+)
+
+# Structured Output Schemas (7 core)
+from .output_schemas import (  # Enums; Schema 1: Financial Plan; Schema 2: Portfolio Policy Statement; Schema 3: Trade Plan; Schema 4: Tax Scenario Summary; Schema 5: Compliance Checklist; Schema 6: Market Data Request; Schema 7: Fundamental Analysis Report
+    AccountTypeEnum,
+    AssetAllocation,
+    AssetClassEnum,
+    CashFlowProjection,
+    ComplianceCheckItem,
+    ComplianceChecklist,
+    ComplianceStatusEnum,
+    DebtItem,
+    FinancialGoal,
+    FinancialHealthIndicator,
+    FinancialPlan,
+    FundamentalAnalysisReport,
+    InsuranceCoverage,
+    InvestmentRestriction,
+    MarketDataRequest,
+    PortfolioPolicyStatement,
+    RiskToleranceEnum,
+    TaxBracketImpact,
+    TaxFilingStatusEnum,
+    TaxScenario,
+    TaxScenarioSummary,
+    TimeHorizonEnum,
+    TradeOrder,
+    TradePlan,
+    ValuationAssessment,
+)
+
 # Tool Schemas (OpenBB, FinanceToolkit)
-from .tool_schemas import (
-    # Enums
-    TimeframeEnum,
-    RatioCategoryEnum,
-    MacroSeriesEnum,
-    # OpenBB schemas
-    QuoteRequest,
-    QuoteResponse,
-    OHLCVRequest,
-    OHLCVBar,
-    OHLCVResponse,
-    FundamentalsRequest,
-    FundamentalsResponse,
-    NewsRequest,
-    NewsItem,
-    NewsResponse,
-    MacroRequest,
-    MacroDataPoint,
-    MacroResponse,
-    # FinanceToolkit schemas
-    FinancialStatementsRequest,
-    IncomeStatement,
+from .tool_schemas import (  # Enums; OpenBB schemas; FinanceToolkit schemas; Tool call wrappers
     BalanceSheet,
     CashFlowStatement,
+    FinancialStatementsRequest,
     FinancialStatementsResponse,
-    RatioSummaryRequest,
-    RatioValue,
+    FundamentalsRequest,
+    FundamentalsResponse,
+    IncomeStatement,
+    MacroDataPoint,
+    MacroRequest,
+    MacroResponse,
+    MacroSeriesEnum,
+    NewsItem,
+    NewsRequest,
+    NewsResponse,
+    OHLCVBar,
+    OHLCVRequest,
+    OHLCVResponse,
+    QuoteRequest,
+    QuoteResponse,
     RatioCategory,
-    RatioSummaryResponse,
+    RatioCategoryEnum,
     RatioCategoryRequest,
     RatioCategoryResponse,
     RatioCompareRequest,
     RatioCompareResponse,
-    # Tool call wrappers
+    RatioSummaryRequest,
+    RatioSummaryResponse,
+    RatioValue,
+    TimeframeEnum,
     ToolCall,
     ToolResponse,
 )
 
-# Structured Output Schemas (7 core)
-from .output_schemas import (
-    # Enums
-    RiskToleranceEnum,
-    TimeHorizonEnum,
-    TaxFilingStatusEnum,
-    AccountTypeEnum,
-    AssetClassEnum,
-    ComplianceStatusEnum,
-    # Schema 1: Financial Plan
-    FinancialGoal,
-    CashFlowProjection,
-    DebtItem,
-    InsuranceCoverage,
-    FinancialPlan,
-    # Schema 2: Portfolio Policy Statement
-    AssetAllocation,
-    InvestmentRestriction,
-    PortfolioPolicyStatement,
-    # Schema 3: Trade Plan
-    TradeOrder,
-    TradePlan,
-    # Schema 4: Tax Scenario Summary
-    TaxBracketImpact,
-    TaxScenario,
-    TaxScenarioSummary,
-    # Schema 5: Compliance Checklist
-    ComplianceCheckItem,
-    ComplianceChecklist,
-    # Schema 6: Market Data Request
-    MarketDataRequest,
-    # Schema 7: Fundamental Analysis Report
-    ValuationAssessment,
-    FinancialHealthIndicator,
-    FundamentalAnalysisReport,
-)
-
-# Insurance Workflow Schemas
-from .insurance_schemas import (
-    # Enums
-    InsuranceTypeEnum,
-    InsurancePurposeEnum,
-    RiskClassEnum,
-    SuitabilityStatusEnum,
-    # Schema 1: Policy Comparison
-    PolicyFeature,
-    PremiumComparison,
-    PolicyComparison,
-    # Schema 2: Suitability Assessment
-    ClientInsuranceProfile,
-    SuitabilityFactor,
-    SuitabilityAssessment,
-    # Schema 3: Needs Analysis
-    CoverageGap,
-    IncomeReplacementCalculation,
-    NeedsAnalysis,
-    # Schema 4: Premium Illustration
-    IllustrationYear,
-    PremiumIllustrationSummary,
-    # Schema 5: Claims Scenario
-    ClaimStep,
-    ClaimsScenarioChecklist,
-)
-
-# Accounting Workflow Schemas
-from .accounting_schemas import (
-    # Enums (note: AccountTypeEnum is redefined for accounting)
-    AccountTypeEnum as AcctAccountTypeEnum,
-    TransactionStatusEnum,
-    BudgetCategoryEnum,
-    FrequencyEnum,
-    # Schema 1: Ledger Import
-    Transaction,
-    CategorySuggestion,
-    LedgerImport,
-    # Schema 2: Monthly Close
-    CloseCheckItem,
-    AccountBalance,
-    MonthlyCloseChecklist,
-    # Schema 3: Cash Flow Forecast
-    CashFlowItem,
-    CashFlowPeriod,
-    CashFlowForecast,
-    # Schema 4: Budget Plan
-    BudgetLineItem,
-    BudgetSummary,
-    BudgetPlan,
-    # Schema 5: Business KPIs
-    KPIMetric,
-    BusinessKPIs,
-    # GnuCash Import
-    GnuCashAccount,
-    GnuCashImportResult,
-)
-
 # Wealth Advisory Schemas
-from .wealth_advisory import (
-    # Enums
-    AdvisoryMode,
-    WealthTier,
-    CredentialType,
-    ProfessionalRoleType,
-    # Base models
-    Citation,
-    ProfessionalRecommendation,
+from .wealth_advisory import (  # Enums; Base models; Request models; Response models
     ActionItem,
-    # Request models
-    WealthAdvisoryRequest,
-    EstatePlanningRequest,
-    SuccessionPlanningRequest,
-    TeamCoordinationRequest,
-    FinancialLiteracyRequest,
+    AdvisoryMode,
+    Citation,
     CredentialInfoRequest,
-    RoleInfoRequest,
-    # Response models
-    WealthAdvisoryResponse,
-    EstatePlanningResponse,
-    SuccessionPlanningResponse,
-    TeamCoordinationResponse,
-    FinancialLiteracyResponse,
     CredentialInfoResponse,
-    RoleInfoResponse,
+    CredentialType,
+    EstatePlanningRequest,
+    EstatePlanningResponse,
+    FinancialLiteracyRequest,
+    FinancialLiteracyResponse,
     KnowledgeBaseStatsResponse,
+    ProfessionalRecommendation,
+    ProfessionalRoleType,
+    RoleInfoRequest,
+    RoleInfoResponse,
+    SuccessionPlanningRequest,
+    SuccessionPlanningResponse,
+    TeamCoordinationRequest,
+    TeamCoordinationResponse,
+    WealthAdvisoryRequest,
+    WealthAdvisoryResponse,
+    WealthTier,
 )
 
 __all__ = [

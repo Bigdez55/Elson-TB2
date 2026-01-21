@@ -5,11 +5,7 @@ This module provides a unified metrics interface used throughout the trading pla
 
 from typing import Any, Dict, Optional
 
-from app.core.monitoring import (
-    metrics_collector,
-    trading_monitor,
-    performance_tracker,
-)
+from app.core.monitoring import metrics_collector, performance_tracker, trading_monitor
 
 
 class MetricsInterface:
@@ -21,28 +17,19 @@ class MetricsInterface:
         self._tracker = performance_tracker
 
     def increment(
-        self,
-        name: str,
-        value: float = 1.0,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1.0, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Increment a counter metric."""
         self._collector.increment_counter(name, value, labels)
 
     def gauge(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Set a gauge metric."""
         self._collector.set_gauge(name, value, labels)
 
     def histogram(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Record a histogram metric."""
         self._collector.record_histogram(name, value, labels)
@@ -65,28 +52,19 @@ class MetricsInterface:
 
     # Convenience methods for common patterns
     def increment_counter(
-        self,
-        name: str,
-        value: float = 1.0,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1.0, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Alias for increment."""
         self.increment(name, value, labels)
 
     def set_gauge(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Alias for gauge."""
         self.gauge(name, value, labels)
 
     def record_histogram(
-        self,
-        name: str,
-        value: float,
-        labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Alias for histogram."""
         self.histogram(name, value, labels)
@@ -100,7 +78,7 @@ def record_metric(
     name: str,
     value: float,
     metric_type: str = "counter",
-    labels: Optional[Dict[str, str]] = None
+    labels: Optional[Dict[str, str]] = None,
 ) -> None:
     """Record a metric by type.
 

@@ -25,12 +25,13 @@ from app.models.security import (
     SecurityAlert,
     SecurityAuditLog,
     SecuritySettings,
-    Session as UserSession,
-    TwoFactorConfig,
 )
+from app.models.security import Session as UserSession
+from app.models.security import TwoFactorConfig
 from app.models.user import User
 from app.schemas.security import (
     AddIPRequest,
+    DeviceFingerprintResponse,
     DeviceListResponse,
     DeviceRegisterRequest,
     DeviceResponse,
@@ -60,7 +61,6 @@ from app.schemas.security import (
     TwoFactorConfigResponse,
     Verify2FARequest,
     Verify2FAResponse,
-    DeviceFingerprintResponse,
 )
 
 router = APIRouter()
@@ -100,6 +100,7 @@ def get_client_info(request: Request):
 
 # ==================== Device Management ====================
 
+
 @router.get("/devices", response_model=DeviceListResponse)
 async def get_devices(
     current_user: User = Depends(get_current_active_user),
@@ -108,7 +109,9 @@ async def get_devices(
     """Get all registered devices for the current user"""
     devices = (
         db.query(Device)
-        .filter(Device.user_id == current_user.id, Device.status != DeviceStatus.REVOKED)
+        .filter(
+            Device.user_id == current_user.id, Device.status != DeviceStatus.REVOKED
+        )
         .order_by(Device.last_used.desc())
         .all()
     )
@@ -189,9 +192,12 @@ async def register_device(
     db.refresh(device)
 
     create_audit_log(
-        db, current_user.id, "device_registered",
+        db,
+        current_user.id,
+        "device_registered",
         {"device_id": device_id, "device_name": device.device_name},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return DeviceResponse.model_validate(device)
@@ -226,9 +232,12 @@ async def verify_device(
 
         client_info = get_client_info(request)
         create_audit_log(
-            db, current_user.id, "device_verified",
+            db,
+            current_user.id,
+            "device_verified",
             {"device_id": device.device_id},
-            client_info["ip_address"], client_info["user_agent"],
+            client_info["ip_address"],
+            client_info["user_agent"],
         )
 
         return DeviceResponse.model_validate(device)
@@ -259,9 +268,12 @@ async def trust_device(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "device_trusted",
+        db,
+        current_user.id,
+        "device_trusted",
         {"device_id": device_id},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return DeviceResponse.model_validate(device)
@@ -295,9 +307,12 @@ async def revoke_device(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "device_revoked",
+        db,
+        current_user.id,
+        "device_revoked",
         {"device_id": device_id},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return {"success": True, "message": "Device revoked successfully"}
@@ -328,6 +343,7 @@ async def update_device_name(
 
 # ==================== Session Management ====================
 
+
 @router.get("/sessions", response_model=SessionListResponse)
 async def get_sessions(
     current_user: User = Depends(get_current_active_user),
@@ -343,7 +359,11 @@ async def get_sessions(
 
     session_responses = []
     for s in sessions:
-        device = db.query(Device).filter(Device.id == s.device_id).first() if s.device_id else None
+        device = (
+            db.query(Device).filter(Device.id == s.device_id).first()
+            if s.device_id
+            else None
+        )
         session_responses.append(
             SessionResponse(
                 id=s.id,
@@ -383,9 +403,12 @@ async def terminate_sessions(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "sessions_terminated",
+        db,
+        current_user.id,
+        "sessions_terminated",
         {"count": terminated_count, "session_ids": terminate_data.session_ids},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return {"success": True, "message": f"Terminated {terminated_count} sessions"}
@@ -407,14 +430,20 @@ async def extend_session(
     )
 
     for session in sessions:
-        session.expires_at = session.expires_at + timedelta(minutes=extend_data.extend_minutes)
+        session.expires_at = session.expires_at + timedelta(
+            minutes=extend_data.extend_minutes
+        )
 
     db.commit()
 
-    return {"success": True, "message": f"Session extended by {extend_data.extend_minutes} minutes"}
+    return {
+        "success": True,
+        "message": f"Session extended by {extend_data.extend_minutes} minutes",
+    }
 
 
 # ==================== Two-Factor Authentication ====================
+
 
 @router.get("/2fa", response_model=TwoFactorConfigResponse)
 async def get_two_factor_config(
@@ -494,9 +523,12 @@ async def enable_2fa(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "2fa_setup_initiated",
+        db,
+        current_user.id,
+        "2fa_setup_initiated",
         {"method": enable_data.method},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     # Generate QR code URL (in production, use pyotp)
@@ -537,9 +569,12 @@ async def verify_2fa(
 
         client_info = get_client_info(request)
         create_audit_log(
-            db, current_user.id, "2fa_enabled",
+            db,
+            current_user.id,
+            "2fa_enabled",
             {},
-            client_info["ip_address"], client_info["user_agent"],
+            client_info["ip_address"],
+            client_info["user_agent"],
         )
 
         return Verify2FAResponse(success=True, message="2FA enabled successfully")
@@ -578,9 +613,12 @@ async def disable_2fa(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "2fa_disabled",
+        db,
+        current_user.id,
+        "2fa_disabled",
         {},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     # Create security alert
@@ -598,7 +636,9 @@ async def disable_2fa(
     return {"success": True, "message": "2FA disabled successfully"}
 
 
-@router.post("/2fa/backup-codes/regenerate", response_model=RegenerateBackupCodesResponse)
+@router.post(
+    "/2fa/backup-codes/regenerate", response_model=RegenerateBackupCodesResponse
+)
 async def regenerate_backup_codes(
     request: Request,
     current_user: User = Depends(get_current_active_user),
@@ -620,9 +660,12 @@ async def regenerate_backup_codes(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "backup_codes_regenerated",
+        db,
+        current_user.id,
+        "backup_codes_regenerated",
         {},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return RegenerateBackupCodesResponse(
@@ -632,6 +675,7 @@ async def regenerate_backup_codes(
 
 
 # ==================== Security Settings ====================
+
 
 @router.get("/settings", response_model=SecuritySettingsResponse)
 async def get_security_settings(
@@ -693,9 +737,12 @@ async def update_security_settings(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "security_settings_updated",
+        db,
+        current_user.id,
+        "security_settings_updated",
         update_dict,
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     ip_whitelist = json.loads(settings.ip_whitelist) if settings.ip_whitelist else []
@@ -714,6 +761,7 @@ async def update_security_settings(
 
 
 # ==================== Login History ====================
+
 
 @router.get("/login-history", response_model=LoginHistoryListResponse)
 async def get_login_history(
@@ -738,7 +786,11 @@ async def get_login_history(
 
     history_responses = []
     for h in history:
-        device = db.query(Device).filter(Device.id == h.device_id).first() if h.device_id else None
+        device = (
+            db.query(Device).filter(Device.id == h.device_id).first()
+            if h.device_id
+            else None
+        )
         history_responses.append(
             LoginHistoryResponse(
                 id=h.id,
@@ -754,10 +806,13 @@ async def get_login_history(
             )
         )
 
-    return LoginHistoryListResponse(history=history_responses, total=len(history_responses))
+    return LoginHistoryListResponse(
+        history=history_responses, total=len(history_responses)
+    )
 
 
 # ==================== Security Alerts ====================
+
 
 @router.get("/alerts", response_model=SecurityAlertListResponse)
 async def get_security_alerts(
@@ -840,6 +895,7 @@ async def dismiss_alert(
 
 # ==================== IP Whitelist ====================
 
+
 @router.post("/ip-whitelist", response_model=IPWhitelistResponse)
 async def add_ip_to_whitelist(
     request: Request,
@@ -867,9 +923,12 @@ async def add_ip_to_whitelist(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "ip_added_to_whitelist",
+        db,
+        current_user.id,
+        "ip_added_to_whitelist",
         {"ip_address": ip_data.ip_address},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return IPWhitelistResponse(
@@ -905,15 +964,19 @@ async def remove_ip_from_whitelist(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "ip_removed_from_whitelist",
+        db,
+        current_user.id,
+        "ip_removed_from_whitelist",
         {"ip_address": ip_address},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return {"success": True, "message": f"IP {ip_address} removed from whitelist"}
 
 
 # ==================== Emergency Actions ====================
+
 
 @router.post("/emergency/lock-account", response_model=LockAccountResponse)
 async def lock_account(
@@ -941,9 +1004,12 @@ async def lock_account(
 
     client_info = get_client_info(request)
     create_audit_log(
-        db, current_user.id, "account_locked",
+        db,
+        current_user.id,
+        "account_locked",
         {"reason": lock_data.reason, "locked_until": lock_until.isoformat()},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     return LockAccountResponse(
@@ -972,15 +1038,22 @@ async def report_suspicious_activity(
         severity=AlertSeverity.HIGH,
         title="Suspicious Activity Reported",
         message=report_data.description,
-        details=json.dumps(report_data.additional_details) if report_data.additional_details else None,
+        details=(
+            json.dumps(report_data.additional_details)
+            if report_data.additional_details
+            else None
+        ),
         ip_address=client_info["ip_address"],
     )
     db.add(alert)
 
     create_audit_log(
-        db, current_user.id, "suspicious_activity_reported",
+        db,
+        current_user.id,
+        "suspicious_activity_reported",
         {"report_id": report_id, "type": report_data.suspicious_activity_type},
-        client_info["ip_address"], client_info["user_agent"],
+        client_info["ip_address"],
+        client_info["user_agent"],
     )
 
     db.commit()
@@ -993,6 +1066,7 @@ async def report_suspicious_activity(
 
 
 # ==================== Audit Log ====================
+
 
 @router.get("/audit", response_model=SecurityAuditLogListResponse)
 async def get_security_audit_log(
@@ -1033,6 +1107,7 @@ async def get_security_audit_log(
 
 # ==================== Device Fingerprint ====================
 
+
 @router.get("/device-fingerprint", response_model=DeviceFingerprintResponse)
 async def generate_device_fingerprint(
     request: Request,
@@ -1051,6 +1126,7 @@ async def generate_device_fingerprint(
 
     # Simple fingerprint generation
     import hashlib
+
     fingerprint_str = json.dumps(fingerprint_data, sort_keys=True)
     fingerprint = hashlib.sha256(fingerprint_str.encode()).hexdigest()[:32]
 

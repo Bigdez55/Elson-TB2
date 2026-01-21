@@ -4,8 +4,8 @@ Test script for automated trading system
 
 import asyncio
 
-from app.trading_engine.strategies.registry import StrategyRegistry
 from app.services.auto_trading_service import AutoTradingService
+from app.trading_engine.strategies.registry import StrategyRegistry
 
 
 async def test_auto_trading():
@@ -45,10 +45,11 @@ async def test_auto_trading():
     print("Test 3: API Endpoints")
     print("-" * 60)
     from app.api.api_v1.endpoints.auto_trading import router
+
     print(f"✓ Auto-trading router loaded")
     print(f"✓ Endpoints registered: {len(router.routes)}")
     for route in router.routes:
-        methods = ', '.join(route.methods)
+        methods = ", ".join(route.methods)
         print(f"  - {methods:6} /api/v1/auto-trading{route.path}")
     print()
 
@@ -58,16 +59,14 @@ async def test_auto_trading():
 
     # Try creating a few strategies
     test_strategies = [
-        ('rsi_strategy', 'RSI Strategy'),
-        ('macd_strategy', 'MACD Strategy'),
-        ('bollinger_bands', 'Bollinger Bands'),
+        ("rsi_strategy", "RSI Strategy"),
+        ("macd_strategy", "MACD Strategy"),
+        ("bollinger_bands", "Bollinger Bands"),
     ]
 
     for strategy_name, display_name in test_strategies:
         strategy = StrategyRegistry.create(
-            name=strategy_name,
-            symbol='AAPL',
-            min_confidence=0.6
+            name=strategy_name, symbol="AAPL", min_confidence=0.6
         )
         if strategy:
             print(f"✓ {display_name} created successfully")
@@ -83,9 +82,10 @@ async def test_auto_trading():
     try:
         # Check if frontend files exist
         import os
+
         frontend_files = [
-            '/workspaces/Elson-TB2/frontend/src/services/autoTradingApi.ts',
-            '/workspaces/Elson-TB2/frontend/src/components/trading/AutoTradingSettings.tsx',
+            "/workspaces/Elson-TB2/frontend/src/services/autoTradingApi.ts",
+            "/workspaces/Elson-TB2/frontend/src/components/trading/AutoTradingSettings.tsx",
         ]
         for file_path in frontend_files:
             if os.path.exists(file_path):
@@ -116,5 +116,6 @@ async def test_auto_trading():
     print("5. Monitor live performance and trades")
     print()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(test_auto_trading())

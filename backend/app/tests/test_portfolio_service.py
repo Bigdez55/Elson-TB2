@@ -1,19 +1,20 @@
 """
 Comprehensive tests for portfolio service functionality
 """
-import pytest
-from decimal import Decimal
-from unittest.mock import Mock, patch, AsyncMock
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from app.models.portfolio import Portfolio
-from app.models.holding import Holding
-from app.models.user import User
-from app.models.trade import Trade, TradeType, OrderType, TradeStatus
-from app.services.trading import TradingService
+from decimal import Decimal
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
 from app.db.base import Base
+from app.models.holding import Holding
+from app.models.portfolio import Portfolio
+from app.models.trade import OrderType, Trade, TradeStatus, TradeType
+from app.models.user import User
+from app.services.trading import TradingService
 
 
 class TestPortfolioService:
@@ -33,10 +34,10 @@ class TestPortfolioService:
     def test_user(self, db_session):
         """Create a test user"""
         user = User(
-            email="test@example.com", 
+            email="test@example.com",
             hashed_password="hashedpassword123",
             full_name="Test User",
-            is_active=True
+            is_active=True,
         )
         db_session.add(user)
         db_session.commit()
@@ -298,7 +299,7 @@ class TestPortfolioService:
     def test_portfolio_daily_trade_count(self, db_session, test_portfolio):
         """Test daily trade count calculation"""
         # Create some test trades for today
-        from datetime import datetime, date
+        from datetime import date, datetime
 
         trades = [
             Trade(

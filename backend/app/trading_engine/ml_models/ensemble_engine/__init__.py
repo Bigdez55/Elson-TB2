@@ -4,17 +4,17 @@ Combines predictions from multiple models using ensemble methods.
 """
 
 from .model_combiner import (
-    ModelCombiner,
     ClassificationEnsemble,
-    RegressionEnsemble,
     DynamicWeightEnsemble,
-    RangePredictionEnsemble
+    ModelCombiner,
+    RangePredictionEnsemble,
+    RegressionEnsemble,
 )
 
 __all__ = [
-    'ModelCombiner',
-    'ClassificationEnsemble',
-    'RegressionEnsemble',
-    'DynamicWeightEnsemble',
-    'RangePredictionEnsemble'
+    "ModelCombiner",
+    "ClassificationEnsemble",
+    "RegressionEnsemble",
+    "DynamicWeightEnsemble",
+    "RangePredictionEnsemble",
 ]

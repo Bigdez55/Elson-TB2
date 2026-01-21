@@ -9,7 +9,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Boolean, Column, DateTime, Enum as SQLEnum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.base import Base
@@ -17,6 +19,7 @@ from app.db.base import Base
 
 class DeviceStatus(str, Enum):
     """Device trust status"""
+
     PENDING = "pending"
     TRUSTED = "trusted"
     REVOKED = "revoked"
@@ -24,6 +27,7 @@ class DeviceStatus(str, Enum):
 
 class AlertSeverity(str, Enum):
     """Security alert severity levels"""
+
     INFO = "info"
     LOW = "low"
     MEDIUM = "medium"
@@ -33,6 +37,7 @@ class AlertSeverity(str, Enum):
 
 class AlertType(str, Enum):
     """Security alert types"""
+
     NEW_DEVICE = "new_device"
     SUSPICIOUS_LOGIN = "suspicious_login"
     FAILED_LOGIN = "failed_login"
@@ -45,6 +50,7 @@ class AlertType(str, Enum):
 
 class Device(Base):
     """Registered device model for device management"""
+
     __tablename__ = "devices"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -69,6 +75,7 @@ class Device(Base):
 
 class Session(Base):
     """User session model for session management"""
+
     __tablename__ = "sessions"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -89,6 +96,7 @@ class Session(Base):
 
 class TwoFactorConfig(Base):
     """Two-factor authentication configuration"""
+
     __tablename__ = "two_factor_configs"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -109,6 +117,7 @@ class TwoFactorConfig(Base):
 
 class SecuritySettings(Base):
     """User security settings"""
+
     __tablename__ = "security_settings"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -140,6 +149,7 @@ class SecuritySettings(Base):
 
 class SecurityAlert(Base):
     """Security alerts for user notification"""
+
     __tablename__ = "security_alerts"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -162,6 +172,7 @@ class SecurityAlert(Base):
 
 class LoginHistory(Base):
     """Login history for audit purposes"""
+
     __tablename__ = "login_history"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -182,11 +193,14 @@ class LoginHistory(Base):
 
 class SecurityAuditLog(Base):
     """Security audit log for tracking all security-related actions"""
+
     __tablename__ = "security_audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    action = Column(String(100), nullable=False)  # e.g., "2fa_enabled", "device_trusted"
+    action = Column(
+        String(100), nullable=False
+    )  # e.g., "2fa_enabled", "device_trusted"
     details = Column(Text, nullable=True)  # JSON details
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(String(500), nullable=True)
@@ -199,6 +213,7 @@ class SecurityAuditLog(Base):
 
 class WebAuthnCredential(Base):
     """WebAuthn credentials for biometric authentication (fingerprint/Face ID)"""
+
     __tablename__ = "webauthn_credentials"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -206,18 +221,26 @@ class WebAuthnCredential(Base):
 
     # Credential identification
     credential_id = Column(String(512), unique=True, nullable=False, index=True)
-    credential_name = Column(String(255), nullable=True)  # User-friendly name like "MacBook Touch ID"
+    credential_name = Column(
+        String(255), nullable=True
+    )  # User-friendly name like "MacBook Touch ID"
 
     # WebAuthn credential data
     public_key = Column(Text, nullable=False)  # Base64 encoded public key
     sign_count = Column(Integer, default=0)  # Signature counter for replay protection
 
     # Credential metadata
-    credential_type = Column(String(50), default="public-key")  # Always "public-key" for WebAuthn
-    authenticator_type = Column(String(50), nullable=True)  # "platform" (built-in) or "cross-platform" (USB key)
+    credential_type = Column(
+        String(50), default="public-key"
+    )  # Always "public-key" for WebAuthn
+    authenticator_type = Column(
+        String(50), nullable=True
+    )  # "platform" (built-in) or "cross-platform" (USB key)
 
     # Device info
-    device_type = Column(String(100), nullable=True)  # e.g., "Touch ID", "Face ID", "Windows Hello", "YubiKey"
+    device_type = Column(
+        String(100), nullable=True
+    )  # e.g., "Touch ID", "Face ID", "Windows Hello", "YubiKey"
     aaguid = Column(String(36), nullable=True)  # Authenticator Attestation GUID
 
     # Status tracking

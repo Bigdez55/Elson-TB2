@@ -10,15 +10,15 @@ Reads GnuCash files (XML or SQLite format) and extracts:
 This is READ-ONLY - we never modify GnuCash files.
 """
 
-import xml.etree.ElementTree as ET
-import sqlite3
 import gzip
-from datetime import datetime, date
+import logging
+import sqlite3
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, field
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +27,11 @@ logger = logging.getLogger(__name__)
 # DATA CLASSES
 # =============================================================================
 
+
 @dataclass
 class GnuCashAccount:
     """Represents a GnuCash account"""
+
     guid: str
     name: str
     account_type: str
@@ -44,6 +46,7 @@ class GnuCashAccount:
 @dataclass
 class GnuCashTransaction:
     """Represents a GnuCash transaction"""
+
     guid: str
     date_posted: date
     description: str
@@ -55,6 +58,7 @@ class GnuCashTransaction:
 @dataclass
 class GnuCashSplit:
     """Represents a split within a transaction"""
+
     guid: str
     account_guid: str
     value: Decimal
@@ -79,22 +83,17 @@ GNUCASH_TYPE_MAPPING = {
     "MUTUAL": "asset_investment",
     "RECEIVABLE": "asset_receivable",
     "INVESTMENT": "asset_investment",
-
     # Liabilities
     "LIABILITY": "liability_other",
     "CREDIT": "liability_credit_card",
     "CREDITLINE": "liability_credit_card",
     "PAYABLE": "liability_payable",
-
     # Equity
     "EQUITY": "equity_owner",
-
     # Income
     "INCOME": "income_other",
-
     # Expenses
     "EXPENSE": "expense_other",
-
     # Special
     "ROOT": None,
     "TRADING": None,
@@ -104,6 +103,7 @@ GNUCASH_TYPE_MAPPING = {
 # =============================================================================
 # XML PARSER
 # =============================================================================
+
 
 class GnuCashXMLParser:
     """Parse GnuCash XML files (compressed or uncompressed)"""
@@ -248,17 +248,13 @@ class GnuCashXMLParser:
                 if date_elem is not None:
                     ts_date = self._get_text(date_elem, "ts:date")
                     if ts_date:
-                        date_posted = datetime.fromisoformat(
-                            ts_date.split()[0]
-                        ).date()
+                        date_posted = datetime.fromisoformat(ts_date.split()[0]).date()
 
                 # Parse splits
                 splits = []
                 splits_elem = trn_elem.find("trn:splits", self.NAMESPACES)
                 if splits_elem is not None:
-                    for split_elem in splits_elem.findall(
-                        "trn:split", self.NAMESPACES
-                    ):
+                    for split_elem in splits_elem.findall("trn:split", self.NAMESPACES):
                         split_data = self._parse_split(split_elem)
                         if split_data:
                             splits.append(split_data)
@@ -339,6 +335,7 @@ class GnuCashXMLParser:
 # SQLITE PARSER
 # =============================================================================
 
+
 class GnuCashSQLiteParser:
     """Parse GnuCash SQLite database files"""
 
@@ -367,7 +364,8 @@ class GnuCashSQLiteParser:
 
     def _parse_accounts(self, conn: sqlite3.Connection):
         """Parse accounts from SQLite database"""
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT
                 a.guid,
                 a.name,
@@ -377,7 +375,8 @@ class GnuCashSQLiteParser:
                 c.mnemonic as currency
             FROM accounts a
             LEFT JOIN commodities c ON a.commodity_guid = c.guid
-        """)
+        """
+        )
 
         for row in cursor:
             account = GnuCashAccount(
@@ -391,25 +390,30 @@ class GnuCashSQLiteParser:
             self.accounts[account.guid] = account
 
         # Calculate balances
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT
                 s.account_guid,
                 SUM(CAST(s.value_num AS REAL) / s.value_denom) as balance
             FROM splits s
             GROUP BY s.account_guid
-        """)
+        """
+        )
 
         for row in cursor:
             account_guid = row["account_guid"]
             if account_guid in self.accounts:
                 try:
-                    self.accounts[account_guid].balance = Decimal(str(row["balance"] or 0))
+                    self.accounts[account_guid].balance = Decimal(
+                        str(row["balance"] or 0)
+                    )
                 except InvalidOperation:
                     self.accounts[account_guid].balance = Decimal("0")
 
     def _parse_transactions(self, conn: sqlite3.Connection):
         """Parse transactions from SQLite database"""
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             SELECT
                 t.guid,
                 t.post_date,
@@ -418,7 +422,8 @@ class GnuCashSQLiteParser:
             FROM transactions t
             ORDER BY t.post_date DESC
             LIMIT 10000
-        """)
+        """
+        )
 
         for row in cursor:
             # Parse date
@@ -426,16 +431,15 @@ class GnuCashSQLiteParser:
             if date_str:
                 try:
                     # GnuCash stores dates as "YYYYMMDDHHMMSS"
-                    date_posted = datetime.strptime(
-                        date_str[:8], "%Y%m%d"
-                    ).date()
+                    date_posted = datetime.strptime(date_str[:8], "%Y%m%d").date()
                 except ValueError:
                     date_posted = date.today()
             else:
                 date_posted = date.today()
 
             # Get splits for this transaction
-            split_cursor = conn.execute("""
+            split_cursor = conn.execute(
+                """
                 SELECT
                     s.guid,
                     s.account_guid,
@@ -444,17 +448,21 @@ class GnuCashSQLiteParser:
                     s.reconcile_state
                 FROM splits s
                 WHERE s.tx_guid = ?
-            """, (row["guid"],))
+            """,
+                (row["guid"],),
+            )
 
             splits = []
             for split_row in split_cursor:
-                splits.append({
-                    "guid": split_row["guid"],
-                    "account_guid": split_row["account_guid"],
-                    "value": Decimal(str(split_row["value"] or 0)),
-                    "memo": split_row["memo"] or "",
-                    "reconciled_state": split_row["reconcile_state"] or "n",
-                })
+                splits.append(
+                    {
+                        "guid": split_row["guid"],
+                        "account_guid": split_row["account_guid"],
+                        "value": Decimal(str(split_row["value"] or 0)),
+                        "memo": split_row["memo"] or "",
+                        "reconciled_state": split_row["reconcile_state"] or "n",
+                    }
+                )
 
             transaction = GnuCashTransaction(
                 guid=row["guid"],
@@ -485,6 +493,7 @@ class GnuCashSQLiteParser:
 # =============================================================================
 # MAIN CONNECTOR CLASS
 # =============================================================================
+
 
 class GnuCashConnector:
     """
@@ -566,7 +575,15 @@ class GnuCashConnector:
 
         for account in self.accounts.values():
             atype = account.account_type.upper()
-            if atype in ["ASSET", "BANK", "CASH", "CHECKING", "SAVINGS", "STOCK", "MUTUAL"]:
+            if atype in [
+                "ASSET",
+                "BANK",
+                "CASH",
+                "CHECKING",
+                "SAVINGS",
+                "STOCK",
+                "MUTUAL",
+            ]:
                 total_assets += account.balance
             elif atype in ["LIABILITY", "CREDIT", "CREDITLINE", "PAYABLE"]:
                 total_liabilities += abs(account.balance)
@@ -605,15 +622,17 @@ class GnuCashConnector:
                 account.account_type.upper(), "expense_other"
             )
 
-            result.append({
-                "guid": account.guid,
-                "name": account.name,
-                "full_path": account.full_path,
-                "gnucash_type": account.account_type,
-                "mapped_type": mapped_type,
-                "balance": account.balance,
-                "currency": account.commodity,
-            })
+            result.append(
+                {
+                    "guid": account.guid,
+                    "name": account.name,
+                    "full_path": account.full_path,
+                    "gnucash_type": account.account_type,
+                    "mapped_type": mapped_type,
+                    "balance": account.balance,
+                    "currency": account.commodity,
+                }
+            )
 
         return sorted(result, key=lambda x: x["full_path"])
 
@@ -653,12 +672,14 @@ class GnuCashConnector:
                 account = self.accounts.get(split["account_guid"])
                 account_name = account.full_path if account else "Unknown"
 
-                trn_dict["splits"].append({
-                    "account": account_name,
-                    "amount": split["value"],
-                    "memo": split["memo"],
-                    "reconciled": split["reconciled_state"],
-                })
+                trn_dict["splits"].append(
+                    {
+                        "account": account_name,
+                        "amount": split["value"],
+                        "memo": split["memo"],
+                        "reconciled": split["reconciled_state"],
+                    }
+                )
 
             result.append(trn_dict)
 
@@ -676,7 +697,16 @@ class GnuCashConnector:
         for account in self.accounts.values():
             atype = account.account_type.upper()
 
-            if atype in ["ASSET", "BANK", "CASH", "CHECKING", "SAVINGS", "STOCK", "MUTUAL", "RECEIVABLE"]:
+            if atype in [
+                "ASSET",
+                "BANK",
+                "CASH",
+                "CHECKING",
+                "SAVINGS",
+                "STOCK",
+                "MUTUAL",
+                "RECEIVABLE",
+            ]:
                 assets[account.full_path] = account.balance
             elif atype in ["LIABILITY", "CREDIT", "CREDITLINE", "PAYABLE"]:
                 liabilities[account.full_path] = abs(account.balance)

@@ -61,6 +61,7 @@ PortfolioUpdate = PortfolioUpdateRequest
 
 class PositionResponse(BaseModel):
     """Response model for a single position."""
+
     symbol: str
     quantity: float
     average_cost: float
@@ -76,6 +77,7 @@ class PositionResponse(BaseModel):
 
 class PerformanceMetrics(BaseModel):
     """Performance metrics for a portfolio."""
+
     total_return: float
     total_return_percent: float
     daily_return: Optional[float] = None
@@ -89,6 +91,7 @@ class PerformanceMetrics(BaseModel):
 
 class PortfolioPerformanceResponse(BaseModel):
     """Portfolio performance response."""
+
     portfolio_id: int
     total_value: float
     cash_balance: float
@@ -99,6 +102,7 @@ class PortfolioPerformanceResponse(BaseModel):
 
 class RiskMetrics(BaseModel):
     """Risk metrics for a portfolio."""
+
     volatility: Optional[float] = None
     beta: Optional[float] = None
     sharpe_ratio: Optional[float] = None
@@ -110,6 +114,7 @@ class RiskMetrics(BaseModel):
 
 class RiskAnalysisResponse(BaseModel):
     """Risk analysis response for a portfolio."""
+
     portfolio_id: int
     risk_level: str
     metrics: RiskMetrics

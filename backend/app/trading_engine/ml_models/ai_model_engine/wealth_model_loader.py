@@ -13,18 +13,19 @@ Architecture:
 - Specialization: 70+ professional roles across wealth management domains
 """
 
-import os
 import logging
-from pathlib import Path
-from typing import Optional, Dict, Any
+import os
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class ModelSource(Enum):
     """Model source locations."""
+
     GCS = "gcs"
     LOCAL = "local"
     HUGGINGFACE = "huggingface"
@@ -33,6 +34,7 @@ class ModelSource(Enum):
 @dataclass
 class ModelConfig:
     """Configuration for wealth management model."""
+
     model_name: str = "elson-finance-trading-wealth-14b-q4"
     base_model: str = "Qwen/Qwen2.5-14B-Instruct"  # Correct base model for 14B
     gcs_bucket: str = "elson-33a95-elson-models"
@@ -62,7 +64,7 @@ class WealthModelLoader:
     def __init__(
         self,
         config: Optional[ModelConfig] = None,
-        source: ModelSource = ModelSource.GCS
+        source: ModelSource = ModelSource.GCS,
     ):
         self.config = config or ModelConfig()
         self.source = source
@@ -94,7 +96,7 @@ class WealthModelLoader:
         required_files = [
             "adapter_config.json",
             "adapter_model.safetensors",
-            "tokenizer.json"
+            "tokenizer.json",
         ]
         return all((self.model_dir / f).exists() for f in required_files)
 
@@ -130,7 +132,7 @@ class WealthModelLoader:
             downloaded = 0
             for blob in blobs:
                 # Get relative path within the model directory
-                relative_path = blob.name[len(self.config.gcs_path):].lstrip("/")
+                relative_path = blob.name[len(self.config.gcs_path) :].lstrip("/")
                 if not relative_path:
                     continue
 
@@ -159,18 +161,11 @@ class WealthModelLoader:
         self._ensure_cache_dir()
 
         try:
-            cmd = [
-                "gsutil", "-m", "cp", "-r",
-                f"{self.gcs_uri}/*",
-                str(self.model_dir)
-            ]
+            cmd = ["gsutil", "-m", "cp", "-r", f"{self.gcs_uri}/*", str(self.model_dir)]
             logger.info(f"Running: {' '.join(cmd)}")
 
             result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=600  # 10 minute timeout
+                cmd, capture_output=True, text=True, timeout=600  # 10 minute timeout
             )
 
             if result.returncode == 0:
@@ -201,12 +196,10 @@ class WealthModelLoader:
                 load_in_4bit=True,
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_use_double_quant=True
+                bnb_4bit_use_double_quant=True,
             )
         elif self.config.quantization == "8bit":
-            return BitsAndBytesConfig(
-                load_in_8bit=True
-            )
+            return BitsAndBytesConfig(load_in_8bit=True)
         return None
 
     def load_model(self, force_download: bool = False):
@@ -224,8 +217,8 @@ class WealthModelLoader:
 
         try:
             import torch
-            from transformers import AutoModelForCausalLM, AutoTokenizer
             from peft import PeftModel
+            from transformers import AutoModelForCausalLM, AutoTokenizer
         except ImportError as e:
             raise ImportError(
                 f"Required packages not installed: {e}. "
@@ -244,8 +237,7 @@ class WealthModelLoader:
 
         # Load tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(
-            adapter_path,
-            trust_remote_code=True
+            adapter_path, trust_remote_code=True
         )
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -261,15 +253,13 @@ class WealthModelLoader:
             device_map=self.config.device_map,
             torch_dtype=torch_dtype,
             trust_remote_code=True,
-            max_memory=self.config.max_memory
+            max_memory=self.config.max_memory,
         )
 
         # Load PEFT adapter
         logger.info(f"Loading QDoRA adapter from: {adapter_path}")
         self.model = PeftModel.from_pretrained(
-            base_model,
-            adapter_path,
-            torch_dtype=torch_dtype
+            base_model, adapter_path, torch_dtype=torch_dtype
         )
 
         # Set to eval mode
@@ -286,7 +276,7 @@ class WealthModelLoader:
         temperature: float = 0.7,
         top_p: float = 0.9,
         do_sample: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Generate a response from the model.
@@ -321,13 +311,12 @@ class WealthModelLoader:
                 do_sample=do_sample,
                 pad_token_id=self.tokenizer.pad_token_id,
                 eos_token_id=self.tokenizer.eos_token_id,
-                **kwargs
+                **kwargs,
             )
 
         # Decode only new tokens
         response = self.tokenizer.decode(
-            outputs[0][inputs['input_ids'].shape[1]:],
-            skip_special_tokens=True
+            outputs[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
         )
 
         return response.strip()
@@ -349,6 +338,7 @@ class WealthModelLoader:
 
         try:
             import torch
+
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
         except ImportError:
@@ -358,8 +348,7 @@ class WealthModelLoader:
 
 
 def create_wealth_model_loader(
-    quantization: str = "4bit",
-    cache_dir: Optional[str] = None
+    quantization: str = "4bit", cache_dir: Optional[str] = None
 ) -> WealthModelLoader:
     """
     Factory function to create a wealth model loader.
@@ -373,7 +362,7 @@ def create_wealth_model_loader(
     """
     config = ModelConfig(
         quantization=quantization,
-        local_cache_dir=cache_dir or "~/.cache/elson/wealth-models"
+        local_cache_dir=cache_dir or "~/.cache/elson/wealth-models",
     )
     return WealthModelLoader(config=config, source=ModelSource.GCS)
 
@@ -395,10 +384,6 @@ def get_wealth_model_info() -> Dict[str, Any]:
         "trainable_params": "~0.15%",
         "adapter_size": "~500MB",
         "supported_quantization": ["4bit", "8bit", "none"],
-        "recommended_vram": {
-            "4bit": "~12GB",
-            "8bit": "~18GB",
-            "none": "~28GB"
-        },
-        "specialization": "70+ professional roles across wealth management domains"
+        "recommended_vram": {"4bit": "~12GB", "8bit": "~18GB", "none": "~28GB"},
+        "specialization": "70+ professional roles across wealth management domains",
     }

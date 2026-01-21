@@ -7,14 +7,14 @@ Note: This is a simplified version compatible with the current project structure
 Some features may be limited until the full User model and Account relationships are implemented.
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.auth.two_factor import TwoFactorAuth, get_two_factor_auth
 from app.db.base import get_db
 from app.models.user import User
-from app.core.auth.two_factor import TwoFactorAuth, get_two_factor_auth
 
 
 async def require_guardian_2fa(

@@ -1,16 +1,17 @@
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-from sqlalchemy.orm import Session
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_active_user, get_db
 from app.models.user import User
 from app.services.ai_portfolio_manager import (
     AIPortfolioManager,
+    MarketTimingResult,
     OptimizationMethod,
     PortfolioOptimizationResult,
-    MarketTimingResult,
 )
 
 router = APIRouter()

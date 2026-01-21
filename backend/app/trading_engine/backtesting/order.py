@@ -4,15 +4,16 @@ Order Management for Backtesting
 Defines order types, statuses, and order execution logic.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-import uuid
 
 
 class OrderType(Enum):
     """Order types"""
+
     MARKET = "market"
     LIMIT = "limit"
     STOP = "stop"
@@ -22,12 +23,14 @@ class OrderType(Enum):
 
 class OrderSide(Enum):
     """Order side"""
+
     BUY = "buy"
     SELL = "sell"
 
 
 class OrderStatus(Enum):
     """Order statuses"""
+
     PENDING = "pending"
     OPEN = "open"
     PARTIALLY_FILLED = "partially_filled"
@@ -42,6 +45,7 @@ class Order:
     """
     Represents a trading order in the backtest.
     """
+
     symbol: str
     side: OrderSide
     quantity: float
@@ -96,7 +100,7 @@ class Order:
         price: float,
         timestamp: datetime,
         commission: float = 0.0,
-        slippage: float = 0.0
+        slippage: float = 0.0,
     ) -> None:
         """
         Fill the order (partially or fully).
@@ -114,7 +118,9 @@ class Order:
             return
 
         # Update average fill price
-        total_value = (self.filled_quantity * self.average_fill_price) + (fill_quantity * price)
+        total_value = (self.filled_quantity * self.average_fill_price) + (
+            fill_quantity * price
+        )
         self.filled_quantity += fill_quantity
         self.average_fill_price = total_value / self.filled_quantity
 
@@ -176,11 +182,7 @@ class Order:
 
         return False
 
-    def get_fill_price(
-        self,
-        current_price: float,
-        slippage_pct: float = 0.0
-    ) -> float:
+    def get_fill_price(self, current_price: float, slippage_pct: float = 0.0) -> float:
         """
         Calculate fill price with slippage.
 

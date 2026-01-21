@@ -61,7 +61,7 @@ Always explain your reasoning chain before providing recommendations."""
         model_name: str = "elson-finance-trading",
         base_url: str = "http://localhost:8000",
         api_key: Optional[str] = None,
-        timeout_seconds: float = 60.0
+        timeout_seconds: float = 60.0,
     ):
         """
         Initialize vLLM client.
@@ -75,7 +75,7 @@ Always explain your reasoning chain before providing recommendations."""
         super().__init__(
             model_name=model_name,
             backend=InferenceBackend.VLLM,
-            timeout_seconds=timeout_seconds
+            timeout_seconds=timeout_seconds,
         )
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -88,10 +88,7 @@ Always explain your reasoning chain before providing recommendations."""
             headers = {"Content-Type": "application/json"}
             if self.api_key:
                 headers["Authorization"] = f"Bearer {self.api_key}"
-            self._session = aiohttp.ClientSession(
-                timeout=timeout,
-                headers=headers
-            )
+            self._session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self._session
 
     async def close(self) -> None:
@@ -103,7 +100,7 @@ Always explain your reasoning chain before providing recommendations."""
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> InferenceResponse:
         """
         Generate a single response from vLLM using OpenAI-compatible API.
@@ -126,14 +123,14 @@ Always explain your reasoning chain before providing recommendations."""
             "model": self.model_name,
             "messages": [
                 {"role": "system", "content": system},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
             "temperature": config.temperature,
             "max_tokens": config.max_tokens,
             "top_p": config.top_p,
             "presence_penalty": config.presence_penalty,
             "frequency_penalty": config.frequency_penalty,
-            "stream": False
+            "stream": False,
         }
 
         if config.stop_sequences:
@@ -143,8 +140,7 @@ Always explain your reasoning chain before providing recommendations."""
 
         try:
             async with session.post(
-                f"{self.base_url}/v1/chat/completions",
-                json=payload
+                f"{self.base_url}/v1/chat/completions", json=payload
             ) as resp:
                 resp.raise_for_status()
                 data = await resp.json()
@@ -157,9 +153,8 @@ Always explain your reasoning chain before providing recommendations."""
                 text = message.get("content", "")
 
                 usage = data.get("usage", {})
-                tokens_used = (
-                    usage.get("prompt_tokens", 0) +
-                    usage.get("completion_tokens", 0)
+                tokens_used = usage.get("prompt_tokens", 0) + usage.get(
+                    "completion_tokens", 0
                 )
 
                 response = InferenceResponse(
@@ -169,7 +164,7 @@ Always explain your reasoning chain before providing recommendations."""
                     latency_ms=latency_ms,
                     confidence=self._extract_confidence(text),
                     reasoning=self._extract_reasoning(text),
-                    raw_response=data
+                    raw_response=data,
                 )
 
                 self._track_request(response)
@@ -182,7 +177,7 @@ Always explain your reasoning chain before providing recommendations."""
         self,
         prompt: str,
         config: Optional[GenerationConfig] = None,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> AsyncIterator[str]:
         """
         Generate streaming response from vLLM using SSE.
@@ -202,19 +197,18 @@ Always explain your reasoning chain before providing recommendations."""
             "model": self.model_name,
             "messages": [
                 {"role": "system", "content": system},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
             "temperature": config.temperature,
             "max_tokens": config.max_tokens,
             "top_p": config.top_p,
-            "stream": True
+            "stream": True,
         }
 
         session = await self._get_session()
 
         async with session.post(
-            f"{self.base_url}/v1/chat/completions",
-            json=payload
+            f"{self.base_url}/v1/chat/completions", json=payload
         ) as resp:
             resp.raise_for_status()
             async for line in resp.content:
@@ -225,6 +219,7 @@ Always explain your reasoning chain before providing recommendations."""
                         if data_str == "[DONE]":
                             break
                         import json
+
                         try:
                             data = json.loads(data_str)
                             delta = data.get("choices", [{}])[0].get("delta", {})
@@ -245,15 +240,9 @@ Always explain your reasoning chain before providing recommendations."""
         """
         session = await self._get_session()
 
-        payload = {
-            "model": self.model_name,
-            "input": text
-        }
+        payload = {"model": self.model_name, "input": text}
 
-        async with session.post(
-            f"{self.base_url}/v1/embeddings",
-            json=payload
-        ) as resp:
+        async with session.post(f"{self.base_url}/v1/embeddings", json=payload) as resp:
             resp.raise_for_status()
             data = await resp.json()
             embeddings = data.get("data", [{}])
@@ -301,6 +290,7 @@ Always explain your reasoning chain before providing recommendations."""
     def _extract_confidence(self, text: str) -> Optional[float]:
         """Extract confidence score from response text."""
         import re
+
         patterns = [
             r"confidence[:\s]+(\d+(?:\.\d+)?)\s*%",
             r"(\d+(?:\.\d+)?)\s*%\s*confidence",

@@ -20,6 +20,7 @@ from typing import Optional
 
 class AdvisoryMode(str, Enum):
     """Advisory modes for specialized guidance."""
+
     GENERAL = "general"
     ESTATE_PLANNING = "estate_planning"
     INVESTMENT_ADVISORY = "investment_advisory"
@@ -39,11 +40,12 @@ class WealthTier(str, Enum):
     Philosophy: Same quality advice for everyone - only complexity differs by tier.
     Financial literacy is the foundation of generational wealth.
     """
-    FOUNDATION = "foundation"      # $0-10K - Full CFP access, financial literacy
-    BUILDER = "builder"            # $10K-75K - Tax optimization, retirement accounts
-    GROWTH = "growth"              # $75K-500K - Portfolio construction, CFA access
-    AFFLUENT = "affluent"          # $500K-5M - Full team, trust structures
-    HNW_UHNW = "hnw_uhnw"          # $5M+ - Family office, specialists
+
+    FOUNDATION = "foundation"  # $0-10K - Full CFP access, financial literacy
+    BUILDER = "builder"  # $10K-75K - Tax optimization, retirement accounts
+    GROWTH = "growth"  # $75K-500K - Portfolio construction, CFA access
+    AFFLUENT = "affluent"  # $500K-5M - Full team, trust structures
+    HNW_UHNW = "hnw_uhnw"  # $5M+ - Family office, specialists
 
 
 # =============================================================================
@@ -287,7 +289,6 @@ You are now in ESTATE PLANNING mode. Focus on:
 
 Key professionals to recommend: Estate Planning Attorney, CPA with estate focus, CFP®
 """,
-
     AdvisoryMode.INVESTMENT_ADVISORY: """
 You are now in INVESTMENT ADVISORY mode. Focus on:
 - Portfolio construction and asset allocation
@@ -301,7 +302,6 @@ You are now in INVESTMENT ADVISORY mode. Focus on:
 
 Key professionals to recommend: CFA®, CIMA®, Investment Committee structure
 """,
-
     AdvisoryMode.TAX_OPTIMIZATION: """
 You are now in TAX OPTIMIZATION mode. Focus on:
 - Income tax planning strategies
@@ -316,7 +316,6 @@ You are now in TAX OPTIMIZATION mode. Focus on:
 
 Key professionals to recommend: CPA, Tax Attorney, CFP® with tax expertise
 """,
-
     AdvisoryMode.SUCCESSION_PLANNING: """
 You are now in SUCCESSION PLANNING mode. Focus on:
 - Business transition strategies
@@ -330,7 +329,6 @@ You are now in SUCCESSION PLANNING mode. Focus on:
 
 Key professionals to recommend: M&A Attorney, Business Valuation Expert (ASA/CVA), CFP® as quarterback, CPA
 """,
-
     AdvisoryMode.FAMILY_GOVERNANCE: """
 You are now in FAMILY GOVERNANCE mode. Focus on:
 - Family council structure and operations
@@ -344,7 +342,6 @@ You are now in FAMILY GOVERNANCE mode. Focus on:
 
 Key professionals to recommend: Family Enterprise Advisor (FEA), Family Office CEO, Governance Facilitator
 """,
-
     AdvisoryMode.TRUST_ADMINISTRATION: """
 You are now in TRUST ADMINISTRATION mode. Focus on:
 - Trustee duties (care, loyalty, impartiality, good faith)
@@ -358,7 +355,6 @@ You are now in TRUST ADMINISTRATION mode. Focus on:
 
 Key professionals to recommend: Corporate Trustee, Trust Administration Attorney, CPA with fiduciary experience
 """,
-
     AdvisoryMode.CREDIT_FINANCING: """
 You are now in CREDIT & FINANCING mode. Focus on:
 - Business credit establishment (PAYDEX, tradelines)
@@ -371,7 +367,6 @@ You are now in CREDIT & FINANCING mode. Focus on:
 
 Key professionals to recommend: Commercial Banking Relationship Manager, CFO, Treasury Manager
 """,
-
     AdvisoryMode.COMPLIANCE_OPERATIONS: """
 You are now in COMPLIANCE & OPERATIONS mode. Focus on:
 - AML/KYC program requirements (5 pillars)
@@ -385,7 +380,6 @@ You are now in COMPLIANCE & OPERATIONS mode. Focus on:
 
 Key professionals to recommend: CCO, CRO, IT Security Officer, Compliance Attorney
 """,
-
     AdvisoryMode.FINANCIAL_LITERACY: """
 You are now in FINANCIAL LITERACY mode. Focus on:
 - Budgeting fundamentals (50/30/20, zero-based, pay yourself first)
@@ -400,7 +394,6 @@ You are now in FINANCIAL LITERACY mode. Focus on:
 Speak in clear, accessible language. Use analogies and examples.
 Encourage building strong financial habits progressively.
 """,
-
     AdvisoryMode.GENERAL: """
 You are in GENERAL advisory mode. Draw from your full expertise across all domains.
 Assess the client's needs and provide appropriate guidance based on their situation.
@@ -424,7 +417,6 @@ Client Context: FOUNDATION TIER ($0 - $10K)
 - Priority: Everyone deserves quality financial advice from the start
 - Key Insight: Financial literacy is the foundation of generational wealth
 """,
-
     WealthTier.BUILDER: """
 Client Context: BUILDER TIER ($10K - $75K)
 - Philosophy: Achievable for most Americans (~1 year median US savings)
@@ -437,7 +429,6 @@ Client Context: BUILDER TIER ($10K - $75K)
 - Priority: This is where generational wealth building truly begins
 - Key Insight: Bridge from saving to systematic investing
 """,
-
     WealthTier.GROWTH: """
 Client Context: GROWTH TIER ($75K - $500K)
 - Philosophy: Earlier CFA access for middle-class families
@@ -450,7 +441,6 @@ Client Context: GROWTH TIER ($75K - $500K)
 - Priority: Middle-class families deserve sophisticated investment guidance
 - Key Insight: Professional investment management accessible earlier
 """,
-
     WealthTier.AFFLUENT: """
 Client Context: AFFLUENT TIER ($500K - $5M)
 - Philosophy: Full advisory team for growing wealth
@@ -463,7 +453,6 @@ Client Context: AFFLUENT TIER ($500K - $5M)
 - Priority: All advisory disciplines fully engaged
 - Key Insight: Coordinated team approach with CFP® as quarterback
 """,
-
     WealthTier.HNW_UHNW: """
 Client Context: HNW/UHNW TIER ($5M+)
 - Philosophy: Family office services, philanthropy, multi-generational planning
@@ -483,6 +472,7 @@ Client Context: HNW/UHNW TIER ($5M+)
 # PROMPT BUILDER CLASS
 # =============================================================================
 
+
 class WealthManagementPromptBuilder:
     """Prompt builder for wealth management advisory queries."""
 
@@ -494,7 +484,7 @@ class WealthManagementPromptBuilder:
         query: str,
         context: list[str],
         advisory_mode: AdvisoryMode = AdvisoryMode.GENERAL,
-        wealth_tier: Optional[WealthTier] = None
+        wealth_tier: Optional[WealthTier] = None,
     ) -> str:
         """
         Build a complete prompt with system context, RAG retrieval, and query.
@@ -525,7 +515,8 @@ class WealthManagementPromptBuilder:
         # Add RAG context
         if context:
             context_text = "\n\n".join(context)
-            prompt_parts.append(f"""
+            prompt_parts.append(
+                f"""
 ## RELEVANT KNOWLEDGE BASE CONTEXT
 
 The following information has been retrieved from the knowledge base to help answer this query:
@@ -533,16 +524,19 @@ The following information has been retrieved from the knowledge base to help ans
 {context_text}
 
 Use this context to provide accurate, specific guidance.
-""")
+"""
+            )
 
         # Add the query
-        prompt_parts.append(f"""
+        prompt_parts.append(
+            f"""
 ## USER QUERY
 
 {query}
 
 Please provide comprehensive guidance based on the above context and your expertise.
-""")
+"""
+        )
 
         return "\n".join(prompt_parts)
 
@@ -556,7 +550,9 @@ Please provide comprehensive guidance based on the above context and your expert
         Returns:
             Specialized succession planning prompt
         """
-        base = self.base_prompt + ADVISORY_MODE_PROMPTS[AdvisoryMode.SUCCESSION_PLANNING]
+        base = (
+            self.base_prompt + ADVISORY_MODE_PROMPTS[AdvisoryMode.SUCCESSION_PLANNING]
+        )
 
         details_text = "\n".join([f"- {k}: {v}" for k, v in business_details.items()])
 
@@ -654,9 +650,7 @@ Please provide comprehensive information about the {credential_type} credential 
 """
 
     def build_financial_literacy_prompt(
-        self,
-        topic: str,
-        current_situation: str = ""
+        self, topic: str, current_situation: str = ""
     ) -> str:
         """
         Build a financial literacy educational prompt.
@@ -696,6 +690,7 @@ Please explain this topic in clear, accessible language:
 # =============================================================================
 # QUICK ACCESS FUNCTIONS
 # =============================================================================
+
 
 def get_system_prompt() -> str:
     """Get the base system prompt."""

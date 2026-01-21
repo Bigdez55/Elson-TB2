@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 class AdvisoryMode(str, Enum):
     """Advisory modes for specialized wealth management guidance."""
+
     GENERAL = "general"
     ESTATE_PLANNING = "estate_planning"
     INVESTMENT_ADVISORY = "investment_advisory"
@@ -44,15 +45,17 @@ class ServiceTier(str, Enum):
 
     Philosophy: Same quality advice for everyone - only complexity differs by tier.
     """
-    FOUNDATION = "foundation"      # $0-10K - Full CFP access, financial literacy
-    BUILDER = "builder"            # $10K-75K - Tax optimization, retirement accounts
-    GROWTH = "growth"              # $75K-500K - Portfolio construction, CFA access
-    AFFLUENT = "affluent"          # $500K-5M - Full team, trust structures
-    HNW_UHNW = "hnw_uhnw"          # $5M+ - Family office, specialists
+
+    FOUNDATION = "foundation"  # $0-10K - Full CFP access, financial literacy
+    BUILDER = "builder"  # $10K-75K - Tax optimization, retirement accounts
+    GROWTH = "growth"  # $75K-500K - Portfolio construction, CFA access
+    AFFLUENT = "affluent"  # $500K-5M - Full team, trust structures
+    HNW_UHNW = "hnw_uhnw"  # $5M+ - Family office, specialists
 
 
 class DecisionAuthority(str, Enum):
     """Decision authority levels for professional roles."""
+
     BINDING = "binding"
     SENIOR_ADVISORY = "senior"
     ADVISORY = "advisory"
@@ -62,6 +65,7 @@ class DecisionAuthority(str, Enum):
 @dataclass
 class UserProfile:
     """User profile for tier and role determination."""
+
     aum: float = 0.0  # Assets Under Management
     income: float = 0.0
     age: int = 0
@@ -76,6 +80,7 @@ class UserProfile:
 @dataclass
 class RoutingResult:
     """Result of query routing."""
+
     advisory_mode: AdvisoryMode
     service_tier: ServiceTier
     confidence: float
@@ -96,49 +101,126 @@ class QueryRouter:
     # Advisory mode keywords mapping
     MODE_KEYWORDS = {
         AdvisoryMode.ESTATE_PLANNING: [
-            "estate", "will", "trust", "inheritance", "probate", "beneficiary",
-            "heir", "legacy", "succession", "power of attorney", "poa",
-            "healthcare directive", "living will", "death", "passing"
+            "estate",
+            "will",
+            "trust",
+            "inheritance",
+            "probate",
+            "beneficiary",
+            "heir",
+            "legacy",
+            "succession",
+            "power of attorney",
+            "poa",
+            "healthcare directive",
+            "living will",
+            "death",
+            "passing",
         ],
         AdvisoryMode.INVESTMENT_ADVISORY: [
-            "invest", "portfolio", "stock", "bond", "etf", "mutual fund",
-            "asset allocation", "diversification", "return", "risk",
-            "market", "securities", "equity", "fixed income"
+            "invest",
+            "portfolio",
+            "stock",
+            "bond",
+            "etf",
+            "mutual fund",
+            "asset allocation",
+            "diversification",
+            "return",
+            "risk",
+            "market",
+            "securities",
+            "equity",
+            "fixed income",
         ],
         AdvisoryMode.TAX_OPTIMIZATION: [
-            "tax", "deduction", "credit", "irs", "form", "filing",
-            "income tax", "capital gains", "estate tax", "gift tax",
-            "1031", "roth conversion", "tax loss harvesting"
+            "tax",
+            "deduction",
+            "credit",
+            "irs",
+            "form",
+            "filing",
+            "income tax",
+            "capital gains",
+            "estate tax",
+            "gift tax",
+            "1031",
+            "roth conversion",
+            "tax loss harvesting",
         ],
         AdvisoryMode.SUCCESSION_PLANNING: [
-            "business succession", "exit strategy", "sell business",
-            "business transfer", "buy-sell agreement", "valuation",
-            "m&a", "merger", "acquisition", "ownership transfer"
+            "business succession",
+            "exit strategy",
+            "sell business",
+            "business transfer",
+            "buy-sell agreement",
+            "valuation",
+            "m&a",
+            "merger",
+            "acquisition",
+            "ownership transfer",
         ],
         AdvisoryMode.FAMILY_GOVERNANCE: [
-            "family meeting", "family council", "governance", "family office",
-            "family mission", "family values", "next generation",
-            "family education", "family constitution"
+            "family meeting",
+            "family council",
+            "governance",
+            "family office",
+            "family mission",
+            "family values",
+            "next generation",
+            "family education",
+            "family constitution",
         ],
         AdvisoryMode.TRUST_ADMINISTRATION: [
-            "trustee", "trust protector", "beneficiary distribution",
-            "fiduciary", "trust accounting", "form 1041", "k-1",
-            "decanting", "trust situs", "trustee duties"
+            "trustee",
+            "trust protector",
+            "beneficiary distribution",
+            "fiduciary",
+            "trust accounting",
+            "form 1041",
+            "k-1",
+            "decanting",
+            "trust situs",
+            "trustee duties",
         ],
         AdvisoryMode.CREDIT_FINANCING: [
-            "credit", "loan", "mortgage", "financing", "borrow",
-            "business credit", "line of credit", "sba loan",
-            "venture debt", "invoice factoring"
+            "credit",
+            "loan",
+            "mortgage",
+            "financing",
+            "borrow",
+            "business credit",
+            "line of credit",
+            "sba loan",
+            "venture debt",
+            "invoice factoring",
         ],
         AdvisoryMode.COMPLIANCE_OPERATIONS: [
-            "compliance", "aml", "kyc", "regulatory", "audit",
-            "sar", "ctr", "reporting", "risk management"
+            "compliance",
+            "aml",
+            "kyc",
+            "regulatory",
+            "audit",
+            "sar",
+            "ctr",
+            "reporting",
+            "risk management",
         ],
         AdvisoryMode.FINANCIAL_LITERACY: [
-            "budget", "save", "emergency fund", "debt", "credit score",
-            "beginner", "basics", "learn", "understand", "how does",
-            "what is", "explain", "starter"
-        ]
+            "budget",
+            "save",
+            "emergency fund",
+            "debt",
+            "credit score",
+            "beginner",
+            "basics",
+            "learn",
+            "understand",
+            "how does",
+            "what is",
+            "explain",
+            "starter",
+        ],
     }
 
     # Roles by service tier
@@ -147,60 +229,86 @@ class QueryRouter:
         ServiceTier.BUILDER: ["CFP", "CPA", "Insurance Advisor"],
         ServiceTier.GROWTH: ["CFP", "CFA", "CPA", "Estate Planning Attorney"],
         ServiceTier.AFFLUENT: [
-            "CFP", "CFA", "CPA", "CPWA", "Estate Planning Attorney",
-            "Trust Administration Attorney", "Insurance Specialist"
+            "CFP",
+            "CFA",
+            "CPA",
+            "CPWA",
+            "Estate Planning Attorney",
+            "Trust Administration Attorney",
+            "Insurance Specialist",
         ],
         ServiceTier.HNW_UHNW: [
-            "CPWA", "CFA", "CPA", "Family Office CEO", "CIO", "CFO",
-            "Estate Planning Attorney", "Trust Administration Attorney",
-            "International Tax Attorney", "Trust Protector",
-            "Philanthropic Advisor", "Business Valuation Expert"
-        ]
+            "CPWA",
+            "CFA",
+            "CPA",
+            "Family Office CEO",
+            "CIO",
+            "CFO",
+            "Estate Planning Attorney",
+            "Trust Administration Attorney",
+            "International Tax Attorney",
+            "Trust Protector",
+            "Philanthropic Advisor",
+            "Business Valuation Expert",
+        ],
     }
 
     # Knowledge domains by advisory mode
     MODE_DOMAINS = {
         AdvisoryMode.GENERAL: [
-            "family_office", "professional_roles", "certifications",
-            "financial_advisors", "financial_literacy"
+            "family_office",
+            "professional_roles",
+            "certifications",
+            "financial_advisors",
+            "financial_literacy",
         ],
         AdvisoryMode.ESTATE_PLANNING: [
-            "estate_planning", "trust_administration", "generational_wealth",
-            "professional_roles"
+            "estate_planning",
+            "trust_administration",
+            "generational_wealth",
+            "professional_roles",
         ],
         AdvisoryMode.INVESTMENT_ADVISORY: [
-            "financial_advisors", "governance", "certifications"
+            "financial_advisors",
+            "governance",
+            "certifications",
         ],
         AdvisoryMode.TAX_OPTIMIZATION: [
-            "estate_planning", "succession_planning", "compliance_operations"
+            "estate_planning",
+            "succession_planning",
+            "compliance_operations",
         ],
         AdvisoryMode.SUCCESSION_PLANNING: [
-            "succession_planning", "professional_roles", "family_office"
+            "succession_planning",
+            "professional_roles",
+            "family_office",
         ],
         AdvisoryMode.FAMILY_GOVERNANCE: [
-            "governance", "family_office", "generational_wealth"
+            "governance",
+            "family_office",
+            "generational_wealth",
         ],
         AdvisoryMode.TRUST_ADMINISTRATION: [
-            "trust_administration", "estate_planning", "professional_roles"
+            "trust_administration",
+            "estate_planning",
+            "professional_roles",
         ],
-        AdvisoryMode.CREDIT_FINANCING: [
-            "credit_financing", "treasury_banking"
-        ],
-        AdvisoryMode.COMPLIANCE_OPERATIONS: [
-            "compliance_operations", "governance"
-        ],
-        AdvisoryMode.FINANCIAL_LITERACY: [
-            "financial_literacy"
-        ]
+        AdvisoryMode.CREDIT_FINANCING: ["credit_financing", "treasury_banking"],
+        AdvisoryMode.COMPLIANCE_OPERATIONS: ["compliance_operations", "governance"],
+        AdvisoryMode.FINANCIAL_LITERACY: ["financial_literacy"],
     }
 
     # Binding authorities by mode (roles with BINDING decision authority)
     MODE_BINDING_AUTHORITIES = {
         AdvisoryMode.TAX_OPTIMIZATION: ["TAX_MANAGER", "CPA"],
-        AdvisoryMode.TRUST_ADMINISTRATION: ["TRUSTEE", "TRUST_PROTECTOR", "GENERAL_COUNSEL"],
+        AdvisoryMode.TRUST_ADMINISTRATION: [
+            "TRUSTEE",
+            "TRUST_PROTECTOR",
+            "GENERAL_COUNSEL",
+        ],
         AdvisoryMode.COMPLIANCE_OPERATIONS: ["CCO", "GENERAL_COUNSEL"],
         AdvisoryMode.ESTATE_PLANNING: ["GENERAL_COUNSEL"],
-        AdvisoryMode.SUCCESSION_PLANNING: ["TAX_MANAGER", "GENERAL_COUNSEL"]
+        AdvisoryMode.SUCCESSION_PLANNING: ["TAX_MANAGER", "GENERAL_COUNSEL"],
     }
 
     def __init__(self):
@@ -277,10 +385,7 @@ class QueryRouter:
         return best_mode, confidence
 
     def identify_required_roles(
-        self,
-        mode: AdvisoryMode,
-        tier: ServiceTier,
-        query: str
+        self, mode: AdvisoryMode, tier: ServiceTier, query: str
     ) -> list[str]:
         """
         Identify professional roles required for the query.
@@ -341,7 +446,7 @@ class QueryRouter:
             AdvisoryMode.TRUST_ADMINISTRATION,
             AdvisoryMode.COMPLIANCE_OPERATIONS,
             AdvisoryMode.ESTATE_PLANNING,
-            AdvisoryMode.SUCCESSION_PLANNING
+            AdvisoryMode.SUCCESSION_PLANNING,
         }
 
         if mode in compliance_modes:
@@ -349,9 +454,21 @@ class QueryRouter:
 
         # Check for compliance-related keywords
         compliance_keywords = [
-            "tax", "irs", "filing", "report", "compliance",
-            "aml", "kyc", "fiduciary", "beneficiary", "distribution",
-            "gift", "estate", "trust", "form", "deadline"
+            "tax",
+            "irs",
+            "filing",
+            "report",
+            "compliance",
+            "aml",
+            "kyc",
+            "fiduciary",
+            "beneficiary",
+            "distribution",
+            "gift",
+            "estate",
+            "trust",
+            "form",
+            "deadline",
         ]
 
         query_lower = query.lower()
@@ -370,9 +487,7 @@ class QueryRouter:
         return self.MODE_BINDING_AUTHORITIES.get(mode, [])
 
     def route_query(
-        self,
-        query: str,
-        profile: Optional[UserProfile] = None
+        self, query: str, profile: Optional[UserProfile] = None
     ) -> RoutingResult:
         """
         Main routing method - classifies and routes a query.
@@ -417,7 +532,7 @@ class QueryRouter:
             knowledge_domains=domains,
             requires_compliance_check=needs_compliance,
             binding_authorities=binding,
-            reasoning=reasoning
+            reasoning=reasoning,
         )
 
         logger.info(
@@ -428,27 +543,35 @@ class QueryRouter:
         return result
 
     def _generate_reasoning(
-        self,
-        query: str,
-        mode: AdvisoryMode,
-        tier: ServiceTier,
-        confidence: float
+        self, query: str, mode: AdvisoryMode, tier: ServiceTier, confidence: float
     ) -> str:
         """Generate human-readable reasoning for the routing decision."""
         parts = []
 
-        parts.append(f"Query classified as {mode.value.replace('_', ' ')} (confidence: {confidence:.0%}).")
+        parts.append(
+            f"Query classified as {mode.value.replace('_', ' ')} (confidence: {confidence:.0%})."
+        )
 
         if tier == ServiceTier.FOUNDATION:
-            parts.append("Service tier: Foundation ($0-10K) - Full CFP-level guidance available.")
+            parts.append(
+                "Service tier: Foundation ($0-10K) - Full CFP-level guidance available."
+            )
         elif tier == ServiceTier.BUILDER:
-            parts.append("Service tier: Builder ($10K-75K) - CFP + CPA expertise engaged.")
+            parts.append(
+                "Service tier: Builder ($10K-75K) - CFP + CPA expertise engaged."
+            )
         elif tier == ServiceTier.GROWTH:
-            parts.append("Service tier: Growth ($75K-500K) - CFA investment expertise added.")
+            parts.append(
+                "Service tier: Growth ($75K-500K) - CFA investment expertise added."
+            )
         elif tier == ServiceTier.AFFLUENT:
-            parts.append("Service tier: Affluent ($500K-5M) - Full advisory team available.")
+            parts.append(
+                "Service tier: Affluent ($500K-5M) - Full advisory team available."
+            )
         else:
-            parts.append("Service tier: HNW/UHNW ($5M+) - Family office resources engaged.")
+            parts.append(
+                "Service tier: HNW/UHNW ($5M+) - Family office resources engaged."
+            )
 
         return " ".join(parts)
 

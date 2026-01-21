@@ -18,33 +18,32 @@ Usage:
 """
 
 import asyncio
-import sys
-import os
 import json
+import os
+import sys
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-from decimal import Decimal
 import traceback
+from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
 # Add backend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 
 try:
-    from sqlalchemy.orm import Session
     from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.orm import Session, sessionmaker
 
     # Import application components
     from app.core.config import settings
-    from app.models.user import User
-    from app.models.portfolio import Portfolio
+    from app.db.base import Base
     from app.models.holding import Holding
-    from app.models.trade import Trade, TradeType, OrderType, TradeStatus
-    from app.services.trading import TradingService
+    from app.models.portfolio import Portfolio
+    from app.models.trade import OrderType, Trade, TradeStatus, TradeType
+    from app.models.user import User
     from app.services.paper_trading import PaperTradingService
     from app.services.risk_management import RiskManagementService
-    from app.db.base import Base
+    from app.services.trading import TradingService
 
     IMPORTS_SUCCESSFUL = True
 except Exception as e:
@@ -101,9 +100,11 @@ class TradingWorkflowTestResults:
                 "total_tests": self.tests_run,
                 "passed": self.tests_passed,
                 "failed": self.tests_failed,
-                "success_rate": f"{(self.tests_passed / self.tests_run * 100):.1f}%"
-                if self.tests_run > 0
-                else "0.0%",
+                "success_rate": (
+                    f"{(self.tests_passed / self.tests_run * 100):.1f}%"
+                    if self.tests_run > 0
+                    else "0.0%"
+                ),
                 "total_duration": f"{duration:.2f}s",
             },
             "test_details": self.test_details,

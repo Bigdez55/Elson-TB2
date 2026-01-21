@@ -13,9 +13,9 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
-from app.core.alerts_manager import alert_manager, AlertType
-from app.core.security import get_current_user, get_current_active_user
+from app.core.alerts_manager import AlertType, alert_manager
 from app.core.config import settings
+from app.core.security import get_current_active_user, get_current_user
 from app.db.base import get_db
 from app.models.trade import InvestmentType, Trade, TradeSource, TradeStatus
 from app.models.user import User, UserRole
@@ -34,16 +34,19 @@ from app.services.investment_service import InvestmentService
 from app.services.market_data import MarketDataService
 from app.services.micro_invest_service import MicroInvestService
 
+
 def get_current_user_with_permissions(permissions: List[str]):
     """Get current user with specific permissions check.
 
     For now, this just returns the active user - permission checking
     can be implemented when the permission system is fully in place.
     """
+
     async def _get_user(user: User = Depends(get_current_active_user)) -> User:
         # TODO: Implement actual permission checking
         # For now, allow all authenticated users
         return user
+
     return _get_user
 
 
@@ -58,8 +61,9 @@ class AlertService:
         alert_manager.add_alert(
             message=message,
             alert_type=AlertType.TRADE,
-            details={"user_id": user_id, "type": alert_type}
+            details={"user_id": user_id, "type": alert_type},
         )
+
 
 router = APIRouter()
 

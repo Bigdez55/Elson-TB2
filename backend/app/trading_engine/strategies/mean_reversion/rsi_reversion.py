@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -95,8 +95,7 @@ class RSIMeanReversion(TradingStrategy):
 
             if df is None or len(df) < max(self.rsi_period, self.trend_period) + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient data"
+                    market_data.get("price", 0.0), "Insufficient data"
                 )
 
             df = self._calculate_indicators(df)
@@ -108,8 +107,7 @@ class RSIMeanReversion(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in RSI mean reversion: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -273,10 +271,7 @@ class RSIMeanReversion(TradingStrategy):
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        df: pd.DataFrame
+        self, price: float, action: str, df: pd.DataFrame
     ) -> Dict[str, float]:
         """Calculate stops using recent swing points"""
         recent_high = df.tail(10)["high"].max()

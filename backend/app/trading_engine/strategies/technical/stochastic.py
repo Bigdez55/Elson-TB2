@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +89,7 @@ class StochasticStrategy(TradingStrategy):
 
             if df is None or len(df) < self.k_period + 10:
                 return self._create_hold_signal(
-                    market_data.get("price", 0.0),
-                    "Insufficient historical data"
+                    market_data.get("price", 0.0), "Insufficient historical data"
                 )
 
             df = self._calculate_stochastic(df)
@@ -102,8 +101,7 @@ class StochasticStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error generating Stochastic signal: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -161,8 +159,10 @@ class StochasticStrategy(TradingStrategy):
         df["lowest_low"] = df["low"].rolling(window=self.k_period).min()
 
         # Fast %K
-        df["fast_k"] = 100 * (df["close"] - df["lowest_low"]) / (
-            df["highest_high"] - df["lowest_low"]
+        df["fast_k"] = (
+            100
+            * (df["close"] - df["lowest_low"])
+            / (df["highest_high"] - df["lowest_low"])
         )
 
         if self.use_slow_stochastic:
@@ -196,7 +196,9 @@ class StochasticStrategy(TradingStrategy):
             if stoch_k < self.oversold or stoch_d < self.oversold:
                 action = "buy"
                 confidence = 0.75
-                reasons.append(f"Bullish crossover in oversold zone (%K: {stoch_k:.1f})")
+                reasons.append(
+                    f"Bullish crossover in oversold zone (%K: {stoch_k:.1f})"
+                )
             else:
                 action = "buy"
                 confidence = 0.55
@@ -207,7 +209,9 @@ class StochasticStrategy(TradingStrategy):
             if stoch_k > self.overbought or stoch_d > self.overbought:
                 action = "sell"
                 confidence = 0.75
-                reasons.append(f"Bearish crossover in overbought zone (%K: {stoch_k:.1f})")
+                reasons.append(
+                    f"Bearish crossover in overbought zone (%K: {stoch_k:.1f})"
+                )
             else:
                 action = "sell"
                 confidence = 0.55
@@ -243,9 +247,7 @@ class StochasticStrategy(TradingStrategy):
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str
+        self, price: float, action: str
     ) -> Dict[str, float]:
         """Calculate stop loss and take profit"""
         stop_pct = 0.02

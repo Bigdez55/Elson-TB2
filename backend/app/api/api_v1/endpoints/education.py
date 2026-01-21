@@ -1,25 +1,26 @@
 """API endpoints for the education system."""
 
 from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_current_active_user
+from app.api.deps import get_current_active_user, get_db
 from app.models.user import User
-from app.services import education as education_service
 from app.schemas.education import (
-    EducationalContentResponse,
-    EducationalContentCreate,
-    EducationalContentUpdate,
     ContentWithProgress,
-    UserProgressResponse,
-    UserProgressUpdate,
+    EducationalContentCreate,
+    EducationalContentResponse,
+    EducationalContentUpdate,
     LearningPathResponse,
     LearningPathWithProgress,
+    PermissionCheckResponse,
     TradingPermissionResponse,
     UserPermissionResponse,
-    PermissionCheckResponse,
+    UserProgressResponse,
+    UserProgressUpdate,
 )
+from app.services import education as education_service
 
 router = APIRouter()
 
@@ -83,7 +84,9 @@ def create_educational_content(
     # Check if slug already exists
     existing = education_service.get_content_by_slug(db, content.slug)
     if existing:
-        raise HTTPException(status_code=400, detail="Content with this slug already exists")
+        raise HTTPException(
+            status_code=400, detail="Content with this slug already exists"
+        )
 
     return education_service.create_content(db, content)
 
@@ -154,9 +157,12 @@ def update_content_progress(
     if progress_update.is_completed:
         # Find permissions that require this content
         from app.models.education import TradingPermission
-        permissions = db.query(TradingPermission).filter(
-            TradingPermission.required_content_id == content_id
-        ).all()
+
+        permissions = (
+            db.query(TradingPermission)
+            .filter(TradingPermission.required_content_id == content_id)
+            .all()
+        )
 
         for permission in permissions:
             education_service.grant_permission_if_eligible(
@@ -198,7 +204,9 @@ def get_learning_path(
         raise HTTPException(status_code=404, detail="Learning path not found")
 
     # Get progress
-    progress = education_service.get_learning_path_progress(db, current_user.id, path_id)
+    progress = education_service.get_learning_path_progress(
+        db, current_user.id, path_id
+    )
 
     # Convert to response
     response = LearningPathWithProgress.from_orm(path)
@@ -231,7 +239,9 @@ def get_my_permissions(
     return education_service.get_user_permissions(db, current_user.id)
 
 
-@router.get("/permissions/{permission_id}/check", response_model=PermissionCheckResponse)
+@router.get(
+    "/permissions/{permission_id}/check", response_model=PermissionCheckResponse
+)
 def check_permission(
     permission_id: int,
     current_user: User = Depends(get_current_active_user),
@@ -247,12 +257,13 @@ def check_permission(
     )
 
     return PermissionCheckResponse(
-        permission=TradingPermissionResponse.from_orm(permission),
-        **eligibility
+        permission=TradingPermissionResponse.from_orm(permission), **eligibility
     )
 
 
-@router.post("/permissions/{permission_id}/grant", response_model=UserPermissionResponse)
+@router.post(
+    "/permissions/{permission_id}/grant", response_model=UserPermissionResponse
+)
 def grant_permission_to_self(
     permission_id: int,
     current_user: User = Depends(get_current_active_user),

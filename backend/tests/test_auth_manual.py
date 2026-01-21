@@ -4,30 +4,31 @@ Manual authentication security testing script for Elson Trading Platform.
 This script tests authentication and security features without pytest dependencies.
 """
 
-import sys
-import os
 import asyncio
-import json
-import time
 import hashlib
+import json
+import os
+import sys
+import time
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 # Add the current directory to Python path
 sys.path.append(".")
 
+from app.core.config import settings
+
 # Import app modules
 from app.core.security import (
+    check_login_rate_limit,
+    check_rate_limit,
     create_access_token,
     create_refresh_token,
-    verify_password,
     get_password_hash,
-    verify_token,
     refresh_access_token,
-    check_rate_limit,
-    check_login_rate_limit,
+    verify_password,
+    verify_token,
 )
-from app.core.config import settings
 
 
 class SecurityTester:

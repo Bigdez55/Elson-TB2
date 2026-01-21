@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from ..base import TradingStrategy
-from ..registry import StrategyRegistry, StrategyCategory
+from ..registry import StrategyCategory, StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +130,7 @@ class GridTradingStrategy(TradingStrategy):
         except Exception as e:
             logger.error(f"Error in grid trading: {str(e)}")
             return self._create_hold_signal(
-                market_data.get("price", 0.0),
-                f"Error: {str(e)}"
+                market_data.get("price", 0.0), f"Error: {str(e)}"
             )
 
     async def update_parameters(self, new_parameters: Dict[str, Any]) -> bool:
@@ -144,7 +143,9 @@ class GridTradingStrategy(TradingStrategy):
                         setattr(self, key, value)
 
             # Reinitialize grid if range parameters changed
-            if any(k in new_parameters for k in ["upper_price", "lower_price", "num_grids"]):
+            if any(
+                k in new_parameters for k in ["upper_price", "lower_price", "num_grids"]
+            ):
                 self.grid_initialized = False
 
             return True
@@ -152,9 +153,7 @@ class GridTradingStrategy(TradingStrategy):
             return False
 
     async def _initialize_grid(
-        self,
-        current_price: float,
-        market_data: Dict[str, Any]
+        self, current_price: float, market_data: Dict[str, Any]
     ) -> None:
         """Initialize grid levels"""
         # Determine range
@@ -170,15 +169,13 @@ class GridTradingStrategy(TradingStrategy):
             # Equal spacing
             step = (self.upper_price - self.lower_price) / self.num_grids
             self.grid_levels = [
-                self.lower_price + (i * step)
-                for i in range(self.num_grids + 1)
+                self.lower_price + (i * step) for i in range(self.num_grids + 1)
             ]
         else:  # geometric
             # Percentage spacing
             ratio = (self.upper_price / self.lower_price) ** (1 / self.num_grids)
             self.grid_levels = [
-                self.lower_price * (ratio ** i)
-                for i in range(self.num_grids + 1)
+                self.lower_price * (ratio**i) for i in range(self.num_grids + 1)
             ]
 
         # Initialize positions at each level
@@ -201,9 +198,7 @@ class GridTradingStrategy(TradingStrategy):
         return len(self.grid_levels) - 1
 
     def _check_grid_crossing(
-        self,
-        current_price: float,
-        current_level: int
+        self, current_price: float, current_level: int
     ) -> Dict[str, Any]:
         """Check for grid level crossings and generate signals"""
         if self.last_price_level is None:
@@ -233,8 +228,7 @@ class GridTradingStrategy(TradingStrategy):
 
             # Check if we have positions to sell
             positions_below = sum(
-                self.positions_at_level.get(i, 0)
-                for i in range(current_level)
+                self.positions_at_level.get(i, 0) for i in range(current_level)
             )
 
             if positions_below > 0:
@@ -275,22 +269,23 @@ class GridTradingStrategy(TradingStrategy):
                 "lower_price": self.lower_price,
                 "positions_at_levels": dict(self.positions_at_level),
                 "total_positions": sum(self.positions_at_level.values()),
-                "grid_spacing": self.grid_levels[1] - self.grid_levels[0] if len(self.grid_levels) > 1 else 0,
+                "grid_spacing": (
+                    self.grid_levels[1] - self.grid_levels[0]
+                    if len(self.grid_levels) > 1
+                    else 0
+                ),
             },
         }
 
         if action in ["buy", "sell"]:
-            signal.update(self._calculate_stop_take_profit(
-                current_price, action, current_level
-            ))
+            signal.update(
+                self._calculate_stop_take_profit(current_price, action, current_level)
+            )
 
         return signal
 
     def _calculate_stop_take_profit(
-        self,
-        price: float,
-        action: str,
-        level: int
+        self, price: float, action: str, level: int
     ) -> Dict[str, float]:
         """Calculate stop and target based on grid"""
         if action == "buy":
@@ -299,7 +294,9 @@ class GridTradingStrategy(TradingStrategy):
             stop_loss = self.grid_levels[stop_level] * 0.99
 
             # Target at higher grid
-            target_level = min(len(self.grid_levels) - 1, level + self.take_profit_grids)
+            target_level = min(
+                len(self.grid_levels) - 1, level + self.take_profit_grids
+            )
             take_profit = self.grid_levels[target_level]
         else:
             stop_level = min(len(self.grid_levels) - 1, level + 2)

@@ -8,4 +8,4 @@ specialized model variants for different market conditions.
 
 from .volatility_detector import VolatilityDetector, VolatilityRegime
 
-__all__ = ['VolatilityDetector', 'VolatilityRegime']
+__all__ = ["VolatilityDetector", "VolatilityRegime"]

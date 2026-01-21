@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.account import Account, AccountType
-from app.models.portfolio import Portfolio
 from app.models.holding import Position
+from app.models.portfolio import Portfolio
 from app.models.trade import Trade, TradeStatus
 from app.models.user import User, UserRole
 
@@ -702,9 +702,11 @@ class RiskManagementService:
             "max_position_size_pct": max_position_size * 100,
             "max_sector_exposure_pct": max_sector_exposure * 100,
             "max_trades_per_day": max_trades_per_day,
-            "allowed_symbols": list(self.risk_manager.ALLOWED_SYMBOLS_MINORS)
-            if user.role == UserRole.MINOR
-            else None,
+            "allowed_symbols": (
+                list(self.risk_manager.ALLOWED_SYMBOLS_MINORS)
+                if user.role == UserRole.MINOR
+                else None
+            ),
         }
 
     def get_risk_recommendations(self, user_id: int, portfolio_id: int) -> List[str]:

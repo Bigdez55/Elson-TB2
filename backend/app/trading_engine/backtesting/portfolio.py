@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Position:
     """Represents a position in a single security"""
+
     symbol: str
     quantity: float = 0.0
     average_cost: float = 0.0
@@ -100,6 +101,7 @@ class Position:
 @dataclass
 class PortfolioSnapshot:
     """Snapshot of portfolio state at a point in time"""
+
     timestamp: datetime
     cash: float
     positions_value: float
@@ -199,7 +201,9 @@ class Portfolio:
 
         # Check buying power for buys
         if order.side == OrderSide.BUY:
-            estimated_cost = order.quantity * (order.limit_price or order.stop_price or 0)
+            estimated_cost = order.quantity * (
+                order.limit_price or order.stop_price or 0
+            )
             if estimated_cost > self.buying_power:
                 order.reject("Insufficient buying power")
                 return False
@@ -216,10 +220,7 @@ class Portfolio:
         return True
 
     def execute_order(
-        self,
-        order: Order,
-        fill_price: float,
-        timestamp: datetime
+        self, order: Order, fill_price: float, timestamp: datetime
     ) -> Dict[str, Any]:
         """
         Execute a filled order.
@@ -315,7 +316,11 @@ class Portfolio:
 
     def get_pending_orders(self, symbol: Optional[str] = None) -> List[Order]:
         """Get pending/open orders"""
-        pending = [o for o in self.orders if o.status in [OrderStatus.PENDING, OrderStatus.OPEN]]
+        pending = [
+            o
+            for o in self.orders
+            if o.status in [OrderStatus.PENDING, OrderStatus.OPEN]
+        ]
         if symbol:
             pending = [o for o in pending if o.symbol == symbol]
         return pending
@@ -353,7 +358,9 @@ class Portfolio:
             "realized_pnl": self.realized_pnl,
             "unrealized_pnl": self.unrealized_pnl,
             "total_trades": len(self.trades),
-            "open_positions": len([p for p in self.positions.values() if p.quantity > 0]),
+            "open_positions": len(
+                [p for p in self.positions.values() if p.quantity > 0]
+            ),
             "positions": {s: p.to_dict() for s, p in self.positions.items()},
         }
 

@@ -1,3 +1,6 @@
+/* eslint-disable testing-library/no-wait-for-multiple-assertions */
+/* eslint-disable testing-library/no-wait-for-side-effects */
+/* eslint-disable testing-library/no-node-access */
 /**
  * LiveMarketData Component Tests
  *

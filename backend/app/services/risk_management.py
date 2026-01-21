@@ -1,28 +1,29 @@
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass
-from enum import Enum
-import logging
 import asyncio
+import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from app.core.logging_config import (
-    log_risk_event,
-    log_system_error,
-    LogOperationContext,
-)
 import pandas as pd
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.portfolio import Portfolio
+from app.core.logging_config import (
+    LogOperationContext,
+    log_risk_event,
+    log_system_error,
+)
 from app.models.holding import Holding
-from app.models.trade import Trade, TradeType, TradeStatus
-from app.models.user import User
-from app.services.market_data import MarketDataService
+from app.models.portfolio import Portfolio
+
 # Import canonical RiskLevel from models
 from app.models.risk import RiskLevel
+from app.models.trade import Trade, TradeStatus, TradeType
+from app.models.user import User
+from app.services.market_data import MarketDataService
 
 logger = logging.getLogger(__name__)
 
@@ -532,9 +533,11 @@ class RiskManagementService:
 
             daily_pnl = sum(
                 [
-                    (trade.filled_price - trade.price) * trade.filled_quantity
-                    if trade.trade_type == TradeType.SELL
-                    else (trade.price - trade.filled_price) * trade.filled_quantity
+                    (
+                        (trade.filled_price - trade.price) * trade.filled_quantity
+                        if trade.trade_type == TradeType.SELL
+                        else (trade.price - trade.filled_price) * trade.filled_quantity
+                    )
                     for trade in daily_trades
                     if trade.filled_price and trade.price
                 ]
@@ -599,9 +602,11 @@ class RiskManagementService:
 
             weekly_pnl = sum(
                 [
-                    (trade.filled_price - trade.price) * trade.filled_quantity
-                    if trade.trade_type == TradeType.SELL
-                    else (trade.price - trade.filled_price) * trade.filled_quantity
+                    (
+                        (trade.filled_price - trade.price) * trade.filled_quantity
+                        if trade.trade_type == TradeType.SELL
+                        else (trade.price - trade.filled_price) * trade.filled_quantity
+                    )
                     for trade in weekly_trades
                     if trade.filled_price and trade.price
                 ]
@@ -927,12 +932,12 @@ class RiskManagementService:
 
             return {
                 "trade_value": trade_value,
-                "portfolio_impact_pct": trade_value / portfolio_value
-                if portfolio_value > 0
-                else 0.0,
-                "new_position_size_pct": trade_value / portfolio_value
-                if portfolio_value > 0
-                else 0.0,
+                "portfolio_impact_pct": (
+                    trade_value / portfolio_value if portfolio_value > 0 else 0.0
+                ),
+                "new_position_size_pct": (
+                    trade_value / portfolio_value if portfolio_value > 0 else 0.0
+                ),
                 "estimated_commission": trade_value
                 * 0.001,  # 0.1% estimated commission
                 "market_impact_estimate": "low",  # Would calculate based on volume/liquidity
