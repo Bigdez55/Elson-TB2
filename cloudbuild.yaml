@@ -119,7 +119,6 @@ substitutions:
   _CLOUD_SQL_INSTANCE: elson-postgres
   _DB_USER: postgres
   _DB_NAME: elson_trading
-  _SERVICE_NAME: elson-trading-platform
 
 images:
   - 'gcr.io/$PROJECT_ID/elson-backend:$COMMIT_SHA'
