@@ -460,6 +460,11 @@ Update `GCP_AGENT/TRAINING_LOG.md` with:
 
 ### Step 11: Update Training Log (REQUIRED)
 
+> **⚠️ DATE ACCURACY IS CRITICAL:**
+> - Use the ACTUAL date training was RUN, not the date you are logging
+> - Check training start timestamp in the logs
+> - If unsure, ASK the user to confirm the date before logging
+
 ```bash
 # On local machine or via commit
 # Edit GCP_AGENT/TRAINING_LOG.md with the following template:

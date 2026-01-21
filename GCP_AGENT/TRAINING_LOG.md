@@ -11,12 +11,17 @@
 
 After every training session, add an entry using this template:
 
+> **⚠️ CRITICAL: Use the ACTUAL DATE the training was RUN, NOT the date you are logging.**
+> - Check the training start time in the logs
+> - If training started at 11pm on 1/19 and finished at 2am on 1/20, use 1/19
+> - When in doubt, ask the user to confirm the date
+
 ```markdown
 ### Session X: [Model Name] (YYYY-MM-DD)
 
 | Attribute | Value |
 |-----------|-------|
-| **Date** | YYYY-MM-DD |
+| **Date** | YYYY-MM-DD (USE ACTUAL TRAINING DATE!) |
 | **Model** | Elson-Finance-Trading-14B |
 | **Method** | DoRA / LoRA / etc |
 | **GPU** | H100 / L4 |
@@ -52,11 +57,11 @@ After every training session, add an entry using this template:
 
 ## Training Sessions
 
-### Session 6: Curriculum Training v4 - Full Scale (2026-01-21) ✅ COMPLETE
+### Session 6: Curriculum Training v4 - Full Scale (2026-01-20) ✅ COMPLETE
 
 | Attribute | Value |
 |-----------|-------|
-| **Date** | 2026-01-21 |
+| **Date** | 2026-01-20 |
 | **Model** | Elson-Finance-Trading-14B |
 | **Method** | DoRA (3-Phase Curriculum) |
 | **GPU** | H100 80GB HBM3 |
@@ -117,11 +122,11 @@ After every training session, add an entry using this template:
 
 ---
 
-### Session 5: Curriculum Training v3 (2026-01-20) ✅ COMPLETE
+### Session 5: Curriculum Training v3 (2026-01-19) ✅ COMPLETE
 
 | Attribute | Value |
 |-----------|-------|
-| **Date** | 2026-01-20 |
+| **Date** | 2026-01-19 |
 | **Model** | Elson-Finance-Trading-14B |
 | **Method** | DoRA (3-Phase Curriculum) |
 | **GPU** | H100 80GB HBM3 |
