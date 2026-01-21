@@ -39,7 +39,7 @@ class PaperBroker(BaseBroker):
 
         # Import PaperTradingService at runtime to avoid circular imports
         if PaperTradingService is None:
-            from app.services.paper_trading_service import (
+            from app.services.paper_trading import (
                 PaperTradingService as PTService,
             )
 

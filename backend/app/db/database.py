@@ -9,6 +9,7 @@ from app.db.base import (
     get_redis,
     is_database_healthy,
     is_using_fallback_database,
+    update_db_connection_settings,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "get_redis",
     "is_database_healthy",
     "is_using_fallback_database",
+    "update_db_connection_settings",
 ]

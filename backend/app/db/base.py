@@ -242,3 +242,43 @@ def is_database_healthy() -> bool:
 def is_using_fallback_database() -> bool:
     """Check if we're using the fallback in-memory database."""
     return "memory" in str(engine.url)
+
+
+def update_db_connection_settings(host: str, port: int) -> None:
+    """
+    Update database connection settings for failover scenarios.
+
+    This function allows the application to switch to a standby database
+    during failover situations. It updates the engine configuration
+    to point to the new host and port.
+
+    Args:
+        host: The new database host
+        port: The new database port
+    """
+    global engine, SessionLocal
+
+    # Get current database URL and update host/port
+    current_url = str(engine.url)
+
+    # Parse and rebuild the URL with new host:port
+    # Format: postgresql://user:pass@host:port/dbname
+    import re
+    pattern = r'(@)([^:]+):(\d+)(/)'
+    new_url = re.sub(pattern, rf'\g<1>{host}:{port}\g<4>', current_url)
+
+    # Dispose old engine connections
+    engine.dispose()
+
+    # Create new engine with updated URL
+    engine = create_engine(
+        new_url,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10
+    )
+
+    # Update SessionLocal to use new engine
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    logger.info(f"Database connection updated to {host}:{port}")
