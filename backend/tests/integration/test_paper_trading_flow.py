@@ -12,14 +12,8 @@ from app.services.market_simulation import MarketSimulationService
 from app.services.paper_trading import PaperTradingService
 
 
-# These tests need to be refactored to properly set up user/portfolio fixtures
-# and use the correct service initialization. Skipping until fixed.
-pytestmark = pytest.mark.skip(
-    reason="Tests need refactoring: missing owner_id and incorrect service initialization"
-)
-
-
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Test needs proper fixtures - missing owner_id and test user")
 async def test_paper_trade_creation(db_session: Session, client: TestClient):
     """Test creating a paper trade."""
     # Create test user and portfolio
@@ -28,11 +22,11 @@ async def test_paper_trade_creation(db_session: Session, client: TestClient):
     # Create portfolio for testing
     portfolio = Portfolio(
         user_id=user_id,
+        owner_id=user_id,  # Required field
         name="Test Paper Trading Portfolio",
         description="For testing paper trading",
         cash_balance=10000.0,
         total_value=10000.0,
-        is_active=True,
     )
     db_session.add(portfolio)
     db_session.commit()
@@ -70,6 +64,7 @@ async def test_paper_trade_creation(db_session: Session, client: TestClient):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Test needs proper fixtures - missing owner_id and test user")
 async def test_paper_trade_execution(db_session: Session, client: TestClient):
     """Test executing a paper trade."""
     # Create test user and portfolio
@@ -125,6 +120,7 @@ async def test_paper_trade_execution(db_session: Session, client: TestClient):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Test needs proper fixtures - missing owner_id and test user")
 async def test_paper_dollar_based_investment(db_session: Session, client: TestClient):
     """Test creating a dollar-based paper investment (fractional shares)."""
     # Create test user and portfolio
@@ -181,6 +177,7 @@ async def test_paper_dollar_based_investment(db_session: Session, client: TestCl
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Test needs proper fixtures - missing owner_id and test user")
 async def test_paper_portfolio_value(db_session: Session, client: TestClient):
     """Test retrieving paper portfolio value."""
     # Create test user and portfolio
@@ -240,6 +237,7 @@ async def test_paper_portfolio_value(db_session: Session, client: TestClient):
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Test needs proper fixtures - missing owner_id and test user")
 async def test_paper_trade_history(db_session: Session, client: TestClient):
     """Test retrieving paper trade history."""
     # Create test user and portfolio

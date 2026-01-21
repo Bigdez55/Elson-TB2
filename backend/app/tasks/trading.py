@@ -187,7 +187,7 @@ def process_recurring_investments(self, date: Optional[str] = None) -> Dict[str,
                 # Record metrics
                 metrics.increment(
                     "recurring_investment.error",
-                    tags={
+                    labels={
                         "symbol": investment.symbol,
                         "frequency": investment.frequency,
                     },
@@ -300,7 +300,7 @@ def submit_trade_for_execution(self, trade_id: int) -> Dict[str, Any]:
         # Record metrics
         metrics.increment(
             "trade.submitted",
-            tags={
+            labels={
                 "symbol": trade.symbol,
                 "side": trade.side,
                 "source": trade.source or "manual",
@@ -314,7 +314,7 @@ def submit_trade_for_execution(self, trade_id: int) -> Dict[str, Any]:
         logger.error(f"Error submitting trade {trade_id}: {e}")
 
         # Record metrics
-        metrics.increment("trade.submission_error", tags={"trade_id": str(trade_id)})
+        metrics.increment("trade.submission_error", labels={"trade_id": str(trade_id)})
 
         # Update trade status to error if it's a permanent failure
         if not self.request.retries:
@@ -476,7 +476,7 @@ def check_trade_status(self, trade_id: int) -> Dict[str, Any]:
             # Record metrics
             metrics.increment(
                 "trade.status_change",
-                tags={
+                labels={
                     "symbol": trade.symbol,
                     "previous_status": result["previous_status"],
                     "new_status": trade.status,
@@ -495,7 +495,7 @@ def check_trade_status(self, trade_id: int) -> Dict[str, Any]:
         logger.error(f"Error checking status for trade {trade_id}: {e}")
 
         # Record metrics
-        metrics.increment("trade.status_check_error", tags={"trade_id": str(trade_id)})
+        metrics.increment("trade.status_check_error", labels={"trade_id": str(trade_id)})
 
         # Raise for retry if not the final attempt
         if self.request.retries < self.max_retries:
@@ -584,7 +584,7 @@ def process_filled_trade(self, trade_id: int) -> Dict[str, Any]:
         # Record metrics
         metrics.increment(
             "trade.processed",
-            tags={
+            labels={
                 "symbol": trade.symbol,
                 "side": trade.side,
                 "source": trade.source or "manual",
@@ -598,7 +598,7 @@ def process_filled_trade(self, trade_id: int) -> Dict[str, Any]:
         logger.error(f"Error processing filled trade {trade_id}: {e}")
 
         # Record metrics
-        metrics.increment("trade.processing_error", tags={"trade_id": str(trade_id)})
+        metrics.increment("trade.processing_error", labels={"trade_id": str(trade_id)})
 
         # Raise error
         raise TaskQueueError(f"Trade processing failed: {e}", task_id=str(trade_id))

@@ -184,7 +184,7 @@ class SchwabBroker(ApiBaseBroker):
             logger.debug(f"Response body: {json.dumps(error_data, indent=2)}")
 
             # Update metrics based on error type
-            metrics.increment("broker.schwab.error", tags={"error_code": error_code})
+            metrics.increment("broker.schwab.error", labels={"error_code": error_code})
 
             # Check for rate limit errors
             if response.status_code == 429:
@@ -217,7 +217,7 @@ class SchwabBroker(ApiBaseBroker):
             logger.error(
                 f"Schwab API Error (non-JSON): {response.status_code} - {error_message[:200]}"
             )
-            metrics.increment("broker.schwab.error", tags={"error_code": error_code})
+            metrics.increment("broker.schwab.error", labels={"error_code": error_code})
 
             raise BrokerError(
                 message=f"Schwab API Error: {error_message}", error_code=error_code
@@ -335,7 +335,7 @@ class SchwabBroker(ApiBaseBroker):
             )
             metrics.increment(
                 "broker.schwab.trade.executed",
-                tags={"symbol": trade.symbol, "side": trade.side.value},
+                labels={"symbol": trade.symbol, "side": trade.side.value},
             )
 
             # Return execution details
@@ -353,7 +353,7 @@ class SchwabBroker(ApiBaseBroker):
             )
             metrics.increment(
                 "broker.schwab.trade.failed",
-                tags={"symbol": trade.symbol, "side": trade.side.value},
+                labels={"symbol": trade.symbol, "side": trade.side.value},
             )
 
             # Re-raise the error

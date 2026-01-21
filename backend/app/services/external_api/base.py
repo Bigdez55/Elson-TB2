@@ -107,9 +107,9 @@ class RateLimiter:
                 self.last_throttle_log = now
 
             # Record metrics
-            metrics.increment("api.rate_limit.throttled", tags={"endpoint": endpoint})
+            metrics.increment("api.rate_limit.throttled", labels={"endpoint": endpoint})
             metrics.gauge(
-                "api.rate_limit.wait_time", wait_time, tags={"endpoint": endpoint}
+                "api.rate_limit.wait_time", wait_time, labels={"endpoint": endpoint}
             )
 
             # Wait as needed
@@ -259,11 +259,11 @@ class BaseApiClient(ABC):
                 metrics.timing(
                     "api.request.duration",
                     duration * 1000,
-                    tags={"provider": self.provider_name, "endpoint": endpoint},
+                    labels={"provider": self.provider_name, "endpoint": endpoint},
                 )
                 metrics.increment(
                     "api.request.count",
-                    tags={"provider": self.provider_name, "endpoint": endpoint},
+                    labels={"provider": self.provider_name, "endpoint": endpoint},
                 )
 
                 # Log request details
@@ -279,7 +279,7 @@ class BaseApiClient(ABC):
                     # Record error metrics
                     metrics.increment(
                         "api.request.error",
-                        tags={
+                        labels={
                             "provider": self.provider_name,
                             "endpoint": endpoint,
                             "status": response.status,
@@ -312,7 +312,7 @@ class BaseApiClient(ABC):
 
             metrics.increment(
                 "api.request.error",
-                tags={
+                labels={
                     "provider": self.provider_name,
                     "endpoint": endpoint,
                     "type": "client_error",
@@ -332,7 +332,7 @@ class BaseApiClient(ABC):
 
             metrics.increment(
                 "api.request.error",
-                tags={
+                labels={
                     "provider": self.provider_name,
                     "endpoint": endpoint,
                     "type": "timeout",
@@ -353,7 +353,7 @@ class BaseApiClient(ABC):
 
             metrics.increment(
                 "api.request.error",
-                tags={
+                labels={
                     "provider": self.provider_name,
                     "endpoint": endpoint,
                     "type": "unexpected",

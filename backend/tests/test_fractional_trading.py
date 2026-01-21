@@ -11,13 +11,6 @@ from app.models.portfolio import Portfolio
 from app.models.trade import InvestmentType, OrderSide, OrderType, Trade, TradeStatus
 
 
-# These tests require API endpoints that haven't been implemented yet
-# Skip until /api/v1/trades/dollar and related endpoints are created
-pytestmark = pytest.mark.skip(
-    reason="Tests require unimplemented API endpoints (/api/v1/trades/dollar)"
-)
-
-
 @pytest.fixture
 def fractional_trade(
     db: Session, test_user: Dict[str, Any], test_portfolio: Dict[str, Any]
@@ -62,6 +55,7 @@ def fractional_trade(
     return trade_data
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/dollar not implemented")
 def test_create_dollar_based_trade(
     authorized_client: TestClient, test_portfolio: Dict[str, Any]
 ):
@@ -88,6 +82,7 @@ def test_create_dollar_based_trade(
     assert data["status"] == "pending"
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/{id}/execute not implemented")
 def test_execute_fractional_trade(
     authorized_client: TestClient, fractional_trade: Dict[str, Any], db: Session
 ):
@@ -118,6 +113,7 @@ def test_execute_fractional_trade(
         assert data["is_fractional"] == True
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/dollar not implemented")
 def test_minimum_investment_amount(
     authorized_client: TestClient, test_portfolio: Dict[str, Any]
 ):
@@ -140,6 +136,7 @@ def test_minimum_investment_amount(
     assert "validation error" in data["detail"].lower()
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/{id}/execute not implemented")
 def test_fractional_trade_in_portfolio(
     authorized_client: TestClient,
     fractional_trade: Dict[str, Any],
@@ -179,6 +176,7 @@ def test_fractional_trade_in_portfolio(
     assert aapl_position["is_fractional"] == True
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/dollar not implemented")
 def test_multiple_fractional_trades(
     authorized_client: TestClient, test_portfolio: Dict[str, Any], db: Session
 ):
@@ -236,6 +234,7 @@ def test_multiple_fractional_trades(
     assert aapl_position["is_fractional"] == True
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/dollar not implemented")
 def test_fractional_sell(
     authorized_client: TestClient, test_portfolio: Dict[str, Any], db: Session
 ):
@@ -299,6 +298,7 @@ def test_fractional_sell(
         pass
 
 
+@pytest.mark.xfail(reason="API endpoint /api/v1/trades/dollar not implemented")
 def test_fractional_minor_trade_approval(
     minor_client: TestClient,
     authorized_client: TestClient,

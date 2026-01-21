@@ -5,6 +5,8 @@ This module contains constants and configuration for the Schwab broker integrati
 
 from typing import Any, Dict
 
+from app.models.trade import TradeStatus
+
 # API endpoints for Schwab brokerage
 PROD_API_BASE_URL = "https://api.schwab.com/trade/v1"
 SANDBOX_API_BASE_URL = "https://api-sandbox.schwab.com/trade/v1"
@@ -80,18 +82,18 @@ ASSET_TYPE_MAP = {
 
 # Status mapping (Schwab API status → internal status)
 STATUS_MAP = {
-    "FILLED": "FILLED",
-    "PARTIALLY_FILLED": "PARTIALLY_FILLED",
-    "PENDING": "PENDING",
-    "NEW": "PENDING",
-    "QUEUED": "PENDING",
-    "ACCEPTED": "PENDING",
-    "WORKING": "PENDING",
-    "REJECTED": "REJECTED",
-    "CANCELED": "CANCELED",
-    "EXPIRED": "EXPIRED",
-    "ERROR": "ERROR",
-    "REPLACED": "PENDING",
+    "FILLED": TradeStatus.FILLED,
+    "PARTIALLY_FILLED": TradeStatus.PARTIALLY_FILLED,
+    "PENDING": TradeStatus.PENDING,
+    "NEW": TradeStatus.PENDING,
+    "QUEUED": TradeStatus.PENDING,
+    "ACCEPTED": TradeStatus.PENDING,
+    "WORKING": TradeStatus.PENDING,
+    "REJECTED": TradeStatus.REJECTED,
+    "CANCELED": TradeStatus.CANCELED,
+    "EXPIRED": TradeStatus.EXPIRED,
+    "ERROR": TradeStatus.REJECTED,
+    "REPLACED": TradeStatus.PENDING,
 }
 
 # Error codes and messages

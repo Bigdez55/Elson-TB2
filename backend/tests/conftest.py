@@ -204,14 +204,15 @@ def authorized_client(client, test_user) -> TestClient:
 @pytest.fixture
 def test_minor(db_session, test_user) -> Dict[str, Any]:
     """Create a minor user linked to the test user."""
+    from app.models.user import UserRole
+
     minor = User(
         email="minor@example.com",
         hashed_password=get_password_hash("minorpassword123"),
         full_name="Test Minor",
         is_active=True,
         is_verified=True,
-        is_minor=True,
-        guardian_id=test_user["id"],
+        role=UserRole.MINOR,  # Use role enum instead of is_minor
         risk_tolerance="conservative",
         trading_style="long_term",
     )
@@ -223,7 +224,7 @@ def test_minor(db_session, test_user) -> Dict[str, Any]:
         "id": minor.id,
         "email": minor.email,
         "full_name": minor.full_name,
-        "guardian_id": minor.guardian_id,
+        "guardian_id": test_user["id"],  # Track the guardian relationship in the fixture return
     }
 
 

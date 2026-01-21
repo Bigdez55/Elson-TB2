@@ -4,7 +4,6 @@ This module tests the broker API integration with mock responses.
 Note: These tests require real API credentials and network access.
 """
 
-import os
 import unittest.mock as mock
 from datetime import datetime, timedelta
 
@@ -16,18 +15,6 @@ from app.services.broker.factory import BrokerType, get_broker
 from app.services.broker.mock_responses import generate_mock_response
 
 
-# Skip these tests if no API credentials are configured
-SCHWAB_CREDENTIALS_AVAILABLE = bool(os.getenv("SCHWAB_API_KEY"))
-ALPACA_CREDENTIALS_AVAILABLE = bool(os.getenv("ALPACA_API_KEY"))
-
-skip_schwab = pytest.mark.skipif(
-    not SCHWAB_CREDENTIALS_AVAILABLE,
-    reason="Schwab API credentials not configured"
-)
-skip_alpaca = pytest.mark.skipif(
-    not ALPACA_CREDENTIALS_AVAILABLE,
-    reason="Alpaca API credentials not configured"
-)
 
 
 class TestBrokerAPI:
@@ -37,8 +24,12 @@ class TestBrokerAPI:
     def mock_schwab_api(self):
         """Mock Schwab API responses."""
         with mock.patch(
+            "app.services.broker.schwab.SchwabBroker._refresh_auth_token"
+        ) as mock_auth, mock.patch(
             "app.services.broker.schwab.SchwabBroker._api_request"
         ) as mock_api:
+            # Mock authentication to do nothing
+            mock_auth.return_value = None
             # Configure the mock to return different responses based on call
             mock_api.side_effect = self._mock_schwab_api_side_effect
             yield mock_api
@@ -60,18 +51,34 @@ class TestBrokerAPI:
                 "schwab", "account_info", account_id="test-account-123"
             )
         elif endpoint == "/accounts/test-account-123/positions":
-            return generate_mock_response(
+            # Schwab broker expects {"positions": [...]}
+            positions = generate_mock_response(
                 "schwab", "positions", account_id="test-account-123"
             )
-        elif endpoint == "/trading/orders" and method == "POST":
-            return generate_mock_response(
+            return {"positions": positions}
+        elif endpoint == "/orders" and method == "POST":
+            order_response = generate_mock_response(
                 "schwab",
                 "order",
                 order_data=kwargs.get("data", {}),
                 account_id="test-account-123",
             )
-        elif endpoint.startswith("/trading/orders/") and method == "GET":
-            order_id = endpoint.split("/")[-1]
+            # Ensure order_id is present for Schwab
+            order_response["order_id"] = order_response.get("id", order_response.get("order_id"))
+            return order_response
+        elif endpoint.startswith("/orders/") and method == "GET":
+            # Check if this is an executions endpoint
+            if "/executions" in endpoint:
+                if "test-filled-order" in endpoint:
+                    return {
+                        "executions": [
+                            {"price": 175.50, "quantity": 10, "timestamp": datetime.now().isoformat()}
+                        ]
+                    }
+                else:
+                    return {"executions": []}
+            # Regular order status - extract order_id from endpoint
+            order_id = endpoint.replace("/orders/", "").split("/")[0]
             if order_id == "test-filled-order":
                 return generate_mock_response(
                     "schwab", "order_status", order_id=order_id, status="FILLED"
@@ -80,16 +87,17 @@ class TestBrokerAPI:
                 return generate_mock_response(
                     "schwab", "order_status", order_id=order_id, status="PENDING"
                 )
-        elif endpoint.startswith("/trading/orders/") and method == "DELETE":
+        elif endpoint.startswith("/orders/") and method == "DELETE":
             return {"canceled": True}
         elif endpoint == "/accounts/test-account-123/orders":
-            return generate_mock_response(
+            # Schwab broker expects {"orders": [...]}
+            # Don't pass date strings to the mock - it generates sample data
+            orders = generate_mock_response(
                 "schwab",
                 "order_history",
                 account_id="test-account-123",
-                start_date=kwargs.get("params", {}).get("start_date"),
-                end_date=kwargs.get("params", {}).get("end_date"),
             )
+            return {"orders": orders}
         elif endpoint == "/market/quotes":
             symbol = kwargs.get("params", {}).get("symbols", "AAPL")
             return generate_mock_response("schwab", "quote", symbol=symbol)
@@ -148,12 +156,11 @@ class TestBrokerAPI:
         elif endpoint.startswith("/orders/") and method == "DELETE":
             return {"success": True}
         elif endpoint == "/orders" and method == "GET":
+            # Don't pass date strings to the mock - it generates sample data
             return generate_mock_response(
                 "alpaca",
                 "order_history",
                 account_id="test-account-123",
-                start_date=kwargs.get("params", {}).get("after"),
-                end_date=kwargs.get("params", {}).get("until"),
             )
         elif endpoint.startswith("/stocks/") and "quotes" in endpoint:
             symbol = endpoint.split("/")[2]
@@ -163,7 +170,6 @@ class TestBrokerAPI:
         else:
             raise ValueError(f"Unexpected API call: {method} {endpoint}")
 
-    @skip_schwab
     def test_schwab_broker_basic_functionality(self, mock_schwab_api):
         """Test basic functionality of the Schwab broker implementation."""
         broker = get_broker(BrokerType.SCHWAB)
@@ -192,7 +198,6 @@ class TestBrokerAPI:
         assert "opens_at" in hours
         assert "closes_at" in hours
 
-    @skip_schwab
     def test_schwab_broker_order_execution(self, mock_schwab_api):
         """Test order execution with the Schwab broker implementation."""
         broker = get_broker(BrokerType.SCHWAB)
@@ -237,7 +242,6 @@ class TestBrokerAPI:
         assert execution["status"] == "FILLED"
         assert execution["filled_quantity"] > 0
 
-    @skip_alpaca
     def test_alpaca_broker_basic_functionality(self, mock_alpaca_api):
         """Test basic functionality of the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -265,7 +269,6 @@ class TestBrokerAPI:
         assert "is_open" in hours
         assert "opens_at" in hours or "next_open" in hours
 
-    @skip_alpaca
     def test_alpaca_broker_order_execution(self, mock_alpaca_api):
         """Test order execution with the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -312,7 +315,6 @@ class TestBrokerAPI:
         assert execution["average_price"] is not None
         assert len(execution["executions"]) > 0
 
-    @skip_alpaca
     def test_alpaca_broker_advanced_orders(self, mock_alpaca_api):
         """Test advanced order types with the Alpaca broker implementation."""
         broker = get_broker(BrokerType.ALPACA)
@@ -344,13 +346,14 @@ class TestBrokerAPI:
         assert "broker_order_id" in result
         assert result["status"] == TradeStatus.PENDING
 
-    @skip_schwab
     def test_error_handling(self, mock_schwab_api):
         """Test error handling in broker implementations."""
         broker = get_broker(BrokerType.SCHWAB)
 
-        # Mock API to raise an exception
-        mock_schwab_api.side_effect = Exception("API error")
+        # Mock API to raise a BrokerError (simulating what real _api_request does)
+        mock_schwab_api.side_effect = BrokerError(
+            message="API error", error_code="TEST_ERROR"
+        )
 
         # Test exception handling
         with pytest.raises(BrokerError):

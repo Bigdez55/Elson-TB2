@@ -28,11 +28,17 @@ class BrokerError(TradingPlatformError):
         message: str,
         broker: Optional[str] = None,
         operation: Optional[str] = None,
+        error_code: Optional[str] = None,
+        broker_response: Optional[dict] = None,
+        metadata: Optional[dict] = None,
         details: Optional[dict] = None
     ):
         super().__init__(message, details)
         self.broker = broker
         self.operation = operation
+        self.error_code = error_code
+        self.broker_response = broker_response
+        self.metadata = metadata or {}
 
 
 class MarketDataError(TradingPlatformError):

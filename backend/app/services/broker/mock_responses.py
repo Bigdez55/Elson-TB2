@@ -241,28 +241,37 @@ class MockResponseGenerator:
         # Return existing order if it exists
         if order_id in self.orders:
             order = self.orders[order_id].copy()
+        else:
+            # Generate a generic order response for unknown orders
+            order = {
+                "id": order_id,
+                "symbol": "AAPL",
+                "side": "buy",
+                "type": "market",
+                "quantity": "10",
+                "qty": "10",
+                "created_at": datetime.now().isoformat(),
+                "updated_at": datetime.now().isoformat(),
+            }
 
-            # Update status
+        # Update status
+        if self.broker_type == "alpaca":
+            order["status"] = status.lower()
+        else:
+            order["status"] = status
+
+        # If filled, add fill details
+        if status.upper() == "FILLED":
+            order["filled_at"] = datetime.now().isoformat()
+
             if self.broker_type == "alpaca":
-                order["status"] = status.lower()
+                order["filled_qty"] = order.get("qty", "10")
+                order["filled_avg_price"] = "175.50"
             else:
-                order["status"] = status
+                order["filled_quantity"] = order.get("quantity", "10")
+                order["filled_price"] = "175.50"
 
-            # If filled, add fill details
-            if status.upper() == "FILLED":
-                order["filled_at"] = datetime.now().isoformat()
-
-                if self.broker_type == "alpaca":
-                    order["filled_qty"] = order["qty"]
-                    order["filled_avg_price"] = "175.50"
-                else:
-                    order["filled_quantity"] = order["quantity"]
-                    order["filled_price"] = "175.50"
-
-            return order
-
-        # Generate generic response for unknown order
-        return {"id": order_id, "status": "UNKNOWN", "message": "Order not found"}
+        return order
 
     def generate_order_history(
         self,
