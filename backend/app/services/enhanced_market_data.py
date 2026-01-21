@@ -101,6 +101,7 @@ class EnhancedMarketDataProvider:
     def record_error(self):
         """Record failed request."""
         self.error_count += 1
+        self.last_request_time = time.time()
 
     async def get_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
         """Get real-time quote."""

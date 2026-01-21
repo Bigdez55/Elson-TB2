@@ -90,9 +90,12 @@ class PaperTradingService:
         """
         try:
             # Get current market data
-            current_price = await self.market_data_service.get_current_price(
-                trade.symbol
-            )
+            quote = await self.market_data_service.get_quote(trade.symbol)
+            if not quote or "price" not in quote:
+                return self._create_rejection_result(
+                    trade, "Unable to get current market price"
+                )
+            current_price = quote["price"]
             if not current_price:
                 return self._create_rejection_result(
                     trade, "Unable to get current market price"
@@ -200,11 +203,13 @@ class PaperTradingService:
             execution_price = current_price / slippage_factor
 
         # 3. Determine fill quantity (partial fills possible)
-        filled_quantity = trade.quantity
+        # Convert Decimal to float for calculations
+        quantity_float = float(trade.quantity)
+        filled_quantity = quantity_float
         if random.random() < self.partial_fill_probability:
             # Partial fill: 60-95% of requested quantity
             fill_percentage = random.uniform(0.6, 0.95)
-            filled_quantity = trade.quantity * fill_percentage
+            filled_quantity = quantity_float * fill_percentage
             filled_quantity = round(filled_quantity, 6)  # Round to avoid tiny fractions
 
         # 4. Calculate costs
@@ -213,16 +218,16 @@ class PaperTradingService:
 
         # 5. Determine fill quality
         fill_quality = self._assess_fill_quality(
-            slippage_bps, filled_quantity / trade.quantity
+            slippage_bps, filled_quantity / quantity_float
         )
 
         return {
             "status": "filled"
-            if filled_quantity == trade.quantity
+            if filled_quantity == quantity_float
             else "partially_filled",
             "execution_price": execution_price,
             "filled_quantity": filled_quantity,
-            "remaining_quantity": trade.quantity - filled_quantity,
+            "remaining_quantity": quantity_float - filled_quantity,
             "commission": commission,
             "fees": fees,
             "execution_time": datetime.utcnow(),

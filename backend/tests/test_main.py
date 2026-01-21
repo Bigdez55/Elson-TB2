@@ -9,7 +9,13 @@ def test_health_check():
     client = TestClient(app)
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "healthy", "service": "elson-trading-platform"}
+    data = response.json()
+    # Check essential fields
+    assert data["status"] == "healthy"
+    assert data["service"] == "elson-trading-platform"
+    # Additional fields may include database status
+    if "database" in data:
+        assert "connected" in data["database"]
 
 
 def test_root_endpoint():

@@ -5,11 +5,16 @@ import {
   useGetMyProgressQuery,
   useGetMyPermissionsQuery,
 } from '../services/educationApi';
-import { Skeleton, SkeletonStatsCard, SkeletonCard } from '../components/common/Skeleton';
+import { Skeleton } from '../components/common/Skeleton';
+import { Card, CardHeader, TabGroup } from '../components/elson';
+import { TargetIcon, CashIcon, TrendingIcon, DocumentIcon } from '../components/icons/ElsonIcons';
+import { LEVEL_STYLES } from '../types/elson';
 
 const LearnPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('Courses');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
+
+  const tabs = ['Courses', 'Tools', 'Progress'];
 
   // Fetch data from API
   const { data: content = [], isLoading: contentLoading } = useListContentQuery({});
@@ -17,10 +22,11 @@ const LearnPage: React.FC = () => {
   const { data: progress = [], isLoading: progressLoading } = useGetMyProgressQuery();
   const { data: permissions = [], isLoading: permissionsLoading } = useGetMyPermissionsQuery();
 
+  const isLoading = contentLoading || pathsLoading || progressLoading || permissionsLoading;
+
   // Filter content
   const filteredContent = content.filter((item) => {
     if (selectedLevel !== 'all' && item.level !== selectedLevel.toUpperCase()) return false;
-    if (selectedType !== 'all' && item.content_type !== selectedType.toUpperCase()) return false;
     return true;
   });
 
@@ -28,26 +34,10 @@ const LearnPage: React.FC = () => {
   const totalContent = content.length;
   const completedContent = progress.filter(p => p.is_completed).length;
   const overallProgress = totalContent > 0 ? Math.round((completedContent / totalContent) * 100) : 0;
-  const grantedPermissions = permissions.filter(p => p.is_granted).length;
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'BEGINNER': return 'text-green-400 bg-green-900/30';
-      case 'INTERMEDIATE': return 'text-yellow-400 bg-yellow-900/30';
-      case 'ADVANCED': return 'text-red-400 bg-red-900/30';
-      default: return 'text-gray-400 bg-gray-900/30';
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'MODULE': return '📚';
-      case 'QUIZ': return '📝';
-      case 'ARTICLE': return '📄';
-      case 'INTERACTIVE': return '🎮';
-      case 'VIDEO': return '🎥';
-      default: return '📖';
-    }
+  const getLevelStyle = (level: string) => {
+    const levelKey = level.charAt(0) + level.slice(1).toLowerCase() as keyof typeof LEVEL_STYLES;
+    return LEVEL_STYLES[levelKey] || LEVEL_STYLES.Beginner;
   };
 
   const getContentProgress = (contentId: number) => {
@@ -60,316 +50,175 @@ const LearnPage: React.FC = () => {
     return contentProgress?.is_completed || false;
   };
 
-  if (contentLoading || pathsLoading || progressLoading || permissionsLoading) {
+  // Financial tools
+  const tools = [
+    { icon: TargetIcon, title: 'Retirement Calculator', desc: 'Plan your retirement savings' },
+    { icon: CashIcon, title: 'Loan Calculator', desc: 'Calculate loan payments' },
+    { icon: TrendingIcon, title: 'Investment Growth', desc: 'Project your investment growth' },
+    { icon: DocumentIcon, title: 'Tax Estimator', desc: 'Estimate your tax burden' },
+  ];
+
+  if (isLoading) {
     return (
-      <div className="bg-gray-800 min-h-screen p-6">
-        {/* Header Skeleton */}
-        <div className="mb-8">
-          <Skeleton variant="text" width="200px" height="36px" className="mb-2" />
-          <Skeleton variant="text" width="450px" height="20px" />
-        </div>
-
-        {/* Progress Overview Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {[1, 2, 3, 4].map((i) => (
-            <SkeletonStatsCard key={i} />
-          ))}
-        </div>
-
-        {/* Filters Skeleton */}
-        <div className="mb-6 space-y-4">
-          <div>
-            <Skeleton variant="text" width="100px" height="16px" className="mb-2" />
-            <div className="flex flex-wrap gap-2">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} variant="rectangular" width="100px" height="40px" className="rounded-lg" />
-              ))}
-            </div>
-          </div>
-          <div>
-            <Skeleton variant="text" width="100px" height="16px" className="mb-2" />
-            <div className="flex flex-wrap gap-2">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Skeleton key={i} variant="rectangular" width="90px" height="40px" className="rounded-lg" />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Content List Skeleton */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <Skeleton variant="text" width="200px" height="28px" />
-              <Skeleton variant="text" width="60px" height="16px" />
-            </div>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-gray-900 rounded-xl p-6">
-                <div className="flex items-start space-x-4">
-                  <Skeleton variant="rectangular" width="64px" height="64px" className="rounded-lg flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex justify-between mb-2">
-                      <Skeleton variant="text" width="200px" height="24px" />
-                      <Skeleton variant="rectangular" width="80px" height="24px" className="rounded" />
-                    </div>
-                    <Skeleton variant="text" width="100%" height="16px" className="mb-2" />
-                    <Skeleton variant="text" width="80%" height="16px" className="mb-3" />
-                    <div className="flex space-x-4 mb-3">
-                      <Skeleton variant="text" width="60px" height="14px" />
-                      <Skeleton variant="text" width="80px" height="14px" />
-                    </div>
-                    <Skeleton variant="rectangular" width="120px" height="36px" className="rounded-lg" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Sidebar Skeleton */}
-          <div className="space-y-6">
-            {/* Learning Paths Skeleton */}
-            <div className="bg-gray-900 rounded-xl p-4">
-              <Skeleton variant="text" width="150px" height="24px" className="mb-4" />
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="p-3 rounded-lg bg-gray-800 mb-3">
-                  <Skeleton variant="text" width="140px" height="20px" className="mb-1" />
-                  <Skeleton variant="text" width="100%" height="14px" className="mb-2" />
-                  <Skeleton variant="text" width="80px" height="12px" />
-                </div>
-              ))}
-            </div>
-
-            {/* Permissions Skeleton */}
-            <div className="bg-gradient-to-br from-green-900 to-green-800 rounded-xl p-4">
-              <Skeleton variant="text" width="180px" height="24px" className="mb-3" />
-              <Skeleton variant="text" width="100%" height="14px" className="mb-2" />
-              <Skeleton variant="text" width="80%" height="14px" className="mb-4" />
-              <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-                <Skeleton variant="text" width="100%" height="24px" />
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen p-4 md:p-6" style={{ backgroundColor: '#0D1B2A' }}>
+        <div className="space-y-4">
+          <Skeleton variant="text" width={200} height={28} />
+          <Skeleton variant="rectangular" width="100%" height={400} className="rounded-2xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-800 min-h-screen p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Learning Hub</h1>
-        <p className="text-gray-400">
-          Master trading concepts and unlock advanced features through education
-        </p>
+    <div className="min-h-screen p-4 md:p-6 space-y-4 md:space-y-6" style={{ backgroundColor: '#0D1B2A' }}>
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-1">Learn</h1>
+        <p className="text-gray-400 text-sm">Build your financial knowledge</p>
       </div>
 
-      {/* Progress Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gradient-to-br from-purple-900 to-purple-800 rounded-xl p-4">
-          <div className="text-purple-300 text-sm mb-1">Overall Progress</div>
-          <div className="text-3xl font-bold text-white">{overallProgress}%</div>
-          <div className="text-purple-200 text-xs mt-1">{totalContent} items available</div>
-        </div>
-        <div className="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl p-4">
-          <div className="text-blue-300 text-sm mb-1">Content Completed</div>
-          <div className="text-3xl font-bold text-white">{completedContent}</div>
-          <div className="text-blue-200 text-xs mt-1">of {totalContent} total</div>
-        </div>
-        <div className="bg-gradient-to-br from-green-900 to-green-800 rounded-xl p-4">
-          <div className="text-green-300 text-sm mb-1">Learning Paths</div>
-          <div className="text-3xl font-bold text-white">{learningPaths.length}</div>
-          <div className="text-green-200 text-xs mt-1">paths available</div>
-        </div>
-        <div className="bg-gradient-to-br from-yellow-900 to-yellow-800 rounded-xl p-4">
-          <div className="text-yellow-300 text-sm mb-1">Permissions Earned</div>
-          <div className="text-3xl font-bold text-white">{grantedPermissions}</div>
-          <div className="text-yellow-200 text-xs mt-1">of {permissions.length} total</div>
-        </div>
-      </div>
+      <TabGroup tabs={tabs} value={activeTab} onChange={setActiveTab} />
 
-      {/* Filters */}
-      <div className="mb-6 space-y-4">
-        <div>
-          <label className="text-sm text-gray-400 mb-2 block">Filter by Level:</label>
-          <div className="flex flex-wrap gap-2">
+      {activeTab === 'Courses' && (
+        <>
+          {/* Level Filter */}
+          <div className="flex gap-2 overflow-x-auto pb-2">
             {['all', 'beginner', 'intermediate', 'advanced'].map((level) => (
               <button
                 key={level}
                 onClick={() => setSelectedLevel(level)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium min-h-[40px] whitespace-nowrap transition-all ${
                   selectedLevel === level
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+                    ? 'text-[#C9A227]'
+                    : 'text-gray-400 hover:text-gray-200'
                 }`}
+                style={selectedLevel === level ? { backgroundColor: 'rgba(201, 162, 39, 0.2)', border: '1px solid rgba(201, 162, 39, 0.3)' } : {}}
               >
                 {level.charAt(0).toUpperCase() + level.slice(1)}
               </button>
             ))}
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm text-gray-400 mb-2 block">Filter by Type:</label>
-          <div className="flex flex-wrap gap-2">
-            {['all', 'module', 'quiz', 'article', 'interactive', 'video'].map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  selectedType === type
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-                }`}
-              >
-                {getTypeIcon(type.toUpperCase())} {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Content List */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">📚 Educational Content</h2>
-            <span className="text-sm text-gray-400">{filteredContent.length} items</span>
-          </div>
-
-          {filteredContent.length === 0 ? (
-            <div className="bg-gray-900 rounded-xl p-8 text-center">
-              <p className="text-gray-400 mb-4">No educational content available yet.</p>
-              <p className="text-sm text-gray-500">Check back soon for new learning materials!</p>
-            </div>
-          ) : (
-            filteredContent.map((item) => {
-              const itemProgress = getContentProgress(item.id);
-              const completed = isContentCompleted(item.id);
-
-              return (
-                <div
-                  key={item.id}
-                  className="bg-gray-900 rounded-xl p-6 hover:bg-gray-800 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-3xl">{getTypeIcon(item.content_type)}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getLevelColor(item.level)}`}>
-                          {item.level}
-                        </span>
-                      </div>
-                      {item.description && (
-                        <p className="text-sm text-gray-400 mb-3">{item.description}</p>
-                      )}
-                      <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
-                        <span>📝 {item.content_type}</span>
-                        {item.estimated_minutes && (
-                          <span>⏱️ {item.estimated_minutes} min</span>
-                        )}
-                        {completed && (
-                          <span className="text-green-400">✓ Completed</span>
-                        )}
-                      </div>
-
-                      {/* Progress Bar */}
-                      {itemProgress > 0 && (
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-400">Progress</span>
-                            <span className="text-xs text-white font-medium">{Math.round(itemProgress)}%</span>
-                          </div>
-                          <div className="w-full bg-gray-700 rounded-full h-2">
-                            <div
-                              className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full h-2 transition-all duration-300"
-                              style={{ width: `${itemProgress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-4">
-                        <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                          {itemProgress === 0 ? 'Start Learning' : completed ? 'Review' : 'Continue'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Learning Paths */}
-          <div className="bg-gray-900 rounded-xl p-4">
-            <h3 className="text-lg font-semibold text-white mb-4">🎯 Learning Paths</h3>
-            {learningPaths.length === 0 ? (
-              <p className="text-sm text-gray-400">No learning paths available yet.</p>
+          {/* Courses Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredContent.length === 0 ? (
+              <Card className="col-span-full p-8 text-center">
+                <p className="text-gray-400 mb-4">No courses available yet.</p>
+                <p className="text-sm text-gray-500">Check back soon for new learning materials!</p>
+              </Card>
             ) : (
-              <div className="space-y-3">
-                {learningPaths.map((path) => (
-                  <div
-                    key={path.id}
-                    className="p-3 rounded-lg bg-gradient-to-r from-purple-900/50 to-blue-900/50 border border-purple-600/30 cursor-pointer hover:border-purple-500/50 transition-colors"
-                  >
-                    <h4 className="font-medium text-white mb-1">{path.title}</h4>
-                    {path.description && (
-                      <p className="text-xs text-gray-400 mb-2">{path.description}</p>
+              filteredContent.map((item) => {
+                const itemProgress = getContentProgress(item.id);
+                const completed = isContentCompleted(item.id);
+                const levelStyle = getLevelStyle(item.level);
+
+                return (
+                  <Card key={item.id} className="p-4 cursor-pointer">
+                    <span
+                      className="px-2 py-1 rounded text-xs font-medium"
+                      style={levelStyle}
+                    >
+                      {item.level.charAt(0) + item.level.slice(1).toLowerCase()}
+                    </span>
+                    <h3 className="text-lg font-semibold text-white mt-3 mb-2">{item.title}</h3>
+                    {item.description && (
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-2">{item.description}</p>
                     )}
-                    <div className="text-xs text-purple-300">
-                      {path.items.length} items in path
+                    <p className="text-sm text-gray-500 mb-4">
+                      {item.estimated_minutes ? `${item.estimated_minutes} min` : 'Self-paced'}
+                      {completed && <span className="text-green-400 ml-2">✓ Completed</span>}
+                    </p>
+
+                    {/* Progress Bar */}
+                    {itemProgress > 0 && (
+                      <div className="w-full rounded-full h-2 mb-4" style={{ backgroundColor: '#374151' }}>
+                        <div
+                          className="h-2 rounded-full transition-all"
+                          style={{ width: `${itemProgress}%`, background: 'linear-gradient(to right, #C9A227, #E8D48B)' }}
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      className="w-full py-2 rounded-lg font-semibold text-[#0D1B2A] transition-all"
+                      style={{ background: 'linear-gradient(to right, #C9A227, #E8D48B)' }}
+                    >
+                      {itemProgress === 0 ? 'Start Learning' : completed ? 'Review' : 'Continue'}
+                    </button>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'Tools' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {tools.map((tool, i) => (
+            <Card key={i} className="p-6 cursor-pointer hover:border-[#C9A227]/40">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: 'rgba(201, 162, 39, 0.2)' }}
+              >
+                <tool.icon className="w-6 h-6 text-[#C9A227]" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-1">{tool.title}</h3>
+              <p className="text-sm text-gray-400">{tool.desc}</p>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'Progress' && (
+        <Card className="p-6">
+          <div className="text-center py-8">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: 'rgba(201, 162, 39, 0.2)' }}
+            >
+              <span className="text-2xl font-bold text-[#C9A227]">{completedContent}</span>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              {completedContent === 0 ? 'Get Started' : `Level ${Math.floor(completedContent / 3) + 1} Investor`}
+            </h3>
+            <p className="text-gray-400 mb-6">
+              {completedContent === 0
+                ? 'Start learning to track your progress'
+                : `You've completed ${completedContent} courses and earned ${completedContent * 50} XP`
+              }
+            </p>
+            <div className="w-full max-w-md mx-auto rounded-full h-3" style={{ backgroundColor: '#374151' }}>
+              <div
+                className="h-3 rounded-full transition-all"
+                style={{ width: `${overallProgress}%`, background: 'linear-gradient(to right, #C9A227, #E8D48B)' }}
+              />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">{overallProgress}% complete</p>
+
+            {/* Learning Paths */}
+            {learningPaths.length > 0 && (
+              <div className="mt-8 text-left">
+                <h4 className="text-lg font-semibold text-white mb-4">Learning Paths</h4>
+                <div className="space-y-3">
+                  {learningPaths.map((path) => (
+                    <div
+                      key={path.id}
+                      className="p-4 rounded-xl cursor-pointer transition-all hover:border-[#C9A227]/40"
+                      style={{ backgroundColor: '#1a2535', border: '1px solid rgba(201, 162, 39, 0.1)' }}
+                    >
+                      <h5 className="font-medium text-white mb-1">{path.title}</h5>
+                      {path.description && (
+                        <p className="text-sm text-gray-400">{path.description}</p>
+                      )}
+                      <p className="text-xs text-[#C9A227] mt-2">{path.items.length} items in path</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
-
-          {/* Trading Permissions */}
-          <div className="bg-gradient-to-br from-green-900 to-green-800 rounded-xl p-4">
-            <h3 className="text-lg font-semibold text-white mb-3">🔓 Trading Permissions</h3>
-            <p className="text-sm text-gray-200 mb-4">
-              Complete educational content to unlock trading permissions
-            </p>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-white text-sm font-medium">Granted:</span>
-                <span className="text-green-300 text-lg font-bold">{grantedPermissions}/{permissions.length}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Study Tips */}
-          <div className="bg-gray-900 rounded-xl p-4">
-            <h3 className="text-lg font-semibold text-white mb-3">💡 Study Tips</h3>
-            <div className="space-y-2 text-sm text-gray-300">
-              <div className="flex items-start space-x-2">
-                <span>📌</span>
-                <p>Set aside time daily for learning</p>
-              </div>
-              <div className="flex items-start space-x-2">
-                <span>📌</span>
-                <p>Practice with paper trading after lessons</p>
-              </div>
-              <div className="flex items-start space-x-2">
-                <span>📌</span>
-                <p>Complete quizzes to test knowledge</p>
-              </div>
-              <div className="flex items-start space-x-2">
-                <span>📌</span>
-                <p>Track progress through learning paths</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </Card>
+      )}
     </div>
   );
 };

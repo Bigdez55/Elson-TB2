@@ -25,6 +25,7 @@ import SettingsPage from './pages/SettingsPage';
 import FamilyAccountsPage from './pages/FamilyAccountsPage';
 import DiscoverPage from './pages/DiscoverPage';
 import LearnPage from './pages/LearnPage';
+import ElsonAIPage from './pages/ElsonAIPage';
 import WealthPage from './pages/WealthPage';
 import CryptoPage from './pages/CryptoPage';
 import TransfersPage from './pages/TransfersPage';
@@ -104,6 +105,7 @@ function App() {
           }>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="ai" element={<ElsonAIPage />} />
             <Route path="portfolio" element={<PortfolioPage />} />
             <Route path="family" element={<FamilyAccountsPage />} />
 

@@ -460,10 +460,13 @@ Update `GCP_AGENT/TRAINING_LOG.md` with:
 
 ### Step 11: Update Training Log (REQUIRED)
 
-> **⚠️ DATE ACCURACY IS CRITICAL:**
-> - Use the ACTUAL date training was RUN, not the date you are logging
-> - Check training start timestamp in the logs
-> - If unsure, ASK the user to confirm the date before logging
+> **⚠️ CRITICAL: NEVER OVERWRITE PREVIOUS ENTRIES**
+>
+> Each training session deserves its own permanent log entry. Even if a session was
+> incomplete, failed, or just preparation/setup work, it MUST be preserved as a
+> separate entry. Always ADD a new session entry (with a new session number) rather
+> than editing or replacing an existing one. This preserves the complete history
+> of all training work for future reference.
 
 ```bash
 # On local machine or via commit
@@ -525,11 +528,12 @@ git push origin main
 │  3. ✓ Record all loss values and timing                     │
 │  4. ✓ Document difficulties encountered                     │
 │  5. ✓ Note areas for improvement                            │
-│  6. ✓ Update TRAINING_LOG.md                                │
+│  6. ✓ Update TRAINING_LOG.md (ADD new entry, NEVER edit)    │
 │  7. ✓ Commit and push training log                          │
 │  8. ✓ THEN stop the VM                                      │
 │                                                             │
 │  ⚠️  DO NOT STOP VM UNTIL PROTOCOL IS COMPLETE ⚠️            │
+│  ⚠️  NEVER OVERWRITE OR EDIT PREVIOUS LOG ENTRIES ⚠️         │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
