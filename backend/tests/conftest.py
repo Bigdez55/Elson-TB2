@@ -17,7 +17,7 @@ from app.core.security import create_access_token, get_password_hash
 from app.db.base import Base, get_db
 from app.main import app
 from app.models.user import User
-from app.models.portfolio import Portfolio
+from app.models.portfolio import Portfolio, PortfolioType
 
 
 # Test settings
@@ -168,11 +168,12 @@ def test_portfolio(db_session, test_user) -> Dict[str, Any]:
     """Create a test portfolio for the test user."""
     portfolio = Portfolio(
         user_id=test_user["id"],
+        owner_id=test_user["id"],
         name="Test Portfolio",
         description="A test portfolio",
         cash_balance=Decimal("100000.00"),
         total_value=Decimal("100000.00"),
-        is_paper=True,
+        portfolio_type=PortfolioType.PAPER,
     )
     db_session.add(portfolio)
     db_session.commit()
@@ -231,11 +232,12 @@ def minor_portfolio(db_session, test_minor) -> Dict[str, Any]:
     """Create a portfolio for the minor user."""
     portfolio = Portfolio(
         user_id=test_minor["id"],
+        owner_id=test_minor["id"],
         name="Minor Portfolio",
         description="Portfolio for minor user",
         cash_balance=Decimal("10000.00"),
         total_value=Decimal("10000.00"),
-        is_paper=True,
+        portfolio_type=PortfolioType.PAPER,
     )
     db_session.add(portfolio)
     db_session.commit()
