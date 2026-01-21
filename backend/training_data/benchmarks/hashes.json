@@ -1,0 +1,20 @@
+{
+  "core": {
+    "file": "core_2480.jsonl",
+    "count": 2480,
+    "hash": "2c250fbf535e1b39d0cdd7d21b68a969043ba6fadb59ec7aee2e0ba1169a1d78",
+    "timestamp": "2026-01-21T13:03:51.709236"
+  },
+  "adversarial": {
+    "file": "adversarial_1240.jsonl",
+    "count": 1240,
+    "hash": "e48f5d9baf7f74ea2e742bae7876eb123d1d267414f5425a1b2781762ca8f52f",
+    "timestamp": "2026-01-21T13:03:51.744016"
+  },
+  "sealed": {
+    "file": "sealed_620.jsonl",
+    "count": 620,
+    "hash": "5dbb92d681140d7ecb88ba0349d7822c078a08bc030cab185e77e28d8edbaa2d",
+    "timestamp": "2026-01-21T13:03:51.760422"
+  }
+}

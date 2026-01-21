@@ -1,0 +1,452 @@
+{
+  "version": "1.0.0",
+  "total_domains": 62,
+  "critical_domains": [
+    "federal_income_tax",
+    "securities_regulation",
+    "aml_kyc",
+    "compliance",
+    "estate_planning",
+    "derivatives",
+    "fixed_income",
+    "risk_management",
+    "insurance",
+    "market_microstructure"
+  ],
+  "domains": [
+    {
+      "id": "federal_income_tax",
+      "name": "Federal Income Tax",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "IRS compliance, tax planning, deductions, credits, filing requirements"
+    },
+    {
+      "id": "securities_regulation",
+      "name": "Securities Regulation",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "SEC rules, investment advisor regulations, disclosure requirements"
+    },
+    {
+      "id": "aml_kyc",
+      "name": "AML/KYC",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Anti-money laundering, know your customer, suspicious activity reporting"
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Fiduciary duty, regulatory compliance, disclosure obligations"
+    },
+    {
+      "id": "estate_planning",
+      "name": "Estate Planning",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Wills, trusts, estate taxes, inheritance, succession planning"
+    },
+    {
+      "id": "derivatives",
+      "name": "Derivatives",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Options, futures, swaps, hedging strategies, margin requirements"
+    },
+    {
+      "id": "fixed_income",
+      "name": "Fixed Income",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Bonds, yields, duration, credit spreads, interest rate risk"
+    },
+    {
+      "id": "risk_management",
+      "name": "Risk Management",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Portfolio risk, VaR, hedging, diversification, stress testing"
+    },
+    {
+      "id": "insurance",
+      "name": "Insurance",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Life, health, property insurance, policy analysis, coverage gaps"
+    },
+    {
+      "id": "market_microstructure",
+      "name": "Market Microstructure",
+      "category": "critical",
+      "risk_level": "high",
+      "description": "Order execution, bid-ask spreads, market making, best execution"
+    },
+    {
+      "id": "retirement_planning",
+      "name": "Retirement Planning",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "401k, IRA, pension, Social Security, retirement income strategies"
+    },
+    {
+      "id": "investment",
+      "name": "Investment",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Asset allocation, investment selection, performance evaluation"
+    },
+    {
+      "id": "portfolio_management",
+      "name": "Portfolio Management",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Portfolio construction, rebalancing, optimization, benchmarking"
+    },
+    {
+      "id": "tax_optimization",
+      "name": "Tax Optimization",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Tax-loss harvesting, asset location, tax-efficient investing"
+    },
+    {
+      "id": "wealth_management",
+      "name": "Wealth Management",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "High net worth planning, family office, generational wealth"
+    },
+    {
+      "id": "financial_planning",
+      "name": "Financial Planning",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Comprehensive financial plans, goal setting, cash flow analysis"
+    },
+    {
+      "id": "budgeting",
+      "name": "Budgeting",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Income allocation, expense tracking, budget creation"
+    },
+    {
+      "id": "savings",
+      "name": "Savings",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Savings strategies, emergency funds, savings accounts"
+    },
+    {
+      "id": "debt_management",
+      "name": "Debt Management",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Debt reduction, consolidation, refinancing, credit counseling"
+    },
+    {
+      "id": "credit",
+      "name": "Credit",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Credit scores, credit reports, credit improvement"
+    },
+    {
+      "id": "banking",
+      "name": "Banking",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Bank accounts, fees, services, banking products"
+    },
+    {
+      "id": "lending",
+      "name": "Lending",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Loan products, interest rates, lending criteria"
+    },
+    {
+      "id": "mortgages",
+      "name": "Mortgages",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Home loans, refinancing, mortgage types, qualification"
+    },
+    {
+      "id": "trust_administration",
+      "name": "Trust Administration",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Trust management, trustee duties, distributions"
+    },
+    {
+      "id": "charitable_giving",
+      "name": "Charitable Giving",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Donations, DAFs, charitable trusts, tax benefits"
+    },
+    {
+      "id": "education_planning",
+      "name": "Education Planning",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "529 plans, education savings, financial aid"
+    },
+    {
+      "id": "goal_planning",
+      "name": "Goal Planning",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Financial goals, milestones, planning timelines"
+    },
+    {
+      "id": "emergency_funds",
+      "name": "Emergency Funds",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Emergency savings, liquidity needs, fund sizing"
+    },
+    {
+      "id": "insurance_life",
+      "name": "Life Insurance",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Term life, whole life, coverage needs, beneficiaries"
+    },
+    {
+      "id": "insurance_health",
+      "name": "Health Insurance",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Health plans, coverage options, HSAs, FSAs"
+    },
+    {
+      "id": "insurance_property",
+      "name": "Property Insurance",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Homeowners, renters, auto insurance, liability"
+    },
+    {
+      "id": "annuities",
+      "name": "Annuities",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Fixed, variable, immediate annuities, income planning"
+    },
+    {
+      "id": "social_security",
+      "name": "Social Security",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Benefits, claiming strategies, spousal benefits"
+    },
+    {
+      "id": "medicare",
+      "name": "Medicare",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Medicare parts, enrollment, supplement plans"
+    },
+    {
+      "id": "trading",
+      "name": "Trading",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Trade execution, order types, trading strategies"
+    },
+    {
+      "id": "market_analysis",
+      "name": "Market Analysis",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Technical analysis, fundamental analysis, market trends"
+    },
+    {
+      "id": "commodities",
+      "name": "Commodities",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Commodity trading, futures, physical commodities"
+    },
+    {
+      "id": "real_estate",
+      "name": "Real Estate",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Real estate investing, REITs, property management"
+    },
+    {
+      "id": "alternative_investments",
+      "name": "Alternative Investments",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Alts, hedge funds, private equity, collectibles"
+    },
+    {
+      "id": "private_equity",
+      "name": "Private Equity",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "PE funds, LBOs, growth equity, fund structures"
+    },
+    {
+      "id": "venture_capital",
+      "name": "Venture Capital",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "VC investing, startup funding, fund terms"
+    },
+    {
+      "id": "hedge_funds",
+      "name": "Hedge Funds",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Hedge fund strategies, fees, due diligence"
+    },
+    {
+      "id": "structured_products",
+      "name": "Structured Products",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Structured notes, CDOs, CLOs, complexity risks"
+    },
+    {
+      "id": "forex",
+      "name": "Foreign Exchange",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Currency trading, FX risk, hedging currency exposure"
+    },
+    {
+      "id": "cryptocurrency",
+      "name": "Cryptocurrency",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Digital assets, blockchain, crypto taxation"
+    },
+    {
+      "id": "behavioral_finance",
+      "name": "Behavioral Finance",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Investor psychology, biases, decision making"
+    },
+    {
+      "id": "quantitative_finance",
+      "name": "Quantitative Finance",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Quant strategies, algorithmic trading, models"
+    },
+    {
+      "id": "financial_modeling",
+      "name": "Financial Modeling",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "DCF, LBO models, scenario analysis, forecasting"
+    },
+    {
+      "id": "valuation",
+      "name": "Valuation",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Company valuation, multiples, intrinsic value"
+    },
+    {
+      "id": "mergers_acquisitions",
+      "name": "Mergers & Acquisitions",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "M&A transactions, deal structures, due diligence"
+    },
+    {
+      "id": "corporate_finance",
+      "name": "Corporate Finance",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Capital structure, financing decisions, corporate treasury"
+    },
+    {
+      "id": "treasury_management",
+      "name": "Treasury Management",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Cash management, liquidity, working capital"
+    },
+    {
+      "id": "cash_management",
+      "name": "Cash Management",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Cash flow management, sweep accounts, concentration"
+    },
+    {
+      "id": "working_capital",
+      "name": "Working Capital",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "AR, AP, inventory management, working capital cycle"
+    },
+    {
+      "id": "capital_markets",
+      "name": "Capital Markets",
+      "category": "standard",
+      "risk_level": "high",
+      "description": "Equity markets, debt markets, IPOs, offerings"
+    },
+    {
+      "id": "equity_research",
+      "name": "Equity Research",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Stock analysis, research reports, recommendations"
+    },
+    {
+      "id": "credit_analysis",
+      "name": "Credit Analysis",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Credit risk, ratings, covenant analysis"
+    },
+    {
+      "id": "economic_analysis",
+      "name": "Economic Analysis",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Macroeconomics, economic indicators, forecasting"
+    },
+    {
+      "id": "monetary_policy",
+      "name": "Monetary Policy",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Central banks, interest rates, QE, policy impact"
+    },
+    {
+      "id": "fiscal_policy",
+      "name": "Fiscal Policy",
+      "category": "standard",
+      "risk_level": "low",
+      "description": "Government spending, taxation policy, deficits"
+    },
+    {
+      "id": "international_finance",
+      "name": "International Finance",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Global markets, cross-border investing, country risk"
+    },
+    {
+      "id": "financial_technology",
+      "name": "Financial Technology",
+      "category": "standard",
+      "risk_level": "medium",
+      "description": "Fintech, robo-advisors, digital banking, payments"
+    }
+  ]
+}
