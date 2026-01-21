@@ -24,7 +24,7 @@ pyyaml>=6.0
 # Authentication and Security
 PyJWT>=2.8.0
 passlib[bcrypt]>=1.7.4
-bcrypt>=4.0.0,<4.1.0  # Pin to 4.0.x for passlib compatibility
+bcrypt==4.2.1  # bcrypt 4.2.x has better passlib compatibility
 webauthn>=2.5.1
 pyotp>=2.9.0
 cbor2>=5.8.0
