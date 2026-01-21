@@ -82,7 +82,7 @@ stripe>=7.0.0
 pillow>=11.3.0
 aiohttp>=3.13.3  # Fix 8 CVEs (CVE-2025-69223 through CVE-2025-69230)
 werkzeug>=3.1.5  # Fix CVE-2025-66221, CVE-2026-21860
-filelock>=3.20.3  # Fix CVE-2025-68146, CVE-2026-22701
+filelock>=3.20.3  # Fix CVE-2026-22701
 cbor2>=5.8.0  # Fix CVE-2025-68131
 pyasn1>=0.6.2  # Fix CVE-2026-23490
 
