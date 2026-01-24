@@ -9,6 +9,7 @@ import { TradingModeBanner } from './components/trading/TradingModeIndicator';
 import { TradingModeRedirect, TradingRouteGuard } from './components/routing/TradingModeRedirect';
 import { TradingModeSync } from './components/routing/TradingModeSync';
 import Layout from './components/Layout';
+import { MobileLayout } from './components/elson-v2/layout/MobileLayout';
 import { LiveDataProvider } from './components/layout/LiveDataProvider';
 import PerformanceDashboard from './components/monitoring/PerformanceDashboard';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
@@ -95,43 +96,58 @@ function App() {
             isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
           } />
           
-          {/* Protected routes */}
+          {/* Protected routes - New Mobile-First UI */}
           <Route path="/" element={
+            isAuthenticated ? (
+              <LiveDataProvider autoConnect={true} showConnectionBanner={true}>
+                <MobileLayout />
+              </LiveDataProvider>
+            ) : <Navigate to="/home" replace />
+          } />
+
+          {/* Legacy routes - redirect to new UI */}
+          <Route path="/dashboard" element={
+            isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/home" replace />
+          } />
+          <Route path="/ai" element={
+            isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/home" replace />
+          } />
+          <Route path="/portfolio" element={
+            isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/home" replace />
+          } />
+          <Route path="/settings" element={
+            isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/home" replace />
+          } />
+          <Route path="/settings/*" element={
+            isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/home" replace />
+          } />
+
+          {/* Desktop Layout routes (optional - can be enabled for desktop users) */}
+          <Route path="/desktop" element={
             isAuthenticated ? (
               <LiveDataProvider autoConnect={true} showConnectionBanner={true}>
                 <Layout />
               </LiveDataProvider>
             ) : <Navigate to="/home" replace />
           }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route index element={<Navigate to="/desktop/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="ai" element={<ElsonAIPage />} />
             <Route path="portfolio" element={<PortfolioPage />} />
             <Route path="family" element={<FamilyAccountsPage />} />
-
-            {/* Learning & Discovery */}
             <Route path="discover" element={<DiscoverPage />} />
             <Route path="learn" element={<LearnPage />} />
-
-            {/* Wealth & Savings */}
             <Route path="wealth" element={<WealthPage />} />
             <Route path="savings" element={<SavingsPage />} />
             <Route path="card" element={<CardPage />} />
             <Route path="insurance" element={<InsurancePage />} />
             <Route path="retirement" element={<RetirementPage />} />
-
-            {/* Crypto */}
             <Route path="crypto" element={<CryptoPage />} />
-
-            {/* Account Management */}
             <Route path="transfers" element={<TransfersPage />} />
             <Route path="statements" element={<StatementsPage />} />
-
-            {/* Other */}
-            <Route path="upgrade" element={<Navigate to="/pricing?plan=premium" replace />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="settings/*" element={<SettingsPage />} />
-            
+
             {/* Paper Trading Routes */}
             <Route path="paper">
               <Route path="trading" element={
@@ -155,7 +171,7 @@ function App() {
                 </TradingRouteGuard>
               } />
             </Route>
-            
+
             {/* Live Trading Routes */}
             <Route path="live">
               <Route path="trading" element={
@@ -179,11 +195,11 @@ function App() {
                 </TradingRouteGuard>
               } />
             </Route>
-            
+
             {/* Legacy route redirects */}
-            <Route path="trading" element={<TradingModeRedirect basePath="/trading" />} />
-            <Route path="trading/:symbol" element={<TradingModeRedirect basePath="/trading/:symbol" />} />
-            <Route path="advanced-trading" element={<TradingModeRedirect basePath="/advanced-trading" />} />
+            <Route path="trading" element={<TradingModeRedirect basePath="/desktop/trading" />} />
+            <Route path="trading/:symbol" element={<TradingModeRedirect basePath="/desktop/trading/:symbol" />} />
+            <Route path="advanced-trading" element={<TradingModeRedirect basePath="/desktop/advanced-trading" />} />
           </Route>
           
           {/* Catch all route */}

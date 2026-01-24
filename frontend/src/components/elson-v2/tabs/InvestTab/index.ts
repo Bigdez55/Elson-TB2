@@ -1,0 +1,1 @@
+export { InvestTab } from './InvestTab';

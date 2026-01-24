@@ -1,0 +1,1 @@
+export { WealthTab } from './WealthTab';

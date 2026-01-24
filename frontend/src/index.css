@@ -163,6 +163,66 @@
     --color-nav-bg: rgba(10, 22, 40, 0.95);
     --color-nav-border: rgba(38, 208, 206, 0.15);
   }
+
+  /* ==========================================
+     ELSON DARK THEME (Mobile-First Design)
+     ========================================== */
+  [data-theme="elson-dark"] {
+    /* Primary Colors (Gold) */
+    --color-primary: #d4a84b;
+    --color-primary-light: #f0d78c;
+    --color-primary-dark: #b8860b;
+    --color-primary-rgb: 212, 168, 75;
+
+    /* Background Colors */
+    --color-bg-base: #0a0e17;
+    --color-bg-elevated: #0d1421;
+    --color-bg-surface: #111927;
+    --color-inner: #1a2332;
+
+    /* Gradient Stops */
+    --gradient-start: #0a0e17;
+    --gradient-mid: #0d1421;
+    --gradient-end: #111927;
+
+    /* Card Colors */
+    --color-card-bg: #0d1421;
+    --color-card-border: #1e293b;
+    --color-card-border-hover: rgba(212, 168, 75, 0.4);
+
+    /* Text Colors */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #d1d5db;
+    --color-text-muted: #9ca3af;
+    --color-text-accent: #d4a84b;
+
+    /* Button Colors */
+    --color-btn-primary-bg: linear-gradient(135deg, #d4a84b 0%, #f0d78c 100%);
+    --color-btn-primary-text: #0a0e17;
+    --color-btn-hover-shadow: rgba(212, 168, 75, 0.5);
+
+    /* Border Colors */
+    --color-border-subtle: #1e293b;
+    --color-border-medium: rgba(212, 168, 75, 0.2);
+
+    /* Navigation */
+    --color-nav-bg: rgba(10, 14, 23, 0.98);
+    --color-nav-border: rgba(212, 168, 75, 0.15);
+
+    /* Status Colors (override for better contrast) */
+    --color-profit: #10b981;
+    --color-loss: #ef4444;
+    --color-warning: #f59e0b;
+    --color-info: #3b82f6;
+
+    /* Additional Colors for UI components */
+    --color-green: #10b981;
+    --color-green-light: #34d399;
+    --color-red: #ef4444;
+    --color-yellow: #f59e0b;
+    --color-blue: #3b82f6;
+    --color-purple: #8b5cf6;
+  }
 }
 
 /* ============================================

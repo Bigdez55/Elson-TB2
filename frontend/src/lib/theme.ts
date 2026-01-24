@@ -1,7 +1,7 @@
-export const THEMES = ['majestic-purple', 'legacy-gold', 'aqua-blue'] as const;
+export const THEMES = ['majestic-purple', 'legacy-gold', 'aqua-blue', 'elson-dark'] as const;
 export type ThemeName = typeof THEMES[number];
 
-export const DEFAULT_THEME: ThemeName = 'majestic-purple';
+export const DEFAULT_THEME: ThemeName = 'elson-dark';
 export const THEME_STORAGE_KEY = 'elson-theme';
 
 export interface ThemeConfig {
@@ -29,6 +29,12 @@ export const themeConfigs: Record<ThemeName, ThemeConfig> = {
     displayName: 'Aqua Blue',
     description: 'Fluid design evoking liquidity and flow',
     previewColors: ['#0a1628', '#1a2980', '#26d0ce'],
+  },
+  'elson-dark': {
+    name: 'elson-dark',
+    displayName: 'Elson Dark',
+    description: 'Mobile-first dark theme with gold accents',
+    previewColors: ['#0a0e17', '#d4a84b', '#f0d78c'],
   },
 };
 
